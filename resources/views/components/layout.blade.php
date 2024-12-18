@@ -11,9 +11,17 @@
 </head>
 <body class="bg-slate-100 text-slate-900">
     
-   <header class="bg-slate-800 shadow-lg">
+    <header class="bg-gradient-to-r  from-blue-50 via-blue-500 to-blue-900  shadow-lg">
     <nav>
-        <a href="{{ route('home')}}" class=" nav-link">Home</a>
+       <div class="p-0 m-0">
+           <a href="{{ route('home')}}" class=" nav-link m-0 p-0">
+            <img 
+            src="{{ asset('images/bcda-removebg-preview.png') }}" 
+            alt="Home" 
+            class="max-h-12 object-contain"
+        >
+           </a>
+        </div> 
 
         @auth
             <div class="relative grid place-items-center" x-data= "{ open:false}"">
@@ -40,12 +48,7 @@
             </div>
         @endauth
 
-        @guest
-            <div class="flex item-center gap-4">
-                <a href="{{ route('login')}}" class=" nav-link">Login</a>
-                <a href="{{ route('register')}}" class=" nav-link">Register</a>
-            </div> 
-        @endguest
+        
     </nav>
    </header>
 

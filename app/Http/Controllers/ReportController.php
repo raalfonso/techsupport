@@ -6,7 +6,8 @@ use App\Models\Report;
 use App\Models\Category;
 use App\Models\Department;
 use App\Models\Issues;
-
+use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class ReportController extends Controller
@@ -20,6 +21,7 @@ class ReportController extends Controller
         $categories = Category::orderBy('title', 'asc')->get();
         $departments = Department::orderBy('title', 'asc')->get();
         $issues = Issues::all();
+        $users = User::all();
         // $issues = Issues::orderBy('name','asc')->get();
         
 
@@ -28,6 +30,7 @@ class ReportController extends Controller
             'categories' => $categories,
             'departments'   => $departments,
             'issues'    => $issues,
+            'users' => $users,
         ]);
     }
 
@@ -67,9 +70,17 @@ class ReportController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Report $report)
+    public function edit(Request $request, $id)
     {
-        //
+ 
+        $report = Report::findOrFail($id);
+       
+        $report->user_id = $request->user_id;
+        $report->status = "Ongoing";
+        $report->response_datetime = Carbon::now();
+        $report->save();
+
+        return redirect()->route('report.index');
     }
 
     /**

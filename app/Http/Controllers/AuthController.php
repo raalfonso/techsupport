@@ -17,7 +17,7 @@ class AuthController extends Controller
         'level' => ['required'],
         
        ]);
-
+      
        //register
        $user = User::create($field);
        
@@ -30,10 +30,10 @@ class AuthController extends Controller
 
     public function login(Request $request) {
         //validate
+       
        $field = $request->validate([
         'email' => ['required', 'max:50', 'email'],
         'password' => ['required'],
-        'level' => ['required'],
        ]);
 
        //Try to login

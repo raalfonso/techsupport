@@ -27,7 +27,7 @@ Route::middleware('auth')->group(function() {
     Route::resource('report',ReportController::class);
 
 
-
+    Route::get('/report/edit/{id}', [ReportController::class, 'edit'])->name('report.edit');
 
 
 
