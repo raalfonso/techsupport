@@ -11,9 +11,11 @@ class AuthController extends Controller
     public function register(Request $request) {
        //validate
        $field = $request->validate([
-        'username' => ['required', 'max:50'],
+        'name' => ['required', 'max:150'],
         'email' => ['required', 'max:50', 'email','unique:users'],
         'password' => ['required', 'min:3','confirmed'],
+        'level' => ['required'],
+        
        ]);
 
        //register
@@ -27,7 +29,36 @@ class AuthController extends Controller
     }
 
     public function login(Request $request) {
-        
+        //validate
+       $field = $request->validate([
+        'email' => ['required', 'max:50', 'email'],
+        'password' => ['required'],
+        'level' => ['required'],
+       ]);
+
+       //Try to login
+
+       if(Auth::attempt($field, $request->remember)) {
+        return redirect()->intended('dashboard');
+       }
+       else{
+        return back()->withErrors([
+            'failed' => 'The provided credentials do not match our records'
+        ]);
+       }
+
+
+
+    }
+
+    public function logout(Request $request){
+        Auth::logout();
+
+        $request->session()->invalidate();
+
+        $request->session()->regenerateToken();
+
+        return redirect('/');
     }
 
 

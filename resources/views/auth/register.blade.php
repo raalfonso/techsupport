@@ -5,9 +5,9 @@
         <form action="{{ route('register')}}" method="post">
             @csrf
             <div class="mb-4">
-                <label for="username">Username</label>
-                <input type="text" name="username" class="input @error('username') ring-red-500 @enderror" value="{{ old('username')}}">
-                @error('username')
+                <label for="name">Name</label>
+                <input type="text" name="name" class="input @error('name') ring-red-500 @enderror" value="{{ old('name')}}">
+                @error('name')
                     <p class="error">{{ $message }}</p>
                 @enderror
             </div>
@@ -18,6 +18,28 @@
                 @error('email')
                     <p class="error">{{ $message }}</p>
                 @enderror
+            </div>
+
+            <div class="mb-4">
+                <label for="level">Level</label>
+                <input type="text" name="level" class="input" value="{{ old('level')}}">
+                @error('level')
+                    <p class="error">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <div class="mb-4">
+                <label for="team">Team</label>
+                <select name="team" id="team" class="input">
+                    <option value="">Select team</option>
+                    <option value="System">System</option>
+                    <option value="Network">Network</option>
+
+                    
+                </select>
+                @error('issues_id')
+                <p class="error">{{ $message }}</p>
+            @enderror
             </div>
 
             <div class="mb-4">
