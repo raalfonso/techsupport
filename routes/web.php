@@ -7,8 +7,10 @@ use App\Http\Controllers\IssuesController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\MainController;
 
-Route::view('/', 'home.index')->name('home');
+Route::get('/', [HomeController::class,'index'])->name('home');
 
 
 
@@ -25,6 +27,7 @@ Route::middleware('auth')->group(function() {
     Route::resource('department',DepartmentController::class);
 
     Route::resource('report',ReportController::class);
+    Route::resource('main',ReportController::class);
 
 
     Route::get('/report/edit/{id}', [ReportController::class, 'edit'])->name('report.edit');
@@ -42,7 +45,8 @@ Route::middleware('auth')->group(function() {
 
 Route::middleware('guest')->group(function () {
 
-    
+    Route::resource('report',ReportController::class);
+
     Route::view('/register', 'auth.register')->name('register');
     Route::post('/register', [AuthController::class, 'register']);
     
