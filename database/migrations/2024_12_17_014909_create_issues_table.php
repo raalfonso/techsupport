@@ -13,9 +13,11 @@ return new class extends Migration
     {
         Schema::create('issues', function (Blueprint $table) {
             $table->id();
-            $table->string('category_id');
+            $table->unsignedBigInteger('category_id');
             $table->string('title');
+            $table->unsignedBigInteger('mains_id');
             $table->timestamps();
+            
             
         });
     }

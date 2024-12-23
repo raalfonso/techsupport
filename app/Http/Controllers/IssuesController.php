@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Issues;
 use App\Models\Category;
+use App\Models\Main;
 use Illuminate\Http\Request;
 
 
@@ -16,10 +17,11 @@ class IssuesController extends Controller
     {
         $issues = Issues::orderBy('id','asc')->paginate(5);
         $categories = Category::all();
+        $mains = Main::all();
         // $issues = Issues::orderBy('name','asc')->get();
         
 
-        return view('issues.index',['issues' => $issues,'categories' => $categories]);
+        return view('issues.index',['issues' => $issues,'categories' => $categories,'mains' => $mains,]);
     }
 
     /**
@@ -38,6 +40,7 @@ class IssuesController extends Controller
         $fields = $request->validate([
             'title' => ['required', 'max:50'],
             'category_id' => ['required'], 
+            'mains_id'  => ['required'],
         ]);
 
         // create issues 

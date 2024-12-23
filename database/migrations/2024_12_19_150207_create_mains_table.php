@@ -15,17 +15,22 @@ return new class extends Migration
             $table->id();
             $table->string('title');
             $table->timestamps();
+
+            
         });
 
+       
         DB::table('mains')->insert([
             ['id' => 1, 'title' => 'Setup'],
-            ['id' => 2, 'title' => 'Accumatica'],
+            ['id' => 2, 'title' => 'Acumatica'],
             ['id' => 3, 'title' => 'Security'],
             ['id' => 4, 'title' => 'Printer'],
             ['id' => 5, 'title' => 'Repair'],
             ['id' => 6, 'title' => 'Others'],
             
         ]);
+
+
     }
 
     /**

@@ -9,4 +9,9 @@ class Main extends Model
 {
     /** @use HasFactory<\Database\Factories\MainFactory> */
     use HasFactory;
+
+    protected $fillable = [
+        'title',
+
+    ];
 }

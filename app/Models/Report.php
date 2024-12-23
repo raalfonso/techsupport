@@ -22,6 +22,7 @@ class Report extends Model
         'category_id',
         'ticket_number',
         'user_id',
+        'procedure',
         'location',
     ];
 
@@ -34,9 +35,7 @@ class Report extends Model
             $model->request_datetime = now(); // You can use `now()` or `Carbon::now()`
             $model->location = "-";
             $model->category_id = $model->issues->category_id;
-            if (!$model->ticket_number) {
-                $model->ticket_number = substr((string) Guid::uuid4(), 0, 10); // Add custom prefix + UUID
-            }
+            
             if (!$model->response_datetime) {
                 $model->response_datetime = null;
             }
@@ -54,9 +53,19 @@ class Report extends Model
                 $model->status = "Pending";
             }
         });
+
+        static::saved(function ($model) {
+            if ($model->ticket_number == null) {
+                $model->ticket_number = $model->department->acronym."-".date_format($model->request_datetime,'Y-m-d')."-".$model->id;
+                $model->save(); // Save again after modifying the ticket_number
+            }
+        });
     }
 
-
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
     public function issues()
     {
         return $this->belongsTo(Issues::class);

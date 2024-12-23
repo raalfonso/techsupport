@@ -10,10 +10,14 @@ return new class extends Migration
      * Run the migrations.
      */
     public function up(): void
-    { 
+    {
         Schema::table('issues', function (Blueprint $table) {
-            $table->integer('main')->default(0); // Add the 'main' column with a default value of 0
+            $table->foreign('mains_id') // Define the foreign key
+                  ->references('id') 
+                  ->on('mains')
+                  ->onDelete('cascade');
         });
+
     }
 
     /**
@@ -21,8 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('issues', function (Blueprint $table) {
-            $table->dropColumn('main'); // Remove the 'main' column
-        });
+        //
     }
 };

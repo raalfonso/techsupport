@@ -259,7 +259,7 @@
                                 <option value="{{ $user->id }}">{{ $user->name }}</option>
                             @endforeach
                         </select>
-                        @error('issues_id')
+                        @error('user_id')
                         <p class="error">{{ $message }}</p>
                         <script>
                             Swal.fire({
@@ -269,6 +269,20 @@
                                 });
                         </script>
                     @enderror
+                    </div>
+                    <div class="mb-4">
+                        <label for="procedure">Procedure</label>
+                        <input type="text" name="procedure" class="input @error('procedure') ring-red-500 @enderror" value="{{ old('procedure')}}">
+                        @error('procedure')
+                            <p class="error">{{ $message }}</p>
+                            <script>
+                                Swal.fire({
+                                    icon: "error",
+                                    title: "Oops...",
+                                    text: "{{ $message }}",
+                                    });
+                            </script>
+                        @enderror
                     </div>
 
 

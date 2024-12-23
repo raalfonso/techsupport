@@ -7,22 +7,27 @@
     <title>{{ env('APP_NAME')}}</title>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+
     @vite(['resources/js/app.js', 'resources/css/app.css'])
 </head>
 <body class="bg-slate-100 text-slate-900">
     
-    <header class="bg-gradient-to-r  from-blue-50 via-blue-500 to-blue-900  shadow-lg">
+    <header class="bg-slate-800 shadow-lg">
     <nav>
-       <div class="p-0 m-0">
-           <a href="{{ route('home')}}" class=" nav-link m-0 p-0">
+       {{-- <div class="p-0 m-0"> --}}
+        <a href="{{ route('home')}}" class=" nav-link">ICT Help Center</a>
+           {{-- <a href="{{ route('home')}}" class=" nav-link m-0 p-0">
             <img 
             src="{{ asset('images/bcda-removebg-preview.png') }}" 
             alt="Home" 
-            class="max-h-12 object-contain"
-        >
-           </a>
-        </div> 
-
+            class="max-h-12 object-contain">
+           </a> --}}
+       {{-- </div> --}}
+    
+          
         @auth
             <div class="relative grid place-items-center" x-data= "{ open:false}"">
                 {{-- drop down menu button  --}}
@@ -47,7 +52,10 @@
                 </div>
             </div>
         @endauth
-
+       
+        @guest
+        <a href="{{ route('track')}}" class="block text-white pl-4 pr-8 py-2 mb-1">Track your report</a>
+        @endguest
         
     </nav>
    </header>

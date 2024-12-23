@@ -14,12 +14,18 @@ class Issues extends Model
     protected $fillable = [
         'title',
         'category_id',
+        'mains_id',
 
     ];
 
     public function category()
     {
         return $this->belongsTo(Category::class);
+    }
+
+    public function mains()
+    {
+        return $this->belongsTo(Main::class);
     }
 
 

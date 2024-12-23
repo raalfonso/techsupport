@@ -10,7 +10,6 @@ use App\Http\Controllers\ReportController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\MainController;
 
-Route::get('/', [HomeController::class,'index'])->name('home');
 
 
 
@@ -26,13 +25,15 @@ Route::middleware('auth')->group(function() {
     
     Route::resource('department',DepartmentController::class);
 
-    Route::resource('report',ReportController::class);
+
+
     Route::resource('main',ReportController::class);
 
 
     Route::get('/report/edit/{id}', [ReportController::class, 'edit'])->name('report.edit');
+    Route::get('/report/resolve/{id}', [ReportController::class, 'resolve'])->name('report.resolve');
 
-
+    Route::resource('report',ReportController::class);
 
 
     Route::post('/logout',[AuthController::class, 'logout'])->name('logout');
@@ -44,14 +45,26 @@ Route::middleware('auth')->group(function() {
 
 
 Route::middleware('guest')->group(function () {
+    Route::get('/', [HomeController::class,'index'])->name('home');
+  
 
-    Route::resource('report',ReportController::class);
+   
+    // Route::get('/report/index', [reportController::class,'index'])->name('report.index');
 
     Route::view('/register', 'auth.register')->name('register');
     Route::post('/register', [AuthController::class, 'register']);
     
     
-    Route::view('/login', 'auth.login')->name('login');
+    
     Route::post('/login', [AuthController::class, 'login']);
+    Route::view('/login', 'auth.login')->name('login');
+    Route::view('/track', 'home.track')->name('track');
+    Route::get('/home.add/{id}', [HomeController::class, 'add'])->name('home.add');
+    Route::get('/home.view/{id}', [HomeController::class, 'view'])->name('home.view');
+    // Route::match(['get', 'post'], '/save-data', [HomeController::class, 'saveData'])->name('save.data');
+    Route::post('/save-data', [HomeController::class, 'saveData'])->name('home.data');
+    Route::post('/track-view', [HomeController::class, 'trackView'])->name('home.track-view');
+
+
 });
 

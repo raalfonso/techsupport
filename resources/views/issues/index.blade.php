@@ -7,6 +7,19 @@
 
             <form action="{{ route('issues.store') }}" method="post">
                 @csrf
+
+            <div class="mb-4">
+                <label for="mains_id">Primary</label>
+                <select name="mains_id" id="mains_id" class="input">
+                    <option value="">Choose Primary</option>
+                    @foreach($mains as $main)
+                        <option value="{{ $main->id }}">{{ $main->title }}</option>
+                    @endforeach
+                </select>
+                @error('mains_id')
+                <p class="error">{{ $message }}</p>
+            @enderror
+            </div>
             <div class="mb-4">
                 <label for="title">Title</label>
                 <input type="text" name="title" class="input @error('title') ring-red-500 @enderror" value="{{ old('title')}}">
@@ -28,6 +41,8 @@
             @enderror
             </div>
 
+            
+
             {{-- submit button --}}
             <button class="btn">Create</button>
                  
@@ -38,6 +53,7 @@
                         <tr class="bg-gray-200 text-left">
                             <th class="border border-gray-300 px-4 py-2">ID</th>
                             <th class="border border-gray-300 px-4 py-2">Title</th>
+                            <th class="border border-gray-300 px-4 py-2">Primary</th>
                             <th class="border border-gray-300 px-4 py-2">Category</th>
                             <th class="border border-gray-300 px-4 py-2">Actions</th>
                         </tr>
@@ -47,6 +63,7 @@
                             <tr class="hover:bg-gray-100">
                                 <td class="border border-gray-300 px-4 py-2">{{ $issue->id }}</td>
                                 <td class="border border-gray-300 px-4 py-2">{{ $issue->title }}</td>
+                                <td class="border border-gray-300 px-4 py-2">{{ $issue->mains->id }}</td>
                                 <td class="border border-gray-300 px-4 py-2">{{ $issue->category->title }}</td>
                                 <td class="border border-gray-300 px-4 py-2">
                                     <a href="{{ route('issues.edit', $issue->id) }}" class="text-blue-500 hover:underline">Edit</a>

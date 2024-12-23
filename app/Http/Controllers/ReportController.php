@@ -17,7 +17,9 @@ class ReportController extends Controller
      */
     public function index()
     {
-        $reports = Report::orderBy('id','asc')->paginate(5);
+        $reports = Report::whereIn('status', ['Pending', 'Ongoing'])
+        ->orderBy('id', 'asc')
+        ->paginate(5);
         $categories = Category::orderBy('title', 'asc')->get();
         $departments = Department::orderBy('title', 'asc')->get();
         $issues = Issues::all();
@@ -78,6 +80,21 @@ class ReportController extends Controller
         $report->user_id = $request->user_id;
         $report->status = "Ongoing";
         $report->response_datetime = Carbon::now();
+        $report->save();
+
+        return redirect()->route('report.index');
+    }
+
+    public function resolve(Request $request, $id)
+    {
+       
+ 
+        $report = Report::findOrFail($id);
+       
+        $report->user_id = $request->user_id;
+        $report->status = "Done";
+        $report->procedure = $request->procedure;
+        $report->resolve_datetime = Carbon::now();
         $report->save();
 
         return redirect()->route('report.index');

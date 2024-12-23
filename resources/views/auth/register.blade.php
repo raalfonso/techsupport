@@ -32,10 +32,9 @@
                 <label for="team">Team</label>
                 <select name="team" id="team" class="input">
                     <option value="">Select team</option>
-                    <option value="System">System</option>
-                    <option value="Network">Network</option>
-
-                    
+                    <option value="Systems">Systems</option>
+                    <option value="NIS">NIS</option>
+                    <option value="Admin">Admin</option>
                 </select>
                 @error('issues_id')
                 <p class="error">{{ $message }}</p>
