@@ -27,7 +27,7 @@
                             </ul>
                         </p>
                         
-                        <a href="{{ route('home.add',['id'=>'1'])}}" class="report-btn absolute bottom-2 max-h-max inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-slate-700 rounded-lg hover:bg-slate-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                        <a href="{{ route('home.add',['id'=>'1'])}}" class="report-btn absolute bottom-2 max-h-max inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-yellow-700 rounded-lg hover:bg-yellow-800 focus:ring-4 focus:outline-none focus:ring-yellow-300 dark:bg-yellow-600 dark:hover:bg-yellow-700 dark:focus:ring-yellow-800">
                             Report 
                             <i class="material-icons ml-16">report</i>
                         </a>
@@ -43,10 +43,10 @@
                             <li>Deletion</li>
                             <li>others</li>
                         </ul>
-                        <button  @click="showModal = true" class="absolute bottom-2 max-h-max inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-slate-700 rounded-lg hover:bg-slate-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                        <a href="{{ route('home.add',['id'=>'2'])}}" class="report-btn absolute bottom-2 max-h-max inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-yellow-700 rounded-lg hover:bg-yellow-800 focus:ring-4 focus:outline-none focus:ring-yellow-300 dark:bg-yellow-600 dark:hover:bg-yellow-700 dark:focus:ring-yellow-800">
                             Report 
                             <i class="material-icons ml-16">report</i>
-                        </button>
+                        </a>
                     </div>
                     <div class="relative max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 min-w-52">
                         <a href="#">
@@ -57,10 +57,10 @@
                             <li>Phishing Detection</li>
                             <li>others</li>
                         </ul>
-                        <button  @click="showModal = true" class="absolute bottom-2 max-h-max inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-slate-700 rounded-lg hover:bg-slate-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                        <a href="{{ route('home.add',['id'=>'3'])}}" class="report-btn absolute bottom-2 max-h-max inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-yellow-700 rounded-lg hover:bg-yellow-800 focus:ring-4 focus:outline-none focus:ring-yellow-300 dark:bg-yellow-600 dark:hover:bg-yellow-700 dark:focus:ring-yellow-800">
                             Report 
                             <i class="material-icons ml-16">report</i>
-                        </button>
+                        </a>
                     </div>
                 </div>
     
@@ -78,10 +78,10 @@
                             <li>Reboot</li>
                             <li>others</li>
                         </ul>
-                        <button  @click="showModal = true" class="absolute bottom-2 max-h-max inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-slate-700 rounded-lg hover:bg-slate-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                        <a href="{{ route('home.add',['id'=>'4'])}}" class="report-btn absolute bottom-2 max-h-max inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-yellow-700 rounded-lg hover:bg-yellow-800 focus:ring-4 focus:outline-none focus:ring-yellow-300 dark:bg-yellow-600 dark:hover:bg-yellow-700 dark:focus:ring-yellow-800">
                             Report 
                             <i class="material-icons ml-16">report</i>
-                        </button>
+                        </a>
                     </div>
                     <div class="relative max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 min-w-52">
                         <a href="#">
@@ -94,10 +94,10 @@
                             <li>Projector</li>
                             <li>others</li>
                         </ul>
-                        <button  @click="showModal = true" class="absolute bottom-2 max-h-max inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-slate-700 rounded-lg hover:bg-slate-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                        <a href="{{ route('home.add',['id'=>'5'])}}" class="report-btn absolute bottom-2 max-h-max inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-yellow-700 rounded-lg hover:bg-yellow-800 focus:ring-4 focus:outline-none focus:ring-yellow-300 dark:bg-yellow-600 dark:hover:bg-yellow-700 dark:focus:ring-yellow-800">
                             Report 
                             <i class="material-icons ml-16">report</i>
-                        </button>
+                        </a>
                     </div>
                     <div class="relative max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 min-w-52">
                         <a href="#">
@@ -110,10 +110,10 @@
                             <li>Projector</li>
                             <li>others</li>
                         </ul> --}}
-                        <button  @click="showModal = true" class="absolute bottom-2 max-h-max inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-slate-700 rounded-lg hover:bg-slate-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                        <a href="{{ route('home.add',['id'=>'6'])}}" class="report-btn absolute bottom-2 max-h-max inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-yellow-700 rounded-lg hover:bg-yellow-800 focus:ring-4 focus:outline-none focus:ring-yellow-300 dark:bg-yellow-600 dark:hover:bg-yellow-700 dark:focus:ring-yellow-800">
                             Report 
                             <i class="material-icons ml-16">report</i>
-                        </button>
+                        </a>
                     </div>
                 </div>
             </div>

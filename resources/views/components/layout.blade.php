@@ -15,7 +15,8 @@
 </head>
 <body class="bg-slate-100 text-slate-900">
     
-    <header class="bg-slate-800 shadow-lg">
+    {{-- <header class="bg-slate-800 shadow-lg"> --}}
+    <header class="bg-gradient-to-l from-yellow-950 to-yellow-900 shadow-lg">
     <nav>
        {{-- <div class="p-0 m-0"> --}}
         <a href="{{ route('home')}}" class=" nav-link">ICT Help Center</a>

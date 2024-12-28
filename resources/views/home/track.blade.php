@@ -71,7 +71,7 @@
                 @enderror
             </div>
             <button type="submit"
-                class="w-full bg-blue-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-600 focus:ring focus:ring-blue-300">
+                class="w-full bg-yellow-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-yellow-600 focus:ring focus:ring-yellow-300">
                 Track
             </button>
         </form>

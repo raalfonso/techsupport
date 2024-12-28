@@ -18,8 +18,8 @@ Route::middleware('auth')->group(function() {
     // Route::get('/issues', [IssuesController::class,'index'])->name('issues');
     Route::resource('issues',IssuesController::class);
 
-    Route::get('/dashboard', [DashboardController::class,'index'])
-    ->name('dashboard');
+    // Route::resource('dashboard', DashboardController::class);
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     
     Route::resource('category',CategoryController::class);
     
