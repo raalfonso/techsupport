@@ -20,6 +20,26 @@ class ReportController extends Controller
         $reports = Report::whereIn('status', ['Pending', 'Ongoing'])
         ->orderBy('id', 'asc')
         ->paginate(5);
+
+        $user_level = auth()->user()->level;
+        $user_team = auth()->user()->team;
+        $user_id = auth()->user()->id;
+
+        if ($user_level == 1) {
+            $resolved = Report::where('status', 'Done')
+            ->where('user_id', $user_id)
+            ->orderBy('id', 'asc')
+            ->paginate(5);
+        }
+        else {
+            $resolved = Report::where('status', 'Done')
+            ->orderBy('id', 'asc')
+            ->paginate(5);
+        }
+
+     
+
+
         $categories = Category::orderBy('title', 'asc')->get();
         $departments = Department::orderBy('title', 'asc')->get();
         $issues = Issues::all();
@@ -33,6 +53,7 @@ class ReportController extends Controller
             'departments'   => $departments,
             'issues'    => $issues,
             'users' => $users,
+            'resolved'  => $resolved,
         ]);
     }
 

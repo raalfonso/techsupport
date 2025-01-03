@@ -18,6 +18,13 @@ return new class extends Migration
                   ->onDelete('cascade');
         });
 
+        Schema::table('feedback', function (Blueprint $table) {
+            $table->foreign('report_id') // Define the foreign key
+                  ->references('id') 
+                  ->on('reports')
+                  ->onDelete('cascade');
+        });
+
     }
 
     /**

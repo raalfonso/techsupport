@@ -41,6 +41,19 @@
             @enderror
             </div>
 
+            <div class="mb-4">
+                <label for="category_id">Type</label>
+                <select name="category_id" id="category_id" class="input">
+                    <option value="">Choose type</option>
+                        <option value="Request">Request</option>
+                        <option value="Report">Report</option>
+                
+                </select>
+                @error('category_id')
+                <p class="error">{{ $message }}</p>
+            @enderror
+            </div>
+
             
 
             {{-- submit button --}}

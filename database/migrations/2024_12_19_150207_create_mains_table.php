@@ -21,8 +21,8 @@ return new class extends Migration
 
        
         DB::table('mains')->insert([
-            ['id' => 1, 'title' => 'Setup'],
-            ['id' => 2, 'title' => 'Acumatica'],
+            ['id' => 1, 'title' => 'helpdesk Support'],
+            ['id' => 2, 'title' => 'System Account'],
             ['id' => 3, 'title' => 'Security'],
             ['id' => 4, 'title' => 'Printer'],
             ['id' => 5, 'title' => 'Repair'],

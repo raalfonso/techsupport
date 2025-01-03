@@ -11,7 +11,7 @@ class DashboardController extends Controller
     public function index() {
 
         $reports_total = Report::count();
-        $reports_today = Report::whereDate('created_at', now()->toDateString())->count();
+        $report_resolved = Report::where('status', 'done')->count();
         $reports_pending = Report::where('status', 'Pending')->count();
         $reports_ongoing = Report::where('status', 'Ongoing')->count();
 
@@ -36,9 +36,12 @@ class DashboardController extends Controller
         $labels = array_keys($formattedResults->toArray());
         $values = array_values($formattedResults->toArray());
 
+        // print_r($results);
+
+        // exit;
         return view('dashboard.index', [
             'reports_total' => $reports_total,
-            'reports_today' => $reports_today,
+            'report_resolved' => $report_resolved,
             'reports_pending' => $reports_pending,
             'reports_ongoing' => $reports_ongoing,
             'labels' => $labels,

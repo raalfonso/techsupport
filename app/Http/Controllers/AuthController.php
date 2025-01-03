@@ -15,6 +15,7 @@ class AuthController extends Controller
         'email' => ['required', 'max:50', 'email','unique:users'],
         'password' => ['required', 'min:3','confirmed'],
         'level' => ['required'],
+        'team'  => ['required'],
         
        ]);
       

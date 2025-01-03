@@ -30,27 +30,30 @@
     
           
         @auth
-            <div class="relative grid place-items-center" x-data= "{ open:false}"">
+            {{-- <div class="relative grid place-items-center" x-data= "{ open:false}"">
                 {{-- drop down menu button  --}}
-                <button @click="open = !open" class="round-btn">
+                {{-- <button @click="open = !open" class="round-btn">
                     <img src="https://picsum.photos/200" alt="">
-                </button>
+                </button> --}} 
 
                 {{-- dropdown menu  --}}
-                <div x-show="open" @click.outside ="open=false" class="bg-white shadow-lg absolute top-10 right-0  rounded-lg overflow-hidden font-light">
-                    <p class="username">{{ auth()->user()->name }}</p>
-                    <a href="{{ route('dashboard')}}" class="block hover:bg-slate-100 pl-4 pr-8 py-2 mb-1">Dashboard</a>
-                    <a href="{{ route('report.index')}}" class="block hover:bg-slate-100 pl-4 pr-8 py-2 mb-1">Report</a>
-                    <a href="{{ route('issues.index')}}" class="block hover:bg-slate-100 pl-4 pr-8 py-2 mb-1">Issues</a>
-                    <a href="{{ route('category.index')}}" class="block hover:bg-slate-100 pl-4 pr-8 py-2 mb-1">Category</a>
-                    <a href="{{ route('department.index')}}" class="block hover:bg-slate-100 pl-4 pr-8 py-2 mb-1">Department</a>
-                    <form action="{{ route('logout')}}" method="post">
-                        @csrf
-                        <button class="block hover:bg-slate-100 pl-4 pr-8 py-2 mb-1">Logout</button>
-                    </form>
+                {{-- <div x-show="open" @click.outside ="open=false" class="bg-white shadow-lg absolute top-10 right-0  rounded-lg overflow-hidden font-light"> --}}
+                    {{-- <p class="username">{{ auth()->user()->name }}</p> --}}
+                    <div class="flex">
+                        <a href="{{ route('dashboard')}}" class="nav-link block text-white pl-4 pr-2 py-2 mb-1">Dashboard</a>
+                        <a href="{{ route('report.index')}}" class="nav-link block text-white pl-4 pr-2 py-2 mb-1">Report</a>
+                        <a href="{{ route('issues.index')}}" class="nav-link block text-white pl-4 pr-2 py-2 mb-1">Issues</a>
+                        <a href="{{ route('category.index')}}" class="nav-link block text-white pl-4 pr-2 py-2 mb-1">Category</a>
+                        <a href="{{ route('department.index')}}" class="nav-link block text-white pl-4 pr-2 py-2 mb-1">Department</a>
+                        <form action="{{ route('logout')}}" method="post">
+                            @csrf
+                            <button class="nav-link block text-white pl-4 pr-2 py-2 mb-1">Logout</button>
+                        </form>
+                    </div>
+                   
 
 
-                </div>
+                {{-- </div> --}}
             </div>
         @endauth
        
@@ -61,7 +64,7 @@
     </nav>
    </header>
 
-   <main class="py-8 px-4 mx-auto max-w-screen-lg">
+   <main class="py-8 px-0 mx-auto max-w-screen-lg">
      {{ $slot }}
    </main>
 

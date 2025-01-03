@@ -41,6 +41,7 @@ class IssuesController extends Controller
             'title' => ['required', 'max:50'],
             'category_id' => ['required'], 
             'mains_id'  => ['required'],
+            'type'  => ['required'],
         ]);
 
         // create issues 

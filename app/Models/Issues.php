@@ -15,6 +15,7 @@ class Issues extends Model
         'title',
         'category_id',
         'mains_id',
+        'type',
 
     ];
 

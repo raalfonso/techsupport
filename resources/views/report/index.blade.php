@@ -1,10 +1,7 @@
 <x-layout>
     <div class="container mx-auto w-full  p-4">
-        <div class="max-w-fit card w-fit" 
-        {{-- x-data="{ showModal: false,resolveModal:false, responseModal:false,  selectedId: null, }"> --}}
-        x-data="{ showModal: false, resolveModal: false, responseModal: false, selectedId: null }">
-
-            <h1 class="title">Reports</h1>
+        <div class="max-w-fit card" x-data="{ showModal: false, resolveModal: false, responseModal: false, selectedId: null }">
+            <h1 class="title">List of Requested / Reported issues</h1>
             <button @click="showModal = true" class="btn w-32">
                 New Report
             </button>
@@ -84,22 +81,22 @@
                                      
                     </div>
                 </div>
-                <div class="block w- mt-4" style="zoom: 68%">
-                <table class="items-center text-center bg-transparent w-full border-collapse ">
+                <div class="block mt-4 overflow-scroll">
+                <table class="items-center text-left text-xs bg-transparent w-full border-collapse ">
                     <thead>
                         <tr class="bg-gray-200 text-left">
-                            <th class="border border-gray-300 px-4 py-2">#</th>
-                            <th class="border border-gray-300 px-4 py-2">Ticket Number</th>
-                            <th class="border border-gray-300 px-4 py-2">Requestor Name</th>
-                            <th class="border border-gray-300 px-4 py-2">Department</th>
-                            <th class="border border-gray-300 px-4 py-2">Category</th>
-                            <th class="border border-gray-300 px-4 py-2">Issue</th>
-                            <th class="border border-gray-300 px-4 py-2">Status</th>
-                            <th class="border border-gray-300 px-4 py-2">Waiting time</th>
-                            <th class="border border-gray-300 px-4 py-2">Processing time</th>
-                            <th class="border border-gray-300 px-4 py-2">Request Date Time</th>
-                            <th class="border border-gray-300 px-4 py-2">Remarks</th>
-                            <th class="border border-gray-300 px-4 py-2">Actions</th>
+                            <th class="border border-gray-300 px-2 py-2">#</th>
+                            <th class="border border-gray-300 px-2 py-2">Ticket Number</th>
+                            <th class="border border-gray-300 px-2 py-2">Requestor Name</th>
+                            <th class="border border-gray-300 px-2 py-2">Department</th>
+                            <th class="border border-gray-300 px-2 py-2">Category</th>
+                            <th class="border border-gray-300 px-2 py-2">Issue</th>
+                            <th class="border border-gray-300 px-2 py-2">Status</th>
+                            <th class="border border-gray-300 px-2 py-2">Waiting time</th>
+                            <th class="border border-gray-300 px-2 py-2">Processing time</th>
+                            <th class="border border-gray-300 px-2 py-2">Request Date Time</th>
+                            <th class="border border-gray-300 px-2 py-2">Remarks</th>
+                            <th class="border border-gray-300 px-2 py-2">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -113,13 +110,13 @@
 
                             <tr class="hover:bg-gray-100">
                                 
-                                <td class="border border-gray-300 px-4 py-2">{{ $count++ }}</td>
-                                <td class="border border-gray-300 px-4 py-2 whitespace-nowrap">{{ $report->ticket_number }}</td>
-                                <td class="border border-gray-300 px-4 py-2">{{ $report->requestor_name }}</td>
-                                <td class="border border-gray-300 px-4 py-2 ">{{ $report->department->title }}</td>
-                                <td class="border border-gray-300 px-4 py-2">{{ $report->category->title }}</td>
-                                <td class="border border-gray-300 px-4 py-2 whitespace-nowrap">{{ $report->issues->title }}</td>
-                                <td class="border border-gray-300 px-4 py-2">{{ $report->status }}</td>
+                                <td class="border border-gray-300 px-2 py-2">{{ $count++ }}</td>
+                                <td class="border border-gray-300 px-2 py-2 whitespace-nowrap">{{ $report->ticket_number }}</td>
+                                <td class="border border-gray-300 px-2 py-2">{{ $report->requestor_name }}</td>
+                                <td class="border border-gray-300 px-2 py-2 ">{{ $report->department->title }}</td>
+                                <td class="border border-gray-300 px-2 py-2">{{ $report->category->title }}</td>
+                                <td class="border border-gray-300 px-2 py-2 whitespace-nowrap">{{ $report->issues->title }}</td>
+                                <td class="border border-gray-300 px-2 py-2">{{ $report->status }}</td>
                                 @if ($report->status == 'Pending')
                                     <td class="border border-gray-300 px-4 py-2">
                                         @php
@@ -135,7 +132,7 @@
                                     </td>
                                 
                                 @elseif ($report->status == 'Ongoing')
-                                    <td class="border border-gray-300 px-4 py-2">
+                                    <td class="border border-gray-300 px-2 py-2">
                                         @php
                                             $diffInMinutes = \Carbon\Carbon::parse($report->request_datetime)->diffInMinutes(\Carbon\Carbon::parse($report->response_datetime));
                                         @endphp
@@ -150,7 +147,7 @@
                                 
                                     
                                 @endif
-                                    <td class="border border-gray-300 px-4 py-2">
+                                    <td class="border border-gray-300 px-2 py-2">
                                         @php
                                             $diffInMinutes = \Carbon\Carbon::parse($report->response_datetime)->diffInMinutes(\Carbon\Carbon::now());
                                         @endphp
@@ -166,18 +163,18 @@
                                     
         
                                 
-                                <td class="border border-gray-300 px-4 py-2 whitespace-nowrap">{{ date('F d, Y h:i a', strtotime($report->request_datetime)) }}</td>
-                                <td class="border border-gray-300 px-4 py-2">{{ $report->remarks }}</td>
+                                <td class="border border-gray-300 px-2 py-2 whitespace-nowrap">{{ date('F d, Y h:i a', strtotime($report->request_datetime)) }}</td>
+                                <td class="border border-gray-300 px-2 py-2">{{ $report->remarks }}</td>
                                 @if ($report->status == 'Pending')
-                                    <td class="border border-gray-300 px-4 py-2">
+                                    <td class="border border-gray-300 px-2 py-2">
                                         <button 
                                         @click="responseModal = true; selectedId = '{{ $report->id }}'" 
-                                        class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                                        class="bg-blue-500 text-white px-2 py-2 rounded hover:bg-blue-600">
                                         Response
                                         </button>
                                     </td>
                                 @else
-                                    <td class="border border-gray-300 px-4 py-2">
+                                    <td class="border border-gray-300 px-2 py-2">
                                         <button 
                                         @click="resolveModal = true; selectedId = '{{ $report->id }}'" 
                                         class="btn mb-2">
@@ -186,7 +183,7 @@
                                         
                                         <button 
                                         @click="resolveModal = true; selectedId = '{{ $report->id }}'" 
-                                        class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600">
+                                        class="bg-yellow-500 text-white px-2 py-2 rounded hover:bg-yellow-600">
                                         Escalate
                                         </button>
                                     </td>
@@ -294,7 +291,95 @@
             </div>
         </div>
         </div>
-    </div>
+
+
+
+        <div class="max-w-fit card mt-10">
+            <h1 class="title">List of Resolved issues</h1>
+
+            <div class="block mt-4 overflow-scroll">
+                <table class="items-center text-left text-xs bg-transparent w-full border-collapse ">
+                    <thead>
+                        <tr class="bg-gray-200 text-left">
+                            <th class="border border-gray-300 px-2 py-2">#</th>
+                            <th class="border border-gray-300 px-2 py-2">Ticket Number</th>
+                            <th class="border border-gray-300 px-2 py-2">Requestor Name</th>
+                            <th class="border border-gray-300 px-2 py-2">Department</th>
+                            <th class="border border-gray-300 px-2 py-2">Category</th>
+                            <th class="border border-gray-300 px-2 py-2">Issue</th>
+                            <th class="border border-gray-300 px-2 py-2">Requested Date Time</th>
+                            <th class="border border-gray-300 px-2 py-2">Waiting time</th>
+                            <th class="border border-gray-300 px-2 py-2">Resolved time</th>
+                            <th class="border border-gray-300 px-2 py-2">Resolved Date Time</th>
+                            <th class="border border-gray-300 px-2 py-2">Remarks</th>
+                            <th class="border border-gray-300 px-2 py-2">Technical Staff</th>
+                           
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php 
+                            $count = 1;
+                            $now = now();
+
+                            
+                            ?>
+                        @foreach($resolved as $resolve)
+
+                            <tr class="hover:bg-gray-100">
+                                
+                                <td class="border border-gray-300 px-2 py-2">{{ $count++ }}</td>
+                                <td class="border border-gray-300 px-2 py-2 whitespace-nowrap">{{ $resolve->ticket_number }}</td>
+                                <td class="border border-gray-300 px-2 py-2">{{ $resolve->requestor_name }}</td>
+                                <td class="border border-gray-300 px-2 py-2 ">{{ $resolve->department->title }}</td>
+                                <td class="border border-gray-300 px-2 py-2">{{ $resolve->category->title }}</td>
+                                <td class="border border-gray-300 px-2 py-2 whitespace-nowrap">{{ $resolve->issues->title }}</td>
+                                <td class="border border-gray-300 px-2 py-2 whitespace-nowrap">{{ date('F d, Y h:i a', strtotime($resolve->request_datetime)) }}</td>
+                                <td class="border border-gray-300 px-4 py-2">
+                                    @php
+                                        $diffInMinutes = \Carbon\Carbon::parse($resolve->request_datetime)->diffInMinutes(\Carbon\Carbon::parse($resolve->response_datetime));
+                                    @endphp
+
+                                    @if ($diffInMinutes >= 60)
+                                        {{ round($diffInMinutes / 60) }} hrs
+                                    @else
+                                        {{ round($diffInMinutes) }} mins
+                                    @endif
+
+                                </td>
+                                
+                    
+                                <td class="border border-gray-300 px-2 py-2">
+                                    @php
+                                        $diffInMinutes = \Carbon\Carbon::parse($resolve->response_datetime)->diffInMinutes(\Carbon\Carbon::parse($resolve->resolve_datetime));
+                                    @endphp
+
+                                    @if ($diffInMinutes >= 60)
+                                        {{ round($diffInMinutes / 60) }} hrs
+                                    @else
+                                        {{ round($diffInMinutes) }} mins
+                                    @endif
+
+                                </td>
+                            
+                                
+                                <td class="border border-gray-300 px-2 py-2 whitespace-nowrap">{{ date('F d, Y h:i a', strtotime($resolve->resolve_datetime)) }}</td>
+                                
+                                <td class="border border-gray-300 px-2 py-2">{{ $resolve->remarks }}</td>
+                                <td class="border border-gray-300 px-2 py-2">{{ $resolve->user->name }}</td>
+                               
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+                <div>
+                    {{ $resolved->links() }}
+                </div>
+        </div>
+       
+
+
+
+       
     </div>
 
  </x-layout>    

@@ -9,6 +9,7 @@ use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\MainController;
+use App\Http\Controllers\FeedbackController;
 
 
 
@@ -54,7 +55,7 @@ Route::middleware('guest')->group(function () {
     Route::view('/register', 'auth.register')->name('register');
     Route::post('/register', [AuthController::class, 'register']);
     
-    
+    Route::resource('feedback',FeedbackController::class);
     
     Route::post('/login', [AuthController::class, 'login']);
     Route::view('/login', 'auth.login')->name('login');
