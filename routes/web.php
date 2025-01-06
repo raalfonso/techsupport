@@ -10,6 +10,8 @@ use App\Http\Controllers\ReportController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\MainController;
 use App\Http\Controllers\FeedbackController;
+use App\Http\Controllers\ClientsController;
+use App\Http\Controllers\ClientAuthController;
 
 
 
@@ -46,9 +48,13 @@ Route::middleware('auth')->group(function() {
 
 
 Route::middleware('guest')->group(function () {
-    Route::get('/', [HomeController::class,'index'])->name('home');
-  
+    Route::get('/', [HomeController::class,'login'])->name('home');
+    Route::get('/home.index/{id}', [HomeController::class,'index'])->name('home.index');
 
+
+    Route::get('/search-suggestions', [ClientsController::class, 'suggestions']);
+
+    
    
     // Route::get('/report/index', [reportController::class,'index'])->name('report.index');
 
@@ -58,6 +64,12 @@ Route::middleware('guest')->group(function () {
     Route::resource('feedback',FeedbackController::class);
     
     Route::post('/login', [AuthController::class, 'login']);
+    Route::post('/client.login.submit', [ClientAuthController::class, 'login'])->name('client.login.submit');
+
+    Route::get('/dashboard', function () {
+        return 'Welcome to the client dashboard!';
+    })->middleware('auth:client')->name('client.dashboard');
+
     Route::view('/login', 'auth.login')->name('login');
     Route::view('/track', 'home.track')->name('track');
     Route::get('/home.add/{id}', [HomeController::class, 'add'])->name('home.add');
@@ -67,5 +79,15 @@ Route::middleware('guest')->group(function () {
     Route::post('/track-view', [HomeController::class, 'trackView'])->name('home.track-view');
 
 
+   
+    Route::get('/login-client', [ClientAuthController::class, 'showLoginForm'])->name('client.login');
+    
+    // Route::get('/logout', [ClientAuthController::class, 'logout'])->name('client.logout');
+    
+
+    
+
 });
+
+// Client Login Routes
 

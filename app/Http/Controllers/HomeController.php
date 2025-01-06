@@ -29,6 +29,10 @@ class HomeController extends Controller
         ]);
     }
 
+    public function login(){
+        return view('home.login',);
+    }
+
     public function track(){
 
         return view('track');

@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('user_id')->nullable(); // Foreign key column
             $table->string('ticket_number')->nullable();
-            $table->string('requestor_name');
+            $table->unsignedBigInteger('client_id');
             $table->unsignedBigInteger('department_id');
             $table->string('location')->nullable();
             $table->unsignedBigInteger('category_id');

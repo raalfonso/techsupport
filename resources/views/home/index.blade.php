@@ -4,15 +4,17 @@
             <!-- Left Column -->
             <div class="w-2/6 max-w-fit mt-12">
                 <!-- Content for the 3-column width -->
-                <img src="{{ asset('images/rb_2148887720.png') }}" alt="Example Image" class="w-[644px] h-[400px]">
-
+                {{-- <img src="{{ asset('images/rb_2148887720.png') }}" alt="Example Image" class="w-[644px] h-[400px]"> --}}
+                <div class="card">
+                    <h5>Pass</h5>
+                </div>
             </div>
     
             <!-- Right Column -->
             <div class="w-3/4 ml-20">
                 <!-- First Row -->
                 <div class="flex space-x-4">
-                    <div class="relative max-w-sm max-h-[100%] p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 min-w-52">
+                    <div class="relative card-body max-w-sm max-h-[100%] p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 min-w-52">
                         <a href="#">
                             <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">Helpdesk Support</h5>
                         </a>
@@ -32,7 +34,7 @@
                             <i class="material-icons ml-16">report</i>
                         </a>
                     </div>
-                    <div class="relative max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 min-w-52">
+                    <div class="relative card-body max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 min-w-52">
                         <a href="#">
                             <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">System Account</h5>
                         </a>
@@ -47,7 +49,7 @@
                             <i class="material-icons ml-16">report</i>
                         </a>
                     </div>
-                    <div class="relative max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 min-w-52">
+                    <div class="relative card-body max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 min-w-52">
                         <a href="#">
                             <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">Security</h5>
                         </a>
@@ -65,7 +67,7 @@
     
                 <!-- Second Row -->
                 <div class="flex space-x-4 mt-4">
-                    <div class="relative max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 min-w-52">
+                    <div class="relative card-body max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 min-w-52">
                         <a href="#">
                             <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">Printer /<br> Scanner</h5>
                         </a>
@@ -80,7 +82,7 @@
                             <i class="material-icons ml-16">report</i>
                         </a>
                     </div>
-                    <div class="relative max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 min-w-52">
+                    <div class="relative card-body max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 min-w-52">
                         <a href="#">
                             <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">Software/<br>Hardware</h5>
                         </a>
@@ -96,7 +98,7 @@
                             <i class="material-icons ml-16">report</i>
                         </a>
                     </div>
-                    <div class="relative max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 min-w-52">
+                    <div class="relative card-body max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 min-w-52">
                         <a href="#">
                             <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">Others</h5>
                         </a>
@@ -132,4 +134,31 @@
         </div>
     </div>
     
+    <script>
+          var maxHeight = 0;
+    var maxWidth = 0;
+    var $highestDiv;
+
+    $('.card-body').each(function() {
+        var currentHeight = $(this).height();
+        var currentWidth = $(this).width();
+        if (currentHeight > maxHeight) {
+            maxHeight = currentHeight;
+            $highestDiv = $(this);
+        }
+        if (currentWidth > maxWidth) {
+            maxWidth = currentHeight;
+            $highestDiv = $(this);
+        }
+    });
+
+    // Set the height of all '.card' elements to the maximum height
+    //$('.card-body').height(maxHeight);
+    $('.card-body').animate({
+        height: 300
+    }, maxHeight);
+    $('.card-body').animate({
+        width: 300
+    }, maxWidth);
+    </script>
 </x-layout>    

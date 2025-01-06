@@ -80,4 +80,10 @@ class Report extends Model
     {
         return $this->belongsTo(Department::class);
     }
+
+    public function clients()
+    {
+        return $this->belongsTo(Clients::class);
+    }
+
 }

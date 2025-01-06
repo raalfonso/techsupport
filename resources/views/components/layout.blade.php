@@ -19,7 +19,7 @@
     <header class="bg-gradient-to-l from-yellow-950 to-yellow-900 shadow-lg">
     <nav>
        {{-- <div class="p-0 m-0"> --}}
-        <a href="{{ route('home')}}" class=" nav-link">ICT Help Center</a>
+        <a href="{{ route('home')}}" class="nav-link block text-xl font-bold"><h1>SolveIT</h1></a>
            {{-- <a href="{{ route('home')}}" class=" nav-link m-0 p-0">
             <img 
             src="{{ asset('images/bcda-removebg-preview.png') }}" 
