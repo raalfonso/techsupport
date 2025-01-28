@@ -19,8 +19,18 @@ return new class extends Migration
             $table->timestamps(); // Adds created_at and updated_at columns
         });
 
-       
+        Schema::table('reports', function (Blueprint $table) {
+            $table->foreign('client_id') // Define the foreign key
+                  ->references('id') 
+                  ->on('clients')
+                  ->onDelete('cascade');
+            
+        });
+
+      
+        
     }
+    
 
     /**
      * Reverse the migrations.

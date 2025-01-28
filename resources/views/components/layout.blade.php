@@ -4,70 +4,96 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>{{ env('APP_NAME')}}</title>
+    <title>{{ env('APP_NAME') }}</title>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
-
     @vite(['resources/js/app.js', 'resources/css/app.css'])
+    {{-- <link rel="icon" href="{{ asset('favicon.ico') }}">
+     --}}
+     <link rel="icon" type="image/png" href="{{ asset('images/SolveIT-removebg-preview.png') }}">
 </head>
 <body class="bg-slate-100 text-slate-900">
-    
-    {{-- <header class="bg-slate-800 shadow-lg"> --}}
+    <style>
+        [x-cloak] {
+            display: none !important;
+        }
+    </style>
+    <!-- Header -->
     <header class="bg-gradient-to-l from-yellow-950 to-yellow-900 shadow-lg">
-    <nav>
-       {{-- <div class="p-0 m-0"> --}}
-        <a href="{{ route('home')}}" class="nav-link block text-xl font-bold"><h1>SolveIT</h1></a>
-           {{-- <a href="{{ route('home')}}" class=" nav-link m-0 p-0">
-            <img 
-            src="{{ asset('images/bcda-removebg-preview.png') }}" 
-            alt="Home" 
-            class="max-h-12 object-contain">
-           </a> --}}
-       {{-- </div> --}}
-    
-          
-        @auth
-            {{-- <div class="relative grid place-items-center" x-data= "{ open:false}"">
-                {{-- drop down menu button  --}}
-                {{-- <button @click="open = !open" class="round-btn">
-                    <img src="https://picsum.photos/200" alt="">
-                </button> --}} 
+        <nav class="flex items-center justify-between px-4 py-2">
+            <!-- Logo -->
+            <a href="{{ route('home') }}" class="flex items-center text-white text-xl font-bold">
+                <span>SolveIT</span>
+            </a>
 
-                {{-- dropdown menu  --}}
-                {{-- <div x-show="open" @click.outside ="open=false" class="bg-white shadow-lg absolute top-10 right-0  rounded-lg overflow-hidden font-light"> --}}
-                    {{-- <p class="username">{{ auth()->user()->name }}</p> --}}
-                    <div class="flex">
-                        <a href="{{ route('dashboard')}}" class="nav-link block text-white pl-4 pr-2 py-2 mb-1">Dashboard</a>
-                        <a href="{{ route('report.index')}}" class="nav-link block text-white pl-4 pr-2 py-2 mb-1">Report</a>
-                        <a href="{{ route('issues.index')}}" class="nav-link block text-white pl-4 pr-2 py-2 mb-1">Issues</a>
-                        <a href="{{ route('category.index')}}" class="nav-link block text-white pl-4 pr-2 py-2 mb-1">Category</a>
-                        <a href="{{ route('department.index')}}" class="nav-link block text-white pl-4 pr-2 py-2 mb-1">Department</a>
-                        <form action="{{ route('logout')}}" method="post">
-                            @csrf
-                            <button class="nav-link block text-white pl-4 pr-2 py-2 mb-1">Logout</button>
-                        </form>
-                    </div>
-                   
-
-
-                {{-- </div> --}}
+            <!-- Navigation Links -->
+            @auth
+            <div class="hidden md:flex space-x-4">
+                <a href="{{ route('dashboard') }}" class="text-white hover:text-yellow-300">Dashboard</a>
+                <a href="{{ route('report.index') }}" class="text-white hover:text-yellow-300">Report</a>
+                <a href="{{ route('issues.index') }}" class="text-white hover:text-yellow-300">Issues</a>
+                <a href="{{ route('category.index') }}" class="text-white hover:text-yellow-300">Category</a>
+                <a href="{{ route('department.index') }}" class="text-white hover:text-yellow-300">Department</a>
+                <form action="{{ route('logout') }}" method="post" class="inline">
+                    @csrf
+                    <button class="text-white hover:text-yellow-300">Logout</button>
+                </form>
             </div>
-        @endauth
-       
-        @guest
-        <a href="{{ route('track')}}" class="block text-white pl-4 pr-8 py-2 mb-1">Track your report</a>
-        @endguest
-        
-    </nav>
-   </header>
 
-   <main class="py-8 px-0 mx-auto max-w-screen-lg">
-     {{ $slot }}
-   </main>
+            <!-- Mobile Menu -->
+            <div x-data="{ open: false }" class="md:hidden m-nav">
+                <!-- Mobile Menu Button -->
+                <button @click="open = !open" class="text-white focus:outline-none btn-nav">
+                    <span class="material-icons">menu</span>
+                </button>
+            
+                <!-- Mobile Menu Links -->
+                <div x-show="open" x-cloak 
+                     class="absolute mr-10 bg-yellow-900 text-white p-4"
+                     x-transition:enter="transition ease-out duration-300"
+                     x-transition:enter-start="opacity-0 transform scale-95"
+                     x-transition:enter-end="opacity-100 transform scale-100"
+                     x-transition:leave="transition ease-in duration-300"
+                     x-transition:leave-start="opacity-100 transform scale-100"
+                     x-transition:leave-end="opacity-0 transform scale-95">
+                    <a href="{{ route('dashboard') }}" class="block py-2 hover:text-yellow-300">Dashboard</a>
+                    <a href="{{ route('report.index') }}" class="block py-2 hover:text-yellow-300">Report</a>
+                    <a href="{{ route('issues.index') }}" class="block py-2 hover:text-yellow-300">Issues</a>
+                    <a href="{{ route('category.index') }}" class="block py-2 hover:text-yellow-300">Category</a>
+                    <a href="{{ route('department.index') }}" class="block py-2 hover:text-yellow-300">Department</a>
+                    <form action="{{ route('logout') }}" method="post" class="block py-2">
+                        @csrf
+                        <button class="hover:text-yellow-300">Logout</button>
+                    </form>
+                </div>
+            </div>
+            @endauth
+        </nav>
+    </header>
 
+
+    <!-- Main Content -->
+    <main class="py-8 px-4 mx-auto max-w-screen-lg">
+        {{ $slot }}
+    </main>
+
+    <script>
+        var run = false;
+        $('.btn-nav').click(function(){
+            
+            if (run == false) {
+                $('.m-nav').animate({ marginRight: '10%' }, 300);
+                run = true;
+            }
+            else{
+                $('.m-nav').animate({ marginRight: '0%' }, 300);
+                run = false;
+            }
+            
+        });
+    </script>
 
 </body>
 </html>

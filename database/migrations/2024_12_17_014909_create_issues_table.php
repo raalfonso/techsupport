@@ -16,7 +16,9 @@ return new class extends Migration
             $table->unsignedBigInteger('category_id');
             $table->string('title');
             $table->unsignedBigInteger('mains_id');
+            $table->integer('resolution_timeline')->nullable();
             $table->string('type')->nullable();
+            $table->text('procedure')->nullable();
             $table->timestamps();
             
             

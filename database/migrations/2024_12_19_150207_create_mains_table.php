@@ -21,12 +21,15 @@ return new class extends Migration
 
        
         DB::table('mains')->insert([
-            ['id' => 1, 'title' => 'helpdesk Support'],
-            ['id' => 2, 'title' => 'System Account'],
+            ['id' => 1, 'title' => 'Video Conferencing/Meeting Support'],
+            ['id' => 2, 'title' => 'Acumatica ERP and HRIS'],
             ['id' => 3, 'title' => 'Security'],
-            ['id' => 4, 'title' => 'Printer'],
-            ['id' => 5, 'title' => 'Repair'],
-            ['id' => 6, 'title' => 'Others'],
+            ['id' => 4, 'title' => 'Hardware'],
+            ['id' => 5, 'title' => 'Network'],
+            ['id' => 6, 'title' => 'AODocs'],
+            ['id' => 7, 'title' => 'Software'],
+            ['id' => 8, 'title' => 'G Suite/Google Workspace'],
+            ['id' => 9, 'title' => 'Others'],
             
         ]);
 

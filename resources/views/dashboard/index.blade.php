@@ -66,7 +66,7 @@
                 </div>
                 <div>
                     <p class="mb-2 text-sm font-medium text-gray-600 dark:text-gray-400">Customer satisfaction</p>
-                    <p class="text-lg font-semibold text-gray-700 dark:text-gray-200">100%</p>
+                    <p class="text-lg font-semibold text-gray-700 dark:text-gray-200">{{round($satisfaction)}}%</p>
                 </div>
             </div>
         </div>
@@ -86,7 +86,7 @@
               <h4 class="mb-4 font-semibold text-gray-800 dark:text-gray-300">
                 Total No. of request
                 </h4>
-                <canvas id="myChart"></canvas>
+                <canvas id="weeklyChart"></canvas>
                 <div class="flex justify-center mt-4 space-x-3 text-sm text-gray-600 dark:text-gray-400">
                     <!-- Chart legend -->
                     
@@ -103,63 +103,72 @@
                 <div class="text-sm mt-5 p-5">
                     <ul class="space-y-4">
                         <!-- List Item 1 -->
+                       @foreach ($results as $result)
                         <li class="border-b pb-4">
                             <div class="flex justify-between">
                                 <div>
-                                    <h3 class="text-gray-700 font-bold">Login Issue</h3>
-                                    <p class="text-gray-500">Count: 1</p>
+                                    <h3 class="text-gray-700 font-bold">{{$result->title}}</h3>
+                                    {{-- <p class="text-gray-500">{{$result->count}}</p> --}}
                                 </div>
                             </div>
                             <div class="mt-2">
                                 <div class="relative w-full h-3 bg-gray-200 rounded-full">
-                                    <div class="absolute top-0 left-0 h-3 bg-red-500 rounded-full" style="width: 30%;"></div>
+                                    @if ($result->count > 2)
+                                    <div class="absolute top-0 left-0 h-3 bg-red-500 rounded-full" style="width: 100%;"></div>
+                                   
+                                    @elseif ($result->count == 2)
+                                    <div class="absolute top-0 left-0 h-3 bg-orange-500 rounded-full" style="width: 66.6%;"></div>
+                                    @elseif ($result->count == 1)
+                                    <div class="absolute top-0 left-0 h-3 bg-green-500 rounded-full" style="width: 33.3%;"></div>
+
+                                    @endif
                                 </div>
-                                <span class="text-xs text-gray-500">30% Completed</span>
+                                
                             </div>
                         </li>
+                       @endforeach
+                        
+
                 
-                        <!-- List Item 2 -->
-                        <li class="border-b pb-4">
-                            <div class="flex justify-between">
-                                <div>
-                                    <h3 class="text-gray-700 font-bold">Page Load Error</h3>
-                                    <p class="text-gray-500">Count: 1</p>
-                                </div>
-                            </div>
-                            <div class="mt-2">
-                                <div class="relative w-full h-3 bg-gray-200 rounded-full">
-                                    <div class="absolute top-0 left-0 h-3 bg-yellow-500 rounded-full" style="width: 70%;"></div>
-                                </div>
-                                <span class="text-xs text-gray-500">70% Completed</span>
-                            </div>
-                        </li>
-                
-                        <!-- List Item 3 -->
-                        <li>
-                            <div class="flex justify-between">
-                                <div>
-                                    <h3 class="text-gray-700 font-bold">Missing Data</h3>
-                                    <p class="text-gray-500">Count: 1</p>
-                                </div>
-                            </div>
-                            <div class="mt-2">
-                                <div class="relative w-full h-3 bg-gray-200 rounded-full">
-                                    <div class="absolute top-0 left-0 h-3 bg-green-500 rounded-full" style="width: 100%;"></div>
-                                </div>
-                                <span class="text-xs text-gray-500">100% Completed</span>
-                            </div>
-                        </li>
                     </ul>
                 </div>
                 
             </div>
           </div>    
         
+          <div class="flex mt-5">
+            <div class="w-full p-4 bg-white rounded-lg shadow-xs dark:bg-gray-800">
+                <h4 class="mb-4 font-semibold text-gray-800 dark:text-gray-300">
+                    Technical Staff
+
+                    <table class="table-auto w-full border-collapse border border-gray-300">
+                        <thead>
+                            <tr class="bg-gray-200 text-left">
+                                <th class="border border-gray-300 px-4 py-2">Name</th>
+                                <th class="border border-gray-300 px-4 py-2">Total Resolved</th>
+                        
+                            </tr>
+                        </thead>
+                    
+                        <tbody>
+                            @foreach ($users as $user)
+                                <tr>
+                                    <td class="border border-gray-300 px-4 py-2">{{$user->user_name}}</td>
+                                    <td class="border border-gray-300 px-4 py-2">{{$user->resolve_count}}</td>
+                                
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                    </h4>
+
+                    
+            </div>
+          </div>
            
            
           
-       
-        <!-- Bars chart -->
+
 
         
         
@@ -167,31 +176,31 @@
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        const labels = @json($labels);
-        const data = @json($values);
+            const ctx = document.getElementById('weeklyChart').getContext('2d');
+            const dateRanges = @json($dateRanges);
+            const totals = @json($totals);
 
-        const ctx = document.getElementById('myChart').getContext('2d');
-        new Chart(ctx, {
-            type: 'bar', // You can change this to 'line', 'pie', etc.
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: 'Monthly Reported Issues / Concern',
-                    data: data,
-                    backgroundColor: 'rgba(54, 162, 235, 0.5)',
-                    borderColor: 'rgba(54, 162, 235, 1)',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                scales: {
-                    y: {
-                        beginAtZero: true
+            new Chart(ctx, {
+                type: 'line', // Changed from 'bar' to 'line'
+                data: {
+                    labels: dateRanges,
+                    datasets: [{
+                        label: 'Reports per Week',
+                        data: totals,
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)', // Optional: For filled area under the line
+                        borderColor: 'rgba(75, 192, 192, 1)', // Line color
+                        borderWidth: 2, // Thickness of the line
+                        tension: 0.4 // Smoothness of the line (0 for straight lines, higher for curves)
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
                     }
                 }
-            }
-        });
+            });
     </script>
     
 </x-layout>    

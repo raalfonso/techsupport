@@ -13,19 +13,22 @@ return new class extends Migration
     {
         Schema::create('reports', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('user_id')->nullable(); // Foreign key column
             $table->string('ticket_number')->nullable();
             $table->unsignedBigInteger('client_id');
             $table->unsignedBigInteger('department_id');
             $table->string('location')->nullable();
-            $table->unsignedBigInteger('category_id');
             $table->unsignedBigInteger('issues_id');
             $table->string('status');
-            $table->string('procedure')->nullable();
+            $table->text('procedure')->nullable();
             $table->dateTime('request_datetime');
+            $table->unsignedBigInteger('response_by')->nullable();
+            $table->unsignedBigInteger('resolve_id')->nullable();
+            $table->unsignedBigInteger('escalated_to')->nullable();
             $table->dateTime('response_datetime')->nullable();
             $table->dateTime('resolve_datetime')->nullable();
-            $table->string('remarks')->nullable();
+            $table->text('remarks')->nullable();
+            $table->string('feedback')->nullable();
+            $table->text('notes')->nullable();
             $table->timestamps();
         });
     }

@@ -17,13 +17,15 @@
     }
     </style>
 
-    <div class="mx-auto max-w-screen-sm card">
-        <h1 class="title">Welcome to the ICTD Technical Help Desk.</h1>
+    <div class="mx-auto max-w-screen-sm card p-5">
+        <center><img src="{{asset('images/SolveIT-removebg-preview.png')}}" alt="" class="max-w-60">
+            {{-- <p class="text-blue-900 text-lg font-bold">Sign in to the SolveIT</p> --}}
+        </center> 
+       
         <form action="{{ route('client.login.submit')}}" method="post">
             @csrf
-            <div class="mb-4">
-                <label for="email">Email</label>
-                {{-- <input type="text" name="email" class="input @error('email') ring-red-500 @enderror" value="{{ old('email')}}"> --}}
+            <div class="mb-2">
+                <label for="email" class="text-lg">Email Address</label>
                 <input type="text" id="auto-suggest" name="email_address" class="input @error('email_address') ring-red-500 @enderror" placeholder="Type to search..." autocomplete="off">
                 <div id="suggestions" class="suggestions-box"></div>
                 @error('email_address')
@@ -40,7 +42,7 @@
     <script>
         document.getElementById('auto-suggest').addEventListener('input', function () {
         const query = this.value;
-
+            console.log(query);
         if (query.length >= 3) {
             fetch(`/search-suggestions?q=${encodeURIComponent(query)}`)
                 .then(response => response.json())

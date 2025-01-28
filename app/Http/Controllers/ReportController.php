@@ -3,11 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Models\Report;
+use App\Models\Resolve;
 use App\Models\Category;
 use App\Models\Department;
 use App\Models\Issues;
 use App\Models\User;
+use App\Models\Clients;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 
 class ReportController extends Controller
@@ -17,25 +20,40 @@ class ReportController extends Controller
      */
     public function index()
     {
+       
         $reports = Report::whereIn('status', ['Pending', 'Ongoing'])
         ->orderBy('id', 'asc')
         ->paginate(5);
 
+        $countReport = Report::whereIn('status', ['Pending', 'Ongoing'])->count();
+
         $user_level = auth()->user()->level;
         $user_team = auth()->user()->team;
         $user_id = auth()->user()->id;
-
+       
         if ($user_level == 1) {
-            $resolved = Report::where('status', 'Done')
-            ->where('user_id', $user_id)
-            ->orderBy('id', 'asc')
-            ->paginate(5);
+            $resolved = Resolve::select('reports.*', 'users.name')
+            ->leftJoin('reports', 'resolve.report_id', '=', 'reports.id')
+            ->leftJoin('users', 'users.id', '=', 'resolve.user_id')
+            ->get();
+           
         }
         else {
-            $resolved = Report::where('status', 'Done')
-            ->orderBy('id', 'asc')
-            ->paginate(5);
+            // $resolved = Resolve::select('reports.*', 'users.name','clients.name as client','departments.title as department')
+            // ->leftJoin('reports', 'resolve.report_id', '=', 'reports.id')
+            // ->leftJoin('users', 'users.id', '=', 'resolve.user_id')
+            // ->leftJoin('clients', 'clients.id', '=', 'reports.client_id')
+            // ->leftJoin('departments', 'departments.id', '=', 'reports.department_id')
+            // ->get();
+
+            $resolved = Report::select('reports.*', 'users.name as user')
+            ->rightJoin('resolve', 'resolve.report_id','=','reports.id')
+            ->leftJoin('users', 'resolve.user_id','=','users.id')
+            ->where('reports.status', 'Done')
+            ->get();
         }
+        
+        $clients = Clients::orderBy('name','asc')->get();
 
      
 
@@ -54,7 +72,33 @@ class ReportController extends Controller
             'issues'    => $issues,
             'users' => $users,
             'resolved'  => $resolved,
+            'countReport' => $countReport,
+            'clients' => $clients,
         ]);
+    }
+
+    public function getReports()
+    {
+        $reports = Report::whereIn('status', ['Pending', 'Ongoing'])
+        ->orderBy('id', 'asc')
+        ->paginate(5);
+        $categories = Category::orderBy('title', 'asc')->get();
+        $departments = Department::orderBy('title', 'asc')->get();
+        $issues = Issues::all();
+        $users = User::all();
+        return view('report.reported',[
+            'reports' => $reports,
+            'categories' => $categories,
+            'departments'   => $departments,
+            'issues'    => $issues,
+            'users' => $users,
+        ]);
+    }
+
+    public function getTotalReports(){
+        $countReport = Report::whereIn('status', ['Pending', 'Ongoing'])->count();
+
+        return $countReport;
     }
 
     /**
@@ -71,11 +115,12 @@ class ReportController extends Controller
     public function store(Request $request)
     {
         $fields = $request->validate([
-            'requestor_name' => ['required','string','max:50'],
+            'client_id' => 'required',
             'department_id' => 'required',
             'issues_id' => 'required',
         ]);
 
+    
         Report::create($fields);
 
         //Redirect
@@ -95,29 +140,83 @@ class ReportController extends Controller
      */
     public function edit(Request $request, $id)
     {
- 
-        $report = Report::findOrFail($id);
+        //  dd($request->notes);
+        if($request->iam_check == 'on'){
+            $report = Report::findOrFail($id);
+            $report->response_by = $userId = Auth::id();
+            $report->status = "Ongoing";
+            $report->notes = $request->notes;
+            $report->response_datetime = Carbon::now();
+            $report->save();
+        }
+        else{
+            $report = Report::findOrFail($id);
        
-        $report->user_id = $request->user_id;
-        $report->status = "Ongoing";
-        $report->response_datetime = Carbon::now();
-        $report->save();
+            $report->response_by = $request->user_id;
+            $report->status = "Ongoing";
+            $report->notes = $request->notes;
+            $report->response_datetime = Carbon::now();
+            $report->save();
+        }
+        
 
         return redirect()->route('report.index');
     }
 
     public function resolve(Request $request, $id)
     {
+
+      
+        $validated = $request->validate([
+            'user.*.user_id' => 'required',
+            'procedure' => 'required',
+        ]);
+      
+        //  dd($request->all());
+        // Process or save the data
+        foreach ($validated['user'] as $user) {
+            // Example: save to the database
+         
+            $user['report_id'] = $id; 
+            \App\Models\Resolve::create($user);
+          
+        }
        
- 
+        // return redirect()->back()->with('success', 'Data saved successfully!');
+    
         $report = Report::findOrFail($id);
-       
-        $report->user_id = $request->user_id;
+        // $report->resolve_id = $request->user_id;
         $report->status = "Done";
+        $report->feedback = "No";
         $report->procedure = $request->procedure;
         $report->resolve_datetime = Carbon::now();
         $report->save();
 
+        return redirect()->route('report.index');
+    }
+
+    public function escalate(Request $request, $id)
+    {
+       
+ 
+        $report = Report::findOrFail($id);
+        
+
+        $report->escalated_to = $request->user_id;
+        $report->status = "Done";
+        $report->remarks = $request->remarks;
+        $report->procedure = $request->procedure;
+        $report->resolve_datetime = Carbon::now();
+        $report->save();
+
+        $duplicateReport = $report->replicate();
+        $duplicateReport->response_by = $request->user_id;
+        $duplicateReport->status = "Ongoing";
+        $duplicateReport->request_datetime = now();
+        $duplicateReport->response_datetime = now();
+        $duplicateReport->created_at = now();
+        $duplicateReport->updated_at = now();
+        $duplicateReport->save();
         return redirect()->route('report.index');
     }
 

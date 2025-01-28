@@ -14,7 +14,11 @@ return new class extends Migration
         Schema::create('feedback', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('report_id')->nullable(); // Foreign key column
-            $table->integer('answer')->nullable();
+            $table->integer('answer1')->nullable();
+            $table->integer('answer2')->nullable();
+            $table->integer('answer3')->nullable();
+            $table->string('reason')->nullable();
+            $table->string('suggestion')->nullable();
             $table->timestamps();
         });
     }

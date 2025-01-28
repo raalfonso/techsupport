@@ -11,19 +11,21 @@ class Report extends Model
     use HasFactory;
 
     protected $fillable = [
-        'requestor_name',
-        'department_id',
-        'issues_id',
-        'remarks',
-        'status',
-        'request_datetime',
-        'resolve_datetime',
-        'response_datetime',
-        'category_id',
         'ticket_number',
-        'user_id',
-        'procedure',
+        'client_id',
+        'department_id',
         'location',
+        'issues_id',
+        'status',
+        'procedure',
+        'request_datetime',
+        'response_by',
+        'resolve_by',
+        'escalated_to',
+        'response_datetime',
+        'resolve_datetime',
+        'notes',
+        'remarks',
     ];
 
     protected static function boot()
@@ -33,8 +35,7 @@ class Report extends Model
         static::creating(function ($model) {
             // Automatically set 'auto_created_at' column to current timestamp
             $model->request_datetime = now(); // You can use `now()` or `Carbon::now()`
-            $model->location = "-";
-            $model->category_id = $model->issues->category_id;
+           
             
             if (!$model->response_datetime) {
                 $model->response_datetime = null;
@@ -45,10 +46,7 @@ class Report extends Model
             if (!$model->remarks) {
                 $model->remarks = null;
             }
-            
-            if (!$model->user_id) {
-                $model->user_id = null;
-            }
+           
             if (!$model->status) {
                 $model->status = "Pending";
             }
@@ -66,24 +64,34 @@ class Report extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+
+    public function resolve()
+    {
+        return $this->belongsTo(User::class, 'response_by', 'id');
+    }
+
+    public function response()
+    {
+        return $this->belongsTo(User::class, 'response_by', 'id');
+    }
     public function issues()
     {
         return $this->belongsTo(Issues::class);
     }
 
-    public function category()
-    {
-        return $this->belongsTo(Category::class);
-    }
+
 
     public function department()
     {
         return $this->belongsTo(Department::class);
     }
 
-    public function clients()
+    public function client()
     {
-        return $this->belongsTo(Clients::class);
+        return $this->belongsTo(Clients::class, 'client_id', 'id');
     }
+
+
 
 }

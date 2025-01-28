@@ -40,7 +40,7 @@ class AuthController extends Controller
        //Try to login
 
        if(Auth::attempt($field, $request->remember)) {
-        return redirect()->intended('dashboard');
+        return redirect()->intended('report');
        }
        else{
         return back()->withErrors([

@@ -33,6 +33,23 @@ class ClientsController extends Controller
         return response()->json($results);
     }
 
+    public function departments(Request $request)
+    {
+        $query = $request->get('q');
+
+        if (strlen($query) < 3) {
+            return response()->json([]);
+        }
+
+        $results = \DB::table('departments') // Replace with your table name
+            ->where('title', 'like', "%{$query}%")
+            ->limit(10)
+            ->get(['id', 'title']); // Adjust columns as needed
+
+        return response()->json($results);
+    }
+
+
     /**
      * Show the form for creating a new resource.
      */

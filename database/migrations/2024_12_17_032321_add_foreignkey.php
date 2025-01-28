@@ -12,10 +12,6 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('reports', function (Blueprint $table) {
-            $table->foreign('user_id') // Define the foreign key
-                  ->references('id') 
-                  ->on('users')
-                  ->onDelete('cascade');
             $table->foreign('department_id') // Define the foreign key
                   ->references('id') 
                   ->on('departments')
@@ -24,9 +20,21 @@ return new class extends Migration
                   ->references('id') 
                   ->on('issues')
                   ->onDelete('cascade');
-            $table->foreign('category_id') // Define the foreign key
+            // $table->foreign('category_id') // Define the foreign key
+            //       ->references('id') 
+            //       ->on('categories')
+            //       ->onDelete('cascade');
+            $table->foreign('response_by') // Define the foreign key
                   ->references('id') 
-                  ->on('categories')
+                  ->on('users')
+                  ->onDelete('cascade');
+            // $table->foreign('resolve_by') // Define the foreign key
+            //       ->references('id') 
+            //       ->on('users')
+            //       ->onDelete('cascade');
+            $table->foreign('escalated_to') // Define the foreign key
+                  ->references('id') 
+                  ->on('users')
                   ->onDelete('cascade');
         });
 
