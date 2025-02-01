@@ -53,54 +53,54 @@
 
 
                 <div class="mt-5 gap-2 grid lg:grid-cols-3 sm:grid-cols-2">
-                    <div class="card-body max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 min-w-52 ">
+                    <div class="card issue-card max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 min-w-52 transition-transform transform hover:scale-105">
                         <p class="mb-2 text-lg font-bold tracking-tight text-gray-900 dark:text-white"><a href="{{ route('home.add',['id'=>'1','client_id' => $client->id ])}}" class="text-blue-500">Video conferencing / Meeting Support
                         </a></p>
                         <img src="{{ asset('images/boardroom.png') }}" alt="Example Image" class="w-full h-60 shadow-lg rounded-md">
                         <div class="absolute bottom-0 left-0 w-full h-20 bg-gradient-to-t from-transparent to-transparent blur-md"></div>
                     </div>
-                    <div class="card-body max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 min-w-52">
+                    <div class="card issue-card max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 min-w-52 transition-transform transform hover:scale-105">
                         <p class="mb-2 text-lg font-bold tracking-tight text-gray-900 dark:text-white"><a href="{{ route('home.add',['id'=>'2','client_id' => $client->id ])}}" class="text-blue-500">Acumatica ERP and HRIS</a></p><br>
                         <img src="{{ asset('images/acumatica.png') }}" alt="Example Image" class="w-full h-60  drop-shadow">
                         <div class="absolute bottom-0 left-0 w-full h-20 bg-gradient-to-t from-transparent to-transparent blur-md"></div>
                     </div>
-                    <div class="card-body max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 min-w-52 ">
+                    <div class="card issue-card max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 min-w-52 transition-transform transform hover:scale-105">
                         <p class="mb-2 text-lg font-bold tracking-tight text-gray-900 dark:text-white"><a href="{{ route('home.add',['id'=>'3','client_id' => $client->id ])}}" class="text-blue-500">Cyber Security
                         </a></p> <br>
                         <img src="{{ asset('images/security.jpg') }}" alt="Example Image" class="w-full h-60 shadow-lg rounded-md">
                         <div class="absolute bottom-0 left-0 w-full h-20 bg-gradient-to-t from-transparent to-transparent blur-md"></div>
                     </div>
-                    <div class="card-body max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 min-w-52 ">
+                    <div class="card issue-card max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 min-w-52 transition-transform transform hover:scale-105">
                         <p class="mb-2 text-lg font-bold tracking-tight text-gray-900 dark:text-white"><a href="{{ route('home.add',['id'=>'4','client_id' => $client->id ])}}" class="text-blue-500">Hardware Issues
                         </a></p> <br>
                         <img src="{{ asset('images/hardware-failures.png') }}" alt="Example Image" class="w-full h-60 shadow-lg rounded-md">
                         <div class="absolute bottom-0 left-0 w-full h-20 bg-gradient-to-t from-transparent to-transparent blur-md"></div>
                     </div>
-                    <div class="card-body max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 min-w-52 ">
+                    <div class="card issue-card max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 min-w-52 transition-transform transform hover:scale-105">
                         <p class="mb-2 text-lg font-bold tracking-tight text-gray-900 dark:text-white"><a href="{{ route('home.add',['id'=>'5','client_id' => $client->id ])}}" class="text-blue-500">Network Issues
                         </a></p> <br>
                         <img src="{{ asset('images/network.png') }}" alt="Example Image" class="w-full h-60 shadow-lg rounded-md">
                         <div class="absolute bottom-0 left-0 w-full h-20 bg-gradient-to-t from-transparent to-transparent blur-md"></div>
                     </div>
-                    <div class="card-body max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 min-w-52 ">
+                    <div class="card issue-card max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 min-w-52 transition-transform transform hover:scale-105">
                         <p class="mb-2 text-lg font-bold tracking-tight text-gray-900 dark:text-white"><a href="{{ route('home.add',['id'=>'6','client_id' => $client->id ])}}" class="text-blue-500">AODocs Issues
                         </a></p> <br>
                         <img src="{{ asset('images/aodocs.png') }}" alt="Example Image" class="w-full h-60 shadow-lg rounded-md">
                         <div class="absolute bottom-0 left-0 w-full h-20 bg-gradient-to-t from-transparent to-transparent blur-md"></div>
                     </div>
-                    <div class="card-body max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 min-w-52 ">
+                    <div class="card issue-card max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 min-w-52 transition-transform transform hover:scale-105">
                         <p class="mb-2 text-lg font-bold tracking-tight text-gray-900 dark:text-white"><a href="{{ route('home.add',['id'=>'7','client_id' => $client->id ])}}" class="text-blue-500">Software Issues
                         </a></p> <br>
                         <img src="{{ asset('images/laptop-repair.jpeg') }}" alt="Example Image" class="w-full h-60 shadow-lg rounded-md">
                         <div class="absolute bottom-0 left-0 w-full h-20 bg-gradient-to-t from-transparent to-transparent blur-md"></div>
                     </div>
-                    <div class="card-body max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 min-w-52 ">
+                    <div class="card issue-card max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 min-w-52 transition-transform transform hover:scale-105">
                         <p class="mb-2 text-lg font-bold tracking-tight text-gray-900 dark:text-white"><a href="{{ route('home.add',['id'=>'8','client_id' => $client->id ])}}" class="text-blue-500">G Suite / Google Workspace Issues
                         </a></p> <br>
                         <img src="{{ asset('images/gerror.png') }}" alt="Example Image" class="w-full h-60 shadow-lg rounded-md">
                         <div class="absolute bottom-0 left-0 w-full h-20 bg-gradient-to-t from-transparent to-transparent blur-md"></div>
                     </div>
-                    <div class="card-body max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 min-w-52 ">
+                    <div class="card issue-card max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 min-w-52 transition-transform transform hover:scale-105">
                         <p class="mb-2 text-lg font-bold tracking-tight text-gray-900 dark:text-white"><a href="{{ route('home.add',['id'=>'9','client_id' => $client->id ])}}" class="text-blue-500">Other's Issues
                             <br><br>
                             <img src="{{ asset('images/10871996.png') }}" alt="Example Image" class="w-full h-60 shadow-lg rounded-md">
@@ -232,7 +232,7 @@
         var maxWidth = 0;
         var $highestDiv;
 
-    $('.card-body').each(function() {
+    $('.card issue-card').each(function() {
         var currentHeight = $(this).height();
         var currentWidth = $(this).width();
         if (currentHeight > maxHeight) {
@@ -247,16 +247,16 @@
 
     // Set the height of all '.card' elements to the maximum height
     //$('.card-body').height(maxHeight);
-    $('.card-body').animate({
+    $('.card issue-card').animate({
         // height: 300
     }, maxHeight);
-    $('.card-body').animate({
+    $('.card issue-card').animate({
         // width: 300
     }, maxWidth);
 
 
 
-
+    
 
 
 
