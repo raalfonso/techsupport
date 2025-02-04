@@ -236,7 +236,7 @@
                                         <td class="border border-gray-300 px-2 py-2">{{ $resolve->ticket_number }}</td>
                                         <td class="border border-gray-300 px-2 py-2">{{ $resolve->client?->name }}</td>
                                         <td class="border border-gray-300 px-2 py-2">{{ $resolve->department?->title }}</td>
-                                        <td class="border border-gray-300 px-2 py-2">{{ $resolve->issues->category?->title }}</td>
+                                        <td class="border border-gray-300 px-2 py-2">{{ $resolve->issues?->category?->title }}</td>
                                         <td class="border border-gray-300 px-2 py-2">{{ $resolve->issues?->title }}</td>
                                         <td class="border border-gray-300 px-2 py-2">{{ date('F d, Y h:i a', strtotime($resolve->request_datetime)) }}</td>
                                         <td class="border border-gray-300 px-4 py-2">
