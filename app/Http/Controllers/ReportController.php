@@ -32,10 +32,9 @@ class ReportController extends Controller
         $user_id = auth()->user()->id;
        
         if ($user_level == 1) {
-            $resolved = Resolve::select('reports.*', 'users.name')
-            ->leftJoin('reports', 'resolve.report_id', '=', 'reports.id')
-            ->leftJoin('users', 'users.id', '=', 'resolve.user_id')
-            ->get();
+            $resolved = Report::whereIn('status', ['Done'])
+            ->orderBy('id', 'asc')
+            ->paginate(5);
            
         }
         else {
