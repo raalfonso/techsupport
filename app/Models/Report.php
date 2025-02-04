@@ -87,7 +87,7 @@ class Report extends Model
         return $this->belongsTo(Department::class);
     }
 
-    public function client()
+    public function clientname()
     {
         return $this->belongsTo(Clients::class, 'client_id', 'id');
     }
