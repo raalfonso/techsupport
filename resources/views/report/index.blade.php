@@ -234,7 +234,7 @@
                                     <tr class="hover:bg-gray-100">
                                         <td class="border border-gray-300 px-2 py-2">{{ $count++ }}</td>
                                         <td class="border border-gray-300 px-2 py-2">{{ $resolve->ticket_number }}</td>
-                                        <td class="border border-gray-300 px-2 py-2">{{ $resolve->Client?->name }}</td>
+                                        <td class="border border-gray-300 px-2 py-2">{{ $resolve->client_id }}</td>
                                         <td class="border border-gray-300 px-2 py-2">{{ $resolve->Department?->title }}</td>
                                         <td class="border border-gray-300 px-2 py-2">{{ $resolve->Issues?->Category?->title }}</td>
                                         <td class="border border-gray-300 px-2 py-2">{{ $resolve->Issues?->title }}</td>
