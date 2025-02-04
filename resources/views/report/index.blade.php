@@ -234,10 +234,10 @@
                                     <tr class="hover:bg-gray-100">
                                         <td class="border border-gray-300 px-2 py-2">{{ $count++ }}</td>
                                         <td class="border border-gray-300 px-2 py-2">{{ $resolve->ticket_number }}</td>
-                                        <td class="border border-gray-300 px-2 py-2">{{ $resolve->client_id }}</td>
-                                        <td class="border border-gray-300 px-2 py-2">{{ $resolve->department->title }}</td>
-                                        <td class="border border-gray-300 px-2 py-2">{{ $resolve->issues->category->title }}</td>
-                                        <td class="border border-gray-300 px-2 py-2">{{ $resolve->issues->title }}</td>
+                                        <td class="border border-gray-300 px-2 py-2">{{ $resolve->client?->name }}</td>
+                                        <td class="border border-gray-300 px-2 py-2">{{ $resolve->department?->title }}</td>
+                                        <td class="border border-gray-300 px-2 py-2">{{ $resolve->issues->category?->title }}</td>
+                                        <td class="border border-gray-300 px-2 py-2">{{ $resolve->issues?->title }}</td>
                                         <td class="border border-gray-300 px-2 py-2">{{ date('F d, Y h:i a', strtotime($resolve->request_datetime)) }}</td>
                                         <td class="border border-gray-300 px-4 py-2">
                                             @php
@@ -280,9 +280,9 @@
                     <div class="block md:hidden">
                         @foreach($resolved as $resolve)
                         <div class="border p-4 rounded-lg shadow mb-2">
-                            <h2 class="font-bold">{{ $resolve->client->name }} - {{ $resolve->department->title }}</h2>
+                            <h2 class="font-bold">{{ $resolve->client?->name }} - {{ $resolve->department?->title }}</h2>
                             <p>Ticket No: {{ $resolve->ticket_number }}</p>
-                            <p>Issues: {{ $resolve->issues->title }}</p>
+                            <p>Issues: {{ $resolve->issues?->title }}</p>
                             <p class="font-bold">Technical Staff: {{ $resolve->user }}</p>
                         </div>
                         @endforeach
