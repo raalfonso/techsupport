@@ -18,6 +18,10 @@
     .btn {
         @apply relative enabled:bg-slate-800 enabled:active:bg-slate-900 enabled:hover:bg-slate-700 p-2 rounded-md text-white block w-full disabled:bg-slate-500 disabled:cursor-wait;
     }
+    .btn-escalate {
+        @apply relative enabled:bg-yellow-600 enabled:active:bg-yellow-700 enabled:hover:bg-yellow-800 p-2 rounded-md text-white block w-full disabled:bg-slate-500 disabled:cursor-wait;
+    }
+    
     .error {
         @apply text-xs text-red-500 mt-px;
     }
