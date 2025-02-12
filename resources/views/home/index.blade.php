@@ -101,7 +101,7 @@
                         <div class="absolute bottom-0 left-0 w-full h-20 bg-gradient-to-t from-transparent to-transparent blur-md"></div>
                     </div>
                     <div class="card issue-card max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 min-w-52 transition-transform transform hover:scale-105">
-                        <p class="mb-2 text-lg font-bold tracking-tight text-gray-900 dark:text-white"><a href="{{ route('home.add',['id'=>'9','client_id' => $client->id ])}}" class="text-blue-500">Other's Issues
+                        <p class="mb-2 text-lg font-bold tracking-tight text-gray-900 dark:text-white"><a href="{{ route('home.add',['id'=>'9','client_id' => $client->id ])}}" class="text-blue-500">Other's Issues</a></p>
                             <br><br>
                             <img src="{{ asset('images/10871996.png') }}" alt="Example Image" class="w-full h-60 shadow-lg rounded-md">
                         <div class="absolute bottom-0 left-0 w-full h-20 bg-gradient-to-t from-transparent to-transparent blur-md"></div>
