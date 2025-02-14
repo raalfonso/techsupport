@@ -9,19 +9,20 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.highcharts.com/highcharts.js"></script>
     @vite(['resources/js/app.js', 'resources/css/app.css'])
     {{-- <link rel="icon" href="{{ asset('favicon.ico') }}">
      --}}
      <link rel="icon" type="image/png" href="{{ asset('images/SolveIT-removebg-preview.png') }}">
 </head>
-<body class="bg-slate-100 text-slate-900">
+<body class=" bg-slate-950">
     <style>
         [x-cloak] {
             display: none !important;
         }
     </style>
     <!-- Header -->
-    <header class="bg-gradient-to-l from-yellow-950 to-yellow-900 shadow-lg">
+    <header class="bg-gradient-to-l from-teal-950 to-teal-950 shadow-lg">
         <nav class="flex items-center justify-between px-4 py-2">
             <!-- Logo -->
             <a href="{{ route('home') }}" class="flex items-center text-white text-xl font-bold">
@@ -75,7 +76,7 @@
 
 
     <!-- Main Content -->
-    <main class="py-8 px-4 mx-auto max-w-screen-lg">
+    <main class="py-8 px-4 mx-auto">
         {{ $slot }}
     </main>
 

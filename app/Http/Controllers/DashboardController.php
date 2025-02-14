@@ -79,7 +79,43 @@ class DashboardController extends Controller
                 ->groupBy('users.id', 'users.name')
                 ->get();
 
-        // exit;
+
+
+                $browserData = [
+                    ['name' => 'Andrew', 'y' => 63, 'drilldown' => 'Andrew'],
+                    ['name' => 'Darold', 'y' => 15, 'drilldown' => 'Darold'],
+                    ['name' => 'Noime', 'y' => 42, 'drilldown' => 'Noime'],
+                    ['name' => 'Sam', 'y' => 41, 'drilldown' => 'Sam'],
+                    ['name' => 'Jean', 'y' => 12, 'drilldown' => 'Jean'],
+                    ['name' => 'Nick', 'y' => 10, 'drilldown' => 'Nick'],
+                   
+                ];
+            
+                $drilldownSeries = [
+                    [
+                        'name' => 'Andrew',
+                        'id' => 'Andrew',
+                        'data' => [
+                            ['v65.0', 0.1],
+                            ['v64.0', 1.3],
+                            ['v63.0', 53.02],
+                            ['v62.0', 1.4],
+                            ['v61.0', 0.88],
+                        ]
+                    ],
+                    [
+                        'name' => 'Firefox',
+                        'id' => 'Firefox',
+                        'data' => [
+                            ['v58.0', 1.02],
+                            ['v57.0', 7.36],
+                            ['v56.0', 0.35],
+                        ]
+                    ],
+                    // Add more drilldown series here...
+                ];
+
+                       // exit;
         return view('dashboard.index', [
             'reports_total' => $reports_total,
             'report_resolved' => $report_resolved,
@@ -91,7 +127,9 @@ class DashboardController extends Controller
             'results'   =>  $results,
             'dateRanges' => $dateRanges,
             'totals' => $totals,
-            'users' => $users
+            'users' => $users,
+            'browserData' => $browserData,
+            'drilldownSeries' => $drilldownSeries,
         ]);
 
     
