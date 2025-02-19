@@ -1,22 +1,22 @@
-<div class="block mt-4 overflow-scroll">
+<div class="block mt-4 overflow-auto">
     <!-- Table: Visible on medium screens (md) and larger -->
     <div class="hidden md:block">
-        <table class="items-center text-left text-xs bg-transparent w-full border-collapse ">
+        <table class="items-center text-left text-xs bg-transparent w-full border-collapse">
             <thead>
-                <tr class="bg-gray-200 text-left">
-                    <th class="border border-gray-300 px-2 py-2">#</th>
-                    <th class="border border-gray-300 px-2 py-2">Ticket Number</th>
-                    <th class="border border-gray-300 px-2 py-2">Requestor Name</th>
-                    <th class="border border-gray-300 px-2 py-2">Department</th>
-                    <th class="border border-gray-300 px-2 py-2">Category</th>
-                    <th class="border border-gray-300 px-2 py-2">Location</th>
-                    <th class="border border-gray-300 px-2 py-2">Issue</th>
-                    <th class="border border-gray-300 px-2 py-2">Status</th>
-                    <th class="border border-gray-300 px-2 py-2">Waiting time</th>
-                    <th class="border border-gray-300 px-2 py-2">Processing time</th>
-                    <th class="border border-gray-300 px-2 py-2">Request Date Time</th>
-                    <th class="border border-gray-300 px-2 py-2">Remarks</th>
-                    <th class="border border-gray-300 px-2 py-2">Actions</th>
+                <tr class="bg-slate-950 text-left text-md text-white">
+                    <th class="border border-gray-600 px-2 py-5">#</th>
+                    <th class="border border-gray-600 px-2 py-5">Ticket Number</th>
+                    <th class="border border-gray-600 px-2 py-5">Requestor Name</th>
+                    <th class="border border-gray-600 px-2 py-5">Department</th>
+                    <th class="border border-gray-600 px-2 py-5">Category</th>
+                    <th class="border border-gray-600 px-2 py-5">Location</th>
+                    <th class="border border-gray-600 px-2 py-5">Issue</th>
+                    <th class="border border-gray-600 px-2 py-5">Status</th>
+                    <th class="border border-gray-600 px-2 py-5">Waiting time</th>
+                    <th class="border border-gray-600 px-2 py-5">Processing time</th>
+                    <th class="border border-gray-600 px-2 py-5">Request Date Time</th>
+                    <th class="border border-gray-600 px-2 py-5">Remarks</th>
+                    <th class="border border-gray-600 px-2 py-5">Actions</th>
                 </tr>
             </thead>
         <tbody>
@@ -26,25 +26,25 @@
                 ?>
             @foreach($reports as $report)
     
-                <tr class="hover:bg-gray-100">
+                <tr class="hover:bg-slate-500 text-white">
                     
-                    <td class="border border-gray-300 px-2 py-2">{{ $count }}</td>
-                    <td class="border border-gray-300 px-2 py-2 whitespace-nowrap">{{ $report->ticket_number }}</td>
-                    <td class="border border-gray-300 px-2 py-2">{{ $report->client->name }}</td>
-                    <td class="border border-gray-300 px-2 py-2 ">{{ $report->department->title }}</td>
-                    <td class="border border-gray-300 px-2 py-2">{{ $report->issues->category->title }}</td>
-                    <td class="border border-gray-300 px-2 py-2">{{ $report->location }}</td>
-                    <td class="border border-gray-300 px-2 py-2 whitespace-nowrap">{{ $report->issues->title }}</td>
-                    <td class="border border-gray-300 px-2 py-2">{{ $report->status }}</td>
+                    <td class="border border-gray-600 px-2 py-2">{{ $count }}</td>
+                    <td class="border border-gray-600 px-2 py-2 whitespace-nowrap">{{ $report->ticket_number }}</td>
+                    <td class="border border-gray-600 px-2 py-2">{{ $report->client->name }}</td>
+                    <td class="border border-gray-600 px-2 py-2 ">{{ $report->department->title }}</td>
+                    <td class="border border-gray-600 px-2 py-2">{{ $report->issues->category->title }}</td>
+                    <td class="border border-gray-600 px-2 py-2">{{ $report->location }}</td>
+                    <td class="border border-gray-600 px-2 py-2 whitespace-nowrap">{{ $report->issues->title }}</td>
+                    <td class="border border-gray-600 px-2 py-2">{{ $report->status }}</td>
                     @if ($report->status == 'Pending')
-                        <td class="border border-gray-300 px-4 py-2 pending{{$count}}" style="display: none;">
+                        <td class="border border-gray-600 px-4 py-2 pending{{$count}}" style="display: none;">
                             {{$report->request_datetime}}
                         </td>
-                        <td class="border border-gray-300 px-4 py-2">
+                        <td class="border border-gray-600 px-4 py-2">
                             <span id = "pending{{$count}}"></span>
                         </td>
                     @elseif ($report->status == 'Ongoing')
-                        <td class="border border-gray-300 px-2 py-2">
+                        <td class="border border-gray-600 px-2 py-2">
                             @php
                                 $diffInMinutes = \Carbon\Carbon::parse($report->request_datetime)->diffInMinutes(\Carbon\Carbon::parse($report->response_datetime));
                             @endphp
@@ -59,11 +59,11 @@
                     
                         
                     @endif
-                        <td class="border border-gray-300 px-2 py-2 ongoing{{$count}}" style="display: none;">
+                        <td class="border border-gray-600 px-2 py-2 ongoing{{$count}}" style="display: none;">
                             {{$report->response_datetime}}
     
                         </td>
-                        <td class="border border-gray-300 px-4 py-2">
+                        <td class="border border-gray-600 px-4 py-2">
                             @if ($report->status == 'Ongoing')
                             <span id = "ongoing{{$count}}"></span>
                            
@@ -71,10 +71,10 @@
                            
                         </td>
                     
-                    <td class="border border-gray-300 px-2 py-2 whitespace-nowrap">{{ date('F d, Y h:i a', strtotime($report->request_datetime)) }}</td>
-                    <td class="border border-gray-300 px-2 py-2">{{ $report->remarks }}</td>
+                    <td class="border border-gray-600 px-2 py-2 whitespace-nowrap">{{ date('F d, Y h:i a', strtotime($report->request_datetime)) }}</td>
+                    <td class="border border-gray-600 px-2 py-2">{{ $report->remarks }}</td>
                     @if ($report->status == 'Pending')
-                        <td class="border border-gray-300 px-2 py-2">
+                        <td class="border border-gray-600 px-2 py-2">
                             <button 
                             @click="responseModal = true; selectedId = '{{ $report->id }}'" 
                             class="bg-blue-500 text-white px-2 py-2 rounded hover:bg-blue-600">
@@ -82,7 +82,7 @@
                             </button>
                         </td>
                     @else
-                        <td class="border border-gray-300 px-2 py-2">
+                        <td class="border border-gray-600 px-2 py-2">
                             <button 
                             @click="resolveModal = true; selectedId = '{{ $report->id }}'" 
                             class="btn mb-2">

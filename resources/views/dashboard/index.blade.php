@@ -1,6 +1,6 @@
 <x-layout>
     
-    <div class="container-fluid mx-auto">
+    <div class="container p-5 mt-5">
         <!-- Scorecards -->
         <!-- Responsive cards -->
        
