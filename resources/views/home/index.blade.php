@@ -6,9 +6,9 @@
            }
         } */
     </style>
-    <div class="container mx-auto px-4 font-mono sm:text-sm" x-data="{ showModal: {{ $feedback == 'True' ? 'true' : 'false' }} }">
+    <div class="container bg-gray-300 mx-auto px-4 font-mono sm:text-sm" x-data="{ showModal: {{ $feedback == 'True' ? 'true' : 'false' }} }" style="background: linear-gradient(to bottom left, #00cb6a, #4dc9fe); background-repeat: no-repeat;">
         <div class="flex">
-            <div class="w-full min-w-fit sm:max-w-8">
+            <div class="w-full min-w-fit sm:max-w-8  mt-10">
                 <div class="card welcome-card">
                     <div class="grid lg:grid-cols-2 p-2 gap-4 sm:overflow-auto lg:overflow-hidden">
                         <div>
@@ -50,6 +50,113 @@
                         </div>
                     </div>
                 </div>
+
+                <div class="relative w-96 h-96 mx-auto rounded-full bg-gray-100">
+                    <!-- Center Circle with Robot -->
+                    <div class="absolute top-1/2 left-1/2 w-32 h-32 bg-green-100 rounded-full 
+                                transform -translate-x-1/2 -translate-y-1/2 
+                                flex items-center justify-center">
+                      <!-- Replace with your robot/chatbot image -->
+                      <img src="https://via.placeholder.com/64" alt="Chatbot" class="w-16 h-16">
+                    </div>
+                  
+                    <!-- 1. Customer Request (Top Center) -->
+                    <div class="absolute w-16 h-16 bg-gradient-to-r from-orange-500 to-pink-500 
+                                rounded-full flex flex-col items-center justify-center text-white font-bold
+                               "
+                         style="top: 0; left: 50%; transform: translate(-50%, 0);">
+                      <span class="text-sm">01</span>
+                      <span class="text-xs text-center">Customer Request</span>
+                    </div>
+                  
+                    <!-- 2. Instant Answer (Top-Right) -->
+                    <div class="absolute w-16 h-16 bg-gradient-to-r from-pink-500 to-red-500 
+                                rounded-full flex flex-col items-center justify-center text-white font-bold"
+                         style="top: 15%; left: 85%; transform: translate(-50%, 0);">
+                      <span class="text-sm">02</span>
+                      <span class="text-xs text-center">Instant Answer</span>
+                    </div>
+                  
+                    <!-- 3. Knowledge Articles (Bottom-Right) -->
+                    <div class="absolute w-16 h-16 bg-gradient-to-r from-red-500 to-yellow-500 
+                                rounded-full flex flex-col items-center justify-center text-white font-bold"
+                         style="bottom: 15%; left: 85%; transform: translate(-50%, 0);">
+                      <span class="text-sm">03</span>
+                      <span class="text-xs text-center">Knowledge Articles</span>
+                    </div>
+                  
+                    <!-- 4. Deflect to Agent (Bottom-Left) -->
+                    <div class="absolute w-16 h-16 bg-gradient-to-r from-yellow-500 to-green-500 
+                                rounded-full flex flex-col items-center justify-center text-white font-bold"
+                         style="bottom: 15%; left: 15%; transform: translate(-50%, 0);">
+                      <span class="text-sm">04</span>
+                      <span class="text-xs text-center">Deflect to Agent</span>
+                    </div>
+                  
+                    <!-- 5. Ticket is Solved (Top-Left) -->
+                    <div class="absolute w-16 h-16 bg-gradient-to-r from-green-500 to-orange-500 
+                                rounded-full flex flex-col items-center justify-center text-white font-bold"
+                         style="top: 15%; left: 15%; transform: translate(-50%, 0);">
+                      <span class="text-sm">05</span>
+                      <span class="text-xs text-center">Ticket is Solved</span>
+                    </div>
+                  </div>
+                  
+                  
+                  
+
+                                <!-- Outer grid with 2 columns -->
+                <div class="grid grid-cols-2 gap-4 mt-5">
+                    <!-- First Column (Left) -->
+                        <div class="bg-white shadow-md rounded-md p-4 transition-transform transform hover:scale-105">
+                            <!-- Content for the first column -->
+                            <img src="{{ asset('images/boardroom.png') }}" alt="Example Image" class="w-full h-80 shadow-lg rounded-md">
+                            <div class="mt-5 text-center">
+                                <p class="mb-2 text-lg font-bold tracking-tight text-gray-900 dark:text-white"><a href="{{ route('home.add',['id'=>'1','client_id' => $client->id ])}}" class="text-slate-950">Video conferencing / Meeting Support
+                                </a></p>
+                                <p class="text-xs justify-center">Video conferencing and meeting support services provide technical and configurational support from NIS Team</p>
+                            </div>
+                        </div>
+                
+                <!-- Second Column (Right) -->
+                <div class="space-y-4">
+                    <!-- First Nested Row with 2 columns -->
+                    <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-white shadow-sm rounded-lg p-4 transition-transform transform hover:scale-105 ">
+                        <img src="{{ asset('images/acumatica.png') }}" alt="Example Image" class="w-full h-60 shadow-lg rounded-md">
+                        <div class="mt-5 text-center">
+                            <p class="mb-2 text-lg font-bold tracking-tight text-gray-900 dark:text-white"><a href="{{ route('home.add',['id'=>'2','client_id' => $client->id ])}}" class="text-slate-950">Acumatica ERP and HRIS
+                            </a></p>
+                            <p class="text-xs justify-center">For any issues related to Acumatica or HRIS—such as forgotten passwords, locked accounts, bugs, or errors—the System Group is here to support you.</p>
+                        </div>
+                    </div>
+                    <div class="bg-white shadow-sm rounded-lg p-4 transition-transform transform hover:scale-105">
+                        <img src="{{ asset('images/security.jpg') }}" alt="Example Image" class="w-full h-60 shadow-lg rounded-md">
+                        <div class="mt-5 text-center">
+                            <p class="mb-2 text-lg font-bold tracking-tight text-gray-900 dark:text-white"><a href="{{ route('home.add',['id'=>'3','client_id' => $client->id ])}}" class="text-slate-950">Cyber Security
+                            </a></p>
+                            <p class="text-xs justify-center">In the event of a cyber attack—whether it's malware, phishing, a virus, or any other cybersecurity issue—the NIS Team is here to help you.</p>
+                        </div>
+                    </div>
+                    </div>
+                    
+                    <!-- Second Nested Row with 2 columns -->
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-white shadow-sm rounded-lg p-4 transition-transform transform hover:scale-105">
+                        <img src="{{ asset('images/hardware-failures.png') }}" alt="Example Image" class="w-full h-60 shadow-lg rounded-md">
+                        <div class="mt-5 text-center">
+                            <p class="mb-2 text-lg font-bold tracking-tight text-gray-900 dark:text-white"><a href="{{ route('home.add',['id'=>'3','client_id' => $client->id ])}}" class="text-slate-950">Hardware Issues
+                            </a></p>
+                            <p class="text-xs justify-center">In the event of a cyber attack—whether it's malware, phishing, a virus, or any other cybersecurity issue—the NIS Team is here to help you.</p>
+                        </div>
+                    </div>
+                    <div class="bg-red-200 p-4">
+                        <!-- Nested Row 2, Column 2 -->
+                    </div>
+                    </div>
+                </div>
+                </div>
+
 
 
                 <div class="mt-5 gap-2 grid lg:grid-cols-3 sm:grid-cols-2">

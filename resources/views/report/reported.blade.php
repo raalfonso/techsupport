@@ -1,9 +1,9 @@
 <div class="block mt-4 overflow-auto">
     <!-- Table: Visible on medium screens (md) and larger -->
     <div class="hidden md:block">
-        <table class="items-center text-left text-xs bg-transparent w-full border-collapse">
+        <table class="items-center text-left text-xs bg-white w-full border-collapse">
             <thead>
-                <tr class="bg-slate-950 text-left text-md text-white">
+                <tr class="dark:bg-slate-950 text-left text-md dark:text-white bg-gray-200 text-slate-950">
                     <th class="border border-gray-600 px-2 py-5">#</th>
                     <th class="border border-gray-600 px-2 py-5">Ticket Number</th>
                     <th class="border border-gray-600 px-2 py-5">Requestor Name</th>
@@ -26,7 +26,7 @@
                 ?>
             @foreach($reports as $report)
     
-                <tr class="hover:bg-slate-500 text-white">
+                <tr class="hover:bg-slate-500 dark:text-white text-slate-950">
                     
                     <td class="border border-gray-600 px-2 py-2">{{ $count }}</td>
                     <td class="border border-gray-600 px-2 py-2 whitespace-nowrap">{{ $report->ticket_number }}</td>
@@ -41,7 +41,7 @@
                             {{$report->request_datetime}}
                         </td>
                         <td class="border border-gray-600 px-4 py-2">
-                            <span id = "pending{{$count}}"></span>
+                            <span class = "pendingValue{{$count}}"></span>
                         </td>
                     @elseif ($report->status == 'Ongoing')
                         <td class="border border-gray-600 px-2 py-2">
@@ -65,7 +65,7 @@
                         </td>
                         <td class="border border-gray-600 px-4 py-2">
                             @if ($report->status == 'Ongoing')
-                            <span id = "ongoing{{$count}}"></span>
+                            <span class = "ongoingValue{{$count}}"></span>
                            
                             @endif
                            
@@ -77,7 +77,7 @@
                         <td class="border border-gray-600 px-2 py-2">
                             <button 
                             @click="responseModal = true; selectedId = '{{ $report->id }}'" 
-                            class="bg-blue-500 text-white px-2 py-2 rounded hover:bg-blue-600">
+                            class="bg-blue-500 text-white px-2 py-2 rounded hover:bg-blue-600 w-full">
                             Response
                             </button>
                         </td>
@@ -85,13 +85,13 @@
                         <td class="border border-gray-600 px-2 py-2">
                             <button 
                             @click="resolveModal = true; selectedId = '{{ $report->id }}'" 
-                            class="btn mb-2">
+                            class="btn mb-2 dark:bg-teal-900 dark:hover:bg-teal-950 w-full">
                             Resolved
                             </button>
                             
                             <button 
                             @click="escalateModal = true; selectedId = '{{ $report->id }}'" 
-                            class="bg-yellow-500 text-white px-2 py-2 rounded hover:bg-yellow-600">
+                            class="bg-yellow-500 text-white px-2 py-2 rounded hover:bg-yellow-600 w-full">
                             Escalate
                             </button>
                         </td>
@@ -114,7 +114,7 @@
         $now = now();
         ?>
          @foreach($reports as $report)
-        <div class="border p-4 rounded-lg shadow mb-2">
+        <div class="border p-4 rounded-lg shadow mb-2 dark:text-white">
             <h2 class="font-bold">{{ $report->client->name }} - {{ $report->department->title }}</h2>
             <p>Ticket No: {{ $report->ticket_number }}</p>
             <p>Issues: {{ $report->issues->title }}</p>
@@ -123,7 +123,7 @@
                             {{$report->request_datetime}}
                         </div>
                         <p>
-                            Pending Time :<span id = "pending{{$count1}}"></span>
+                            Pending Time :<span class="dark:text-white ml-5 pendingValue{{$count1}}"></span>
                         </p>
             @else
                             @php
@@ -142,7 +142,7 @@
                        
                             <button 
                             @click="responseModal = true; selectedId = '{{ $report->id }}'" 
-                            class="btn mb-2">
+                            class="btn mb-2 dark:bg-teal-900 dark:hover:bg-teal-950">
                             Response
                             </button>
                    
@@ -150,7 +150,7 @@
                        
                             <button 
                             @click="resolveModal = true; selectedId = '{{ $report->id }}'" 
-                            class="btn mb-2">
+                            class="btn mb-2 dark:bg-blue-900 dark:hover:bg-blue-950">
                             Resolved
                             </button>
                             
@@ -162,6 +162,9 @@
                   
                         
                     @endif
+                    @php
+                          $count1++;
+                    @endphp
         </div>
         @endforeach
     </div>
@@ -228,7 +231,7 @@
             for (let index = 1; index < count; index++) {
                 
                 const requestTime = $('.pending'+index).html();
-
+                
                 const startTime = new Date(requestTime);
                 const endTime = new Date();
                 const diffInMs = endTime - startTime;
@@ -236,11 +239,11 @@
                 const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
            
                 if (diffInMinutes >= 60) {
-                    
-                    $('#pending'+index).html(Math.round(diffInMinutes / 60)+' hrs');
+                  
+                    $('.pendingValue'+index).html(Math.round(diffInMinutes / 60)+' hrs');
                 }
                 else {
-                    $('#pending'+index).html(diffInMinutes+' mins');
+                    $('.pendingValue'+index).html(diffInMinutes+' mins');
                 }
             }
         }
@@ -260,10 +263,10 @@
                 console.log(requestTime);
                     if (diffInMinutes >= 60) {
                         
-                        $('#ongoing'+index).html(Math.round(diffInMinutes / 60)+' hrs');
+                        $('.ongoingValue'+index).html(Math.round(diffInMinutes / 60)+' hrs');
                     }
                     else {
-                        $('#ongoing'+index).html(diffInMinutes+' mins');
+                        $('.ongoingValue'+index).html(diffInMinutes+' mins');
                     }
                 }
             

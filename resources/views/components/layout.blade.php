@@ -14,8 +14,10 @@
     {{-- <link rel="icon" href="{{ asset('favicon.ico') }}">
      --}}
      <link rel="icon" type="image/png" href="{{ asset('images/SolveIT-removebg-preview.png') }}">
+
+     
 </head>
-<body class="bg-slate-100 dark:bg-slate-950">
+<body class="bg-gray-300 dark:bg-slate-950">
     <style>
         [x-cloak] {
             display: none !important;
@@ -140,6 +142,8 @@
       // Update icons
       updateThemeIcons();
     });
+
+    
   });
 
   // On page load, check localStorage for theme preference
@@ -147,6 +151,7 @@
     document.documentElement.classList.add('dark');
   }
   updateThemeIcons();
+  
     </script>
 
 </body>

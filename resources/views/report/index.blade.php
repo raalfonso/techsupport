@@ -1,10 +1,10 @@
 <x-layout>
     <div class="mx-auto w-full p-4">
         <!-- Card Container -->
-        <div class="mx-auto bg-slate-800 shadow-md rounded-lg p-4" 
+        <div class="mx-auto bg-slate-100 shadow-md rounded-lg p-4 dark:bg-slate-800" 
             x-data="{ showModal: false, resolveModal: false, escalateModal: false, responseModal: false, selectedId: null }">
             
-            <h1 class="text-lg md:text-xl font-bold mb-4 text-gray-100">List of Requested / Reported Issues</h1>
+            <h1 class="text-lg md:text-xl font-bold mb-4 text-slate-800 dark:text-slate-100">List of Requested / Reported Issues</h1>
             <input type="text" class="firstCount input" style="display: none;" value="{{$countReport}}">
             <!-- New Report Button -->
             <div class="flex justify-end mb-4">
@@ -204,15 +204,15 @@
     <!-- List of Resolved Issues -->
         </div>
         
-    <div class="mt-10 card px-4">
-        <h1 class="text-lg md:text-xl font-bold mb-4 text-gray-800">List of Resolved Issues</h1>
+    <div class="mt-10 card px-4 bg-white dark:bg-slate-800">
+        <h1 class="text-lg md:text-xl font-bold mb-4 text-gray-800 dark:text-slate-100">List of Resolved Issues</h1>
 
         <div class="overflow-auto max-h-[350px] pb-10">
             <!-- Table: Visible on medium screens (md) and larger -->
             <div class="hidden md:block">
-                <table class="w-full text-left text-xs md:text-sm border-collapse border border-gray-300">
-                    <thead class="bg-gray-200">
-                        <tr>
+                <table class="items-center text-left text-xs bg-transparent w-full border-collapse">
+                    <thead>
+                        <tr class="dark:bg-slate-950 text-left text-md dark:text-white bg-gray-200 text-slate-950">
                             <th class="border border-gray-300 px-2 py-2">#</th>
                             <th class="border border-gray-300 px-2 py-2">Ticket Number</th>
                             <th class="border border-gray-300 px-2 py-2">Requestor Name</th>
@@ -230,7 +230,7 @@
                     <tbody>
                         @php $count = 1; @endphp
                         @foreach($resolved as $resolve)
-                            <tr class="hover:bg-gray-100">
+                            <tr class="hover:bg-slate-500 dark:text-white ">
                                 <td class="border border-gray-300 px-2 py-2">{{ $count++ }}</td>
                                 <td class="border border-gray-300 px-2 py-2">{{ $resolve->ticket_number }}</td>
                                 <td class="border border-gray-300 px-2 py-2">{{ $resolve->client->name }}</td>
@@ -276,9 +276,9 @@
             </div>
 
             <!-- Card: Visible only on small screens (mobile) -->
-            <div class="block md:hidden">
+            <div class="block md:hidden p-6">
                 @foreach($resolved as $resolve)
-                <div class="border p-4 rounded-lg shadow mb-2">
+                <div class="border p-4 rounded-lg shadow mb-2 dark:text-white">
                     <h2 class="font-bold">{{ $resolve->client?->name }} - {{ $resolve->department?->title }}</h2>
                     <p>Ticket No: {{ $resolve->ticket_number }}</p>
                     <p>Issues: {{ $resolve->issues?->title }}</p>
