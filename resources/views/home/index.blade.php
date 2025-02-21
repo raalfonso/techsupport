@@ -9,7 +9,7 @@
     <div class="container bg-gray-300 mx-auto px-4 font-mono sm:text-sm" x-data="{ showModal: {{ $feedback == 'True' ? 'true' : 'false' }} }" style="background: linear-gradient(to bottom left, #00cb6a, #4dc9fe); background-repeat: no-repeat;">
         <div class="flex">
             <div class="w-full min-w-fit sm:min-w-fit  mt-10">
-                <div class="card welcome-card">
+                <div class="bg-white rounded-md p-1 sm:text-sm">
                     <div class="grid lg:grid-cols-2 p-2 gap-4 sm:overflow-auto lg:overflow-hidden">
                         <div>
                             <p class="text-xl mb-4">Mabuting Araw!   <b>{{$client->name}}</b> </p>
@@ -280,27 +280,27 @@
         var maxWidth = 0;
         var $highestDiv;
 
-    $('.card issue-card').each(function() {
-        var currentHeight = $(this).height();
-        var currentWidth = $(this).width();
-        if (currentHeight > maxHeight) {
+    //$('.card issue-card').each(function() {
+      //  var currentHeight = $(this).height();
+        //var currentWidth = $(this).width();
+        //if (currentHeight > maxHeight) {
             maxHeight = currentHeight;
             $highestDiv = $(this);
-        }
-        if (currentWidth > maxWidth) {
+        //}
+        //if (currentWidth > maxWidth) {
             maxWidth = currentHeight;
             $highestDiv = $(this);
-        }
-    });
+        //}
+    //});
 
     // Set the height of all '.card' elements to the maximum height
     //$('.card-body').height(maxHeight);
-    $('.card issue-card').animate({
+    //$('.card issue-card').animate({
         // height: 300
-    }, maxHeight);
-    $('.card issue-card').animate({
+    //}, maxHeight);
+    //$('.card issue-card').animate({
         // width: 300
-    }, maxWidth);
+    //}, maxWidth);
 
 
 
