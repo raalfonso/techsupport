@@ -44,7 +44,7 @@
                             <span class = "pendingValue{{$count}}"></span>
                         </td>
                     @elseif ($report->status == 'Ongoing')
-                        <td class="border border-gray-600 px-2 py-2">
+                        <td class="border border-gray-600 px-4 py-2">
                             @php
                                 $diffInMinutes = \Carbon\Carbon::parse($report->request_datetime)->diffInMinutes(\Carbon\Carbon::parse($report->response_datetime));
                             @endphp
@@ -212,7 +212,7 @@
 
 <script>
          $('.iam-checkbox').click(function() {
-            console.log($(this).is(":checked"));
+            // console.log($(this).is(":checked"));
         });
 
        
@@ -260,7 +260,6 @@
                 const diffInMs = endTime - startTime;
                 
                 const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
-                console.log(requestTime);
                     if (diffInMinutes >= 60) {
                         
                         $('.ongoingValue'+index).html(Math.round(diffInMinutes / 60)+' hrs');

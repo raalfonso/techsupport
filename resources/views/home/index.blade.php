@@ -35,7 +35,15 @@
                                     <tr>
                                     <td class="border border-gray-300 px-2 py-2">{{ $count++; }}</td>
                                     <td class="border border-gray-300 px-2 py-2 lg:whitespace-nowrap">{{ $report->issues->title }}</td>
-                                    <td class="border border-gray-300 px-2 py-2 whitespace-nowrap"><span class="text-sm">{{ $report->status }}</span></td>
+                                    <td class="border border-gray-300 px-2 py-2 whitespace-nowrap">
+                                        @if ($report->status == "Done")
+                                        <span class="w-3 h-3 bg-green-500 rounded-full"></span>
+                                        <span class="text-sm"> Closed </span>
+                                        @else
+
+                                        <span class="text-sm">{{ $report->status }}</span>
+                                        @endif
+                                    </td>
                                     <td class="border border-gray-300 px-2 py-2 whitespace-nowrap">@if ($report->status == "Canceled")
                                         @else
                                         
