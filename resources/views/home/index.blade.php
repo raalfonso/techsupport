@@ -7,10 +7,10 @@
         } */
     </style>
     <div class="container bg-gray-300 mx-auto px-4 font-mono sm:text-sm" x-data="{ showModal: {{ $feedback == 'True' ? 'true' : 'false' }} }" style="background: linear-gradient(to bottom left, #00cb6a, #4dc9fe); background-repeat: no-repeat;">
-        <div class="flex">
+        <div class="flex p-2">
             <div class="w-full min-w-fit sm:min-w-fit  mt-10">
-                <div class="bg-white rounded-md p-1 sm:text-sm">
-                    <div class="grid lg:grid-cols-2 p-2 gap-4 sm:overflow-auto lg:overflow-hidden">
+                <div class="bg-white rounded-md sm:text-sm">
+                    <div class="grid lg:grid-cols-2 w-full p-5 gap-4 sm:overflow-auto lg:overflow-hidden">
                         <div>
                             <p class="text-xl mb-4">Mabuting Araw!   <b>{{$client->name}}</b> </p>
                             <p class="text-gray-500 text-justify">We're excited to introduce our enhanced Support System, crafted to meet your needs. Enjoy effortless access to assistance, resources, and solutions—making support more accessible and efficient for you.</p>
