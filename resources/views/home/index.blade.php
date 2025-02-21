@@ -8,7 +8,7 @@
     </style>
     <div class="container bg-gray-300 mx-auto px-4 font-mono sm:text-sm" x-data="{ showModal: {{ $feedback == 'True' ? 'true' : 'false' }} }" style="background: linear-gradient(to bottom left, #00cb6a, #4dc9fe); background-repeat: no-repeat;">
         <div class="flex">
-            <div class="w-full min-w-fit sm:max-w-8  mt-10">
+            <div class="w-full min-w-fit sm:min-w-fit  mt-10">
                 <div class="card welcome-card">
                     <div class="grid lg:grid-cols-2 p-2 gap-4 sm:overflow-auto lg:overflow-hidden">
                         <div>
