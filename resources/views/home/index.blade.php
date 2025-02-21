@@ -6,166 +6,91 @@
            }
         } */
     </style>
-    <div class="container bg-gray-300 mx-auto px-4 font-mono sm:text-sm" x-data="{ showModal: {{ $feedback == 'True' ? 'true' : 'false' }} }" style="background: linear-gradient(to bottom left, #00cb6a, #4dc9fe); background-repeat: no-repeat;">
-        <div class="flex p-2">
-            <div class="w-full min-w-fit sm:min-w-fit  mt-10">
-              
-                    <div class="grid lg:grid-cols-2 w-full p-5 gap-4 sm:overflow-auto lg:overflow-hidden card">
-                        <div>
-                            <p class="text-xl mb-4">Mabuting Araw!   <b>{{$client->name}}</b> </p>
-                            <p class="text-gray-500 text-justify">We're excited to introduce our enhanced Support System, crafted to meet your needs. Enjoy effortless access to assistance, resources, and solutions—making support more accessible and efficient for you.</p>
-                        </div>
-                        <div class="p-0 text-center">
-                            <table class="table-auto border text-sm w-full">
-                                <thead>
-                                    <th colspan="4" class="border border-gray-30 px-2 py-2 text-lg">List of Repored Issues</th>
-                                    <tr class="">
-                                        <th class="border border-gray-30 px-4 py-2">#</th>
-                                        <th class="border border-gray-30 px-4 py-2">Issues</th>
-                                        <th class="border border-gray-30 px-4 py-2">Status</th>
-                                        <th class="border border-gray-30 px-4 py-2">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php $count = 1; ?>
-                                    @if (count($reports) == 0)
-                                    <td colspan="4" class="border border-gray-300 px-2 py-2">No previous requests were made</td>
+    <div class="container bg-gray-300 mx-auto px-4 font-mono sm:text-sm"
+    x-data="{ showModal: {{ $feedback == 'True' ? 'true' : 'false' }} }"
+    style="background: linear-gradient(to bottom left, #00cb6a, #4dc9fe);
+           background-repeat: no-repeat;
+           background-attachment: fixed;
+           background-size: cover;
+           min-height: 100vh; /* Full height */
+           width: 100vw; /* Full width */
+">
+    <div class="flex p-2 flex-wrap">
+        <div class="w-full mt-10">
+            <div class="grid lg:grid-cols-2 sm:grid-cols-1 w-full p-5 gap-4 bg-white border border-gray-200 rounded-lg shadow min-w-[250px]">
+                <div>
+                    <p class="text-xl mb-4">Mabuting Araw! <b>{{ $client->name }}</b></p>
+                    <p class="text-gray-500 text-justify">
+                        We're excited to introduce our enhanced Support System, crafted to meet your needs. Enjoy effortless access to assistance, resources, and solutions—making support more accessible and efficient for you.
+                    </p>
+                </div>
+                <div class="p-0 text-center overflow-x-auto">
+                    <table class="table-auto border text-sm w-full min-w-[600px]">
+                        <thead>
+                            <th colspan="4" class="border border-gray-300 px-2 py-2 text-lg">List of Reported Issues</th>
+                            <tr>
+                                <th class="border border-gray-300 px-4 py-2">#</th>
+                                <th class="border border-gray-300 px-4 py-2">Issues</th>
+                                <th class="border border-gray-300 px-4 py-2">Status</th>
+                                <th class="border border-gray-300 px-4 py-2">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php $count = 1; ?>
+                            @if (count($reports) == 0)
+                            <td colspan="4" class="border border-gray-300 px-2 py-2 text-center">No previous requests were made</td>
+                            @endif
+                            @foreach ($reports as $report)
+                            <tr>
+                                <td class="border border-gray-300 px-2 py-2">{{ $count++ }}</td>
+                                <td class="border border-gray-300 px-2 py-2 lg:whitespace-nowrap">{{ $report->issues->title }}</td>
+                                <td class="border border-gray-300 px-2 py-2 whitespace-nowrap">
+                                    @if ($report->status == "Done")
+                                    <span class="w-3 h-3 bg-green-500 rounded-full inline-block"></span>
+                                    <span class="text-sm">Closed</span>
+                                    @else
+                                    <span class="text-sm">{{ $report->status }}</span>
                                     @endif
-                                    @foreach ($reports as $report)
-                                    <tr>
-                                    <td class="border border-gray-300 px-2 py-2">{{ $count++; }}</td>
-                                    <td class="border border-gray-300 px-2 py-2 lg:whitespace-nowrap">{{ $report->issues->title }}</td>
-                                    <td class="border border-gray-300 px-2 py-2 whitespace-nowrap">
-                                        @if ($report->status == "Done")
-                                        <span class="w-3 h-3 bg-green-500 rounded-full"></span>
-                                        <span class="text-sm"> Closed </span>
-                                        @else
-
-                                        <span class="text-sm">{{ $report->status }}</span>
-                                        @endif
-                                    </td>
-                                    <td class="border border-gray-300 px-2 py-2 whitespace-nowrap">@if ($report->status == "Canceled")
-                                        @else
-                                        
-                                        <a href="{{ route('home.view',['id'=> $report->ticket_number])}}" class="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded inline-block">View</a></td>
+                                </td>
+                                <td class="border border-gray-300 px-2 py-2 whitespace-nowrap">
+                                    @if ($report->status != "Canceled")
+                                    <a href="{{ route('home.view',['id'=> $report->ticket_number])}}" class="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded inline-block">View</a>
                                     @endif
-                                    </tr>
-         
-                                    @endforeach
-                                 
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-             
-
-                <div class="mt-5 gap-10 shadow-sm grid lg:grid-cols-4 sm:grid-cols-2">
-                    <div class="max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow min-w-52 transition-transform transform hover:scale-105">
-                        <a href="{{ route('home.add',['id'=>'1','client_id' => $client->id ])}}" class="text-slate-950">
-                            <img src="{{ asset('images/boardroom.png') }}" alt="Example Image" class="w-full h-60 shadow-lg rounded-md">
-                            <div class="absolute bottom-0 left-0 w-full h-20 bg-gradient-to-t from-transparent to-transparent blur-md"></div>
-                            <div class="mt-5 text-center">
-                                <p class="mb-2 text-lg font-bold tracking-tight text-gray-900">Video conferencing / Meeting Support
-                            </p>
-                                <p class="text-xs justify-center">Video conferencing and meeting support services provide technical and configurational support from NIS Team</p>
-                            </div>
-                        </a>
-                    </div>
-                    <div class="max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow min-w-52 transition-transform transform hover:scale-105">
-                        <a href="{{ route('home.add',['id'=>'2','client_id' => $client->id ])}}" class="text-slate-950">
-                        <img src="{{ asset('images/acumatica.png') }}" alt="Example Image" class="w-full h-60  drop-shadow">
-                        <div class="absolute bottom-0 left-0 w-full h-20 bg-gradient-to-t from-transparent to-transparent blur-md"></div>
-                        <div class="mt-5 text-center">
-                            <p class="mb-2 text-lg font-bold tracking-tight text-gray-900">Acumatica ERP and HRIS
-                            </p>
-                            <p class="text-xs justify-center">For any issues related to Acumatica or HRIS—such as forgotten passwords, locked accounts, bugs, or errors—the System Group is here to support you.</p>
-                        </div>
-                        </a>
-                    </div>
-                    <div class="max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow min-w-52 transition-transform transform hover:scale-105">
-                        <a href="{{ route('home.add',['id'=>'3','client_id' => $client->id ])}}" class="text-slate-950">
-                            <img src="{{ asset('images/security.jpg') }}" alt="Example Image" class="w-full h-60 shadow-lg rounded-md">
-                        <div class="absolute bottom-0 left-0 w-full h-20 bg-gradient-to-t from-transparent to-transparent blur-md"></div>
-                        <div class="mt-5 text-center">
-                            <p class="mb-2 text-lg font-bold tracking-tight text-gray-900">Cyber Security
-                            </p>
-                            <p class="text-xs justify-center">In the event of a cyber attack—whether it's malware, phishing, a virus, or any other cybersecurity issue—the NIS Team is here to help you.</p>
-                        </div>
-                        </a>
-                    </div>
-                    <div class="card issue-card max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow  min-w-52 transition-transform transform hover:scale-105">
-                        <a href="{{ route('home.add',['id'=>'4','client_id' => $client->id ])}}" class="text-slate-950">
-                            <img src="{{ asset('images/hardware-failures.png') }}" alt="Example Image" class="w-full h-60 shadow-lg rounded-md">
-                        <div class="absolute bottom-0 left-0 w-full h-20 bg-gradient-to-t from-transparent to-transparent blur-md"></div>
-                        <div class="mt-5 text-center">
-                            <p class="mb-2 text-lg font-bold tracking-tight text-gray-900">Hardware Issues
-                            </p>
-                            <p class="text-xs justify-center">If you're experiencing hardware or printing issues—such as system malfunctions, device failures, overheating, connectivity problems, printer errors, paper jams, or print quality issues—the NIS Team is ready to assist.</p>
-                        </div>
-                        </a>
-                      
-                    </div>
-                    <div class="card issue-card max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow min-w-52 transition-transform transform hover:scale-105">
-                        <a href="{{ route('home.add',['id'=>'5','client_id' => $client->id ])}}" class="text-slate-950">
-                            <img src="{{ asset('images/network.png') }}" alt="Example Image" class="w-full h-60 shadow-lg rounded-md">
-                        <div class="absolute bottom-0 left-0 w-full h-20 bg-gradient-to-t from-transparent to-transparent blur-md"></div>
-                        <div class="mt-5 text-center">
-                            <p class="mb-2 text-lg font-bold tracking-tight text-gray-900">Network Problem
-                            </p>
-                            <p class="text-xs justify-center">If you're experiencing network issues—such as slow connectivity, frequent disconnections, limited access, VPN failures, or any other network-related disruptions—the NIS Team is here to help. </p>
-                        </div>
-                        </a>
-                       
-                    </div>
-                    <div class="card issue-card max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow min-w-52 transition-transform transform hover:scale-105">
-                        <a href="{{ route('home.add',['id'=>'6','client_id' => $client->id ])}}" class="text-slate-950">
-                            <img src="{{ asset('images/aodocs_1.png') }}" alt="Example Image" class="w-full h-60 shadow-lg rounded-md">
-                        <div class="absolute bottom-0 left-0 w-full h-20 bg-gradient-to-t from-transparent to-transparent blur-md"></div>
-                        <div class="mt-5 text-center">
-                            <p class="mb-2 text-lg font-bold tracking-tight text-gray-900">AODocs Issues
-                            </p>
-                            <p class="text-xs justify-center">If you're experiencing issues with AODocs—such as document access problems, permission errors, workflow malfunctions, or any other AODocs-related concerns—the System Team is here to assist you.  </p>
-                        </div>
-                        </a>
-    
-                    </div>
-                    <div class="card issue-card max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow  min-w-52 transition-transform transform hover:scale-105">
-                        <a href="{{ route('home.add',['id'=>'7','client_id' => $client->id ])}}" class="text-slate-950">
-                            <img src="{{ asset('images/laptop-repair.jpeg') }}" alt="Example Image" class="w-full h-60 shadow-lg rounded-md">
-                        <div class="absolute bottom-0 left-0 w-full h-20 bg-gradient-to-t from-transparent to-transparent blur-md"></div>
-                        <div class="mt-5 text-center">
-                            <p class="mb-2 text-lg font-bold tracking-tight text-gray-900">Software Issues
-                            </p>
-                            <p class="text-xs justify-center">If you're experiencing software-related issues—such as application crashes, installation errors, compatibility problems, or performance concerns—the NIS Team is here to assist you.  </p>
-                        </div>
-                        </a>
-                    </div>
-                    <div class="card issue-card max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow  min-w-52 transition-transform transform hover:scale-105">
-                        <a href="{{ route('home.add',['id'=>'8','client_id' => $client->id ])}}" class="text-slate-950">
-                            <img src="{{ asset('images/google_1.png') }}" alt="Example Image" class="w-full h-60 shadow-lg rounded-md">
-                        <div class="absolute bottom-0 left-0 w-full h-20 bg-gradient-to-t from-transparent to-transparent blur-md"></div>
-                        <div class="mt-5 text-center">
-                            <p class="mb-2 text-lg font-bold tracking-tight text-gray-900">G Suite / Google Workspace Issues
-                            </p>
-                            <p class="text-xs justify-center">If you're experiencing issues with Google Workspace—such as Gmail, Google Drive, Docs, Sheets, Meet, or other related services—the NIS and System Team is here to assist you.  </p>
-                        </div>
-                        </a>
-                    </div>
-                    <div class="card issue-card max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow  min-w-52 transition-transform transform hover:scale-105">
-                        <a href="{{ route('home.add',['id'=>'9','client_id' => $client->id ])}}" class="text-slate-950">
-                            <img src="{{ asset('images/10871996.png') }}" alt="Example Image" class="w-full h-60 shadow-lg rounded-md">
-                        <div class="absolute bottom-0 left-0 w-full h-20 bg-gradient-to-t from-transparent to-transparent blur-md"></div>
-                        <div class="mt-5 text-center">
-                            <p class="mb-2 text-lg font-bold tracking-tight text-gray-900">Other's Issues
-                            </p>
-                            <p class="text-xs justify-center">For any other’s technical concerns or issues not covered in specific categories, the NIS and System Team is here to assist you.  </p>
-                        </div>
-                        </a>
-                    </div>
-                 
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
                 </div>
             </div>
+
+            <div class="mt-5 gap-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+                @foreach([
+                    ['id' => 1, 'image' => 'boardroom.png', 'title' => 'Video conferencing / Meeting Support', 'desc' => 'Technical and configurational support from NIS Team.'],
+                    ['id' => 2, 'image' => 'acumatica.png', 'title' => 'Acumatica ERP and HRIS', 'desc' => 'Support for Acumatica or HRIS-related issues.'],
+                    ['id' => 3, 'image' => 'security.jpg', 'title' => 'Cyber Security', 'desc' => 'Support for malware, phishing, and other cybersecurity issues.'],
+                    ['id' => 4, 'image' => 'hardware-failures.png', 'title' => 'Hardware Issues', 'desc' => 'Support for system malfunctions, connectivity issues, and printer errors.'],
+                    ['id' => 5, 'image' => 'network.png', 'title' => 'Network Problem', 'desc' => 'Assistance with slow connectivity, VPN failures, and disconnections.'],
+                    ['id' => 6, 'image' => 'aodocs_1.png', 'title' => 'AODocs Issues', 'desc' => 'Support for document access, workflow malfunctions, and permissions errors.'],
+                    ['id' => 7, 'image' => 'laptop-repair.jpeg', 'title' => 'Software Issues', 'desc' => 'Support for software crashes, installation errors, and performance issues.'],
+                    ['id' => 8, 'image' => 'google_1.png', 'title' => 'G Suite / Google Workspace Issues', 'desc' => 'Help with Gmail, Drive, Docs, Sheets, Meet, etc.'],
+                    ['id' => 9, 'image' => '10871996.png', 'title' => "Other's Issues", 'desc' => 'Assistance for technical concerns not covered in other categories.']
+                ] as $issue)
+                <div class="max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow min-w-[250px] transition-transform transform hover:scale-105">
+                    <a href="{{ route('home.add',['id'=> $issue['id'], 'client_id' => $client->id])}}" class="text-slate-950">
+                        <img src="{{ asset('images/' . $issue['image']) }}" alt="Example Image" class="w-full h-60 shadow-lg rounded-md">
+                        <div class="mt-5 text-center">
+                            <p class="mb-2 text-lg font-bold tracking-tight text-gray-900">{{ $issue['title'] }}</p>
+                            <p class="text-xs text-gray-700">{{ $issue['desc'] }}</p>
+                        </div>
+                    </a>
+                </div>
+                @endforeach
+            </div>
         </div>
+    </div>
+</div>
+
 
 
         <!-- Modal -->
