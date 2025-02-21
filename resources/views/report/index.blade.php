@@ -1,7 +1,7 @@
 <x-layout>
     <div class="mx-auto w-full p-4">
         <!-- Card Container -->
-        <div class="mx-auto bg-slate-100 shadow-md rounded-lg p-4 dark:bg-slate-800" 
+        <div class="mx-auto bg-white shadow-md rounded-lg p-4 dark:bg-slate-800" 
             x-data="{ showModal: false, resolveModal: false, escalateModal: false, responseModal: false, selectedId: null }">
             
             <h1 class="text-lg md:text-xl font-bold mb-4 text-slate-800 dark:text-slate-100">List of Requested / Reported Issues</h1>

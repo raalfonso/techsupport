@@ -51,167 +51,108 @@
                     </div>
                 </div>
 
-                <div class="relative w-96 h-96 mx-auto rounded-full bg-gray-100">
-                    <!-- Center Circle with Robot -->
-                    <div class="absolute top-1/2 left-1/2 w-32 h-32 bg-green-100 rounded-full 
-                                transform -translate-x-1/2 -translate-y-1/2 
-                                flex items-center justify-center">
-                      <!-- Replace with your robot/chatbot image -->
-                      <img src="https://via.placeholder.com/64" alt="Chatbot" class="w-16 h-16">
-                    </div>
-                  
-                    <!-- 1. Customer Request (Top Center) -->
-                    <div class="absolute w-16 h-16 bg-gradient-to-r from-orange-500 to-pink-500 
-                                rounded-full flex flex-col items-center justify-center text-white font-bold
-                               "
-                         style="top: 0; left: 50%; transform: translate(-50%, 0);">
-                      <span class="text-sm">01</span>
-                      <span class="text-xs text-center">Customer Request</span>
-                    </div>
-                  
-                    <!-- 2. Instant Answer (Top-Right) -->
-                    <div class="absolute w-16 h-16 bg-gradient-to-r from-pink-500 to-red-500 
-                                rounded-full flex flex-col items-center justify-center text-white font-bold"
-                         style="top: 15%; left: 85%; transform: translate(-50%, 0);">
-                      <span class="text-sm">02</span>
-                      <span class="text-xs text-center">Instant Answer</span>
-                    </div>
-                  
-                    <!-- 3. Knowledge Articles (Bottom-Right) -->
-                    <div class="absolute w-16 h-16 bg-gradient-to-r from-red-500 to-yellow-500 
-                                rounded-full flex flex-col items-center justify-center text-white font-bold"
-                         style="bottom: 15%; left: 85%; transform: translate(-50%, 0);">
-                      <span class="text-sm">03</span>
-                      <span class="text-xs text-center">Knowledge Articles</span>
-                    </div>
-                  
-                    <!-- 4. Deflect to Agent (Bottom-Left) -->
-                    <div class="absolute w-16 h-16 bg-gradient-to-r from-yellow-500 to-green-500 
-                                rounded-full flex flex-col items-center justify-center text-white font-bold"
-                         style="bottom: 15%; left: 15%; transform: translate(-50%, 0);">
-                      <span class="text-sm">04</span>
-                      <span class="text-xs text-center">Deflect to Agent</span>
-                    </div>
-                  
-                    <!-- 5. Ticket is Solved (Top-Left) -->
-                    <div class="absolute w-16 h-16 bg-gradient-to-r from-green-500 to-orange-500 
-                                rounded-full flex flex-col items-center justify-center text-white font-bold"
-                         style="top: 15%; left: 15%; transform: translate(-50%, 0);">
-                      <span class="text-sm">05</span>
-                      <span class="text-xs text-center">Ticket is Solved</span>
-                    </div>
-                  </div>
-                  
-                  
-                  
-
-                                <!-- Outer grid with 2 columns -->
-                <div class="grid grid-cols-2 gap-4 mt-5">
-                    <!-- First Column (Left) -->
-                        <div class="bg-white shadow-md rounded-md p-4 transition-transform transform hover:scale-105">
-                            <!-- Content for the first column -->
-                            <img src="{{ asset('images/boardroom.png') }}" alt="Example Image" class="w-full h-80 shadow-lg rounded-md">
+                <div class="mt-5 gap-10 shadow-sm grid lg:grid-cols-4 sm:grid-cols-2">
+                    <div class="max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow min-w-52 transition-transform transform hover:scale-105">
+                        <a href="{{ route('home.add',['id'=>'1','client_id' => $client->id ])}}" class="text-slate-950">
+                            <img src="{{ asset('images/boardroom.png') }}" alt="Example Image" class="w-full h-60 shadow-lg rounded-md">
+                            <div class="absolute bottom-0 left-0 w-full h-20 bg-gradient-to-t from-transparent to-transparent blur-md"></div>
                             <div class="mt-5 text-center">
-                                <p class="mb-2 text-lg font-bold tracking-tight text-gray-900 dark:text-white"><a href="{{ route('home.add',['id'=>'1','client_id' => $client->id ])}}" class="text-slate-950">Video conferencing / Meeting Support
-                                </a></p>
+                                <p class="mb-2 text-lg font-bold tracking-tight text-gray-900">Video conferencing / Meeting Support
+                            </p>
                                 <p class="text-xs justify-center">Video conferencing and meeting support services provide technical and configurational support from NIS Team</p>
                             </div>
-                        </div>
-                
-                <!-- Second Column (Right) -->
-                <div class="space-y-4">
-                    <!-- First Nested Row with 2 columns -->
-                    <div class="grid grid-cols-2 gap-4">
-                    <div class="bg-white shadow-sm rounded-lg p-4 transition-transform transform hover:scale-105 ">
-                        <img src="{{ asset('images/acumatica.png') }}" alt="Example Image" class="w-full h-60 shadow-lg rounded-md">
-                        <div class="mt-5 text-center">
-                            <p class="mb-2 text-lg font-bold tracking-tight text-gray-900 dark:text-white"><a href="{{ route('home.add',['id'=>'2','client_id' => $client->id ])}}" class="text-slate-950">Acumatica ERP and HRIS
-                            </a></p>
-                            <p class="text-xs justify-center">For any issues related to Acumatica or HRIS—such as forgotten passwords, locked accounts, bugs, or errors—the System Group is here to support you.</p>
-                        </div>
+                        </a>
                     </div>
-                    <div class="bg-white shadow-sm rounded-lg p-4 transition-transform transform hover:scale-105">
-                        <img src="{{ asset('images/security.jpg') }}" alt="Example Image" class="w-full h-60 shadow-lg rounded-md">
-                        <div class="mt-5 text-center">
-                            <p class="mb-2 text-lg font-bold tracking-tight text-gray-900 dark:text-white"><a href="{{ route('home.add',['id'=>'3','client_id' => $client->id ])}}" class="text-slate-950">Cyber Security
-                            </a></p>
-                            <p class="text-xs justify-center">In the event of a cyber attack—whether it's malware, phishing, a virus, or any other cybersecurity issue—the NIS Team is here to help you.</p>
-                        </div>
-                    </div>
-                    </div>
-                    
-                    <!-- Second Nested Row with 2 columns -->
-                    <div class="grid grid-cols-2 gap-4">
-                        <div class="bg-white shadow-sm rounded-lg p-4 transition-transform transform hover:scale-105">
-                        <img src="{{ asset('images/hardware-failures.png') }}" alt="Example Image" class="w-full h-60 shadow-lg rounded-md">
-                        <div class="mt-5 text-center">
-                            <p class="mb-2 text-lg font-bold tracking-tight text-gray-900 dark:text-white"><a href="{{ route('home.add',['id'=>'3','client_id' => $client->id ])}}" class="text-slate-950">Hardware Issues
-                            </a></p>
-                            <p class="text-xs justify-center">In the event of a cyber attack—whether it's malware, phishing, a virus, or any other cybersecurity issue—the NIS Team is here to help you.</p>
-                        </div>
-                    </div>
-                    <div class="bg-red-200 p-4">
-                        <!-- Nested Row 2, Column 2 -->
-                    </div>
-                    </div>
-                </div>
-                </div>
-
-
-
-                <div class="mt-5 gap-2 grid lg:grid-cols-3 sm:grid-cols-2">
-                    <div class="card issue-card max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 min-w-52 transition-transform transform hover:scale-105">
-                        <p class="mb-2 text-lg font-bold tracking-tight text-gray-900 dark:text-white"><a href="{{ route('home.add',['id'=>'1','client_id' => $client->id ])}}" class="text-blue-500">Video conferencing / Meeting Support
-                        </a></p>
-                        <img src="{{ asset('images/boardroom.png') }}" alt="Example Image" class="w-full h-60 shadow-lg rounded-md">
-                        <div class="absolute bottom-0 left-0 w-full h-20 bg-gradient-to-t from-transparent to-transparent blur-md"></div>
-                    </div>
-                    <div class="card issue-card max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 min-w-52 transition-transform transform hover:scale-105">
-                        <p class="mb-2 text-lg font-bold tracking-tight text-gray-900 dark:text-white"><a href="{{ route('home.add',['id'=>'2','client_id' => $client->id ])}}" class="text-blue-500">Acumatica ERP and HRIS</a></p><br>
+                    <div class="max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow min-w-52 transition-transform transform hover:scale-105">
+                        <a href="{{ route('home.add',['id'=>'2','client_id' => $client->id ])}}" class="text-slate-950">
                         <img src="{{ asset('images/acumatica.png') }}" alt="Example Image" class="w-full h-60  drop-shadow">
                         <div class="absolute bottom-0 left-0 w-full h-20 bg-gradient-to-t from-transparent to-transparent blur-md"></div>
+                        <div class="mt-5 text-center">
+                            <p class="mb-2 text-lg font-bold tracking-tight text-gray-900">Acumatica ERP and HRIS
+                            </p>
+                            <p class="text-xs justify-center">For any issues related to Acumatica or HRIS—such as forgotten passwords, locked accounts, bugs, or errors—the System Group is here to support you.</p>
+                        </div>
+                        </a>
                     </div>
-                    <div class="card issue-card max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 min-w-52 transition-transform transform hover:scale-105">
-                        <p class="mb-2 text-lg font-bold tracking-tight text-gray-900 dark:text-white"><a href="{{ route('home.add',['id'=>'3','client_id' => $client->id ])}}" class="text-blue-500">Cyber Security
-                        </a></p> <br>
-                        <img src="{{ asset('images/security.jpg') }}" alt="Example Image" class="w-full h-60 shadow-lg rounded-md">
+                    <div class="max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow min-w-52 transition-transform transform hover:scale-105">
+                        <a href="{{ route('home.add',['id'=>'3','client_id' => $client->id ])}}" class="text-slate-950">
+                            <img src="{{ asset('images/security.jpg') }}" alt="Example Image" class="w-full h-60 shadow-lg rounded-md">
                         <div class="absolute bottom-0 left-0 w-full h-20 bg-gradient-to-t from-transparent to-transparent blur-md"></div>
+                        <div class="mt-5 text-center">
+                            <p class="mb-2 text-lg font-bold tracking-tight text-gray-900">Cyber Security
+                            </p>
+                            <p class="text-xs justify-center">In the event of a cyber attack—whether it's malware, phishing, a virus, or any other cybersecurity issue—the NIS Team is here to help you.</p>
+                        </div>
+                        </a>
                     </div>
-                    <div class="card issue-card max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 min-w-52 transition-transform transform hover:scale-105">
-                        <p class="mb-2 text-lg font-bold tracking-tight text-gray-900 dark:text-white"><a href="{{ route('home.add',['id'=>'4','client_id' => $client->id ])}}" class="text-blue-500">Hardware Issues
-                        </a></p> <br>
-                        <img src="{{ asset('images/hardware-failures.png') }}" alt="Example Image" class="w-full h-60 shadow-lg rounded-md">
+                    <div class="card issue-card max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow  min-w-52 transition-transform transform hover:scale-105">
+                        <a href="{{ route('home.add',['id'=>'4','client_id' => $client->id ])}}" class="text-slate-950">
+                            <img src="{{ asset('images/hardware-failures.png') }}" alt="Example Image" class="w-full h-60 shadow-lg rounded-md">
                         <div class="absolute bottom-0 left-0 w-full h-20 bg-gradient-to-t from-transparent to-transparent blur-md"></div>
+                        <div class="mt-5 text-center">
+                            <p class="mb-2 text-lg font-bold tracking-tight text-gray-900">Hardware Issues
+                            </p>
+                            <p class="text-xs justify-center">If you're experiencing hardware or printing issues—such as system malfunctions, device failures, overheating, connectivity problems, printer errors, paper jams, or print quality issues—the NIS Team is ready to assist.</p>
+                        </div>
+                        </a>
+                      
                     </div>
-                    <div class="card issue-card max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 min-w-52 transition-transform transform hover:scale-105">
-                        <p class="mb-2 text-lg font-bold tracking-tight text-gray-900 dark:text-white"><a href="{{ route('home.add',['id'=>'5','client_id' => $client->id ])}}" class="text-blue-500">Network Issues
-                        </a></p> <br>
-                        <img src="{{ asset('images/network.png') }}" alt="Example Image" class="w-full h-60 shadow-lg rounded-md">
+                    <div class="card issue-card max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow min-w-52 transition-transform transform hover:scale-105">
+                        <a href="{{ route('home.add',['id'=>'5','client_id' => $client->id ])}}" class="text-slate-950">
+                            <img src="{{ asset('images/network.png') }}" alt="Example Image" class="w-full h-60 shadow-lg rounded-md">
                         <div class="absolute bottom-0 left-0 w-full h-20 bg-gradient-to-t from-transparent to-transparent blur-md"></div>
+                        <div class="mt-5 text-center">
+                            <p class="mb-2 text-lg font-bold tracking-tight text-gray-900">Network Problem
+                            </p>
+                            <p class="text-xs justify-center">If you're experiencing network issues—such as slow connectivity, frequent disconnections, limited access, VPN failures, or any other network-related disruptions—the NIS Team is here to help. </p>
+                        </div>
+                        </a>
+                       
                     </div>
-                    <div class="card issue-card max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 min-w-52 transition-transform transform hover:scale-105">
-                        <p class="mb-2 text-lg font-bold tracking-tight text-gray-900 dark:text-white"><a href="{{ route('home.add',['id'=>'6','client_id' => $client->id ])}}" class="text-blue-500">AODocs Issues
-                        </a></p> <br>
-                        <img src="{{ asset('images/aodocs.png') }}" alt="Example Image" class="w-full h-60 shadow-lg rounded-md">
+                    <div class="card issue-card max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow min-w-52 transition-transform transform hover:scale-105">
+                        <a href="{{ route('home.add',['id'=>'6','client_id' => $client->id ])}}" class="text-slate-950">
+                            <img src="{{ asset('images/aodocs_1.png') }}" alt="Example Image" class="w-full h-60 shadow-lg rounded-md">
                         <div class="absolute bottom-0 left-0 w-full h-20 bg-gradient-to-t from-transparent to-transparent blur-md"></div>
+                        <div class="mt-5 text-center">
+                            <p class="mb-2 text-lg font-bold tracking-tight text-gray-900">AODocs Issues
+                            </p>
+                            <p class="text-xs justify-center">If you're experiencing issues with AODocs—such as document access problems, permission errors, workflow malfunctions, or any other AODocs-related concerns—the System Team is here to assist you.  </p>
+                        </div>
+                        </a>
+    
                     </div>
-                    <div class="card issue-card max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 min-w-52 transition-transform transform hover:scale-105">
-                        <p class="mb-2 text-lg font-bold tracking-tight text-gray-900 dark:text-white"><a href="{{ route('home.add',['id'=>'7','client_id' => $client->id ])}}" class="text-blue-500">Software Issues
-                        </a></p> <br>
-                        <img src="{{ asset('images/laptop-repair.jpeg') }}" alt="Example Image" class="w-full h-60 shadow-lg rounded-md">
+                    <div class="card issue-card max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow  min-w-52 transition-transform transform hover:scale-105">
+                        <a href="{{ route('home.add',['id'=>'7','client_id' => $client->id ])}}" class="text-slate-950">
+                            <img src="{{ asset('images/laptop-repair.jpeg') }}" alt="Example Image" class="w-full h-60 shadow-lg rounded-md">
                         <div class="absolute bottom-0 left-0 w-full h-20 bg-gradient-to-t from-transparent to-transparent blur-md"></div>
+                        <div class="mt-5 text-center">
+                            <p class="mb-2 text-lg font-bold tracking-tight text-gray-900">Software Issues
+                            </p>
+                            <p class="text-xs justify-center">If you're experiencing software-related issues—such as application crashes, installation errors, compatibility problems, or performance concerns—the NIS Team is here to assist you.  </p>
+                        </div>
+                        </a>
                     </div>
-                    <div class="card issue-card max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 min-w-52 transition-transform transform hover:scale-105">
-                        <p class="mb-2 text-lg font-bold tracking-tight text-gray-900 dark:text-white"><a href="{{ route('home.add',['id'=>'8','client_id' => $client->id ])}}" class="text-blue-500">G Suite / Google Workspace Issues
-                        </a></p> <br>
-                        <img src="{{ asset('images/gerror.png') }}" alt="Example Image" class="w-full h-60 shadow-lg rounded-md">
+                    <div class="card issue-card max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow  min-w-52 transition-transform transform hover:scale-105">
+                        <a href="{{ route('home.add',['id'=>'8','client_id' => $client->id ])}}" class="text-slate-950">
+                            <img src="{{ asset('images/google_1.png') }}" alt="Example Image" class="w-full h-60 shadow-lg rounded-md">
                         <div class="absolute bottom-0 left-0 w-full h-20 bg-gradient-to-t from-transparent to-transparent blur-md"></div>
+                        <div class="mt-5 text-center">
+                            <p class="mb-2 text-lg font-bold tracking-tight text-gray-900">G Suite / Google Workspace Issues
+                            </p>
+                            <p class="text-xs justify-center">If you're experiencing issues with Google Workspace—such as Gmail, Google Drive, Docs, Sheets, Meet, or other related services—the NIS and System Team is here to assist you.  </p>
+                        </div>
+                        </a>
                     </div>
-                    <div class="card issue-card max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 min-w-52 transition-transform transform hover:scale-105">
-                        <p class="mb-2 text-lg font-bold tracking-tight text-gray-900 dark:text-white"><a href="{{ route('home.add',['id'=>'9','client_id' => $client->id ])}}" class="text-blue-500">Other's Issues</a></p>
-                            <br><br>
+                    <div class="card issue-card max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow  min-w-52 transition-transform transform hover:scale-105">
+                        <a href="{{ route('home.add',['id'=>'9','client_id' => $client->id ])}}" class="text-slate-950">
                             <img src="{{ asset('images/10871996.png') }}" alt="Example Image" class="w-full h-60 shadow-lg rounded-md">
                         <div class="absolute bottom-0 left-0 w-full h-20 bg-gradient-to-t from-transparent to-transparent blur-md"></div>
+                        <div class="mt-5 text-center">
+                            <p class="mb-2 text-lg font-bold tracking-tight text-gray-900">Other's Issues
+                            </p>
+                            <p class="text-xs justify-center">For any other’s technical concerns or issues not covered in specific categories, the NIS and System Team is here to assist you.  </p>
+                        </div>
+                        </a>
                     </div>
                  
                 </div>
