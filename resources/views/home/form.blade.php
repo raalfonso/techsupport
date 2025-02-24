@@ -1,11 +1,14 @@
 
 <x-layout>    
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <div class="flex justify-center items-center h-screen px-4 p-6" style="background: linear-gradient(to bottom left, #00cb6a, #4dc9fe); background-repeat: no-repeat;">
+    <div class="container-fluid flex justify-center items-center px-4 p-6" style="background: linear-gradient(to bottom left, #00cb6a, #4dc9fe); background-repeat: no-repeat;">
         <div class="w-full max-w-4xl bg-slate-900 rounded-lg p-8 shadow-lg mt-[3%]">
             <div class="relative p-2 rounded w-full mt-[-12%]">
                 <h2 class="text-2xl font-bold text-center text-white">
-                    <img src="{{asset('images/logo.png')}}" alt="Logo" class="max-w-80 mx-auto">
+                    <center>
+                        
+                        <img src="{{asset('images/logo.png')}}" alt="Logo" class="max-w-80 mx-auto">
+                    </center>
                     <span class="text-blue-400">Request</span> <span class="text-green-400">Here</span>
                 </h2>
     

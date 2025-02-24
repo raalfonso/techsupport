@@ -1,5 +1,5 @@
 <x-layout>
-    <div class="container mx-auto p-4">
+    <div class="container-fluid mx-auto p-4">
        
 
         <div class="mx-auto max-w-screen-lg card">
