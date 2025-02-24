@@ -1,5 +1,5 @@
 <x-layout>
-    <div class="container h-screen p-4" x-data="{ showModal: false,}"  style="background: linear-gradient(to bottom left, #00cb6a, #4dc9fe); background-size: cover; background-repeat: no-repeat; background-attachment: fixed;">
+    <div class="container-fluid h-screen p-4" x-data="{ showModal: false,}"  style="background: linear-gradient(to bottom left, #00cb6a, #4dc9fe); background-size: cover; background-repeat: no-repeat; background-attachment: fixed;">
         <input type="text" style="display: none;" id="ticket-number" value="{{$ticketNumber}}">
       
         <div class="content-status mt-20">
