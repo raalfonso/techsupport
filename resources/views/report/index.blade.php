@@ -268,7 +268,7 @@
                                 
                                 <td class="border border-gray-300 px-2 py-2 whitespace-nowrap">{{ date('F d, Y h:i a', strtotime($resolve->resolve_datetime)) }}</td>
                                 <td class="border border-gray-300 px-2 py-2">{{ $resolve->remarks }}</td>
-                                <td class="border border-gray-300 px-2 py-2">{{ $resolve->id }}</td>
+                                <td class="border border-gray-300 px-2 py-2">{{ $resolve->resolve->user->name }}</td>
                             </tr>
                         @endforeach
                     </tbody>
@@ -282,7 +282,7 @@
                     <h2 class="font-bold">{{ $resolve->client?->name }} - {{ $resolve->department?->title }}</h2>
                     <p>Ticket No: {{ $resolve->ticket_number }}</p>
                     <p>Issues: {{ $resolve->issues?->title }}</p>
-                    <p class="font-bold">Technical Staff: {{ $resolve->user }}</p>
+                    <p class="font-bold">Technical Staff: {{ $resolve->resolve->user->name }}</p>
                 </div>
                 @endforeach
             </div>
