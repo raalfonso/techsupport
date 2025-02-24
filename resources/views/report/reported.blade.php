@@ -26,7 +26,7 @@
                 ?>
             @foreach($reports as $report)
     
-                <tr class="hover:bg-slate-500 dark:text-white text-slate-950">
+                <tr class="hover:bg-slate-100 dark:bg-slate-800 dark:text-white text-slate-950 dark:hover:bg-slate-500">
                     
                     <td class="border border-gray-600 px-2 py-2">{{ $count }}</td>
                     <td class="border border-gray-600 px-2 py-2 whitespace-nowrap">{{ $report->ticket_number }}</td>
@@ -126,16 +126,16 @@
                             Pending Time :<span class="dark:text-white ml-5 pendingValue{{$count1}}"></span>
                         </p>
             @else
-                            @php
-                                $diffInMinutes = \Carbon\Carbon::parse($report->request_datetime)->diffInMinutes(\Carbon\Carbon::parse($report->response_datetime));
-                            @endphp
-    
-                            @if ($diffInMinutes >= 60)
-                               Ongoing Time : {{ round($diffInMinutes / 60) }} hrs
-                            @else
-                                 Ongoing Time :  {{ round($diffInMinutes) }} mins
-                            @endif
-                            <br>
+                @php
+                    $diffInMinutes = \Carbon\Carbon::parse($report->request_datetime)->diffInMinutes(\Carbon\Carbon::parse($report->response_datetime));
+                @endphp
+
+                @if ($diffInMinutes >= 60)
+                    Ongoing Time : {{ round($diffInMinutes / 60) }} hrs
+                @else
+                        Ongoing Time :  {{ round($diffInMinutes) }} mins
+                @endif
+                <br>
             @endif
             <br>
             @if ($report->status == 'Pending')

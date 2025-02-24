@@ -12,6 +12,7 @@ use App\Http\Controllers\MainController;
 use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\ClientsController;
 use App\Http\Controllers\ClientAuthController;
+use App\Http\Controllers\ProfileController;
 
 
 
@@ -30,7 +31,8 @@ Route::middleware('auth')->group(function() {
     Route::post('/logout',[AuthController::class, 'logout'])->name('logout');
     Route::get('/reports', [ReportController::class, 'getReports']);
     Route::get('/getstotal', [ReportController::class, 'getTotalReports']);
-    
+    Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
+    Route::post('/profile/change-password', [ProfileController::class, 'changePassword'])->name('profile.change-password');
     // Route::resource('feedback',FeedbackController::class);
 
 });

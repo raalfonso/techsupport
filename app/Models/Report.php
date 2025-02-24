@@ -68,7 +68,7 @@ class Report extends Model
 
     public function resolve()
     {
-        return $this->belongsTo(User::class, 'response_by', 'id');
+        return $this->belongsTo(resolve::class, 'id', 'report_id');
     }
 
     public function response()
@@ -79,7 +79,6 @@ class Report extends Model
     {
         return $this->belongsTo(Issues::class);
     }
-
 
 
     public function department()

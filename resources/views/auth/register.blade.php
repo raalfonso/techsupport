@@ -1,9 +1,11 @@
 <x-layout>
-    <h1 class="title">Register a new account</h1>
-
-    <div class="mx-auto max-w-screen-sm card">
+    <div class="min-h-screen items-center justify-center p-6" style="background: linear-gradient(to bottom left, #00cb6a, #4dc9fe); background-repeat: no-repeat; background-attachment: fixed;">
+   
+    <div class="mx-auto max-w-screen-sm card mt-5">
         <form action="{{ route('register')}}" method="post">
             @csrf
+            <h1 class="title">Register a new account</h1>
+
             <div class="mb-4">
                 <label for="name">Name</label>
                 <input type="text" name="name" class="input @error('name') ring-red-500 @enderror" value="{{ old('name')}}">
@@ -60,6 +62,7 @@
                 Register
               </button>
         </form>
+    </div>
     </div>
 </x-layout>    
 

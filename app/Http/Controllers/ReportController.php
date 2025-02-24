@@ -38,18 +38,7 @@ class ReportController extends Controller
            
         }
         else {
-            // $resolved = Resolve::select('reports.*', 'users.name','clients.name as client','departments.title as department')
-            // ->leftJoin('reports', 'resolve.report_id', '=', 'reports.id')
-            // ->leftJoin('users', 'users.id', '=', 'resolve.user_id')
-            // ->leftJoin('clients', 'clients.id', '=', 'reports.client_id')
-            // ->leftJoin('departments', 'departments.id', '=', 'reports.department_id')
-            // ->get();
-
-            // $resolved = Report::select('reports.*', 'users.name as user')
-            // ->rightJoin('resolve', 'resolve.report_id','=','reports.id')
-            // ->leftJoin('users', 'resolve.user_id','=','users.id')
-            // ->where('reports.status', 'Done')
-            // ->get();
+        
             $resolved = Report::whereIn('status', ['Done'])
             ->orderBy('id', 'asc')
             ->paginate(5);

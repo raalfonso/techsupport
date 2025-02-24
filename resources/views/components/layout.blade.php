@@ -27,7 +27,7 @@
     <header class="bg-gradient-to-l from-teal-900 to-teal-950 shadow-lg">
         
         @auth
-        <nav class="flex items-center justify-between px-2 py-2 max-h-20">
+        <nav class="flex items-center justify-between px-2 py-2 max-h-20 mr-5 ml-5 max-w-full">
             <!-- Logo -->
             <a href="{{ route('home') }}" class="flex items-center text-white text-xl font-bold p-0">
                 <img src="{{ asset('images/logo.png') }}" alt="SolveIT Logo" class="w-28">
@@ -41,6 +41,7 @@
                 <a href="{{ route('issues.index') }}" class="text-white hover:text-yellow-300">Issues</a>
                 <a href="{{ route('category.index') }}" class="text-white hover:text-yellow-300">Category </a>
                 <a href="{{ route('department.index') }}" class="text-white hover:text-yellow-300">Department</a>
+                <a href="{{ route('profile') }}" class="text-white hover:text-yellow-300">Profile</a>
                 <form action="{{ route('logout') }}" method="post" class="inline">
                     @csrf
                     <button class="text-white hover:text-yellow-300">Logout</button>

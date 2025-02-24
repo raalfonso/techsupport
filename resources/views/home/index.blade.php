@@ -6,7 +6,7 @@
            }
         } */
     </style>
-    <div class="container bg-gray-300 mx-auto px-4 font-mono sm:text-sm"
+    <div class="container-fluid bg-gray-300 mx-auto px-4 font-mono sm:text-sm"
     x-data="{ showModal: {{ $feedback == 'True' ? 'true' : 'false' }} }"
     style="background: linear-gradient(to bottom left, #00cb6a, #4dc9fe);
            background-repeat: no-repeat;

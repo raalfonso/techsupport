@@ -1,95 +1,91 @@
 
 <x-layout>    
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <div class="flex flex-col md:flex-row h-screen"  style="background: linear-gradient(to bottom left, #00cb6a, #4dc9fe); background-repeat: no-repeat;">
-        <!-- Left Half (With Background) -->
-        <div class="w-full md:w-1/2 flex flex-col items-right p-24">
-            <img src="{{asset('images/logo.png')}}" alt="" class="max-w-screen mb-1">
-            
-        </div>
+    <div class="flex justify-center items-center h-screen px-4 p-6" style="background: linear-gradient(to bottom left, #00cb6a, #4dc9fe); background-repeat: no-repeat;">
+        <div class="w-full max-w-4xl bg-slate-900 rounded-lg p-8 shadow-lg mt-[3%]">
+            <div class="relative p-2 rounded w-full mt-[-12%]">
+                <h2 class="text-2xl font-bold text-center text-white">
+                    <img src="{{asset('images/logo.png')}}" alt="Logo" class="max-w-80 mx-auto">
+                    <span class="text-blue-400">Request</span> <span class="text-green-400">Here</span>
+                </h2>
     
-        <!-- Right Half (With Carousel) -->
-        <div class="md:w-1/2 flex justify-center items-center w-full">
-            <div class="relative w-screen max-w-lg bg-slate-900" style="border-radius:30% 0% 0% 5%">
-                <div class="relative p-10 rounded shadow-lg w-96 ml-24">
-                    <h2 class="text-2xl font-bold text-center text-white mb-6">
-                        <span class="text-blue-400">Request</span> <span class="text-green-400">Here</span>
-                    </h2>
-                  
-                    <form action="{{ route('home.data') }}" method="post" class="space-y-4">
-                        @csrf
-                        <div class="mb-1">
+                <form action="{{ route('home.data') }}" method="post" class="space">
+                    @csrf
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-2">
+                        <div>
                             <label for="requestor_name" class="text-white text-md">Name</label>
-                            <input type="text" class="input @error('title') ring-red-500 @enderror" value="{{ $client->name}}" disabled>
-                            <input type="hidden" name="client_id" class="input" value="{{ $client->id}}">
+                            <input type="text" class="input @error('title') ring-red-500 @enderror" value="{{ $client->name }}" disabled>
+                            <input type="hidden" name="client_id" value="{{ $client->id }}">
                         </div>
-                        <div class="mb-1">
-                            <label for="requestor_name" class="text-white">Email Address</label>
-                            <input type="text" class="input" value="{{ $client->email_address}}" disabled>
+                        <div>
+                            <label for="email" class="text-white">Email Address</label>
+                            <input type="text" class="input" value="{{ $client->email_address }}" disabled>
                         </div>
+    
                         @if ($user_department)
-                        {{-- {{print_r($user_department);}} --}}
-                        <div class="mb-1">
-                            <label for="department_id">Department <span class="text-rose-500 text-xs">(Required)</span></label>
-                            <input type="hidden" id="department_id" name="department_id" value="{{$user_department->department_id }}">
-                            <input type="text" id="auto-department" class="input @error('department') ring-red-500 @enderror" placeholder="Type to search..." autocomplete="off" value="{{$user_department->department->title}}">
-                            <div id="suggestions" class="suggestions-box input cursor-pointer" style="display: none;"></div>
-                            @error('department')
-                            <p class="error">{{ $message }}</p>
-                            @enderror
-                        
-                        </div>
-                    @else
-                        <div class="mb-1">
-                            <label for="department_id">Department <span class="text-rose-500 text-xs">(Required)</span></label>
-                            <input type="hidden" id="department_id" name="department_id">
-                            <input type="text" id="auto-department" class="input @error('department') ring-red-500 @enderror" placeholder="Type to search..." autocomplete="off" >
-                            <div id="suggestions" class="suggestions-box input cursor-pointer" style="display: none;"></div>
-                            @error('department')
-                            <p class="error">{{ $message }}</p>
-                            @enderror
-                    
-                        </div>
-                    @endif
-                    <div class="mb-1">
-                        <label for="location">Location <span class="text-red-500 text-xs">(Required)</span></label>
-                        <select name="location" id="location" class="input @error('location') ring-red-500 @enderror"> 
-                            <option value="">Select Location</option>
+                            <div>
+                                <label for="department_id" class="text-white">Department <span class="text-rose-500 text-xs">(Required)</span></label>
+                                <input type="hidden" id="department_id" name="department_id" value="{{$user_department->department_id }}">
+                                <input type="text" id="auto-department" class="input @error('department') ring-red-500 @enderror" placeholder="Type to search..." autocomplete="off" value="{{$user_department->department->title}}">
+                                <div id="suggestions" class="suggestions-box input cursor-pointer" style="display: none;"></div>
+                                @error('department')
+                                    <p class="error">{{ $message }}</p>
+                                @enderror
+                            </div>
+                        @else
+                            <div>
+                                <label for="department_id" class="text-white">Department <span class="text-rose-500 text-xs">(Required)</span></label>
+                                <input type="hidden" id="department_id" name="department_id">
+                                <input type="text" id="auto-department" class="input @error('department') ring-red-500 @enderror" placeholder="Type to search..." autocomplete="off">
+                                <div id="suggestions" class="suggestions-box input cursor-pointer" style="display: none;"></div>
+                                @error('department')
+                                    <p class="error">{{ $message }}</p>
+                                @enderror
+                            </div>
+                        @endif
+    
+                        <div>
+                            <label for="location" class="text-white">Location <span class="text-red-500 text-xs">(Required)</span></label>
+                            <select name="location" id="location" class="input @error('location') ring-red-500 @enderror"> 
+                                <option value="">Select Location</option>
                                 <option value="BTC">BTC</option>
                                 <option value="One west">One west</option>
-                        </select>
+                            </select>
+                        </div>
+    
+                        <div>
+                            <label for="issues_id" class="text-white">Issue <span class="text-rose-500 text-xs">(Required)</span></label>
+                            <select name="issues_id" id="issues_id" class="input">
+                                <option value="">Select issue</option>
+                                @foreach($issues as $issue)
+                                    <option value="{{ $issue->id }}">{{ $issue->title }}</option>
+                                @endforeach
+                            </select>
+                            @error('issues_id')
+                                <p class="error">{{ $message }}</p>
+                                <script>
+                                    Swal.fire({
+                                        icon: "error",
+                                        title: "Oops...",
+                                        text: "{{ $message }}",
+                                    });
+                                </script>
+                            @enderror
+                        </div>
                     </div>
-                    <div class="mb-1">
-                        <label for="issues_id">Issue <span class="text-rose-500 text-xs">(Required)</span></label>
-                        <select name="issues_id" id="issues_id" class="input">
-                            <option value="">Select issue</option>
-                            @foreach($issues as $issue)
-                                <option value="{{ $issue->id }}">{{ $issue->title }}</option>
-                            @endforeach
-                        </select>
-                        @error('issues_id')
-                        <p class="error">{{ $message }}</p>
-                        <script>
-                            Swal.fire({
-                                icon: "error",
-                                title: "Oops...",
-                                text: "{{ $message }}",
-                                });
-                        </script>
-                    @enderror
+    
+                    <div>
+                        <label for="remarks" class="text-white">Remarks <span class="text-green-600 text-xs">(Optional)</span></label>
+                        <textarea rows="4" class="w-full p-2 border rounded-lg resize-y" placeholder="Enter your message here..."></textarea>
                     </div>
-            
-                    <div class="mb-1">
-                        <label for="remarks">Remarks <span class="text-green-600 text-xs">(Optional)</span></label>
-                        <textarea rows="4" class="w-full h-32 p-2 border rounded-lg resize-y" placeholder="Enter your message here..."></textarea>
-                    </div>
+    
                     <button class="text-white bg-teal-500 rounded-md w-full h-12">Submit</button>
-                    </form>
-                </div>
+                </form>
             </div>
         </div>
     </div>
     
+
 
 
 

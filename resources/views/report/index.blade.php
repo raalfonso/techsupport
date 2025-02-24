@@ -230,7 +230,7 @@
                     <tbody>
                         @php $count = 1; @endphp
                         @foreach($resolved as $resolve)
-                            <tr class="hover:bg-slate-500 dark:text-white ">
+                        <tr class="hover:bg-slate-100 dark:bg-slate-800 dark:text-white text-slate-950 dark:hover:bg-slate-500">
                                 <td class="border border-gray-300 px-2 py-2">{{ $count++ }}</td>
                                 <td class="border border-gray-300 px-2 py-2">{{ $resolve->ticket_number }}</td>
                                 <td class="border border-gray-300 px-2 py-2">{{ $resolve->client->name }}</td>
@@ -268,7 +268,7 @@
                                 
                                 <td class="border border-gray-300 px-2 py-2 whitespace-nowrap">{{ date('F d, Y h:i a', strtotime($resolve->resolve_datetime)) }}</td>
                                 <td class="border border-gray-300 px-2 py-2">{{ $resolve->remarks }}</td>
-                                <td class="border border-gray-300 px-2 py-2">{{ $resolve->user }}</td>
+                                <td class="border border-gray-300 px-2 py-2">{{ $resolve->resolve->user->name }}</td>
                             </tr>
                         @endforeach
                     </tbody>
