@@ -16,7 +16,7 @@
             <div class="w-full mt-10">
                 <div class="grid lg:grid-cols-2 sm:grid-cols-1 w-full p-5 gap-4 bg-white border border-gray-200 rounded-lg shadow min-w-[250px]">
                     <div>
-                        <p class="text-xl mb-4">Mabuting Araw! {{$feedback}} <b>{{ $client->name }}</b></p>
+                        <p class="text-xl mb-4">Mabuting Araw! <b>{{ $client->name }}</b></p>
                         <p class="text-gray-500 text-justify">
                             We're excited to introduce our enhanced Support System, crafted to meet your needs. Enjoy effortless access to assistance, resources, and solutions—making support more accessible and efficient for you.
                         </p>
