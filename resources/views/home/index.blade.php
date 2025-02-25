@@ -71,7 +71,7 @@
                         ['id' => 6, 'image' => 'aodocs_1.png', 'title' => 'AODocs Issues', 'desc' => 'Support for document access, workflow malfunctions, and permissions errors.'],
                         ['id' => 7, 'image' => 'laptop-repair.jpeg', 'title' => 'Software Issues', 'desc' => 'Support for software crashes, installation errors, and performance issues.'],
                         ['id' => 8, 'image' => 'google_1.png', 'title' => 'G Suite / Google Workspace Issues', 'desc' => 'Help with Gmail, Drive, Docs, Sheets, Meet, etc.'],
-                        ['id' => 9, 'image' => '10871996.png', 'title' => "Other's Issues", 'desc' => 'Assistance for technical concerns not covered in other categories.']
+                        ['id' => 9, 'image' => '10871996.png', 'title' => "Other Issues", 'desc' => 'Assistance for technical concerns not covered in other categories.']
                     ] as $issue)
                     <div class="max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow min-w-[250px] transition-transform transform hover:scale-105">
                         <a href="{{ route('home.add',['id'=> $issue['id'], 'client_id' => $client->id])}}" class="text-slate-950">
