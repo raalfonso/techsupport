@@ -37,6 +37,16 @@
                             @enderror
                         </div>
 
+                        <!-- Date Created -->
+                        <div>
+                            <label for="request_datetime" class="block text-sm font-medium text-gray-700">Date time</label>
+                            <input type="datetime-local" class="w-full p-2 border rounded-lg resize-y" name="created_at" value="{{ old('request_datetime') }}">
+
+                                @error('created_at')
+                                    <p class="text-red-500 text-sm mt-2">{{ $message }}</p>
+                                @enderror
+                        </div>
+
                         <!-- Department -->
                         <div>
                             <label for="department_id" class="block text-sm font-medium text-gray-700">Department</label>
@@ -297,9 +307,9 @@
 
         $(document).ready(()=>{
           
-            const interval = setInterval(function() {
-                checkTotal();
-            }, 1000); // Execute every 1 second
+            // const interval = setInterval(function() {
+            //     checkTotal();
+            // }, 1000); // Execute every 1 second
 
 
             const checking = ()=>{

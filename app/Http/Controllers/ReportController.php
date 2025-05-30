@@ -109,13 +109,15 @@ class ReportController extends Controller
             'client_id' => 'required',
             'department_id' => 'required',
             'issues_id' => 'required',
+            'request_datetime' => 'required',
         ]);
+
 
     
         Report::create($fields);
-
+     
         //Redirect
-      return redirect()->route('report.index');
+      return redirect()->route('report.home');
     }
 
     /**

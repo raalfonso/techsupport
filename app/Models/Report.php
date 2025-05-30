@@ -34,6 +34,7 @@ class Report extends Model
 
         static::creating(function ($model) {
             // Automatically set 'auto_created_at' column to current timestamp
+            
             $model->request_datetime = now(); // You can use `now()` or `Carbon::now()`
            
             
