@@ -39,10 +39,10 @@
 
                         <!-- Date Created -->
                         <div>
-                            <label for="request_datetime" class="block text-sm font-medium text-gray-700">Date time</label>
-                            <input type="datetime-local" class="w-full p-2 border rounded-lg resize-y" name="created_at" value="{{ old('request_datetime') }}">
+                            <label for="request_datetime" class="block text-sm font-medium text-gray-700">Requested Date Time</label>
+                            <input type="datetime-local" class="w-full p-2 border rounded-lg resize-y" name="request_datetime" value="{{ old('request_datetime') }}">
 
-                                @error('created_at')
+                                @error('request_datetime')
                                     <p class="text-red-500 text-sm mt-2">{{ $message }}</p>
                                 @enderror
                         </div>
@@ -127,9 +127,19 @@
                             </div>
 
                         </template>
+                        {{-- resolve time --}}
+                        <div class="mt-2">
+                            <label for="resolve_datetime" class="block text-sm font-medium text-gray-700">Resolve Date Time</label>
+                            <input type="datetime-local" class="w-full p-2 border rounded-lg resize-y mt-2" name="resolve_datetime" value="{{ old('resolve_datetime') }}">
+
+                            @error('resolve_datetime')
+                                <p class="text-red-500 text-sm mt-2">{{ $message }}</p>
+                            @enderror
+                        </div>
                         <div class="mb-4">
                             <label for="procedure">Procedure</label>
-                            <input type="text" name="procedure" class="input @error('procedure') ring-red-500 @enderror" value="{{ old('procedure')}}">
+                            {{-- <input type="text" name="procedure" class="input @error('procedure') ring-red-500 @enderror" value="{{ old('procedure')}}"> --}}
+                            <textarea id="procedure" rows="4" name="procedure" class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Write the procedure you made."></textarea>
 
                             
                         </div>
@@ -173,6 +183,15 @@
                     </script>
                 @enderror
                 </div>
+                  {{-- resolve time --}}
+                        <div class="mt-2">
+                            <label for="resolve_datetime" class="block text-sm font-medium text-gray-700">Resolve Date Time</label>
+                            <input type="datetime-local" class="w-full p-2 border rounded-lg resize-y mt-2" name="resolve_datetime" value="{{ old('resolve_datetime') }}">
+
+                            @error('resolve_datetime')
+                                <p class="text-red-500 text-sm mt-2">{{ $message }}</p>
+                            @enderror
+                        </div>
                 <div class="mb-4">
                     <label for="procedure">Procedure</label>
                     <input type="text" name="procedure" class="input @error('procedure') ring-red-500 @enderror" value="{{ old('procedure')}}">
@@ -307,9 +326,9 @@
 
         $(document).ready(()=>{
           
-            // const interval = setInterval(function() {
-            //     checkTotal();
-            // }, 1000); // Execute every 1 second
+            const interval = setInterval(function() {
+                checkTotal();
+            }, 1000); // Execute every 1 second
 
 
             const checking = ()=>{

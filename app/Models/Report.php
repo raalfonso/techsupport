@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Carbon\Carbon;
 use Ramsey\Uuid\Guid\Guid;
 class Report extends Model
 {
@@ -35,7 +36,7 @@ class Report extends Model
         static::creating(function ($model) {
             // Automatically set 'auto_created_at' column to current timestamp
             
-            $model->request_datetime = now(); // You can use `now()` or `Carbon::now()`
+            // $model->request_datetime = now(); // You can use `now()` or `Carbon::now()`
            
             
             if (!$model->response_datetime) {
@@ -55,7 +56,7 @@ class Report extends Model
 
         static::saved(function ($model) {
             if ($model->ticket_number == null) {
-                $model->ticket_number = $model->department->acronym."-".date_format($model->request_datetime,'Y-m-d')."-".$model->id;
+                $model->ticket_number = $model->department->acronym."-".$model->id;
                 $model->save(); // Save again after modifying the ticket_number
             }
         });

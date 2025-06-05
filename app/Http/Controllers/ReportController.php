@@ -112,12 +112,15 @@ class ReportController extends Controller
             'request_datetime' => 'required',
         ]);
 
+        // Convert request_datetime to proper format
+        $fields['request_datetime'] = Carbon::parse($fields['request_datetime'])->format('Y-m-d H:i:s');
 
+        // dd($fields);
     
         Report::create($fields);
      
         //Redirect
-      return redirect()->route('report.home');
+      return redirect()->route('report.index');
     }
 
     /**
@@ -139,7 +142,8 @@ class ReportController extends Controller
             $report->response_by = $userId = Auth::id();
             $report->status = "Ongoing";
             $report->notes = $request->notes;
-            $report->response_datetime = Carbon::now();
+            $report->response_datetime = Carbon::parse($request->response_datetime)->format('Y-m-d H:i:s');
+            // $report->response_datetime = Carbon::now();
             $report->save();
         }
         else{
@@ -148,7 +152,8 @@ class ReportController extends Controller
             $report->response_by = $request->user_id;
             $report->status = "Ongoing";
             $report->notes = $request->notes;
-            $report->response_datetime = Carbon::now();
+            // $report->response_datetime = Carbon::now();
+            $report->response_datetime = Carbon::parse($request->response_datetime)->format('Y-m-d H:i:s');
             $report->save();
         }
         
@@ -163,6 +168,7 @@ class ReportController extends Controller
         $validated = $request->validate([
             'user.*.user_id' => 'required',
             'procedure' => 'required',
+            'resolve_datetime' => 'required',
         ]);
       
         //  dd($request->all());
@@ -182,7 +188,7 @@ class ReportController extends Controller
         $report->status = "Done";
         $report->feedback = "No";
         $report->procedure = $request->procedure;
-        $report->resolve_datetime = Carbon::now();
+        $report->resolve_datetime = Carbon::parse($request->resolve_datetime)->format('Y-m-d H:i:s');
         $report->save();
 
         return redirect()->route('report.index');
@@ -199,7 +205,8 @@ class ReportController extends Controller
         $report->status = "Done";
         $report->remarks = $request->remarks;
         $report->procedure = $request->procedure;
-        $report->resolve_datetime = Carbon::now();
+        // $report->resolve_datetime = Carbon::now();
+        $report->resolve_datetime = Carbon::parse($request->resolve_datetime)->format('Y-m-d H:i:s');
         $report->save();
 
         $duplicateReport = $report->replicate();
