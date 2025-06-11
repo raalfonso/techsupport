@@ -11,7 +11,16 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        //
+        // Register your custom middleware here
+        $middleware->alias([
+            'is_admin' => \App\Http\Middleware\IsAdmin::class, // <-- ADD THIS LINE
+        ]);
+
+        // You can also add global middleware here if needed
+        // $middleware->web(append: [
+        //     \App\Http\Middleware\TrustProxies::class,
+        //     \Illuminate\Http\Middleware\HandleCors::class,
+        // ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

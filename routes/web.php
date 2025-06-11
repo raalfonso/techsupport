@@ -13,9 +13,50 @@ use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\ClientsController;
 use App\Http\Controllers\ClientAuthController;
 use App\Http\Controllers\ProfileController;
+use App\Models\User;
+use Laravel\Socialite\Facades\Socialite;
 
 
 
+Route::get('/auth/google/callback', function () {
+    $googleUser = Socialite::driver('google')->user();
+
+    // Get the list of admin emails from config
+    $adminEmails = config('app_settings.admin_emails'); // Or directly: explode(',', env('ADMIN_EMAILS', ''));
+
+    // Determine if the current Google user's email is in the admin list
+    $isAdmin = in_array($googleUser->email, $adminEmails);
+
+    // Find or create the user
+    $user = User::where('google_id', $googleUser->id)->first();
+
+    if ($user) {
+        // Update existing user's details, including admin status
+        $user->update([
+            'name' => $googleUser->name,
+            'email' => $googleUser->email,
+            'is_admin' => $isAdmin, // Update admin status on each login
+        ]);
+        Auth::login($user);
+    } else {
+        // Create a new user
+        $user = User::create([
+            'name' => $googleUser->name,
+            'email' => $googleUser->email,
+            'google_id' => $googleUser->id,
+            'password' => Hash::make(Str::random(20)), // Use Hash::make for proper hashing
+            'is_admin' => $isAdmin, // Set admin status for new user
+        ]);
+        Auth::login($user);
+    }
+
+    // Redirect based on admin status (optional, you might have a single dashboard)
+    if ($user->is_admin) {
+        return redirect('/dashboard'); // Redirect admins to admin dashboard
+    }
+
+    return redirect('/home'); // Redirect regular users to user dashboard
+});
 
 Route::middleware('auth')->group(function() {
 

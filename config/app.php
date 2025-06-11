@@ -123,4 +123,6 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    //google admin account 
+     'admin_emails' => explode(',', env('ADMIN_EMAILS', '')),
 ];

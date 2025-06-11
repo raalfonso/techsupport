@@ -42,6 +42,10 @@
                         Login
                     </button>
                 </form>
+
+                <a href="{{ route('auth.google') }}">
+                Login with Google
+            </a>
             </div>
             
         </div>
