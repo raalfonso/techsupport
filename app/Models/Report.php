@@ -56,7 +56,7 @@ class Report extends Model
 
         static::saved(function ($model) {
             if ($model->ticket_number == null) {
-                $model->ticket_number = $model->department->acronym."-".$model->id;
+                $model->ticket_number = $model->department->acronym."-".date('Y-m-d')."-".$model->id;
                 $model->save(); // Save again after modifying the ticket_number
             }
         });

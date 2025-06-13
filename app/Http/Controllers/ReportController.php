@@ -220,6 +220,23 @@ class ReportController extends Controller
         return redirect()->route('report.index');
     }
 
+    public function endorse(Request $request, $id)
+    {
+       
+        
+        $report = Report::findOrFail($id);
+        
+
+        // $report->escalated_to = $request->user_id;
+        $report->status = "Void";
+        $report->remarks = $request->remarks;
+        // $report->procedure = $request->procedure;
+        // $report->resolve_datetime = Carbon::now();
+        $report->resolve_datetime = Carbon::parse($request->resolve_datetime)->format('Y-m-d H:i:s');
+        $report->save();
+        return redirect()->route('report.index');
+    }
+
     /**
      * Update the specified resource in storage.
      */

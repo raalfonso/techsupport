@@ -24,6 +24,10 @@
     .btn-escalate {
         @apply relative enabled:bg-yellow-600 enabled:active:bg-yellow-700 enabled:hover:bg-yellow-700 p-2 rounded-md text-white block w-full disabled:bg-slate-500 disabled:cursor-wait;
     }
+
+     .btn-endorse {
+        @apply relative enabled:bg-green-600 enabled:active:bg-green-700 enabled:hover:bg-green-700 p-2 rounded-md text-white block w-full disabled:bg-slate-500 disabled:cursor-wait;
+    }
     
     .error {
         @apply text-xs text-red-500 mt-px;

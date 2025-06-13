@@ -94,6 +94,12 @@
                             class="bg-yellow-500 text-white px-2 py-2 rounded hover:bg-yellow-600 w-full">
                             Escalate
                             </button>
+
+                            <button 
+                            @click="endorseModal = true; selectedId = '{{ $report->id }}'" 
+                            class="bg-green-500 text-white px-2 py-2 rounded hover:bg-green-600 w-full mt-2">
+                            Endorse
+                            </button>
                         </td>
                         
                     @endif
@@ -158,6 +164,12 @@
                             @click="escalateModal = true; selectedId = '{{ $report->id }}'" 
                             class="btn-escalate mb-2">
                             Escalate
+                            </button>
+
+                            <button 
+                            @click="endorseModal = true; selectedId = '{{ $report->id }}'" 
+                            class="btn-endorse mb-2">
+                            Endorse
                             </button>
 
                         

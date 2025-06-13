@@ -2,7 +2,7 @@
     <div class="mx-auto w-full p-4">
         <!-- Card Container -->
         <div class="mx-auto bg-white shadow-md rounded-lg p-4 dark:bg-slate-800" 
-            x-data="{ showModal: false, resolveModal: false, escalateModal: false, responseModal: false, selectedId: null }">
+            x-data="{ showModal: false, resolveModal: false, escalateModal: false, endorseModal: false, responseModal: false, selectedId: null }">
             
             <h1 class="text-lg md:text-xl font-bold mb-4 text-slate-800 dark:text-slate-100">List of Requested / Reported Issues</h1>
             <input type="text" class="firstCount input" style="display: none;" value="{{$countReport}}">
@@ -228,7 +228,69 @@
             </form>
         </div>
     </div>
-    {{-- end of resolve --}}
+    {{-- end of escalate --}}
+
+    {{-- endorse modal --}}
+    <div x-show="endorseModal" x-cloak class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+        <div class="bg-white p-6 rounded-lg  w-11/12 md:w-screen lg:w-1/2">
+            <div class="flex justify-between items-center">
+                <h3 class="text-xl font-semibold">Endorse</h3>
+                <button @click="endorseModal = false" class="text-gray-500 hover:text-gray-800">X</button>
+            </div>
+            <form :action="'/report/endorse/' + selectedId" method="GET">
+                <!-- Your form content here -->
+                @csrf
+                <div class="mb-4 mt-4">
+                    <label for="user_id">Technical Staff</label>
+                    <select name="user_id" id="user_id" class="input">
+                        <option value="">Select Technical staff</option>
+                        @foreach($users as $user)
+                            <option value="{{ $user->id }}">{{ $user->name }}</option>
+                        @endforeach
+                    </select>
+                    @error('user_id')
+                    <p class="error">{{ $message }}</p>
+                    <script>
+                        Swal.fire({
+                            icon: "error",
+                            title: "Oops...",
+                            text: "{{ $message }}",
+                            });
+                    </script>
+                @enderror
+                </div>
+                  {{-- endorse time --}}
+                        <div class="mt-2">
+                            <label for="resolve_datetime" class="block text-sm font-medium text-gray-700">Endorse Date Time</label>
+                            <input type="datetime-local" class="w-full p-2 border rounded-lg resize-y mt-2" name="resolve_datetime" value="{{ old('resolve_datetime') }}">
+
+                            @error('resolve_datetime')
+                                <p class="text-red-500 text-sm mt-2">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                <div class="mb-4">
+                    <label for="remarks">Remarks</label>
+                    <input type="text" name="remarks" class="input @error('remarks') ring-red-500 @enderror" value="{{ old('remarks')}}">
+                    @error('remarks')
+                        <p class="error">{{ $message }}</p>
+                        <script>
+                            Swal.fire({
+                                icon: "error",
+                                title: "Oops...",
+                                text: "{{ $message }}",
+                                });
+                        </script>
+                    @enderror
+                </div>
+
+                <button type="submit" class="bg-blue-500 text-white hover:bg-blue-600 px-4 py-2 rounded">
+                    Endorse
+                </button>
+            </form>
+        </div>
+    </div>
+    {{-- end of endorse --}}
 
     <!-- List of Resolved Issues -->
         </div>
