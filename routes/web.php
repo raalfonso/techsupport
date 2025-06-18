@@ -28,6 +28,7 @@ Route::middleware('auth')->group(function() {
     Route::get('/report/resolve/{id}', [ReportController::class, 'resolve'])->name('report.resolve');
     Route::get('/report/escalate/{id}', [ReportController::class, 'escalate'])->name('report.escalate');
     Route::get('/report/endorse/{id}', [ReportController::class, 'endorse'])->name('report.endorse');
+    Route::get('/report/export', [ReportController::class, 'export'])->name('report.export');
     Route::resource('report',ReportController::class);
     Route::post('/logout',[AuthController::class, 'logout'])->name('logout');
     Route::get('/reports', [ReportController::class, 'getReports']);

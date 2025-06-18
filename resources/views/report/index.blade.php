@@ -8,7 +8,7 @@
             <input type="text" class="firstCount input" style="display: none;" value="{{$countReport}}">
             <!-- New Report Button -->
             <div class="flex justify-end mb-4">
-                <button @click="showModal = true" class="w-32 bg-teal-900 text-white hover:bg-teal-950 rounded px-4 py-2">
+                <button @click="showModal = true" class="w-40 bg-teal-700 text-white hover:bg-teal-950 rounded px-4 py-2">
                     New Request
                 </button>
             </div>
@@ -297,7 +297,12 @@
         
     <div class="mt-10 card px-4 bg-white dark:bg-slate-800">
         <h1 class="text-lg md:text-xl font-bold mb-4 text-gray-800 dark:text-slate-100">List of Resolved Issues</h1>
-
+            <div class="flex justify-end mb-4">
+                {{-- <button @click="showModal = true" class="w-40 bg-teal-700 text-white hover:bg-teal-950 rounded px-4 py-2">
+                    Generate Reports
+                </button> --}}
+                <a href="{{ route('report.export') }}" class="btn w-40 bg-teal-700 text-white hover:bg-teal-950 rounded px-4 py-2">Export to Excel</a>
+            </div>
         <div class="overflow-auto max-h-[350px] pb-10">
             <!-- Table: Visible on medium screens (md) and larger -->
             <div class="hidden md:block">

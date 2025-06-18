@@ -9,9 +9,12 @@ use App\Models\Department;
 use App\Models\Issues;
 use App\Models\User;
 use App\Models\Clients;
+use App\Exports\ReportsExport;
+use Maatwebsite\Excel\Facades\Excel;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
+
 
 class ReportController extends Controller
 {
@@ -251,5 +254,10 @@ class ReportController extends Controller
     public function destroy(Report $report)
     {
         //
+    }
+
+    public function export()
+    {
+        return Excel::download(new ReportsExport, 'reports.xlsx');
     }
 }
