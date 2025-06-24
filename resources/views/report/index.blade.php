@@ -9,7 +9,7 @@
             <!-- New Report Button -->
             <div class="flex justify-end mb-4">
                 <button @click="showModal = true" class="w-40 bg-teal-700 text-white hover:bg-teal-950 rounded px-4 py-2">
-                    New Request
+                  <i class="fa-solid fa-plus"></i>  New Request
                 </button>
             </div>
             <div class="report-data"></div>
@@ -301,7 +301,7 @@
                 {{-- <button @click="showModal = true" class="w-40 bg-teal-700 text-white hover:bg-teal-950 rounded px-4 py-2">
                     Generate Reports
                 </button> --}}
-                <a href="{{ route('report.export') }}" class="btn w-40 bg-teal-700 text-white hover:bg-teal-950 rounded px-4 py-2">Export to Excel</a>
+                <a href="{{ route('report.export') }}" class="btn w-40 bg-teal-700 text-white hover:bg-teal-950 rounded px-4 py-2"><i class="fa-solid fa-file-export"></i> Export to Excel</a>
             </div>
         <div class="overflow-auto max-h-[350px] pb-10">
             <!-- Table: Visible on medium screens (md) and larger -->

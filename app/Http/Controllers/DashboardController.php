@@ -19,9 +19,9 @@ class DashboardController extends Controller
         $months = collect(range(1, 12))->mapWithKeys(fn($month) => [$month => 0]);
 
         $data = DB::table('reports')
-            ->selectRaw('MONTH(created_at) as month, COUNT(*) as total')
-            ->whereNotNull('created_at')
-            ->groupByRaw('MONTH(created_at)')
+            ->selectRaw('MONTH(request_datetime) as month, COUNT(*) as total')
+            // ->whereNotNull('created_at')
+            ->groupByRaw('MONTH(request_datetime)')
             ->pluck('total', 'month')
             ->toArray();
 
@@ -34,9 +34,24 @@ class DashboardController extends Controller
             return [];
         });
 
-        $labels = array_keys($formattedResults->toArray());
-        $values = array_values($formattedResults->toArray());
 
+        $labels = array_keys($formattedResults->toArray());
+        $values = array_values($data);
+
+
+        $department_data = DB::table('reports')
+        ->leftJoin('departments', 'reports.department_id', '=', 'departments.id')
+        ->selectRaw('departments.title as department, COUNT(*) as total')
+        ->groupBy('departments.title')
+        ->pluck('total', 'department')
+        ->toArray();
+
+        foreach ($department_data as $dept => $count) {
+            $formattedData[] = ['name' => $dept, 'y' => $count];
+        }
+
+        // print_r($formattedData);
+        // return;
         $question1 = Feedback::avg('answer1');
         $question2 = Feedback::avg('answer3');
 
@@ -48,7 +63,6 @@ class DashboardController extends Controller
                 ->groupBy('reports.issues_id', 'issues.title') // Add 'issues.title' here
                 ->orderBy('count', 'desc') // Order by count in descending order
                 ->get();
-
         
         $weeklyData = DB::table('reports')
         ->selectRaw(
@@ -130,6 +144,7 @@ class DashboardController extends Controller
             'users' => $users,
             'browserData' => $browserData,
             'drilldownSeries' => $drilldownSeries,
+            'formattedData'   => $formattedData,
         ]);
 
     

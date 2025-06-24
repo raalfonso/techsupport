@@ -16,6 +16,7 @@ class Issues extends Model
         'category_id',
         'mains_id',
         'type',
+        'resolution_timeline',
 
     ];
 

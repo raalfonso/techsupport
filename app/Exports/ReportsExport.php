@@ -27,13 +27,46 @@ class ReportsExport implements FromCollection, WithHeadings, WithStyles, WithMap
          return round($diffInMinutes / 60)." hours";
         }else{ 
         return round($diffInMinutes)." mins";
-        } 
-                                   
+        }                          
     }
-   public function collection()
+    
+    public function collection()
     {
         return Report::whereIn('status', ['Done'])->get();
     }
+
+    private function computingResponseTime($actualResponsedTime){
+        $planned = 5;
+        
+        if ($actualResponsedTime <= $planned * 0.70) {
+            return 5;
+        } elseif ($actualResponsedTime <= $planned * 0.85) {
+            return 4;
+        } elseif ($actualResponsedTime <= $planned * 1.14) {
+            return 3;
+        } elseif ($actualResponsedTime <= $planned * 1.89) {
+            return 2;
+        } else {
+            return 1;
+        }
+
+    }
+     private function computingResolvedTime($actualResolvedTime,$planned){
+        
+        if ($actualResolvedTime <= $planned * 0.70) {
+            return 5;
+        } elseif ($actualResolvedTime <= $planned * 0.85) {
+            return 4;
+        } elseif ($actualResolvedTime <= $planned * 1.14) {
+            return 3;
+        } elseif ($actualResolvedTime <= $planned * 1.89) {
+            return 2;
+        } else {
+            return 1;
+        }
+
+    }
+    
     public function map($report): array
     {
         
@@ -47,19 +80,23 @@ class ReportsExport implements FromCollection, WithHeadings, WithStyles, WithMap
             $this->calculateResponseTime($report),
             $this->calculateResolveTime($report),
             $report->resolve->user->name,
+            $this->computingResponseTime($this->calculateResponseTime($report)),
+            $this->computingResolvedTime($this->calculateResponseTime($report),$report->issues->resolution_timeline),
         ];
     }
     public function headings(): array
     {
         return [
             '#',
-            'Request Date',
+            'Requested Date',
             'Name',
             'Department',
             'Issues',
-            'Response Time',
-            'Resolve Time',
-            'Technical Staff'
+            'Responsed Time',
+            'Resolved Time',
+            'Technical Staff',
+            'Responsed Rating',
+            'Resolved Rating',
         ];
     }
 

@@ -126,9 +126,11 @@
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
+    
 
 
 
+     const departmentValues = {!! json_encode($formattedData) !!};
 
 $('.theme-toggle').click(function(){
     if (Highcharts.charts[0]) {
@@ -156,7 +158,7 @@ function renderChart(titleColor,labelColor,legendColor) {
         style: { color: titleColor }
         },
         xAxis: {
-        categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+        categories:  {!! json_encode($labels) !!},
         labels: { style: { color: labelColor } }
         },
         yAxis: {
@@ -171,7 +173,7 @@ function renderChart(titleColor,labelColor,legendColor) {
         },
         series: [{
         name: 'Request',
-        data: [800, 870, 800, 1100, 1200, 1107],
+        data:  {!! json_encode($values) !!},
         color: '#14B8A6'
         }]
     });
@@ -221,28 +223,7 @@ function renderChart(titleColor,labelColor,legendColor) {
                 name: 'Population',
                 color: '#14B8A6',
                 colorByPoint: false,
-                data: [
-                    ['OPCEO', 37],
-                    ['OSVP LSG', 31],
-                    ['HRMD', 27],
-                    ['PAD', 22],
-                    ['SAPMD', 21],
-                    ['RAD', 21],
-                    ['EESD', 21],
-                    ['GSD', 20],
-                    ['Accounting', 20],
-                    ['Budget', 19],
-                    ['OEVP', 16],
-                    ['PPMD', 16],
-                    ['Property', 15],
-                    ['LSD', 15],
-                    ['BAC', 14],
-                    ['CPD', 14],
-                    ['OCBS', 14],
-                    ['SCRP', 14],
-                    ['OC', 13],
-                    ['SMD', 13]
-                ],
+                data: departmentValues,
                 dataLabels: {
                     enabled: true,
                     rotation: -90,
