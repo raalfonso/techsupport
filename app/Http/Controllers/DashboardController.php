@@ -11,7 +11,7 @@ class DashboardController extends Controller
 {
     public function index() {
 
-        $reports_total = Report::count();
+        $reports_total = Report::where('status','!=','Void')->count();
         $report_resolved = Report::where('status', 'done')->count();
         $reports_pending = Report::where('status', 'Pending')->count();
         $reports_ongoing = Report::where('status', 'Ongoing')->count();
@@ -20,7 +20,7 @@ class DashboardController extends Controller
 
         $data = DB::table('reports')
             ->selectRaw('MONTH(request_datetime) as month, COUNT(*) as total')
-            // ->whereNotNull('created_at')
+            ->where('status','!=','Void')
             ->groupByRaw('MONTH(request_datetime)')
             ->pluck('total', 'month')
             ->toArray();
@@ -38,10 +38,11 @@ class DashboardController extends Controller
         $labels = array_keys($formattedResults->toArray());
         $values = array_values($data);
 
-
+        //department showdown
         $department_data = DB::table('reports')
         ->leftJoin('departments', 'reports.department_id', '=', 'departments.id')
         ->selectRaw('departments.title as department, COUNT(*) as total')
+        ->where('reports.status','!=','Void')
         ->groupBy('departments.title')
         ->pluck('total', 'department')
         ->toArray();
@@ -50,16 +51,17 @@ class DashboardController extends Controller
             $formattedData[] = ['name' => $dept, 'y' => $count];
         }
 
-        // print_r($formattedData);
-        // return;
+        //customer satisfaction
         $question1 = Feedback::avg('answer1');
         $question2 = Feedback::avg('answer3');
-
+        //scorecad
         $averageScore = ($question1 + $question2) / 2;
         $satisfaction = ($averageScore/5) * 100;
 
+        //technical staff efficiency
         $results = Report::selectRaw('count(reports.issues_id) as count, issues.title as title')
                 ->leftJoin('issues', 'reports.issues_id', '=', 'issues.id')
+                ->where('reports.status','!=','Void')
                 ->groupBy('reports.issues_id', 'issues.title') // Add 'issues.title' here
                 ->orderBy('count', 'desc') // Order by count in descending order
                 ->get();
@@ -80,54 +82,52 @@ class DashboardController extends Controller
    
 
         $dateRanges = $weeklyData->map(function ($data) {
-        $start = \Carbon\Carbon::parse($data->start_date)->format('M j');
-        $end = \Carbon\Carbon::parse($data->end_date)->format('M j');
-        return "$start to $end";
+            $start = \Carbon\Carbon::parse($data->start_date)->format('M j');
+            $end = \Carbon\Carbon::parse($data->end_date)->format('M j');
+            return "$start to $end";
         });
 
-        $totals = $weeklyData->pluck('total')->toArray();
+        // $totals = $weeklyData->pluck('total')->toArray();
 
         $users = \DB::table('users')
                 ->leftJoin('resolve', 'users.id', '=', 'resolve.user_id')
-                ->select('users.name as user_name', \DB::raw('COUNT(resolve.id) as resolve_count'))
+                ->select('users.name as name', \DB::raw('COUNT(resolve.id) as count'))
                 ->groupBy('users.id', 'users.name')
-                ->get();
+                ->pluck('name', 'count');
 
+       
 
+       $users = \DB::table('users')
+        ->leftJoin('resolve', 'users.id', '=', 'resolve.user_id')
+        ->select('users.name', \DB::raw('COUNT(resolve.id) as count'))
+        ->groupBy('users.id', 'users.name')
+        ->get()
+        ->map(function ($item) {
+            return [
+                'name' => $item->name,
+                'y' => (int) $item->count,
+                'drilldown' => $item->name,
+            ];
+        })
+        ->toArray();
 
-                $browserData = [
-                    ['name' => 'Andrew', 'y' => 63, 'drilldown' => 'Andrew'],
-                    ['name' => 'Darold', 'y' => 15, 'drilldown' => 'Darold'],
-                    ['name' => 'Noime', 'y' => 42, 'drilldown' => 'Noime'],
-                    ['name' => 'Sam', 'y' => 41, 'drilldown' => 'Sam'],
-                    ['name' => 'Jean', 'y' => 12, 'drilldown' => 'Jean'],
-                    ['name' => 'Nick', 'y' => 10, 'drilldown' => 'Nick'],
-                   
-                ];
-            
-                $drilldownSeries = [
-                    [
-                        'name' => 'Andrew',
-                        'id' => 'Andrew',
-                        'data' => [
-                            ['v65.0', 0.1],
-                            ['v64.0', 1.3],
-                            ['v63.0', 53.02],
-                            ['v62.0', 1.4],
-                            ['v61.0', 0.88],
-                        ]
-                    ],
-                    [
-                        'name' => 'Firefox',
-                        'id' => 'Firefox',
-                        'data' => [
-                            ['v58.0', 1.02],
-                            ['v57.0', 7.36],
-                            ['v56.0', 0.35],
-                        ]
-                    ],
-                    // Add more drilldown series here...
-                ];
+        $recurringIssues = \DB::table('issues')
+        ->leftJoin('reports', 'reports.issues_id', '=', 'issues.id')
+        ->select('issues.title', \DB::raw('COUNT(reports.id) as data'))
+        ->where('reports.status','!=','Void')
+        ->groupBy('issues.title')
+        ->get()
+        ->filter(function ($data) {
+            return $data->data >= 3;
+        })
+        ->map(fn($data) => [
+        'name' => $data->title,
+        'y' => (int) $data->data,
+        'color' => '#14B8A6',
+        ])->values();
+
+               
+               
 
                        // exit;
         return view('dashboard.index', [
@@ -139,11 +139,8 @@ class DashboardController extends Controller
             'values' => $values,
             'satisfaction'  => $satisfaction,
             'results'   =>  $results,
-            'dateRanges' => $dateRanges,
-            'totals' => $totals,
-            'users' => $users,
-            'browserData' => $browserData,
-            'drilldownSeries' => $drilldownSeries,
+            'userData' => $users,
+            'recurringIssues' => $recurringIssues,
             'formattedData'   => $formattedData,
         ]);
 

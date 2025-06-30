@@ -126,11 +126,6 @@
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-    
-
-
-
-     const departmentValues = {!! json_encode($formattedData) !!};
 
 $('.theme-toggle').click(function(){
     if (Highcharts.charts[0]) {
@@ -158,7 +153,7 @@ function renderChart(titleColor,labelColor,legendColor) {
         style: { color: titleColor }
         },
         xAxis: {
-        categories:  {!! json_encode($labels) !!},
+        categories: @json($labels),
         labels: { style: { color: labelColor } }
         },
         yAxis: {
@@ -173,7 +168,7 @@ function renderChart(titleColor,labelColor,legendColor) {
         },
         series: [{
         name: 'Request',
-        data:  {!! json_encode($values) !!},
+        data:  @json($values),
         color: '#14B8A6'
         }]
     });
@@ -223,7 +218,7 @@ function renderChart(titleColor,labelColor,legendColor) {
                 name: 'Population',
                 color: '#14B8A6',
                 colorByPoint: false,
-                data: departmentValues,
+                data: @json($formattedData),
                 dataLabels: {
                     enabled: true,
                     rotation: -90,
@@ -239,39 +234,39 @@ function renderChart(titleColor,labelColor,legendColor) {
                 }
             }]
         });
-// 3rd
 
-
+console.log(@json($recurringIssues));
+// 3rd recurring issues
 Highcharts.chart('container-recurring', {
-        chart: {
-            type: 'bar',
-            backgroundColor: 'transparent'
-        },
+    chart: {
+        type: 'bar',
+        backgroundColor: 'transparent'
+    },
+    title: {
+        text: 'Recurring Issues (3+ Occurrences)',
+        style: { color: titleColor }
+    },
+    xAxis: {
+        type: 'category',
+        labels: { style: { color: titleColor } }
+    },
+    yAxis: {
         title: {
-            text: 'Recurring Issues (3+ Occurrences) for the week',
+            text: 'Occurrences',
             style: { color: titleColor }
         },
-        xAxis: {
-            categories: ['Network Issue', 'Printer Issue','Scanner Issues'],
-            labels: { style: { color: titleColor } }
-        },
-        yAxis: {
-            title: {
-                text: 'Occurrences',
-                style: { color: titleColor }
-            },
-            labels: { style: { color: titleColor } }
-        },
-        series: [{
-            name: 'Occurrences',
-            data: [5, 2, 2],
-            color: '#14B8A6'
-        }]
-    });
+        labels: { style: { color: titleColor } }
+    },
+    series: [{
+        name: 'Issues',
+        colorByPoint: true,
+        data: @json($recurringIssues)
+    }]
+});
 
 
 
-    // 4th
+    // 4th technical staff efficiency
     Highcharts.chart('container', {
             chart: {
                 type: 'column',
@@ -322,7 +317,7 @@ Highcharts.chart('container-recurring', {
                 name: 'Staff',
                 colorByPoint: false,
                 color: '#14B8A6',
-                data: @json($browserData)
+                data: @json($userData)
             }],
             drilldown: {
                 breadcrumbs: {
@@ -330,7 +325,7 @@ Highcharts.chart('container-recurring', {
                         align: 'right'
                     }
                 },
-                series: @json($drilldownSeries)
+                
             }
         });
 }
