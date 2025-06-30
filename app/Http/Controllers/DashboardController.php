@@ -46,7 +46,7 @@ class DashboardController extends Controller
         ->groupBy('departments.title')
         ->pluck('total', 'department')
         ->toArray();
-
+        $formattedData = [];
         foreach ($department_data as $dept => $count) {
             $formattedData[] = ['name' => $dept, 'y' => $count];
         }
