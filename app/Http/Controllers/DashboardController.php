@@ -89,17 +89,11 @@ class DashboardController extends Controller
 
         // $totals = $weeklyData->pluck('total')->toArray();
 
-        $users = \DB::table('users')
-                ->leftJoin('resolve', 'users.id', '=', 'resolve.user_id')
-                ->select('users.name as name', \DB::raw('COUNT(resolve.id) as count'))
-                ->groupBy('users.id', 'users.name')
-                ->pluck('name', 'count');
-
-       
 
        $users = \DB::table('users')
         ->leftJoin('resolve', 'users.id', '=', 'resolve.user_id')
         ->select('users.name', \DB::raw('COUNT(resolve.id) as count'))
+        ->whereIn('users.team', ['NIS', 'Systems'])
         ->groupBy('users.id', 'users.name')
         ->get()
         ->map(function ($item) {

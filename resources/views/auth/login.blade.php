@@ -1,5 +1,5 @@
 <x-layout>
-    <div class="min-h-screen flex items-center justify-center p-6" style="background: linear-gradient(to bottom left, #00cb6a, #4dc9fe); background-repeat: no-repeat; background-attachment: fixed;">
+    <div class="min-h-screen flex items-center justify-center p-6" style="background: linear-gradient(to bottom left, #075834, #4dc9fe); background-repeat: no-repeat; background-attachment: fixed;">
 
         <div class="transparent rounded-lg shadow-lg w-full max-w-md mt-[0%] sm:mt-[-1/2]">
             <center>

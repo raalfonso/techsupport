@@ -29,6 +29,25 @@ class ReportsExport implements FromCollection, WithHeadings, WithStyles, WithMap
         return round($diffInMinutes)." mins";
         }                          
     }
+
+    //this is for the rating
+     private function calculateResponse($response){
+      $diffInMinutes = \Carbon\Carbon::parse($response->request_datetime)->diffInMinutes(\Carbon\Carbon::parse($response->response_datetime));
+      if ($diffInMinutes >= 60){ 
+         return round($diffInMinutes / 60);
+        }else{ 
+        return round($diffInMinutes);
+        } 
+                                   
+    }
+    private function calculateResolve($response){
+      $diffInMinutes = \Carbon\Carbon::parse($response->response_datetime)->diffInMinutes(\Carbon\Carbon::parse($response->resolve_datetime));
+      if ($diffInMinutes >= 60){ 
+         return round($diffInMinutes / 60);
+        }else{ 
+        return round($diffInMinutes);
+        }                          
+    }
     
     public function collection()
     {
@@ -80,8 +99,8 @@ class ReportsExport implements FromCollection, WithHeadings, WithStyles, WithMap
             $this->calculateResponseTime($report),
             $this->calculateResolveTime($report),
             $report->resolve->user->name,
-            $this->computingResponseTime($this->calculateResponseTime($report)),
-            $this->computingResolvedTime($this->calculateResponseTime($report),$report->issues->resolution_timeline),
+            $this->computingResponseTime($this->calculateResponse($report)),
+            $this->computingResolvedTime($this->calculateResolve($report),$report->issues->resolution_timeline),
         ];
     }
     public function headings(): array

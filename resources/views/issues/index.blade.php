@@ -66,6 +66,8 @@
                         <tr class="bg-gray-200 text-left">
                             <th class="border border-gray-300 px-4 py-2">ID</th>
                             <th class="border border-gray-300 px-4 py-2">Title</th>
+                            <th class="border border-gray-300 px-4 py-2">Resolution Time</th>
+                            
                             <th class="border border-gray-300 px-4 py-2">Primary</th>
                             <th class="border border-gray-300 px-4 py-2">Category</th>
                             <th class="border border-gray-300 px-4 py-2">Actions</th>
@@ -76,6 +78,7 @@
                             <tr class="hover:bg-gray-100">
                                 <td class="border border-gray-300 px-4 py-2">{{ $issue->id }}</td>
                                 <td class="border border-gray-300 px-4 py-2">{{ $issue->title }}</td>
+                                <td class="border border-gray-300 px-4 py-2">{{ $issue->resolution_timeline }}</td>
                                 <td class="border border-gray-300 px-4 py-2">{{ $issue->mains->id }}</td>
                                 <td class="border border-gray-300 px-4 py-2">{{ $issue->category->title }}</td>
                                 <td class="border border-gray-300 px-4 py-2">
