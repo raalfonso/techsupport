@@ -23,7 +23,7 @@
 {{-- Added pt-16 to the body to account for the fixed navbar height --}}
 <body> 
     {{-- Main Navbar --}}
-    <nav class="bg-white p-4 shadow-md top-0 z-50 min-w-full fixed max-h-20">
+    <nav class="bg-white p-4 shadow-md top-0 z-50 min-w-full fixed max-h-16">
         {{-- Outer container for full-width alignment --}}
         {{-- Inner container for content alignment --}}
         {{-- Outer container for full-width alignment --}}
@@ -85,7 +85,7 @@
                     </h3>
                     
                     <button class="bg-blue-700 text-white px-6 py-3 rounded-full font-semibold shadow transition hover:bg-blue-800">
-                        <a href="{{ route('login') }}">Request Support  <i class="fa-regular fa-comments"></i></a>
+                        <a href="#contact">Request Support  <i class="fa-regular fa-comments"></i></a>
                     </button>
                 </div>
 
@@ -106,8 +106,8 @@
       </div>
     </section>
 
-    <section id="about" class="py-16 bg-white">
-      <div class="max-w-5xl mx-auto px-6 text-center transition-all duration-700 opacity-0 translate-y-4" data-scroll>
+    <section id="about" class="py-16 bg-white mb-5">
+      <div class="max-w-5xl mx-auto px-6 text-center transition-all duration-700 opacity-0 translate-y-4 mt-5" data-scroll>
         <h2 class="text-3xl font-bold mb-6">About the IT Division</h2>
         <p class="text-gray-700 text-lg leading-relaxed">
           The BCDA IT Department provides strategic IT leadership, technical expertise, and operational services to ensure secure, reliable, and efficient technology systems throughout the organization. We support innovation, system modernization, and collaborative digital solutions.
@@ -134,7 +134,7 @@
     </section>
 
     <section id="projects" class="py-16 bg-white">
-      <div class="max-w-6xl mx-auto px-6 transition-all duration-700 opacity-0 translate-y-4" data-scroll>
+      <div class="max-w-6xl mx-auto px-6 transition-all duration-700 opacity-0 translate-y-4 mt-5" data-scroll>
         <h2 class="text-3xl font-bold text-center mb-12">Key Projects</h2>
         <div class="grid gap-8 md:grid-cols-3">
           @foreach([
@@ -154,13 +154,37 @@
       </div>
     </section>
 
-    <section id="contact" class="py-16 bg-gray-50">
-      <div class="max-w-4xl mx-auto px-6 text-center">
-        <h2 class="text-3xl font-bold mb-6">Get in Touch</h2>
-        <p class="text-lg">📍 BCDA IT Department, Taguig City</p>
-        <p class="mt-2">📧 <a href="mailto:it-support@bcda.gov.ph" class="text-blue-600 underline hover:text-blue-800">it-support@bcda.gov.ph</a></p>
-        <p class="mt-2">📞 Local: 1234</p>
-        <a href="#top" class="mt-6 inline-block text-sm text-blue-700 hover:underline">Back to Top ↑</a>
+    <section id="contact" class="py-10 bg-gray-50">
+      <div class="max-w-6xl mx-auto px-6 transition-all duration-700 opacity-0 translate-y-4 mt-5" data-scroll>
+        <h2 class="text-3xl font-bold text-left mb-5">How can we help you today?</h2>
+        <h3 class="text-xl font-normal text-left mb-12">Pick one from the topics below and we’ll find the best solution for you.</h3>
+        <div class="grid gap-8 md:grid-cols-3">
+          @foreach([
+            ['title' => 'Issue Tracker', 'desc' => 'Check the status of your request or repair ticket.', 'url' => 'https://www.bcda.gov.ph','icon' => 'fa-solid fa-location-dot'],
+            ['title' => 'Video conferencing / Support', 'desc' => 'Technical and configurational support from IT Support', 'url' => 'https://hris.bcda.gov.ph','icon' => 'fa-solid fa-video'],
+            ['title' => 'Acumatica ERP and HRIS', 'desc' => 'Support for Acumatica or HRIS-related issues.', 'url' => 'https://bcda.cloudtwogo.com/Frames/Login.aspx?ReturnUrl=%2f','icon' => 'fa-solid fa-users'],
+            ['title' => 'Hardware Issue', 'desc' => 'Support for system malfunction, connectivity issues, and printer errors', 'url' => 'https://bcda.cloudtwogo.com/Frames/Login.aspx?ReturnUrl=%2f','icon' => 'fa-solid fa-desktop'],
+            ['title' => 'Cybersecurity Issue', 'desc' => 'Support for malware, phishing, and other cybersecurity issues', 'url' => 'https://bcda.cloudtwogo.com/Frames/Login.aspx?ReturnUrl=%2f','icon' => 'fa-solid fa-shield-halved'],
+            ['title' => 'Network Problem', 'desc' => 'Assistance with slow connectivity, VPN failures, and disconnections.', 'url' => 'https://pams.bcda.gov.ph' ,'icon' => 'fa-solid fa-globe'],
+            ['title' => 'AOdocs Issues', 'desc' => 'Support for document access, workflow malfunction, and permissions errors.', 'url' => '#careers' ,'icon' => 'fa-solid fa-file-alt'],
+            ['title' => 'Software Issues', 'desc' => 'Support for software crashes, installation errors, and performance issues.', 'url' => '#digitization' ,'icon' => 'fa-solid fa-location-dot'],
+            ['title' => 'Google Workspace Issues', 'desc' => 'Support for email, drive, docs, sheets, meet, and document sharing issues.', 'url' => '#digitization' ,'icon' => 'fa-solid fa-envelope'],
+            ['title' => 'Other Issues', 'desc' => 'For any other IT-related issues not covered above.', 'url' => '#digitization' ,'icon' => 'fa-solid fa-question']
+          ] as $project)
+            <a href="#" class="bg-white p-4 rounded-lg shadow hover:shadow-lg transition">
+              <div class="flex justify-left items-center text-center mb-3">
+                <i class="{{ $project['icon'] }} text-blue-700 text-2xl"></i>
+                <h2 class="text-lg font-semibold text-blue-800 ml-2">
+                  {{ $project['title'] }}
+                </h2>
+               </div>
+                <p class="text-sm text-justify">
+                  {{ $project['desc'] }}
+                </p>
+             
+            </a>
+          @endforeach
+        </div>
       </div>
     </section>
 
