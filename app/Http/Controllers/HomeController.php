@@ -52,6 +52,42 @@ class HomeController extends Controller
         return view('track');
     }
 
+    // this is for checking the email is registered or not
+    public function checkEmail(Request $request){
+
+      
+        $fields = $request->validate([
+            'email' => ['required', 'email'],
+            'main' => ['required'],
+        ]); 
+        $client = Clients::where('email_address', $fields['email'])->first();
+        if ($client) {
+             $reports = Report::where('client_id', $client->id)
+                ->orderBy('id', 'desc')
+                ->get();
+            return view('home.tracking', ['reports' => $reports, 'client' => $client]);
+            
+        } else {
+    
+        }
+    }
+    // this is for tracking the issues of the client
+    public function trackIssues($client_id,$main){
+        $client = Clients::where('id', $client_id)->first();
+        if ($client) {
+            echo "sksks";
+            $reports = Report::where('client_id', $client->id)
+                ->orderBy('id', 'desc')
+                ->get();
+            return view('home.track', ['reports' => $reports, 'client' => $client]);
+        }  
+        else
+        {
+            return redirect()->back()->with('error', 'Client not found.');
+        }
+
+    }
+
     public function add($id,$client_id){
         $categories = Category::orderBy('title', 'asc')->get();
         $departments = Department::orderBy('title', 'asc')->get();

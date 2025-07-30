@@ -71,6 +71,8 @@ Route::middleware('guest')->group(function () {
     Route::post('/track-view', [HomeController::class, 'trackView'])->name('home.track-view');
 
 
+    Route::post('/check-email', [HomeController::class, 'checkEmail'])->name('client.check-email');
+
    
     Route::get('/login-client', [ClientAuthController::class, 'showLoginForm'])->name('client.login');
     

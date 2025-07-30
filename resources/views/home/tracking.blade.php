@@ -160,16 +160,16 @@
         <h3 class="text-xl font-normal text-left mb-12">Pick one from the topics below and we’ll find the best solution for you.</h3>
         <div class="grid gap-8 md:grid-cols-3">
           @foreach([
-            ['title' => 'Issue Tracker', 'desc' => 'Check the status of your request or repair ticket.', 'url' => 'https://www.bcda.gov.ph','icon' => 'fa-solid fa-location-dot','button' => 'Track Issue', 'main' =>'0' ],
-            ['title' => 'Video conferencing / Support', 'desc' => 'Technical and configurational support from IT Support', 'url' => 'https://hris.bcda.gov.ph','icon' => 'fa-solid fa-video','button' => 'Submit Request', 'main' =>'1'],
-            ['title' => 'Acumatica ERP and HRIS', 'desc' => 'Support for Acumatica or HRIS-related issues.', 'url' => 'https://bcda.cloudtwogo.com/Frames/Login.aspx?ReturnUrl=%2f','icon' => 'fa-solid fa-users','button' => 'Report Issue', 'main' =>'2'],
-            ['title' => 'Hardware Issue', 'desc' => 'Support for system malfunction, connectivity issues, and printer errors', 'url' => 'https://bcda.cloudtwogo.com/Frames/Login.aspx?ReturnUrl=%2f','icon' => 'fa-solid fa-desktop', 'button' => 'Report Issue', 'main' =>'4'],
-            ['title' => 'Cybersecurity Issue', 'desc' => 'Support for malware, phishing, and other cybersecurity issues', 'url' => 'https://bcda.cloudtwogo.com/Frames/Login.aspx?ReturnUrl=%2f','icon' => 'fa-solid fa-shield-halved','button' => 'Report Issue', 'main' =>'3'],
-            ['title' => 'Network Problem', 'desc' => 'Assistance with slow connectivity, VPN failures, and disconnections.', 'url' => 'https://pams.bcda.gov.ph' ,'icon' => 'fa-solid fa-globe','button' => 'Report Issue' , 'main' =>'4'],
-            ['title' => 'AOdocs Issues', 'desc' => 'Support for document access, workflow malfunction, and permissions errors.', 'url' => '#careers' ,'icon' => 'fa-solid fa-file-alt','button' => 'Report Issue', 'main' =>'2'],
-            ['title' => 'Software Issues', 'desc' => 'Support for software crashes, installation errors, and performance issues.', 'url' => '#digitization' ,'icon' => 'fa-solid fa-location-dot','button' => 'Report Issue', 'main' =>'4'],
-            ['title' => 'Google Workspace Issues', 'desc' => 'Support for email, drive, docs, sheets, meet, and document sharing issues.', 'url' => '#digitization' ,'icon' => 'fa-solid fa-envelope','button' => 'Report Issue', 'main' =>'2'],
-            ['title' => 'Other Issues', 'desc' => 'For any other IT-related issues not covered above.', 'url' => '#digitization' ,'icon' => 'fa-solid fa-question','button' => 'Report Issue', 'main' =>'99']
+            ['title' => 'Issue Tracker', 'desc' => 'Check the status of your request or repair ticket.', 'url' => 'https://www.bcda.gov.ph','icon' => 'fa-solid fa-location-dot','button' => 'Track Issue'],
+            ['title' => 'Video conferencing / Support', 'desc' => 'Technical and configurational support from IT Support', 'url' => 'https://hris.bcda.gov.ph','icon' => 'fa-solid fa-video','button' => 'Submit Request'],
+            ['title' => 'Acumatica ERP and HRIS', 'desc' => 'Support for Acumatica or HRIS-related issues.', 'url' => 'https://bcda.cloudtwogo.com/Frames/Login.aspx?ReturnUrl=%2f','icon' => 'fa-solid fa-users','button' => 'Report Issue'],
+            ['title' => 'Hardware Issue', 'desc' => 'Support for system malfunction, connectivity issues, and printer errors', 'url' => 'https://bcda.cloudtwogo.com/Frames/Login.aspx?ReturnUrl=%2f','icon' => 'fa-solid fa-desktop', 'button' => 'Report Issue'],
+            ['title' => 'Cybersecurity Issue', 'desc' => 'Support for malware, phishing, and other cybersecurity issues', 'url' => 'https://bcda.cloudtwogo.com/Frames/Login.aspx?ReturnUrl=%2f','icon' => 'fa-solid fa-shield-halved','button' => 'Report Issue'],
+            ['title' => 'Network Problem', 'desc' => 'Assistance with slow connectivity, VPN failures, and disconnections.', 'url' => 'https://pams.bcda.gov.ph' ,'icon' => 'fa-solid fa-globe','button' => 'Report Issue'],
+            ['title' => 'AOdocs Issues', 'desc' => 'Support for document access, workflow malfunction, and permissions errors.', 'url' => '#careers' ,'icon' => 'fa-solid fa-file-alt','button' => 'Report Issue'],
+            ['title' => 'Software Issues', 'desc' => 'Support for software crashes, installation errors, and performance issues.', 'url' => '#digitization' ,'icon' => 'fa-solid fa-location-dot','button' => 'Report Issue'],
+            ['title' => 'Google Workspace Issues', 'desc' => 'Support for email, drive, docs, sheets, meet, and document sharing issues.', 'url' => '#digitization' ,'icon' => 'fa-solid fa-envelope','button' => 'Report Issue'],
+            ['title' => 'Other Issues', 'desc' => 'For any other IT-related issues not covered above.', 'url' => '#digitization' ,'icon' => 'fa-solid fa-question','button' => 'Report Issue']
           ] as $project)
             {{-- Use data attributes for modal functionality --}}
             <a href="#"
@@ -177,7 +177,6 @@
               data-modal-toggle="crud-modal"
               data-project-title="{{ $project['title'] }}"
               data-project-button="{{ $project['button'] }}"
-              data-project-main="{{ $project['main'] }}"
               class="bg-white p-4 rounded-lg shadow hover:shadow-lg transition">
               <div class="flex justify-left items-center text-center mb-3">
                 <i class="{{ $project['icon'] }} text-blue-700 text-2xl"></i>
@@ -213,23 +212,17 @@
                       </button>
                   </div>
                   <!-- Modal body -->
-                  <form action="{{ route('client.check-email') }}" method="post" id="login-form" class="p-4 md:p-5">
-                    @csrf
-                    <div class="grid gap-4 mb-4 grid-cols-2">
-                      <div class="col-span-2">
-                        <label for="email" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Email</label>
-                        <input type="text" name="email" id="email" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Enter your email address" required>
-
-                      
+                  <form class="p-4 md:p-5" action="{{ route('client.login.submit')}}" method="post">
+                      <div class="grid gap-4 mb-4 grid-cols-2">
+                          <div class="col-span-2">
+                              <label for="name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Email</label>
+                              <input type="text" name="email" id="email" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Enter your email address" required="true">
+                          </div>
+                          <button type="submit" id="modal-action-button" class="col-span-2 bg-blue-700 text-white px-6 py-3 rounded-full font-semibold shadow transition hover:bg-blue-800">
+                               <span id="modal-project-button" class="text-blue-700 font-semibold"></span>
+                          </button>
                       </div>
-                      <input type="text" name="main" id='modal-project-main' class="hidden">
-
-                      <button type="submit" id="modal-action-button" class="col-span-2 bg-blue-700 text-white px-6 py-3 rounded-full font-semibold shadow transition hover:bg-blue-800">
-                        <span id="modal-project-button" class="text-blue-700 font-semibold">Submit</span>
-                      </button>
-                    </div>
                   </form>
-
               </div>
           </div>
       </div> 
@@ -291,22 +284,18 @@
       document.addEventListener('DOMContentLoaded', function () {
         const modalTitle = document.getElementById('modal-project-title');
         const actionButton = document.getElementById('modal-action-button');
-        const main = document.getElementById('modal-project-main');
 
         document.querySelectorAll('[data-modal-toggle="crud-modal"]').forEach(el => {
           el.addEventListener('click', function () {
             const title = this.getAttribute('data-project-title');
-            const mainData = this.getAttribute('data-project-main');
             const projectButton = this.getAttribute('data-project-button') || 'Submit';
             if (modalTitle) {
               modalTitle.textContent = title;
               actionButton.textContent = projectButton;
-              main.value = mainData;
             }
           });
         });
       });
-
     </script>
 </body>
 </html>
