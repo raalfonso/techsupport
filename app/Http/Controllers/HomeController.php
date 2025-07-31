@@ -62,32 +62,25 @@ class HomeController extends Controller
         ]); 
         $client = Clients::where('email_address', $fields['email'])->first();
         if ($client) {
-             $reports = Report::where('client_id', $client->id)
+            if ($fields['main'] == 0) {
+                $reports = Report::where('client_id', $client->id)
                 ->orderBy('id', 'desc')
                 ->get();
-            return view('home.tracking', ['reports' => $reports, 'client' => $client]);
+                return view('home.tracking', ['reports' => $reports, 'client' => $client]);
+            }
+            else {
+                // Redirect to the add form with client_id and main
+                $id = $fields['main'];
+                return redirect()->route('home.add', [
+                    'id' => $id,
+                    'client_id' => $client->id
+                ]);
+            }
             
-        } else {
-    
-        }
+            
+        } 
     }
-    // this is for tracking the issues of the client
-    public function trackIssues($client_id,$main){
-        $client = Clients::where('id', $client_id)->first();
-        if ($client) {
-            echo "sksks";
-            $reports = Report::where('client_id', $client->id)
-                ->orderBy('id', 'desc')
-                ->get();
-            return view('home.track', ['reports' => $reports, 'client' => $client]);
-        }  
-        else
-        {
-            return redirect()->back()->with('error', 'Client not found.');
-        }
-
-    }
-
+   
     public function add($id,$client_id){
         $categories = Category::orderBy('title', 'asc')->get();
         $departments = Department::orderBy('title', 'asc')->get();
@@ -115,15 +108,16 @@ class HomeController extends Controller
 
     public function view($id){
       
+        $client = Clients::where('id', $id)->first();
+        $reports = Report::where('client_id', $client->id)
+        ->orderBy('id', 'desc')
+        ->get();
+      
+        return view('home.tracking', [
+            'reports' => $reports,
+            'client' => $client
+        ])->with('success', 'Report created successfully!');
         
-        $reports = Report::where('ticket_number', $id )->get();
-        
-        // print_r($reports);
-        return view('home.ticket', [
-           'ticketNumber' => $id,
-           'reports'    => $reports,
-        ]);
-    
     }
 
     public function viewStatus($id){
@@ -156,11 +150,12 @@ class HomeController extends Controller
             'location'  => 'required',
         ]);
         
+        $fields['request_datetime'] = now();
   
         $reports = Report::create($fields);
         
         //Redirect
-        return redirect()->route('home.view', ['id' => $reports->ticket_number]);
+        return redirect()->route('home.view', ['id' => $fields['client_id']]);
        
     }
 
