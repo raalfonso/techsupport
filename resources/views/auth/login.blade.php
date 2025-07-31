@@ -1,10 +1,10 @@
 <x-layout>
-    <div class="min-h-screen flex items-center justify-center p-6" style="background: linear-gradient(to bottom left, #075834, #4dc9fe); background-repeat: no-repeat; background-attachment: fixed;">
+    <div class="min-h-screen flex bg-white items-center justify-center p-6">
 
-        <div class="transparent rounded-lg shadow-lg w-full max-w-md mt-[0%] sm:mt-[-1/2]">
+        <div class="rounded-lg shadow w-full max-w-md mt-[0%] sm:mt-[-1/2]">
             <center>
 
-                <img src="{{asset('images/logo.png')}}" alt="" class="max-w-80 mt-[-15%]">
+                <img src="{{asset('img/itd_logo.png')}}" alt="" class="max-w-48 h-48 mx-auto mt-[-10%] mb-[-10%]">
             </center>
 
             <div class="mt-[-15%] p-6">
