@@ -13,7 +13,7 @@
     @vite(['resources/js/app.js', 'resources/css/app.css'])
     {{-- <link rel="icon" href="{{ asset('favicon.ico') }}">
      --}}
-     <link rel="icon" type="image/png" href="{{ asset('images/SolveIT-removebg-preview.png') }}">
+     <link rel="icon" type="image/png" href="{{ asset('img/itd_logo.png') }}">
 
      
 </head>
@@ -23,12 +23,23 @@
             display: none !important;
         }
     </style>
-    <!-- Header -->
-    <header class="bg-gradient-to-l from-teal-900 to-teal-950 shadow-lg">
-        
+ 
         @auth
-        <nav class="flex items-center justify-between px-2 py-2 max-h-20 mr-5 ml-5 max-w-full">
-            <!-- Logo -->
+        {{-- Main Navbar --}}
+    <nav class="bg-white p-4 shadow-md top-0 z-50 min-w-full fixed max-h-16">
+        {{-- Outer container for full-width alignment --}}
+        {{-- Inner container for content alignment --}}
+        {{-- Outer container for full-width alignment --}}
+        {{-- Inner container for content alignment --}}
+       <div class="flex items-center justify-between container mx-auto w-full">
+            {{-- Logo or Brand Name --}}
+            <div class="text-lg font-bold text-gray-800 flex items-center">
+                {{-- Logo image --}}
+               <img src="{{ asset('img/itd_logo.png') }}" alt="ITD Logo" class="h-24 w-auto p-0 rounded">
+                BCDA IT DIVISION {{-- Changed from MyBrand to match context --}}
+            </div>
+
+             <!-- Logo -->
             <a href="{{ route('home') }}" class="flex items-center text-white text-xl font-bold p-0">
                 <img src="{{ asset('images/logo.png') }}" alt="SolveIT Logo" class="w-28">
             </a>
@@ -36,48 +47,42 @@
             @auth
             <div class="hidden md:flex space-x-4">
                 
-                <a href="{{ route('dashboard') }}" class="text-white hover:text-yellow-300">Dashboard</a>
-                <a href="{{ route('report.index') }}" class="text-white hover:text-yellow-300">Report</a>
-                <a href="{{ route('issues.index') }}" class="text-white hover:text-yellow-300">Issues</a>
-                <a href="{{ route('category.index') }}" class="text-white hover:text-yellow-300">Category </a>
-                <a href="{{ route('department.index') }}" class="text-white hover:text-yellow-300">Department</a>
-                <a href="{{ route('profile') }}" class="text-white hover:text-yellow-300">Profile</a>
+                <a href="{{ route('dashboard') }}" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">Dashboard</a>
+                <a href="{{ route('report.index') }}" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">Report</a>
+                <a href="{{ route('issues.index') }}" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">Issue</a>
+                <a href="{{ route('category.index') }}" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">Category</a>
+                <a href="{{ route('department.index') }}" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">Department</a>
+                <a href="{{ route('profile') }}" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">Profile</a>
                 <form action="{{ route('logout') }}" method="post" class="inline">
                     @csrf
-                    <button class="text-white hover:text-yellow-300">Logout</button>
+                    <button class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">Logout</button>
                 </form>
-                <a href="#" class="theme-toggle text-white rounded">
-                    <!-- Sun Icon (Light Mode) -->
-                    <i class="sun-icon fa-solid fa-sun text-xl"></i>
-                    <!-- Moon Icon (Dark Mode) -->
-                    <i class="moon-icon fa-solid fa-moon text-xl hidden"></i>
-                  </a>
             </div>
 
             <!-- Mobile Menu -->
             <div x-data="{ open: false }" class="md:hidden m-nav">
                 <!-- Mobile Menu Button -->
-                <button @click="open = !open" class="text-white focus:outline-none btn-nav">
+                <button @click="open = !open" class="text-gray-600 focus:outline-none btn-nav">
                     <span class="material-icons">menu</span>
                 </button>
             
                 <!-- Mobile Menu Links -->
                 <div x-show="open" x-cloak 
-                     class="absolute bg-teal-900 text-white p-4"
+                     class="absolute bg-white text-gray-600 p-4"
                      x-transition:enter="transition ease-out duration-300"
                      x-transition:enter-start="opacity-0 transform scale-95"
                      x-transition:enter-end="opacity-100 transform scale-100"
                      x-transition:leave="transition ease-in duration-300"
                      x-transition:leave-start="opacity-100 transform scale-100"
                      x-transition:leave-end="opacity-0 transform scale-95">
-                    <a href="{{ route('dashboard') }}" class="block py-2 hover:text-yellow-300">Dashboard</a>
-                    <a href="{{ route('report.index') }}" class="block py-2 hover:text-yellow-300">Report</a>
-                    <a href="{{ route('issues.index') }}" class="block py-2 hover:text-yellow-300">Issues</a>
-                    <a href="{{ route('category.index') }}" class="block py-2 hover:text-yellow-300">Category</a>
-                    <a href="{{ route('department.index') }}" class="block py-2 hover:text-yellow-300">Department</a>
+                    <a href="{{ route('dashboard') }}" class="block py-2 hover:text-gray-300">Dashboard</a>
+                    <a href="{{ route('report.index') }}" class="block py-2 hover:text-gray-300">Report</a>
+                    <a href="{{ route('issues.index') }}" class="block py-2 hover:text-gray-300">Issues</a>
+                    <a href="{{ route('category.index') }}" class="block py-2 hover:text-gray-300">Category</a>
+                    <a href="{{ route('department.index') }}" class="block py-2 hover:text-gray-300">Department</a>
                     <form action="{{ route('logout') }}" method="post" class="block py-2">
                         @csrf
-                        <button class="hover:text-yellow-300">Logout</button>
+                        <button class="hover:text-gray-300">Logout</button>
                     </form>
                     <a href="#" class="theme-toggle text-white rounded">
                         <!-- Sun Icon (Light Mode) -->
@@ -90,13 +95,15 @@
             </div>
             @endauth
             
-        </nav>
-        @endauth
+        </div>
+    </nav>
+    @endauth
     </header>
 
 
     <!-- Main Content -->
-    <main class="mx-auto">
+    <main class="mx-auto mt-5 p-5 max-w-screen">
+        {{-- Slot for dynamic content --}}
         {{ $slot }}
     </main>
 

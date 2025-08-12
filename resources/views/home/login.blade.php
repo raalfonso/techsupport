@@ -17,7 +17,7 @@
     @vite(['resources/js/app.js', 'resources/css/app.css']) 
     
     {{-- Favicon --}}
-    <link rel="icon" type="image/png" href="{{ asset('img/itd.png') }}">
+    <link rel="icon" type="image/png" href="{{ asset('img/itd_logo.png') }}">
 </head>
 
 {{-- Added pt-16 to the body to account for the fixed navbar height --}}
@@ -59,9 +59,11 @@
         </div>
 
         {{-- Mobile Navigation (Hidden by default) --}}
-        <div id="mobile-menu" class="hidden md:hidden bg-white pt-2 pb-3 space-y-1 sm:px-3">
+        <div id="mobile-menu" class="mt-5 hidden md:hidden bg-white pt-2 pb-3 space-y-1 sm:px-3">
             {{-- Container for mobile menu links --}}
-            <div class="container mx-auto"> 
+            <br><br><br>
+            <br>
+            <div class="container mx-auto mt-5"> 
                 <a href="#home-section" class="block text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-base font-medium">Home</a>
                 <a href="#about" class="block text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-base font-medium">About</a>
                 <a href="#projects" class="block text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-base font-medium">Project</a>
@@ -306,6 +308,7 @@
       <div class="max-w-6xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center text-sm">
         <p class="mb-4 md:mb-0">&copy; {{ date('Y') }} IT Division - Bases Conversion and Development Authority</p>
         <div class="flex gap-4">
+          <a href="#home-section" class="hover:underline">Home</a>
           <a href="#about" class="hover:underline">About</a>
           <a href="#services" class="hover:underline">Services</a>
           <a href="#projects" class="hover:underline">Projects</a>

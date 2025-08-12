@@ -13,8 +13,8 @@
                     </svg>
                 </div>
                 <div class=" text-gray-800">
-                    <p class="mb-2 text-sm font-medium">Received</p>
-                    <p class="text-lg font-semibold">{{$reports_total}}</p>
+                    <p class="mb-2 text-sm font-medium">Responded Reports</p>
+                    <p class="text-lg font-semibold">{{$report_response}}</p>
                 </div>
             </div>
         
@@ -26,7 +26,7 @@
                     </svg>    
                 </div>
                 <div class=" text-gray-800">
-                    <p class="mb-2 text-sm font-medium">Resolved</p>
+                    <p class="mb-2 text-sm font-medium">Resolved Reports</p>
                     <p class="text-lg font-semibold">{{$report_resolved}}</p>
                 </div>
             </div>

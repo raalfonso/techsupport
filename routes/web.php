@@ -72,6 +72,7 @@ Route::middleware('guest')->group(function () {
 
 
     Route::post('/check-email', [HomeController::class, 'checkEmail'])->name('client.check-email');
+    Route::get('/tracking', [HomeController::class, 'employeeReport'])->name('home.employeeReport');
 
    
     Route::get('/login-client', [ClientAuthController::class, 'showLoginForm'])->name('client.login');
