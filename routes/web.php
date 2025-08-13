@@ -13,6 +13,9 @@ use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\ClientsController;
 use App\Http\Controllers\ClientAuthController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\SurveyController;
+use App\Http\Controllers\UserSurveyAuthController;
+use App\Http\Controllers\QrCodeController;
 
 
 
@@ -38,6 +41,16 @@ Route::middleware('auth')->group(function() {
     // Route::resource('feedback',FeedbackController::class);
 
 });
+
+Route::post('/user-survey/login', [UserSurveyAuthController::class, 'login'])->name('userSurvey.login');
+Route::post('/user-survey/logout', [UserSurveyAuthController::class, 'logout'])->name('userSurvey.logout');
+
+Route::middleware('auth:userSurvey')->group(function () {
+   Route::get('/survey/dashboard', [SurveyController::class, 'index'])->name('survey.dashboard');
+
+   
+});
+
 
 
 Route::middleware('guest')->group(function () {
@@ -76,11 +89,17 @@ Route::middleware('guest')->group(function () {
 
    
     Route::get('/login-client', [ClientAuthController::class, 'showLoginForm'])->name('client.login');
+
+    Route::view('/survey', 'survey.index')->name('survey.index');
+
+    Route::get('/survey/register', [SurveyController::class, 'register'])->name('survey.register');
+
+    Route::post('/survey/register', [SurveyController::class, 'registerStore'])->name('survey.register.store');
     
     // Route::get('/logout', [ClientAuthController::class, 'logout'])->name('client.logout');
     
 
-    
+     Route::get('/qrcode', [QrCodeController::class, 'generate'])->name('qr.generate');
 
 });
 
