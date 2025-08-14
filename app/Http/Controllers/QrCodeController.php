@@ -2,17 +2,25 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Department;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class QrCodeController extends Controller
 {
-    public function generate(Request $request)
+    public function generate($departmentCode)
     {
-        $departmentCode = $request->get('code', 'DEFAULT123');
+        $url = url('/survey-form?dept=' . $departmentCode);
 
-        $url = url('/survey?dept=' . $departmentCode);
-
-        return view('qr.generate', compact('url'));
+        $department = Department::where('id', $departmentCode)->first();
+        // Generate the QR code
+        if (!$department) {
+            return redirect()->back()->with('error', 'Department not found.');
+        }       
+        return view('qr.generate', [
+            'url'   => $url,
+            'title' => $department->title
+        ]);
     }
 }

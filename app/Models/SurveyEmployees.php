@@ -2,23 +2,20 @@
 
 namespace App\Models;
 
-use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Database\Eloquent\Model;
 
-class UserSurvey extends Authenticatable
+class SurveyEmployees extends Model
 {
-    protected $table = 'user_survey';
-
+    protected $table = 'survey_employees';
     protected $fillable = [
         'name',
         'email',
-        'password',
         'department_id',
         'status',
-        'role',
-    ];
-
-    protected $hidden = [
-        'password',
+        'user_survey_id',
+        'created_at',
+        'updated_at',
+    
     ];
 
     public function department()

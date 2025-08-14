@@ -9,6 +9,7 @@ use App\Models\Category;
 use App\Models\Department;
 use App\Models\Issues;
 use App\Models\UserSurvey;
+use App\Models\SurveyEmployees;
 use App\Models\Clients;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
@@ -18,7 +19,18 @@ class SurveyController extends Controller
     public function index()
     {
         
-        return view('survey.dashboard');
+        // Check if the user is authenticated
+        if (!auth()->check()) {
+            return redirect()->route('userSurvey.login')->with('error', 'You must be logged in to access the survey dashboard.');
+        }
+
+        // echo auth()->user()->department->title;
+  
+        // Fetch necessary data for the dashboard
+        $employees = SurveyEmployees::where('department_id', auth()->user()->department_id)
+            ->get();
+        return view('survey.dashboard', compact('employees'));
+    
     }
 
     public function loginSurvey(Request $request)
@@ -70,5 +82,27 @@ class SurveyController extends Controller
     {
         auth()->logout();
         return redirect()->route('home')->with('success', 'Logged out successfully');
+    }
+
+
+
+
+    public function form(Request $request)
+    {
+        $departmentCode = $request->query('dept');
+
+        $employees = SurveyEmployees::where(['department_id' => $departmentCode])
+            ->get();
+        $department = Department::where('id', $departmentCode)->first();
+
+        if (!$department) {
+            return redirect()->back()->with('error', 'Department not found.');
+        }
+
+        return view('survey.form', [
+            'department' => $department,
+            'employees' => $employees,
+        ]);
+
     }
 }
