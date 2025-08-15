@@ -11,7 +11,7 @@ class QrCodeController extends Controller
 {
     public function generate($departmentCode)
     {
-        $url = url('/survey-form?dept=' . $departmentCode);
+        $url = url('survey/form?dept=' . $departmentCode);
 
         $department = Department::where('id', $departmentCode)->first();
         // Generate the QR code

@@ -10,6 +10,7 @@ use App\Models\Department;
 use App\Models\Issues;
 use App\Models\UserSurvey;
 use App\Models\SurveyEmployees;
+use App\Models\SurveyReport;
 use App\Models\Clients;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
@@ -104,5 +105,23 @@ class SurveyController extends Controller
             'employees' => $employees,
         ]);
 
+    }
+
+    public function submit(Request $request)
+    {
+        $fields = $request->validate([
+            'survey_employees_id' => 'required|exists:survey_employees,id',
+            'department_id' => 'required|exists:departments,id',
+            'accuracy_of_service' => 'required',
+            'response_time' => 'required',
+            'comments' => 'nullable|string|max:500',
+            'client_name' => 'nullable|string|max:100',
+            'survey_date' => 'required|date',
+        ]);
+        // Create a new survey report
+        SurveyReport::create($fields);
+        
+
+        return redirect()->route('survey.thank-you')->with('success', 'Thank you for your feedback!');
     }
 }

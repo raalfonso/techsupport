@@ -71,6 +71,9 @@ Route::prefix('survey')->group(function () {
     Route::post('/submit', [SurveyController::class, 'submit'])->name('survey.submit');
     Route::get('/thank-you', [SurveyController::class, 'thankYou'])->name('survey.thank-you');
     Route::post('/user-survey/login', [UserSurveyAuthController::class, 'login'])->name('userSurvey.login');
+    Route::view('/', 'survey.index')->name('survey.index');
+    Route::get('/qrcode/{departmentCode}', [QrCodeController::class, 'generate'])->name('qrcode');
+
 });
 
 /*
@@ -107,9 +110,7 @@ Route::middleware('guest')->group(function () {
     Route::get('/search-suggestions', [ClientsController::class, 'suggestions']);
     Route::get('/search-department', [ClientsController::class, 'departments']);
 
-    Route::view('/survey', 'survey.index')->name('survey.index');
-    Route::get('/qrcode/{departmentCode}', [QrCodeController::class, 'generate'])->name('qrcode');
-
+ 
    
 
 });
