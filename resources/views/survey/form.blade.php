@@ -71,7 +71,7 @@
                 @endforeach
                  
             </div>
-            <input type="text" name="accuracy_of_service" id="accuracyInput" value="" >  
+            <input type="text" name="accuracy_of_service" id="accuracyInput" value="" hidden >  
         </div>
 
         {{-- Section 2 --}}
@@ -94,7 +94,7 @@
                 @endforeach
 
             </div>
-             <input type="text" name="response_time" id="responseInput" value="" >  
+             <input type="text" name="response_time" id="responseInput" value="" hidden>  
         </div>
         {{-- Section 3 --}}
         <div class="mb-6">

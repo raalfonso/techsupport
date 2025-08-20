@@ -22,6 +22,73 @@
 
 {{-- Added pt-16 to the body to account for the fixed navbar height --}}
 <body> 
+
+
+  <style>
+  * {
+    font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        Roboto,
+        Helvetica,
+        Arial,
+        "Apple Color Emoji",
+        "Segoe UI Emoji",
+        "Segoe UI Symbol",
+        sans-serif;
+}
+
+.highcharts-figure,
+.highcharts-data-table table {
+    min-width: 310px;
+    max-width: 800px;
+    margin: 1em auto;
+}
+
+#container {
+    height: 400px;
+}
+
+.highcharts-data-table table {
+    font-family: Verdana, sans-serif;
+    border-collapse: collapse;
+    border: 1px solid var(--highcharts-neutral-color-10, #e6e6e6);
+    margin: 10px auto;
+    text-align: center;
+    width: 100%;
+    max-width: 500px;
+}
+
+.highcharts-data-table caption {
+    padding: 1em 0;
+    font-size: 1.2em;
+    color: var(--highcharts-neutral-color-60, #666);
+}
+
+.highcharts-data-table th {
+    font-weight: 600;
+    padding: 0.5em;
+}
+
+.highcharts-data-table td,
+.highcharts-data-table th,
+.highcharts-data-table caption {
+    padding: 0.5em;
+}
+
+.highcharts-data-table thead tr,
+.highcharts-data-table tbody tr:nth-child(even) {
+    background: var(--highcharts-neutral-color-3, #f7f7f7);
+}
+
+.highcharts-description {
+    margin: 0.3rem 10px;
+}
+
+  </style>
+
+    {{-- Include Tailwind CSS --}}
     {{-- Main Navbar --}}
     <nav class="bg-white p-4 shadow-md top-0 z-50 min-w-full fixed max-h-16">
         {{-- Outer container for full-width alignment --}}
@@ -90,65 +157,133 @@
 
     {{-- Hero Section --}}
     <section id="home-section" class="pb-5" style="background-color: #e6edfc">
+     
         <div class="container mx-auto lg:max-w-screen-xl md:max-w-screen-md px-4 pt-20">
-            
-        </div>
-    </section>
+            {{-- this is for first graph --}}
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <!-- Survey Scorecard -->
+            <div class="bg-white shadow rounded-lg p-6 flex items-center justify-between">
+                <div>
+                    <p class="text-md text-gray-600 font-semibold">Total Surveys Submitted</p>
+                    <p class="text-3xl font-bold text-green-600">{{$total}}</p>
+                </div>
+                <div class="text-green-500">
+                    <!-- Optional icon -->
+                     <i class="material-icons align-middle text-[60px]">assignment</i>
+                </div>
+            </div>
+             <!-- Survey Scorecard -->
+            <div class="bg-white shadow rounded-lg p-6 flex items-center justify-between">
+                <div>
+                    <p class="text-md text-gray-600 font-semibold">Super Like</p>
+                    <p class="text-3xl font-bold text-green-600">{{$percentageSuperLike}}%</p>
+                </div>
+                <div class="text-green-500">
+                    <!-- Optional icon -->
+                    <i class="material-icons align-middle text-[60px]">sentiment_very_satisfied</i>
+                    
+                </div>
+            </div>
+             <!-- Survey Scorecard -->
+            <div class="bg-white shadow rounded-lg p-6 flex items-center justify-between">
+                <div>
+                    <p class="text-md text-gray-600 font-semibold">Like</p>
+                    <p class="text-3xl font-bold text-green-600">{{$percentageLike}}%</p>
+                </div>
+                <div class="text-blue-500">
+                    <!-- Optional icon -->
+                    <i class="material-icons align-middle text-[60px]">sentiment_satisfied</i>
+                </div>
+            </div>
+             <!-- Survey Scorecard -->
+            <div class="bg-white shadow rounded-lg p-6 flex items-center justify-between">
+                <div>
+                    <p class="text-md text-gray-600 font-semibold">Dislike</p>
+                    <p class="text-3xl font-bold text-green-600">{{$percentageDislike}}%</p>
+                </div>
+                <div class="text-red-500">
+                  <i class="material-icons align-middle text-[60px]">sentiment_neutral</i>
+                </div>
+            </div>
+          </div>
 
-    <section id="top" class="bg-blue-700 text-white py-20">
-      <div class="max-w-6xl mx-auto px-6 text-center transition-all duration-700 opacity-0 translate-y-4" data-scroll>
-        <h1 class="text-4xl md:text-5xl font-bold mb-4">Welcome to the IT Division</h1>
-        <p class="text-lg md:text-xl mb-6">Empowering innovation, security, and digital transformation across the organization.</p>
-        <a href="#services" class="inline-block bg-white text-blue-700 px-6 py-3 rounded-full font-semibold shadow transition hover:bg-blue-100">Explore Services</a>
+        </div>
+      </section>
+
+    <section id="top" class="pb-5" style="background-color: #e6edfc">
+      <div class="grid grid-cols-2 max-w-6xl gap-8">
+          <!-- First Column -->
+          <div class=" transition-all duration-700 opacity-0 translate-y-4 bg-white shadow rounded-lg" data-scroll>
+            <figure class="highcharts-figure">
+              <div id="container"></div>
+            </figure>
+          </div>
+
+          <!-- Second Column -->
+          <div class="transition-all duration-700 opacity-0 translate-y-4 bg-white shadow rounded-lg" data-scroll>
+            <figure class="highcharts-figure">
+              <div id="container2"></div>
+            </figure>
+          </div>
+        
       </div>
+
     </section>
 
     <section id="about" class="py-16 bg-white mb-5">
-      <div class="max-w-5xl mx-auto px-6 text-center transition-all duration-700 opacity-0 translate-y-4 mt-5" data-scroll>
-        <h2 class="text-3xl font-bold mb-6">About the IT Division</h2>
-        <p class="text-gray-700 text-lg leading-relaxed">
-          The BCDA IT Division provides strategic IT leadership, technical expertise, and operational services to ensure secure, reliable, and efficient technology systems throughout the organization. We support innovation, system modernization, and collaborative digital solutions.
-        </p>
-      </div>
+      <div class="max-w-6xl mx-auto px-6 transition-all duration-700 opacity-0 translate-y-4" data-scroll>
+        <h1 class="text-4xl font-bold mb-4">Surveys Result</h1>
+
+        <table class="min-w-full bg-white shadow-md rounded-lg overflow-hidden">
+            <thead>
+              <tr class="bg-white-800 text-blue-800">
+                <th class="py-3 px-6 text-left text-sm font-medium">Date Submitted</th>
+                <th class="py-3 px-6 text-left text-sm font-medium">Employee's Name</th>
+                <th class="py-3 px-6 text-left text-sm font-medium">Degree of Competence & Accuracy of Service</th>
+                <th class="py-3 px-6 text-left text-sm font-medium">Degree of Responsiveness/Timeliness</th>
+                <th class="py-3 px-6 text-left text-sm font-medium">Comment</th>
+                <th class="py-3 px-6 text-left text-sm font-medium">Client Name</th>
+              </tr>
+            </thead>
+            <tbody>
+              @foreach($surveys as $survey)
+                <tr class="border-b hover:bg-gray-50 text-gray-600 font-semibold">
+                  <td class="py-4 px-6 text-sm">{{ $survey->created_at->format('F j, Y') }}</td>
+                  <td class="py-4 px-6 text-sm">{{ $survey->surveyEmployee->name }}</td>
+                  <td class="py-4 px-6 text-sm">
+                    @if ($survey->accuracy_of_service == 2)
+                      <span class="text-green-500 font-semibold">Super Like</span>
+                    @elseif ($survey->accuracy_of_service == '1')
+                      <span class="text-yellow-500 font-semibold">Like</span>
+                    @else
+                      <span class="text-red-500 font-semibold">Dislike</span>
+                    @endif
+                  </td>
+                  <td class="py-4 px-6 text-sm">
+                    @if ($survey->response_time == 2)
+                      <span class="text-green-500 font-semibold">Super Like</span>
+                    @elseif ($survey->response_time == '1')
+                      <span class="text-yellow-500 font-semibold">Like</span> 
+                    @else
+                      <span class="text-red-500 font-semibold">Dislike</span>
+
+                    @endif
+                  </td>
+                  <td class="py-4 px-6 text-sm">{{ $survey->comments }}</td>
+                  <td class="py-4 px-6 text-sm">{{ $survey->client_name }}</td>
+                </tr>
+              @endforeach
+            </tbody> 
+
+        </table>
     </section>
 
     <section id="services" class="py-16 bg-gray-50">
-      <div class="max-w-6xl mx-auto px-6 transition-all duration-700 opacity-0 translate-y-4" data-scroll>
-        <h2 class="text-3xl font-bold text-center mb-12">Our Core Services</h2>
-        <div class="grid gap-8 md:grid-cols-3">
-          @foreach([
-            ['title' => 'IT Support', 'desc' => 'Helpdesk, troubleshooting, and technical assistance for all departments.'],
-            ['title' => 'Infrastructure', 'desc' => 'Managing servers, networks, and ensuring system uptime and reliability.'],
-            ['title' => 'Software Development', 'desc' => 'Custom applications, websites, and automations tailored to agency needs.']
-          ] as $service)
-          <div class="bg-white p-6 rounded-xl shadow hover:shadow-md transition duration-300 transform hover:-translate-y-1">
-            <h3 class="text-xl font-semibold mb-2 text-blue-700">{{ $service['title'] }}</h3>
-            <p class="text-gray-600 text-sm">{{ $service['desc'] }}</p>
-          </div>
-          @endforeach
-        </div>
-      </div>
+      
     </section>
 
     <section id="projects" class="py-16 bg-white">
-      <div class="max-w-6xl mx-auto px-6 transition-all duration-700 opacity-0 translate-y-4 mt-5" data-scroll>
-        <h2 class="text-3xl font-bold text-center mb-12">Key Projects</h2>
-        <div class="grid gap-8 md:grid-cols-3">
-          @foreach([
-            ['title' => 'BCDA Website', 'desc' => 'Showcasing infrastructure projects, economic zone development, and public-private partnerships in the Philippines.', 'url' => 'https://www.bcda.gov.ph'],
-            ['title' => 'Human Resource Information System', 'desc' => 'A system that manages employee data, payroll, recruitment, and HR processes in one digital platform.', 'url' => 'https://hris.bcda.gov.ph'],
-            ['title' => 'Acumatica ERP', 'desc' => 'Cloud-based ERP platform for managing finance, inventory, sales, and operations in one integrated system.', 'url' => 'https://bcda.cloudtwogo.com/Frames/Login.aspx?ReturnUrl=%2f'],
-            ['title' => 'Property Asset Management System', 'desc' => 'Tracking and managing IT assets, including hardware, software licenses, and inventory.', 'url' => 'https://pams.bcda.gov.ph'],
-            ['title' => 'BCDA Careers Portal', 'desc' => 'Job posting site that integrates HRIS and applicant tracking.', 'url' => '#careers'],
-            ['title' => 'BCDA Survey Hub', 'desc' => 'Your gateway to sharing insights, giving feedback, and shaping the future of BCDA through quick and secure surveys.', 'url' => route('survey.index')],
-          ] as $project)
-            <a href="{{ $project['url'] }}" target="_blank" rel="noopener noreferrer" class="block bg-gray-100 p-6 rounded-lg shadow-md hover:shadow-lg transition duration-300 transform hover:scale-105">
-              <h3 class="text-lg font-semibold text-blue-800 mb-2">{{ $project['title'] }}</h3>
-              <p class="text-gray-700 text-sm text-justify">{{ $project['desc'] }}</p>
-            </a>
-          @endforeach
-        </div>
-      </div>
+      
     </section>
 
     <section id="contact" class="py-10 bg-gray-50">
@@ -305,6 +440,105 @@
           });
         });
       });
+
+
+
+
+
+Highcharts.chart('container', {
+    chart: {
+        type: 'column'
+    },
+    title: {
+        text: 'Employee Survey Results for Accuracy of Service'
+    },
+    xAxis: {
+        categories: @json(collect($superData)->pluck('employee_name')),
+        crosshair: true
+    },
+    yAxis: {
+        min: 0,
+        title: {
+            text: 'Total Responses'
+        }
+    },
+    tooltip: {
+        valueSuffix: ' responses'
+    },
+    plotOptions: {
+        column: {
+            pointPadding: 0.2,
+            borderWidth: 0
+        }
+    },
+    series: [
+        {
+            name: 'Super Like',
+            data: @json(collect($superData)->pluck('super_like'))
+        },
+        {
+            name: 'Like',
+            data: @json(collect($superData)->pluck('like'))
+        },
+        {
+            name: 'Dislike',
+            data: @json(collect($superData)->pluck('dislike'))
+        }
+    ]
+});
+
+
+
+Highcharts.chart('container2', {
+    chart: {
+        type: 'column'
+    },
+    title: {
+        text: 'Employee Survey Results for Accuracy of Service'
+    },
+    xAxis: {
+        categories: @json(collect($superData)->pluck('employee_name')),
+        crosshair: true
+    },
+    yAxis: {
+        min: 0,
+        title: {
+            text: 'Total Responses'
+        }
+    },
+    tooltip: {
+        valueSuffix: ' responses'
+    },
+    plotOptions: {
+        column: {
+            pointPadding: 0.2,
+            borderWidth: 0
+        }
+    },
+    series: [
+        {
+            name: 'Super Like',
+            data: @json(collect($superData)->pluck('super_like'))
+        },
+        {
+            name: 'Like',
+            data: @json(collect($superData)->pluck('like'))
+        },
+        {
+            name: 'Dislike',
+            data: @json(collect($superData)->pluck('dislike'))
+        }
+    ]
+});
+</script>
+
+
+
+
+
+
+
+
 
     </script>
 </body>

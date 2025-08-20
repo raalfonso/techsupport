@@ -73,7 +73,7 @@ Route::prefix('survey')->group(function () {
     Route::post('/user-survey/login', [UserSurveyAuthController::class, 'login'])->name('userSurvey.login');
     Route::view('/', 'survey.index')->name('survey.index');
     Route::get('/qrcode/{departmentCode}', [QrCodeController::class, 'generate'])->name('qrcode');
-
+    Route::view('/thankyou', 'survey.thankyou')->name('survey.thankyou');   
 });
 
 /*
@@ -109,7 +109,8 @@ Route::middleware('guest')->group(function () {
 
     Route::get('/search-suggestions', [ClientsController::class, 'suggestions']);
     Route::get('/search-department', [ClientsController::class, 'departments']);
-
+    Route::get('/thank-you', [SurveyController::class, 'thankYou'])->name('thank-you');
+   
  
    
 
