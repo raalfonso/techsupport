@@ -39,7 +39,7 @@ class FeedbackController extends Controller
             'reason'   => 'max:255',
             'suggestion'  => 'max:255',
         ]);
-        // echo $request->
+  
        
 
         $feedback = Feedback::create($fields);
@@ -63,7 +63,7 @@ class FeedbackController extends Controller
             }
           
         }
-        return view('home.index',['client' => $client,'reports' => $reports,'feedback' => $feedbacks,'id'=>$id,]);
+        return redirect()->route('home.employeeReport');
     }
     
 

@@ -1,27 +1,25 @@
 <x-layout>
-    <div class="container-fluid mx-auto p-4">
-       
-
-        <div class="mx-auto max-w-screen-lg card">
-            <h1 class="title">departments</h1>
+    <div class="container mx-auto p-4">
+        <div class="mx-auto max-w-screen-lg mt-5 card p-5">
+            <h1 class="title">Departments</h1>
 
             <form action="{{ route('department.store') }}" method="post">
                 @csrf
-            <div class="mb-4">
-                <label for="title">Title</label>
-                <input type="text" name="title" class="input @error('title') ring-red-500 @enderror" value="{{ old('title')}}">
-                @error('title')
-                    <p class="error">{{ $message }}</p>
-                @enderror
-            </div>
+                <div class="mb-4">
+                    <label for="title">Title</label>
+                    <input type="text" name="title" class="input @error('title') ring-red-500 @enderror" value="{{ old('title')}}">
+                    @error('title')
+                        <p class="error">{{ $message }}</p>
+                    @enderror
+                </div>
 
-            <div class="mb-4">
-                <label for="acronym">Acronym</label>
-                <input type="text" name="acronym" class="input @error('acronym') ring-red-500 @enderror" value="{{ old('acronym')}}">
-                @error('acronym')
-                    <p class="error">{{ $message }}</p>
-                @enderror
-            </div>
+                <div class="mb-4">
+                    <label for="acronym">Acronym</label>
+                    <input type="text" name="acronym" class="input @error('acronym') ring-red-500 @enderror" value="{{ old('acronym')}}">
+                    @error('acronym')
+                        <p class="error">{{ $message }}</p>
+                    @enderror
+                </div>
 
             {{-- submit button --}}
                  <button class="btn">Create</button>

@@ -2,7 +2,7 @@
     <div class="container mx-auto p-4">
        
 
-        <div class="mx-auto max-w-screen-lg card">
+        <div class="mx-auto max-w-screen-lg mt-5 card p-5">
             <h1 class="title">category</h1>
 
             <form action="{{ route('category.store') }}" method="post">

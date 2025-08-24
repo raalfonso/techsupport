@@ -17,7 +17,7 @@
     @vite(['resources/js/app.js', 'resources/css/app.css']) 
     
     {{-- Favicon --}}
-    <link rel="icon" type="image/png" href="{{ asset('img/itd.png') }}">
+    <link rel="icon" type="image/png" href="{{ asset('img/itd_logo.png') }}">
 </head>
 
 {{-- Added pt-16 to the body to account for the fixed navbar height --}}
@@ -43,7 +43,10 @@
                 <a href="#about" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">About</a>
                 <a href="#projects" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">Project</a>
                 <a href="#contact" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">Report</a> {{-- Assuming 'Report' links to 'Contact' or another relevant section --}}
-            </div>
+                <a href="#"   data-modal-target="login-modal"
+                  data-modal-toggle="login-modal"
+                  class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">Login</a>
+              </div>
 
             {{-- Mobile Menu Button (Hamburger) --}}
             <div class="md:hidden">
@@ -56,9 +59,11 @@
         </div>
 
         {{-- Mobile Navigation (Hidden by default) --}}
-        <div id="mobile-menu" class="hidden md:hidden bg-white pt-2 pb-3 space-y-1 sm:px-3">
+        <div id="mobile-menu" class="mt-5 hidden md:hidden bg-white pt-2 pb-3 space-y-1 sm:px-3">
             {{-- Container for mobile menu links --}}
-            <div class="container mx-auto"> 
+            <br><br><br>
+            <br>
+            <div class="container mx-auto mt-5"> 
                 <a href="#home-section" class="block text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-base font-medium">Home</a>
                 <a href="#about" class="block text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-base font-medium">About</a>
                 <a href="#projects" class="block text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-base font-medium">Project</a>
@@ -110,7 +115,7 @@
       <div class="max-w-5xl mx-auto px-6 text-center transition-all duration-700 opacity-0 translate-y-4 mt-5" data-scroll>
         <h2 class="text-3xl font-bold mb-6">About the IT Division</h2>
         <p class="text-gray-700 text-lg leading-relaxed">
-          The BCDA IT Department provides strategic IT leadership, technical expertise, and operational services to ensure secure, reliable, and efficient technology systems throughout the organization. We support innovation, system modernization, and collaborative digital solutions.
+          The BCDA IT Division provides strategic IT leadership, technical expertise, and operational services to ensure secure, reliable, and efficient technology systems throughout the organization. We support innovation, system modernization, and collaborative digital solutions.
         </p>
       </div>
     </section>
@@ -143,7 +148,7 @@
             ['title' => 'Acumatica ERP', 'desc' => 'Cloud-based ERP platform for managing finance, inventory, sales, and operations in one integrated system.', 'url' => 'https://bcda.cloudtwogo.com/Frames/Login.aspx?ReturnUrl=%2f'],
             ['title' => 'Property Asset Management System', 'desc' => 'Tracking and managing IT assets, including hardware, software licenses, and inventory.', 'url' => 'https://pams.bcda.gov.ph'],
             ['title' => 'BCDA Careers Portal', 'desc' => 'Job posting site that integrates HRIS and applicant tracking.', 'url' => '#careers'],
-            ['title' => 'Records Digitization', 'desc' => 'Scanning, indexing, and management of agency records in digital format.', 'url' => '#digitization']
+            ['title' => 'BCDA Survey Hub', 'desc' => 'Your gateway to sharing insights, giving feedback, and shaping the future of BCDA through quick and secure surveys.', 'url' => route('survey.index')],
           ] as $project)
             <a href="{{ $project['url'] }}" target="_blank" rel="noopener noreferrer" class="block bg-gray-100 p-6 rounded-lg shadow-md hover:shadow-lg transition duration-300 transform hover:scale-105">
               <h3 class="text-lg font-semibold text-blue-800 mb-2">{{ $project['title'] }}</h3>
@@ -195,7 +200,72 @@
     </section>
 
     {{-- this is for modal request --}}
-    <!-- Main modal -->
+    <!-- Login modal -->
+      <div id="login-modal" tabindex="-1" aria-hidden="true" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full ">
+          <div class="relative p-4 w-full max-w-md max-h-full">
+              <!-- Modal content -->
+              <div class="relative bg-white rounded-lg shadow-sm dark:bg-gray-700">
+                  <!-- Modal header -->
+                  <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600 border-gray-200">
+                      <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+                         <span class="text-blue-700 font-semibold"></span>
+                      </h3>
+                      <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-toggle="login-modal">
+                          <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+                          </svg>
+                          <span class="sr-only">Close modal</span>
+                      </button>
+                  </div>
+                  <!-- Modal body -->
+                  <div class="rounded-lg shadow w-full max-w-md mt-[0%] sm:mt-[-1/2]">
+                    <center>
+                        <img src="{{asset('img/itd_logo.png')}}" alt="" class="max-w-48 h-48 mx-auto mt-[-10%] mb-[-10%]">
+                    </center>
+
+                    <div class="mt-[-15%] p-6">
+                        <h1 class="text-2xl font-bold text-center mb-5 text-gray-800">ICTD Login</h1>
+            
+                        <form action="{{ route('login')}}" method="post">
+                            @csrf
+                            <div class="mb-4">
+                                <label for="email" class="block font-semibold text-gray-700">Email</label>
+                                <input type="text" name="email" class="w-full p-3 border border-gray-300 rounded-md focus:ring focus:ring-blue-300 @error('email') ring-red-500 @enderror" value="{{ old('email') }}">
+                                @error('email')
+                                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                                @enderror
+                            </div>
+                
+                            <div class="mb-4">
+                                <label for="password" class="block font-semibold text-gray-700">Password</label>
+                                <input type="password" name="password" class="w-full p-3 border border-gray-300 rounded-md focus:ring focus:ring-blue-300">
+                                @error('password')
+                                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                                @enderror
+                            </div>
+                
+                            <!-- Remember me checkbox -->
+                            <div class="mb-4 flex items-center">
+                                <input type="checkbox" name="remember" id="remember" class="mr-2">
+                                <label for="remember" class="text-gray-700">Remember me</label>
+                            </div>
+                
+                            @error('failed')
+                                <p class="text-red-500 text-sm mb-4">{{ $message }}</p>
+                            @enderror
+                
+                            <button class="w-full px-4 py-3  bg-gradient-to-r from-slate-800 to-blue-950 text-white font-semibold rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300 transition duration-200">
+                                Login
+                            </button>
+                        </form>
+                    </div>
+                    
+                </div>
+
+              </div>
+          </div>
+      </div> 
+     <!-- Main modal -->
       <div id="crud-modal" tabindex="-1" aria-hidden="true" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full ">
           <div class="relative p-4 w-full max-w-md max-h-full">
               <!-- Modal content -->
@@ -233,15 +303,15 @@
               </div>
           </div>
       </div> 
-
     <footer class="bg-blue-800 text-white py-8">
       <div class="max-w-6xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center text-sm">
-        <p class="mb-4 md:mb-0">&copy; {{ date('Y') }} IT Department - Bases Conversion and Development Authority</p>
+        <p class="mb-4 md:mb-0">&copy; {{ date('Y') }} IT Division - Bases Conversion and Development Authority</p>
         <div class="flex gap-4">
+          <a href="#home-section" class="hover:underline">Home</a>
           <a href="#about" class="hover:underline">About</a>
           <a href="#services" class="hover:underline">Services</a>
           <a href="#projects" class="hover:underline">Projects</a>
-          <a href="#contact" class="hover:underline">Contact</a>
+          <a href="#contact" class="hover:underline">Report</a>
         </div>
       </div>
     </footer>

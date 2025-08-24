@@ -52,6 +52,24 @@ class HomeController extends Controller
         return view('track');
     }
 
+    public function employeeReport()
+    {
+        $email = session('email');
+
+        if (!$email) {
+            return redirect()->route('home.index')->with('error', 'Session expired or missing.');
+        }
+
+        $client = Clients::where('email_address', $email)->first();
+        $reports = Report::where('client_id', $client->id)
+            ->orderBy('id', 'desc')
+            ->get();
+
+        return view('home.tracking', [
+            'reports' => $reports,
+            'client' => $client
+        ]);
+    }
     // this is for checking the email is registered or not
     public function checkEmail(Request $request){
 
@@ -60,13 +78,16 @@ class HomeController extends Controller
             'email' => ['required', 'email'],
             'main' => ['required'],
         ]); 
+       
+
+
         $client = Clients::where('email_address', $fields['email'])->first();
         if ($client) {
             if ($fields['main'] == 0) {
-                $reports = Report::where('client_id', $client->id)
-                ->orderBy('id', 'desc')
-                ->get();
-                return view('home.tracking', ['reports' => $reports, 'client' => $client]);
+               
+                session(['email' => $fields['email']]);
+                return redirect()->route('home.employeeReport');
+               
             }
             else {
                 // Redirect to the add form with client_id and main
