@@ -40,8 +40,25 @@ class SurveyController extends Controller
             ->where('department_id', auth()->user()->department_id)
             ->count();
         
-        $superLikeA = $superLikeAccuracy / $total * 0.5;
-        $superLikeR = $superLikeResponse / $total * 0.5;
+        if($superLikeAccuracy > 0)
+        {
+            $superLikeA = $superLikeAccuracy / $total * 0.5;
+        }
+        else
+        {
+             $superLikeA = 0;
+        }
+
+        if($superLikeResponse > 0)
+        {     
+            $superLikeR = $superLikeResponse / $total * 0.5;
+        }
+        else
+        {
+            $superLikeR = 0;
+        }
+
+      
         $superLike = $superLikeA + $superLikeR;
         // Calculate the percentage of "Super Like"
         $percentageSuperLike = round($superLike * 100, 2);
@@ -54,8 +71,26 @@ class SurveyController extends Controller
         $likeResponse = SurveyReport::where('response_time', 1)     
             ->where('department_id', auth()->user()->department_id)
             ->count();
-        $likeA = $likeAccuracy / $total * 0.5;
-        $likeR = $likeResponse / $total * 0.5;
+        
+        if($likeAccuracy > 0)
+        {
+            $likeA = $likeAccuracy / $total * 0.5;
+        }
+        else
+        {
+            $likeA = 0;
+        }
+
+         if($likeResponse > 0)
+        {
+            $likeR = $likeResponse / $total * 0.5;
+        }
+        else
+        {
+            $likeR = 0;
+        }
+        
+      
         $like = $likeA + $likeR;
         $percentageLike = round($like * 100, 2);        
 
@@ -66,8 +101,25 @@ class SurveyController extends Controller
         $dislikeResponse = SurveyReport::where('response_time', 0)
             ->where('department_id', auth()->user()->department_id)
             ->count();
-        $dislikeA = $dislikeAccuracy / $total * 0.5;
-        $dislikeR = $dislikeResponse / $total * 0.5;
+
+
+        if($dislikeAccuracy > 0){
+             $dislikeA = $dislikeAccuracy / $total * 0.5;
+        }
+        else
+        {
+            $dislikeA = 0;
+        }
+
+        if($dislikeResponse > 0){
+             $dislikeR = $dislikeResponse / $total * 0.5;
+        }
+        else
+        {
+            $dislikeR = 0;
+        }
+       
+      
         $dislike = $dislikeA + $dislikeR;
         $percentageDislike = round($dislike * 100, 2);
 
