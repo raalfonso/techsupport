@@ -157,10 +157,9 @@
 
     {{-- Hero Section --}}
     <section id="home-section" class="pb-5" style="background-color: #e6edfc">
-     
-        <div class="container mx-auto lg:max-w-screen-xl md:max-w-screen-md px-4 pt-20">
+        <div class="container mx-auto lg:max-w-screen-xl md:max-w-screen-md px-4 pt-20 transition-all duration-700 opacity-0 translate-y-4" data-scroll>
             {{-- this is for first graph --}}
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-5">
             <!-- Survey Scorecard -->
             <div class="bg-white shadow rounded-lg p-6 flex items-center justify-between">
                 <div>
@@ -208,41 +207,45 @@
           </div>
 
         </div>
-      </section>
+    </section>
 
     <section id="top" class="pb-5" style="background-color: #e6edfc">
-      <div class="grid grid-cols-2 max-w-6xl gap-8">
-          <!-- First Column -->
-          <div class=" transition-all duration-700 opacity-0 translate-y-4 bg-white shadow rounded-lg" data-scroll>
-            <figure class="highcharts-figure">
-              <div id="container"></div>
-            </figure>
+      <div class="container mx-auto lg:max-w-screen-xl md:max-w-screen-md px-4 pt-5 transition-all duration-700 opacity-0 translate-y-4" data-scroll>
+            {{-- this is for first graph --}}
+          
+          <div class="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Survey Scorecard -->
+            <div class="bg-white shadow rounded-lg">
+                 <figure class="highcharts-figure">
+                  <div id="container"></div>
+                </figure>
+            </div>
+             <!-- Survey Scorecard -->
+            <div class="bg-white shadow rounded-lg">
+                 <figure class="highcharts-figure">
+                  <div id="container2"></div>
+                </figure>
+            </div>
+            
           </div>
 
-          <!-- Second Column -->
-          <div class="transition-all duration-700 opacity-0 translate-y-4 bg-white shadow rounded-lg" data-scroll>
-            <figure class="highcharts-figure">
-              <div id="container2"></div>
-            </figure>
-          </div>
-        
-      </div>
+        </div>
 
     </section>
 
-    <section id="about" class="py-16 bg-white mb-5">
-      <div class="max-w-6xl mx-auto px-6 transition-all duration-700 opacity-0 translate-y-4" data-scroll>
+    <section id="about" class="py-16" style="background-color: #e6edfc">
+      <div class="container mx-auto lg:max-w-screen-xl md:max-w-screen-md px-4 transition-all duration-700 opacity-0 translate-y-4" data-scroll>
         <h1 class="text-4xl font-bold mb-4">Surveys Result</h1>
 
-        <table class="min-w-full bg-white shadow-md rounded-lg overflow-hidden">
+        <table class="min-w-full bg-white shadow-lg rounded-lg overflow-scroll mt-5">
             <thead>
               <tr class="bg-white-800 text-blue-800">
-                <th class="py-3 px-6 text-left text-sm font-medium">Date Submitted</th>
-                <th class="py-3 px-6 text-left text-sm font-medium">Employee's Name</th>
-                <th class="py-3 px-6 text-left text-sm font-medium">Degree of Competence & Accuracy of Service</th>
-                <th class="py-3 px-6 text-left text-sm font-medium">Degree of Responsiveness/Timeliness</th>
-                <th class="py-3 px-6 text-left text-sm font-medium">Comment</th>
-                <th class="py-3 px-6 text-left text-sm font-medium">Client Name</th>
+                <th class="py-3 px-6 text-left text-md font-medium">Date Submitted</th>
+                <th class="py-3 px-6 text-left text-md font-medium">Employee's Name</th>
+                <th class="py-3 px-6 text-left text-md font-medium">Degree of Competence & Accuracy of Service</th>
+                <th class="py-3 px-6 text-left text-md font-medium">Degree of Responsiveness/Timeliness</th>
+                <th class="py-3 px-6 text-left text-md font-medium">Comment</th>
+                <th class="py-3 px-6 text-left text-md font-medium">Client Name</th>
               </tr>
             </thead>
             <tbody>
@@ -274,20 +277,14 @@
                 </tr>
               @endforeach
             </tbody> 
-
         </table>
+      </div>
     </section>
 
-    <section id="services" class="py-16 bg-gray-50">
-      
-    </section>
+    {{-- this is for employee registration --}}
 
-    <section id="projects" class="py-16 bg-white">
-      
-    </section>
-
-    <section id="contact" class="py-10 bg-gray-50">
-      <div class="max-w-6xl mx-auto px-6 transition-all duration-700 opacity-0 translate-y-4 mt-5" data-scroll>
+    <section id="contact" class="py-10" style="background-color: #e6edfc">
+      <div class="container mx-auto lg:max-w-screen-xl md:max-w-screen-md px-4 transition-all duration-700 opacity-0 translate-y-4" data-scroll>
         <h2 class="text-3xl font-bold text-left mb-5">Register Employee</h2>
         <h3 class="text-xl font-normal text-left mb-12"></h3>
         <a href="#" data-modal-target="crud-modal" data-modal-toggle="crud-modal" class="inline-block bg-blue-700 text-white px-6 py-3 rounded-full font-semibold shadow transition hover:bg-blue-800">Add Employee</a>
@@ -450,7 +447,7 @@ Highcharts.chart('container', {
         type: 'column'
     },
     title: {
-        text: 'Employee Survey Results for Accuracy of Service'
+        text: 'Degree of Competence & Accuracy of Service'
     },
     xAxis: {
         categories: @json(collect($superData)->pluck('employee_name')),
@@ -474,15 +471,18 @@ Highcharts.chart('container', {
     series: [
         {
             name: 'Super Like',
-            data: @json(collect($superData)->pluck('super_like'))
+            data: @json(collect($superData)->pluck('super_like')),
+            color: 'rgb(34, 197, 94)' // Tailwind CSS green-500
         },
         {
             name: 'Like',
-            data: @json(collect($superData)->pluck('like'))
+            data: @json(collect($superData)->pluck('like')),
+            color: 'rgb(59, 130, 246)' // Tailwind CSS blue-500
         },
         {
             name: 'Dislike',
-            data: @json(collect($superData)->pluck('dislike'))
+            data: @json(collect($superData)->pluck('dislike')),
+            color: 'rgb(239, 68, 68)' // Tailwind CSS red-500
         }
     ]
 });
@@ -494,10 +494,10 @@ Highcharts.chart('container2', {
         type: 'column'
     },
     title: {
-        text: 'Employee Survey Results for Accuracy of Service'
+        text: 'Degree of Responsiveness and Timeliness'
     },
     xAxis: {
-        categories: @json(collect($superData)->pluck('employee_name')),
+        categories: @json(collect($superDataR)->pluck('employee_name')),
         crosshair: true
     },
     yAxis: {
@@ -516,30 +516,25 @@ Highcharts.chart('container2', {
         }
     },
     series: [
-        {
+         {
             name: 'Super Like',
-            data: @json(collect($superData)->pluck('super_like'))
+            data: @json(collect($superDataR)->pluck('super_like')),
+            color: 'rgb(34, 197, 94)' // Tailwind CSS green-500
         },
         {
             name: 'Like',
-            data: @json(collect($superData)->pluck('like'))
+            data: @json(collect($superDataR)->pluck('like')),
+            color: 'rgb(59, 130, 246)' // Tailwind CSS blue-500
         },
         {
             name: 'Dislike',
-            data: @json(collect($superData)->pluck('dislike'))
+            data: @json(collect($superDataR)->pluck('dislike')),
+            color: 'rgb(239, 68, 68)' // Tailwind CSS red-500
         }
     ]
 });
 </script>
 
 
-
-
-
-
-
-
-
-    </script>
 </body>
 </html>

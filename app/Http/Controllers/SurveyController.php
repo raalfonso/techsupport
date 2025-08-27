@@ -125,41 +125,31 @@ class SurveyController extends Controller
 
 
 
-        //this is for graph
+    //this is for graph
         $employeess = SurveyEmployees::where('department_id', auth()->user()->department_id)
             ->orderBy('name', 'asc')
             ->get()->toArray();
-
-
         $superLikeAccuracy = SurveyReport::selectRaw('COUNT(accuracy_of_service) as total_responses, survey_employees_id')
             ->where('accuracy_of_service', 2)
             ->groupBy('survey_employees_id')
             ->orderBy('survey_employees_id','asc')
             ->get()
             ->toArray();
-       
         $likeAccuracy = SurveyReport::selectRaw('COUNT(accuracy_of_service) as total_responses, survey_employees_id')
-        ->where('accuracy_of_service', 1)
-        ->groupBy('survey_employees_id')
-        ->get()->toArray();
+            ->where('accuracy_of_service', 1)
+            ->groupBy('survey_employees_id')
+            ->get()->toArray();
+         $dislikeAccuracy = SurveyReport::selectRaw('COUNT(accuracy_of_service) as total_responses, survey_employees_id')
+            ->where('accuracy_of_service', 0)
+            ->groupBy('survey_employees_id')
+            ->get();
 
-
-
-         $dislikeAccuracy = SurveyReport::selectRaw('COUNT(response_time) as total_responses, survey_employees_id')
-        ->where('accuracy_of_service', 0)
-        ->groupBy('survey_employees_id')
-        ->get();
-
-        // print_r($likeAccuracy);
-        // exit;
-        // Process the data as needed
-       // Re-index arrays for quick access
+    // Re-index arrays for quick access
         $superLikeMap = collect($superLikeAccuracy)->keyBy('survey_employees_id');
         $likeMap = collect($likeAccuracy)->keyBy('survey_employees_id');
         $dislikeMap = collect($dislikeAccuracy)->keyBy('survey_employees_id');
 
         $superData = [];
-
             foreach ($employeess as $employee) {
                 $id = $employee['id'];
 
@@ -189,17 +179,25 @@ class SurveyController extends Controller
         ->groupBy('survey_employees_id')
         ->get();   
 
-        // Pass the data to the view    
-       
+   // Re-index arrays for quick access
+        $superLikeMapR = collect($superLikeResponseTime)->keyBy('survey_employees_id');
+        $likeMapR = collect($likeResponseTime)->keyBy('survey_employees_id');
+        $dislikeMapR = collect($dislikeResponseTime)->keyBy('survey_employees_id');
 
-       
+        $superDataR = [];
+            foreach ($employeess as $employee) {
+                $id = $employee['id'];
 
+                $superDataR[] = [
+                    'employee_name' => $employee['name'],
+                    'super_like'    => $superLikeMapR[$id]['total_responses'] ?? 0,
+                    'like'          => $likeMapR[$id]['total_responses'] ?? 0,
+                    'dislike'       => $dislikeMapR[$id]['total_responses'] ?? 0,
+                ];
+            }
 
-        // echo "<pre>";
-        // print_r($superLikeAccuracy);
-
-
-
+        // print_r($superDataR);
+        //  die();
 
 
 
@@ -211,6 +209,7 @@ class SurveyController extends Controller
             'percentageLike' => $percentageLike,
             'percentageDislike' => $percentageDislike,
             'superData' => $superData,
+            'superDataR' => $superDataR,
         ] );
     
     }
