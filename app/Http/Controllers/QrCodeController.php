@@ -23,4 +23,49 @@ class QrCodeController extends Controller
             'title' => $department->title
         ]);
     }
+
+    public function vcardform()
+    {
+    
+        return view('qr.vcard');
+    }
+
+    public function generateVCard(Request $request)
+    {
+        $request->validate([
+            'full_name' => 'required|string|max:255',
+            'designation' => 'nullable|string|max:255',
+            'email' => 'nullable|email|max:255',
+            'telephone' => 'nullable|string|max:20',
+        ]);
+
+        $fullName = $request->input('full_name');
+        $designation = $request->input('designation');
+        $email = $request->input('email');
+        $telephone = $request->input('telephone');
+
+
+        // Create vCard content
+        $vCard = "BEGIN:VCARD\n";
+        $vCard .= "VERSION:3.0\n";
+        $vCard .= "FN:{$fullName}\n";
+        $vCard .= "ORG:Bases Conversion and Development Authority\n";
+        if ($designation) {
+            $vCard .= "TITLE:{$designation}\n";
+        }
+        if ($email) {
+            $vCard .= "EMAIL;TYPE=INTERNET:{$email}\n";
+        }
+        if ($telephone) {
+            $vCard .= "TEL;TYPE=WORK,VOICE:{$telephone}\n";
+        }
+        $vCard .= "ADR;TYPE=WORK:2F Bonifacio Technology Center 31st St. corner 2nd Ave. Bonifacio Global City 1634 Taguig City, Philippines\n";
+        $vCard .= "END:VCARD";
+
+         return view('qr.vcardgenerate', [
+            'vCard'   => $vCard,
+     
+        ]);
+    }
+
 }

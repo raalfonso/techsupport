@@ -61,6 +61,8 @@ Route::prefix('survey')->group(function () {
         Route::get('/dashboard', [SurveyController::class, 'index'])->name('survey.dashboard');
         Route::post('/user-survey/logout', [UserSurveyAuthController::class, 'logout'])->name('userSurvey.logout');
         Route::post('/survey/register', [SurveyEmployeeController::class, 'store'])->name('survey.employee.store');
+        Route::get('/management',[SurveyController::class, 'management'])->name('survey.management');
+        Route::post('/upload-employees', [SurveyController::class, 'uploadEmployees'])->name('survey.uploadEmployees');
     });
 
     // Public employee survey routes
@@ -111,7 +113,8 @@ Route::middleware('guest')->group(function () {
     Route::get('/search-department', [ClientsController::class, 'departments']);
     Route::get('/thank-you', [SurveyController::class, 'thankYou'])->name('thank-you');
    
- 
+    Route::get('/vcard', [QrCodeController::class, 'vcardform'])->name('vcard');
+    Route::post('/generate-qrcode', [QrCodeController::class, 'generateVCard'])->name('generate.qr');
    
 
 });

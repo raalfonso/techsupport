@@ -8,7 +8,7 @@
 </head>
 <body>
 
-<div class="max-w-3xl mx-auto mt-10 bg-white p-8 rounded-lg shadow-md">
+<div class="max-w-3xl mx-auto mt-5 bg-white p-8 rounded-lg shadow-md">
    <div class="flex justify-between items-start">
         <div class="w-1/2">
             <p class="italic text-[11px] font-medium">BCDA-ODMD2014-12</p>
@@ -20,16 +20,18 @@
     </div>
 
     <div class="title text-center mb-8 mt-10">
-        <h1 class="text-3xl font-bold text-gray-800">BCDA Internal Services Feedback Form</h1>
+        <h1 class="text-sm font-bold text-gray-800 sm:text-lg md:text-3xl">
+        BCDA Internal Services Feedback Form
+        </h1>
     </div>
 
     <form action="{{ route('survey.submit', $department->id) }}" method="POST" class="space-y-6">
         @csrf
 
         <div class="flex items-center space-x-2">
-            <label for="survey_date" class="text-md font-medium">Date:</label>
-            <input type="date" id="date" name="survey_date" class="border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
-        </div>
+            <label for="survey_date" class="text-md font-medium">Date: {{ now()->format('F d, Y') }}</label>
+           
+          </div>
 
         <input type="text" name="department_id" value="{{ $department->id }}" hidden>
 
@@ -54,7 +56,7 @@
             <label class="block text-md font-semibold mb-2">
                 Degree of Competence & Accuracy of Service
             </label>
-            <div class="flex justify-between space-x-4">
+            <div class="flex gap-3 justify-between">
                 @foreach ([
                     '2' => '<i class="fa-solid fa-thumbs-up mr-2 text-green-600"></i>Super Like <i class="fa-solid fa-thumbs-up fa-flip-horizontal mr-2 text-green-600"></i>',
                     '1' => '<i class="fa-regular fa-thumbs-up mr-2 text-blue-600"></i>Like',
@@ -62,7 +64,7 @@
                 ] as $value => $label)
                     <label class="flex-1 cursor-pointer">
                         <input type="radio" name="radiobutton" value="{{ $value }}" class="peer hidden" required>
-                        <div class="peer-checked:bg-blue-500 peer-checked:text-white text-center p-4 border rounded-lg hover:bg-blue-100 transition" onclick="document.getElementById('accuracyInput').value = '{{ $value }}'">
+                        <div class="peer-checked:bg-blue-500 peer-checked:text-white text-center p-4 border rounded-lg hover:bg-blue-100 transition h-full flex items-center justify-center" onclick="document.getElementById('accuracyInput').value = '{{ $value }}'">
                             {!! $label !!}
                         </div>
                     </label>
@@ -79,7 +81,7 @@
             <label class="block text-md font-semibold mb-2">
                 Degree of Responsiveness/Timeliness (Agreed Response Time)
             </label>
-            <div class="flex justify-between space-x-4">
+             <div class="flex gap-3 justify-between">
                 @foreach ([
                     '2' => '<i class="fa-solid fa-thumbs-up mr-2 text-green-600"></i>Super Like <i class="fa-solid fa-thumbs-up fa-flip-horizontal mr-2 text-green-600"></i>',
                     '1' => '<i class="fa-regular fa-thumbs-up mr-2 text-blue-600"></i>Like',
@@ -87,7 +89,7 @@
                 ] as $value => $label)
                     <label class="flex-1 cursor-pointer">
                         <input type="radio" name="radiotime" value="{{ $value }}" class="peer hidden" required>
-                        <div class="peer-checked:bg-green-500 peer-checked:text-white text-center p-4 border rounded-lg hover:bg-green-100 transition" onclick="document.getElementById('responseInput').value = '{{ $value }}'">
+                        <div class="peer-checked:bg-green-500 peer-checked:text-white text-center p-4 border rounded-lg hover:bg-green-100 transition h-full flex items-center justify-center" onclick="document.getElementById('responseInput').value = '{{ $value }}'">
                             {!! $label !!}
                         </div>
                     </label>
@@ -100,14 +102,14 @@
         <div class="mb-6">
             <label class="block text-lg font-semibold mb-2">
                 Brief Comment</label>
-            <textarea name="comments" rows="4" class="w-full border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Your comments here..."></textarea>
+            <textarea name="comments" rows="4" class="w-full border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-400" placeholder="Your comments here..." autocomplete="off"></textarea>
         </div>
 
         {{-- Section 4 --}}
         <div class="mb-6">
             <label class="block text-lg font-semibold mb-2">
                Name (optional)</label>
-            <input type="text" name="client_name" class="w-full border border-gray-300 rounded px-2 py-1 text-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Your name (optional)">
+            <input type="text" name="client_name" class="w-full border border-gray-300 rounded px-2 py-1 text-md focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-400" placeholder="Your name (optional)" autocomplete="off">
         </div>
 
         {{-- Section 5 --}}

@@ -146,7 +146,7 @@
             ['title' => 'BCDA Website', 'desc' => 'Showcasing infrastructure projects, economic zone development, and public-private partnerships in the Philippines.', 'url' => 'https://www.bcda.gov.ph'],
             ['title' => 'Human Resource Information System', 'desc' => 'A system that manages employee data, payroll, recruitment, and HR processes in one digital platform.', 'url' => 'https://hris.bcda.gov.ph'],
             ['title' => 'Acumatica ERP', 'desc' => 'Cloud-based ERP platform for managing finance, inventory, sales, and operations in one integrated system.', 'url' => 'https://bcda.cloudtwogo.com/Frames/Login.aspx?ReturnUrl=%2f'],
-            ['title' => 'Property Asset Management System', 'desc' => 'Tracking and managing IT assets, including hardware, software licenses, and inventory.', 'url' => 'https://pams.bcda.gov.ph'],
+            ['title' => 'BCDA QR Maker', 'desc' => 'BCDA’s smart way to share information—one scan away.', 'url' => route('vcard')],
             ['title' => 'BCDA Careers Portal', 'desc' => 'Job posting site that integrates HRIS and applicant tracking.', 'url' => '#careers'],
             ['title' => 'BCDA Survey Hub', 'desc' => 'Your gateway to sharing insights, giving feedback, and shaping the future of BCDA through quick and secure surveys.', 'url' => route('survey.index')],
           ] as $project)
@@ -309,7 +309,6 @@
         <div class="flex gap-4">
           <a href="#home-section" class="hover:underline">Home</a>
           <a href="#about" class="hover:underline">About</a>
-          <a href="#services" class="hover:underline">Services</a>
           <a href="#projects" class="hover:underline">Projects</a>
           <a href="#contact" class="hover:underline">Report</a>
         </div>

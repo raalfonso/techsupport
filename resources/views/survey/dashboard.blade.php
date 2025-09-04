@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     {{-- Set the title from APP_NAME or provide a fallback --}}
-    <title>{{ env('APP_NAME', 'IT Department') }}</title>
+    <title>{{ 'ICT PORTAL' }}</title>
     
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -100,7 +100,7 @@
             <div class="text-lg font-bold text-gray-800 flex items-center">
                 {{-- Logo image --}}
                <img src="{{ asset('img/itd_logo.png') }}" alt="ITD Logo" class="h-24 w-auto p-0 rounded">
-                BCDA IT DIVISION {{-- Changed from MyBrand to match context --}}
+                BCDA ICT PORTAL {{-- Changed from MyBrand to match context --}}
             </div>
 
             {{-- Desktop Navigation --}}
@@ -125,6 +125,15 @@
                     <i class="material-icons align-middle">people</i>
                     {{-- Added icon for Report --}}
                     Employee Registration </a>
+
+                @if (auth()->user()->role === 'superadmin')
+                  
+                <a href="{{ route('survey.management') }}" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
+                   <i class="material-icons align-middle">settings</i>
+                   {{-- Added icon for Report --}}
+                   User Management </a>
+                @endif
+
 
                 <span class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">{{ auth()->user()->name; }}</span>
                 {{-- Logout Button --}}
@@ -257,7 +266,7 @@
                     @if ($survey->accuracy_of_service == 2)
                       <span class="text-green-500 font-semibold">Super Like</span>
                     @elseif ($survey->accuracy_of_service == '1')
-                      <span class="text-yellow-500 font-semibold">Like</span>
+                      <span class="text-blue-500 font-semibold">Like</span>
                     @else
                       <span class="text-red-500 font-semibold">Dislike</span>
                     @endif
@@ -266,7 +275,7 @@
                     @if ($survey->response_time == 2)
                       <span class="text-green-500 font-semibold">Super Like</span>
                     @elseif ($survey->response_time == '1')
-                      <span class="text-yellow-500 font-semibold">Like</span> 
+                      <span class="text-blue-500 font-semibold">Like</span> 
                     @else
                       <span class="text-red-500 font-semibold">Dislike</span>
 

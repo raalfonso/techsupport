@@ -214,6 +214,28 @@ class SurveyController extends Controller
     
     }
 
+    public function management()
+    {
+        // Check if the user is authenticated
+        if (!auth()->check()) {
+            return redirect()->route('userSurvey.login')->with('error', 'You must be logged in to access the survey management.');
+        }
+
+        $users = UserSurvey::all();
+        $clients = Clients::all();
+        $departments = Department::all();
+        $employees = SurveyEmployees::limit(5)->get();
+        $survey = SurveyReport::all();
+
+        return view('survey.management', [
+            'clients' => $clients,
+            'departments' => $departments,
+            'employees' => $employees,
+            'surveys' => $survey,
+            'users' => $users,
+        ] );
+    }
+
     public function loginSurvey(Request $request)
     {
         $credentials = $request->only('email', 'password');
@@ -296,8 +318,10 @@ class SurveyController extends Controller
             'response_time' => 'required',
             'comments' => 'nullable|string|max:500',
             'client_name' => 'nullable|string|max:100',
-            'survey_date' => 'required|date',
+           
         ]);
+
+        $fields['survey_date'] = now()->toDateString();
         // Create a new survey report
         SurveyReport::create($fields);
         
@@ -310,4 +334,44 @@ class SurveyController extends Controller
         return view('survey.thankyou')->with('customMessage', 'We appreciate your feedback!');
     }
 
+    public function uploadEmployees(Request $request)
+    {
+
+    
+        $request->validate([
+            'file' => 'required|mimes:csv,txt',
+        ]);
+
+       
+
+        $file = $request->file('file');
+        $path = $file->getRealPath();
+        $data = array_map('str_getcsv', file($path));
+
+        // Assuming the first row contains headers
+        $header = array_map('strtolower', array_shift($data));
+
+        foreach ($data as $row) {
+            $rowData = array_combine($header, $row);
+            
+            // Validate required fields
+            if (isset($rowData['name'], $rowData['email'], $rowData['department_id'])) {
+                // Check if the department exists
+                $department = Department::find($rowData['department_id']);
+                if ($department) {
+                    // Create or update the employee
+                    SurveyEmployees::updateOrCreate(
+                        ['email' => $rowData['email']], // Unique field to check for existing records
+                        [
+                            'name' => $rowData['name'],
+                            'department_id' => $rowData['department_id'],
+                            'user_survey_id' => auth()->user()->id,
+                        ]
+                    );
+                }
+            }
+        }
+
+        return redirect()->back()->with('success', 'Employees uploaded successfully.');
+    }
 }
