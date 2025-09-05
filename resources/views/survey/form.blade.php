@@ -35,7 +35,7 @@
 
         <input type="text" name="department_id" value="{{ $department->id }}" hidden>
 
-        <div class="flex items-center space-x-2">
+        {{-- <div class="flex items-center space-x-2">
             <label for="survey_employees_id" class="text-md font-medium">Person(s) you transacted with:</label>
             <select name="survey_employees_id"
                 class="border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
@@ -45,6 +45,40 @@
                 @endforeach
             </select>
 
+        </div> --}}
+
+       
+         <div class="flex items-center space-x-2">
+            <label for="employee-search" class="text-md font-medium">Person(s) you transacted with:</label>
+            <div class="relative" id="employee-search-container">
+                <input 
+                    type="text" 
+                    id="employee-search"
+                    class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-sm"
+                    placeholder=""
+                    autocomplete="off"
+                >
+                <div class="absolute inset-y-0 right-0 flex items-center pr-3">
+                    <i class="fas fa-search text-gray-400 ml-5"></i>
+                </div>
+                <div id="suggestions-container" class="hidden absolute z-10 w-full mt-1 bg-white rounded-lg shadow-lg border border-gray-200 max-h-60 overflow-y-auto"></div>
+
+                
+            </div>
+            <div id="selected-employee" class="relative hidden p-3">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <span id="selected-name" class=""></span>
+                        </div>
+                        <button type="button" id="clear-selection" class="text-blue-500 hover:text-blue-700 text-sm">
+                            <i class="fas fa-times-circle ml-5"></i> Change
+                        </button>
+                    </div>
+                    
+                </div>
+            <input type="hidden" name="survey_employees_id" id="employee-id">
+            
+            
         </div>
         <div class="flex items-center space-x-2">
             <label class="text-md font-medium">How do you rate their service?(Please check)</label>
@@ -143,5 +177,112 @@
     
 
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('employee-search');
+        const suggestionsContainer = document.getElementById('suggestions-container');
+        const selectedEmployee = document.getElementById('selected-employee');
+        const selectedName = document.getElementById('selected-name');
+        const employeeId = document.getElementById('employee-id');
+        const clearButton = document.getElementById('clear-selection');
+        const employeeSearchContainer = document.getElementById('employee-search-container');
+        
+        // Mock data - replace with actual data from your server
+        const employees = @json($employees);
+        
+        console.log(employees);
+        
+        // Function to fetch employees (simulating AJAX call)
+        function fetchEmployees(query) {
+            return new Promise(resolve => {
+                setTimeout(() => {
+                    const results = employees.filter(employee => 
+                        employee.name.toLowerCase().includes(query.toLowerCase())
+                    );
+                    resolve(results);
+                }, 200);
+            });
+        }
+        
+        // Event listener for input
+        searchInput.addEventListener('input', debounce(async function(e) {
+            const query = e.target.value.trim();
+            
+            if (query.length < 2) {
+                suggestionsContainer.classList.add('hidden');
+                return;
+            }
+            
+            const results = await fetchEmployees(query);
+            displaySuggestions(results);
+        }, 300));
+        
+        // Display suggestions
+        function displaySuggestions(employees) {
+            if (employees.length === 0) {
+                suggestionsContainer.innerHTML = '<div class="p-4 text-gray-500 text-sm">No employees found</div>';
+                suggestionsContainer.classList.remove('hidden');
+                return;
+            }
+            
+            suggestionsContainer.innerHTML = '';
+            employees.forEach(employee => {
+                const div = document.createElement('div');
+                div.className = 'p-3 border-b border-gray-100 hover:bg-blue-50 cursor-pointer transition';
+                div.innerHTML = `
+                    <div class="font-medium text-gray-800 text-sm">${employee.name}</div>
+                    
+                `;
+                div.addEventListener('click', () => {
+                    selectEmployee(employee);
+                });
+                suggestionsContainer.appendChild(div);
+            });
+            
+            suggestionsContainer.classList.remove('hidden');
+        }
+        
+        // Select an employee
+        function selectEmployee(employee) {
+            selectedName.textContent = employee.name;
+            employeeId.value = employee.id;
+            selectedEmployee.classList.remove('hidden');
+            searchInput.value = '';
+            suggestionsContainer.classList.add('hidden');
+            employeeSearchContainer.classList.add('hidden');
+        }
+        
+        // Clear selection
+        clearButton.addEventListener('click', function() {
+
+            selectedEmployee.classList.add('hidden');
+            employeeSearchContainer.classList.remove('hidden');
+            employeeId.value = '';
+            searchInput.value = '';
+            searchInput.focus();
+        });
+        
+        // Close suggestions when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!searchInput.contains(e.target) && !suggestionsContainer.contains(e.target)) {
+                suggestionsContainer.classList.add('hidden');
+            }
+        });
+        
+        // Debounce function to limit API calls
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+    });
+</script>
 </body>
 </html>

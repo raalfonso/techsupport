@@ -294,8 +294,14 @@ class SurveyController extends Controller
     {
         $departmentCode = $request->query('dept');
 
-        $employees = SurveyEmployees::where(['department_id' => $departmentCode])
-            ->get();
+       $employees = SurveyEmployees::where(['department_id' => $departmentCode])
+        ->get()
+        ->map(function($employee) {
+            return [
+                'id' => $employee->id,
+                'name' => $employee->name,
+            ];
+        });
         $department = Department::where('id', $departmentCode)->first();
 
         if (!$department) {
