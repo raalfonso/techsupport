@@ -324,63 +324,59 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @php $count = 1; @endphp
-                        @foreach($resolved as $resolve)
+                        @foreach($resolved as $index => $resolve)
                         <tr class="hover:bg-slate-100 dark:bg-slate-800 dark:text-white text-slate-950 dark:hover:bg-slate-500">
-                                <td class="border border-gray-300 px-2 py-2">{{ $count++ }}</td>
-                                <td class="border border-gray-300 px-2 py-2">{{ $resolve->ticket_number }}</td>
-                                <td class="border border-gray-300 px-2 py-2">{{ $resolve->client->name }}</td>
-                                <td class="border border-gray-300 px-2 py-2">{{ $resolve->Department?->title }}</td>
-                                <td class="border border-gray-300 px-2 py-2">{{ $resolve->Issues?->Category?->title }}</td>
-                                <td class="border border-gray-300 px-2 py-2">{{ $resolve->Issues?->title }}</td>
-                                <td class="border border-gray-300 px-2 py-2">{{ date('F d, Y h:i a', strtotime($resolve->request_datetime)) }}</td>
-                                <td class="border border-gray-300 px-4 py-2">
-                                    @php
-                                        $diffInMinutes = \Carbon\Carbon::parse($resolve->request_datetime)->diffInMinutes(\Carbon\Carbon::parse($resolve->response_datetime));
-                                    @endphp
-
-                                    @if ($diffInMinutes >= 60)
-                                        {{ round($diffInMinutes / 60) }} hrs
-                                    @else
-                                        {{ round($diffInMinutes) }} mins
-                                    @endif
-
-                                </td>
-                                
-                    
-                                <td class="border border-gray-300 px-2 py-2">
-                                    @php
-                                        $diffInMinutes = \Carbon\Carbon::parse($resolve->response_datetime)->diffInMinutes(\Carbon\Carbon::parse($resolve->resolve_datetime));
-                                    @endphp
-
-                                    @if ($diffInMinutes >= 60)
-                                        {{ round($diffInMinutes / 60) }} hrs
-                                    @else
-                                        {{ round($diffInMinutes) }} mins
-                                    @endif
-
-                                </td>
-                            
-                                
-                                <td class="border border-gray-300 px-2 py-2 whitespace-nowrap">{{ date('F d, Y h:i a', strtotime($resolve->resolve_datetime)) }}</td>
-                                <td class="border border-gray-300 px-2 py-2">{{ $resolve->remarks }}</td>
-                                <td class="border border-gray-300 px-2 py-2">{{ $resolve->resolve->user->name }}</td>
-                            </tr>
+                            <td class="border border-gray-300 px-2 py-2">
+                                {{ $resolved->firstItem() + $index }}
+                            </td>
+                            <td class="border border-gray-300 px-2 py-2">{{ $resolve->ticket_number }}</td>
+                            <td class="border border-gray-300 px-2 py-2">{{ $resolve->client->name }}</td>
+                            <td class="border border-gray-300 px-2 py-2">{{ $resolve->Department?->title }}</td>
+                            <td class="border border-gray-300 px-2 py-2">{{ $resolve->Issues?->Category?->title }}</td>
+                            <td class="border border-gray-300 px-2 py-2">{{ $resolve->Issues?->title }}</td>
+                            <td class="border border-gray-300 px-2 py-2">{{ date('F d, Y h:i a', strtotime($resolve->request_datetime)) }}</td>
+                            <td class="border border-gray-300 px-4 py-2">
+                                @php
+                                    $diffInMinutes = \Carbon\Carbon::parse($resolve->request_datetime)->diffInMinutes(\Carbon\Carbon::parse($resolve->response_datetime));
+                                @endphp
+                                {{ $diffInMinutes >= 60 ? round($diffInMinutes / 60) . ' hrs' : round($diffInMinutes) . ' mins' }}
+                            </td>
+                            <td class="border border-gray-300 px-2 py-2">
+                                @php
+                                    $diffInMinutes = \Carbon\Carbon::parse($resolve->response_datetime)->diffInMinutes(\Carbon\Carbon::parse($resolve->resolve_datetime));
+                                @endphp
+                                {{ $diffInMinutes >= 60 ? round($diffInMinutes / 60) . ' hrs' : round($diffInMinutes) . ' mins' }}
+                            </td>
+                            <td class="border border-gray-300 px-2 py-2 whitespace-nowrap">{{ date('F d, Y h:i a', strtotime($resolve->resolve_datetime)) }}</td>
+                            <td class="border border-gray-300 px-2 py-2">{{ $resolve->remarks }}</td>
+                            <td class="border border-gray-300 px-2 py-2">{{ $resolve->resolve->user->name }}</td>
+                        </tr>
                         @endforeach
                     </tbody>
+                 
                 </table>
+                   <div class="mt-4">
+                        {{ $resolved->links() }}
+                    </div>
             </div>
 
             <!-- Card: Visible only on small screens (mobile) -->
             <div class="block md:hidden p-6">
                 @foreach($resolved as $resolve)
-                <div class="border p-4 rounded-lg shadow mb-2 dark:text-white">
-                    <h2 class="font-bold">{{ $resolve->client?->name }} - {{ $resolve->department?->title }}</h2>
-                    <p>Ticket No: {{ $resolve->ticket_number }}</p>
-                    <p>Issues: {{ $resolve->issues?->title }}</p>
-                    <p class="font-bold">Technical Staff: {{ $resolve->resolve->user->name }}</p>
-                </div>
+                    <div class="border p-4 rounded-lg shadow mb-2 dark:text-white">
+                        <h2 class="font-bold">
+                            {{ $resolve->client?->name }} - {{ $resolve->department?->title }}
+                        </h2>
+                        <p>Ticket No: {{ $resolve->ticket_number }}</p>
+                        <p>Issues: {{ $resolve->issues?->title }}</p>
+                        <p class="font-bold">Technical Staff: {{ $resolve->resolve->user->name }}</p>
+                    </div>
                 @endforeach
+
+                {{-- Pagination --}}
+                <div class="mt-4">
+                    {{ $resolved->links('pagination::tailwind') }}
+                </div>
             </div>
             
         </div>

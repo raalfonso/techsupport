@@ -36,14 +36,14 @@ class ReportController extends Controller
        
         if ($user_level == 1) {
             $resolved = Report::whereIn('status', ['Done'])
-            ->orderBy('id', 'asc')
+            ->orderBy('id', 'desc')
             ->paginate(5);
            
         }
         else {
         
             $resolved = Report::whereIn('status', ['Done'])
-            ->orderBy('id', 'asc')
+            ->orderBy('id', 'desc')
             ->paginate(5);
         }
         
@@ -258,6 +258,7 @@ class ReportController extends Controller
 
     public function export()
     {
+
         return Excel::download(new ReportsExport, 'reports.xlsx');
     }
 }

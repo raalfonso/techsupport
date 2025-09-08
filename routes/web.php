@@ -30,6 +30,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('category', CategoryController::class);
     Route::resource('department', DepartmentController::class);
     Route::resource('main', ReportController::class);
+    Route::get('/report/export', [ReportController::class, 'export'])->name('report.export');
     Route::resource('report', ReportController::class);
 
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -37,7 +38,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/report/resolve/{id}', [ReportController::class, 'resolve'])->name('report.resolve');
     Route::get('/report/escalate/{id}', [ReportController::class, 'escalate'])->name('report.escalate');
     Route::get('/report/endorse/{id}', [ReportController::class, 'endorse'])->name('report.endorse');
-    Route::get('/report/export', [ReportController::class, 'export'])->name('report.export');
+    
 
     Route::get('/reports', [ReportController::class, 'getReports']);
     Route::get('/getstotal', [ReportController::class, 'getTotalReports']);
