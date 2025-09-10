@@ -20,6 +20,14 @@
     <link rel="icon" type="image/png" href="{{ asset('img/itd_logo.png') }}">
 </head>
 <body>
+    @if (session('success'))
+        <div class="flex items-center justify-between mb-4 p-4 rounded-lg bg-green-100 border border-green-300 text-green-800 text-sm">
+            <span>{{ session('success') }}</span>
+            <button type="button" class="text-green-700 hover:text-green-900" onclick="this.parentElement.remove()">
+                &times;
+            </button>
+        </div>
+    @endif
     <div class="min-h-screen flex bg-white items-center justify-center p-6">
 
         <div class="rounded-lg shadow w-full max-w-md mt-[0%] sm:mt-[-1/2]">

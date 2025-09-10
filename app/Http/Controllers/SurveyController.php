@@ -19,17 +19,16 @@ class SurveyController extends Controller
 {
     public function index()
     {
-        
         // Check if the user is authenticated
         if (!auth()->check()) {
-            return redirect()->route('userSurvey.login')->with('error', 'You must be logged in to access the survey dashboard.');
+            return redirect()->route('survey.index')->with('error', 'You must be logged in to access the survey dashboard.');
         }
 
         // echo auth()->user()->department->title;
   
         // Fetch necessary data for the dashboard
-        $employees = SurveyEmployees::where('department_id', auth()->user()->department_id)->get();
-        $survey = SurveyReport::where('department_id', auth()->user()->department_id)->get();
+        $employees = SurveyEmployees::where('department_id', auth()->user()->department_id)->paginate(10);
+        $survey = SurveyReport::where('department_id', auth()->user()->department_id)->orderBy('id','desc')->paginate(10);
 
         $total = SurveyReport::where('department_id', auth()->user()->department_id)->count();
 
@@ -162,8 +161,7 @@ class SurveyController extends Controller
             }
        
        
-        
-
+    
          $superLikeResponseTime = SurveyReport::selectRaw('COUNT(response_time) as total_responses, survey_employees_id')
         ->where('response_time', 2)
         ->groupBy('survey_employees_id')
@@ -218,13 +216,13 @@ class SurveyController extends Controller
     {
         // Check if the user is authenticated
         if (!auth()->check()) {
-            return redirect()->route('userSurvey.login')->with('error', 'You must be logged in to access the survey management.');
+            return redirect()->route('survey.index')->with('error', 'You must be logged in to access the survey management.');
         }
 
-        $users = UserSurvey::all();
+        $users = UserSurvey::where('status','active')->paginate(10);
         $clients = Clients::all();
         $departments = Department::all();
-        $employees = SurveyEmployees::limit(5)->get();
+        $employees = SurveyEmployees::where('status','active')->paginate(10);
         $survey = SurveyReport::all();
 
         return view('survey.management', [
@@ -235,6 +233,42 @@ class SurveyController extends Controller
             'users' => $users,
         ] );
     }
+    public function account()
+    {
+        // Check if the user is authenticated
+        if (!auth()->check()) {
+            return redirect()->route('survey.index')->with('error', 'You must be logged in to access the survey management.');
+        }
+
+        $userInfo = UserSurvey::where('id', auth()->user()->id)->first();
+
+        return view('survey.account', [
+            
+            'userInfo' => $userInfo,
+        ] );
+    }
+
+    public function changePassword(Request $request)
+    {
+        // Validate the request
+        $request->validate([
+            'current_password' => 'required',
+            'new_password' => 'required|min:3|confirmed',
+        ]);
+
+        $user = auth()->user();
+
+        // Check if the current password matches
+        if (!Hash::check($request->current_password, $user->password)) {
+            return redirect()->back()->withErrors(['current_password' => 'Current password is incorrect']);
+        }
+
+        // Update the password
+        $user->password = Hash::make($request->new_password);
+        $user->save();
+
+        return redirect()->back()->with('success', 'Password changed successfully');
+    }   
 
     public function loginSurvey(Request $request)
     {
@@ -284,7 +318,7 @@ class SurveyController extends Controller
     public function logoutSurvey()
     {
         auth()->logout();
-        return redirect()->route('home')->with('success', 'Logged out successfully');
+        return redirect()->route('survey.index')->with('success', 'Logged out successfully');
     }
 
 

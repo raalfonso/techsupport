@@ -63,7 +63,9 @@ Route::prefix('survey')->group(function () {
         Route::post('/user-survey/logout', [UserSurveyAuthController::class, 'logout'])->name('userSurvey.logout');
         Route::post('/survey/register', [SurveyEmployeeController::class, 'store'])->name('survey.employee.store');
         Route::get('/management',[SurveyController::class, 'management'])->name('survey.management');
+        Route::get('/account',[SurveyController::class, 'account'])->name('survey.account');
         Route::post('/upload-employees', [SurveyController::class, 'uploadEmployees'])->name('survey.uploadEmployees');
+        Route::post('/change-password', [SurveyController::class, 'changePassword'])->name('survey.changePassword');
     });
 
     // Public employee survey routes

@@ -104,41 +104,68 @@
             </div>
 
             {{-- Desktop Navigation --}}
-            <div class="hidden md:flex space-x-4 float-right">
-                {{-- Navigation links --}}
-                <a href="#home-section" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
-                   <i class="material-icons align-middle">dashboard</i>
-                   {{-- Added icon for Dashboard --}}
-                  Dashboard</a>
-                <a href="#about" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
-                   <i class="material-icons align-middle">assignment</i>
-                  Survey Result</a>
-                <a href="{{ route('qrcode', ['departmentCode' => auth()->user()->department_id]) }}"
-                  class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium" target="_blank">
-                    {{-- QR Code link --}}
-                    <i class="material-icons align-middle">qr_code</i>
-                    {{-- Added icon for QR Code --}}
-                  QR Code
-                </a>
+                <div class="hidden md:flex space-x-4 float-right items-center">
+                    {{-- Navigation links --}}
+                    <a href="#home-section" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
+                        <i class="material-icons align-middle">dashboard</i>
+                        Dashboard
+                    </a>
 
-                <a href="#contact" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
-                    <i class="material-icons align-middle">people</i>
-                    {{-- Added icon for Report --}}
-                    Employee Registration </a>
+                    <a href="#about" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
+                        <i class="material-icons align-middle">assignment</i>
+                        Survey Result
+                    </a>
 
-                @if (auth()->user()->role === 'superadmin')
-                  
-                <a href="{{ route('survey.management') }}" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
-                   <i class="material-icons align-middle">settings</i>
-                   {{-- Added icon for Report --}}
-                   User Management </a>
-                @endif
+                    <a href="{{ route('qrcode', ['departmentCode' => auth()->user()->department_id]) }}"
+                    class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium" target="_blank">
+                        <i class="material-icons align-middle">qr_code</i>
+                        QR Code
+                    </a>
 
+                    <a href="#contact" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
+                        <i class="material-icons align-middle">people</i>
+                        Employee Registration
+                    </a>
 
-                <span class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">{{ auth()->user()->name; }}</span>
-                {{-- Logout Button --}}
-                
-              </div>
+                    @if (auth()->user()->role === 'superadmin')
+                        <a href="{{ route('survey.management') }}" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
+                            <i class="material-icons align-middle">settings</i>
+                            User Management
+                        </a>
+                    @endif
+
+                    {{-- User dropdown --}}
+                    <div x-data="{ open: false }" class="relative">
+                        <!-- Username button -->
+                        <button @click="open = !open"
+                            class="flex items-center text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
+                            {{ auth()->user()->name }}
+                            <svg class="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </button>
+
+                        <!-- Dropdown menu -->
+                        <div x-show="open" @click.away="open = false"
+                            class="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-50">
+
+                            <!-- Change Password -->
+                            <a href="{{ route('survey.account') }}"
+                            class="flex items-center px-4 py-2 text-sm text-gray-600 hover:bg-gray-100">
+                                <i class="material-icons mr-2 text-gray-500">lock</i> Account
+                            </a>
+
+                            <!-- Logout -->
+                            <form method="POST" action="{{ route('userSurvey.logout') }}">
+                                @csrf
+                                <button type="submit"
+                                        class="flex w-full items-center px-4 py-2 text-sm text-gray-600 hover:bg-gray-100">
+                                    <i class="material-icons mr-2 text-gray-500">logout</i> Logout
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
 
             {{-- Mobile Menu Button (Hamburger) --}}
             <div class="md:hidden">
@@ -259,34 +286,36 @@
             </thead>
             <tbody>
               @foreach($surveys as $survey)
-                <tr class="border-b hover:bg-gray-50 text-gray-600 font-semibold">
-                  <td class="py-4 px-6 text-sm">{{ $survey->created_at->format('F j, Y') }}</td>
-                  <td class="py-4 px-6 text-sm">{{ $survey->surveyEmployee->name }}</td>
-                  <td class="py-4 px-6 text-sm">
-                    @if ($survey->accuracy_of_service == 2)
-                      <span class="text-green-500 font-semibold">Super Like</span>
-                    @elseif ($survey->accuracy_of_service == '1')
-                      <span class="text-blue-500 font-semibold">Like</span>
-                    @else
-                      <span class="text-red-500 font-semibold">Dislike</span>
-                    @endif
-                  </td>
-                  <td class="py-4 px-6 text-sm">
-                    @if ($survey->response_time == 2)
-                      <span class="text-green-500 font-semibold">Super Like</span>
-                    @elseif ($survey->response_time == '1')
-                      <span class="text-blue-500 font-semibold">Like</span> 
-                    @else
-                      <span class="text-red-500 font-semibold">Dislike</span>
-
-                    @endif
-                  </td>
-                  <td class="py-4 px-6 text-sm">{{ $survey->comments }}</td>
-                  <td class="py-4 px-6 text-sm">{{ $survey->client_name }}</td>
-                </tr>
+                  <tr class="border-b hover:bg-gray-50 text-gray-600 font-semibold">
+                      <td class="py-4 px-6 text-sm">{{ $survey->created_at->format('F j, Y') }}</td>
+                      <td class="py-4 px-6 text-sm">{{ $survey->surveyEmployee->name }}</td>
+                      <td class="py-4 px-6 text-sm">
+                          @if ($survey->accuracy_of_service == 2)
+                              <span class="text-green-500 font-semibold">Super Like</span>
+                          @elseif ($survey->accuracy_of_service == 1)
+                              <span class="text-blue-500 font-semibold">Like</span>
+                          @else
+                              <span class="text-red-500 font-semibold">Dislike</span>
+                          @endif
+                      </td>
+                      <td class="py-4 px-6 text-sm">
+                          @if ($survey->response_time == 2)
+                              <span class="text-green-500 font-semibold">Super Like</span>
+                          @elseif ($survey->response_time == 1)
+                              <span class="text-blue-500 font-semibold">Like</span>
+                          @else
+                              <span class="text-red-500 font-semibold">Dislike</span>
+                          @endif
+                      </td>
+                      <td class="py-4 px-6 text-sm">{{ $survey->comments }}</td>
+                      <td class="py-4 px-6 text-sm">{{ $survey->client_name }}</td>
+                  </tr>
               @endforeach
-            </tbody> 
+          </tbody>
         </table>
+        <div class="mt-4">
+            {{ $surveys->links('pagination::tailwind') }}
+        </div>
       </div>
     </section>
 
@@ -310,24 +339,33 @@
             </thead>
             <tbody>
               @foreach($employees as $employee)
-                <tr class="border-b hover:bg-gray-50">
-                  <td class="py-4 px-6 text-sm">{{ $employee->name }}</td>
-                  <td class="py-4 px-6 text-sm">{{ $employee->email }}</td>
-                  <td class="py-4 px-6 text-sm">{{ $employee->department->title }}</td>
-                  <td class="py-4 px-6 text-sm">
-                    @if ($employee->status === 'active')
-                      <span class="text-white bg-green-500 w-8 p-2 font-semibold rounded-full text-center leading-8 ">Active</span>
-                    @else
-                      <span class="text-red-500 font-semibold">Inactive</span>
-                    @endif
-                  </td>
-                  <td class="py-4 px-6 text-sm">
-                    <a href="{{ route('survey.form', ['id' => $employee->id]) }}" class="text-blue-600 hover:underline">Edit</a>
-                  </td>
-                </tr>
+                  <tr class="border-b hover:bg-gray-50">
+                      <td class="py-4 px-6 text-sm">{{ $employee->name }}</td>
+                      <td class="py-4 px-6 text-sm">{{ $employee->email }}</td>
+                      <td class="py-4 px-6 text-sm">{{ $employee->department->title }}</td>
+                      <td class="py-4 px-6 text-sm">
+                          @if ($employee->status === 'active')
+                              <span class="text-white bg-green-500 w-8 p-2 font-semibold rounded-full text-center leading-8">
+                                  Active
+                              </span>
+                          @else
+                              <span class="text-red-500 font-semibold">Inactive</span>
+                          @endif
+                      </td>
+                      <td class="py-4 px-6 text-sm">
+                          <a href="{{ route('survey.form', ['id' => $employee->id]) }}" class="text-blue-600 hover:underline">
+                              Edit
+                          </a>
+                      </td>
+                  </tr>
               @endforeach
+          </tbody>
+          </table>
 
-         </table>
+          {{-- Pagination Links --}}
+          <div class="mt-4">
+          {{ $employees->links('pagination::tailwind') }}
+          </div>
         
       </div>
     </section>

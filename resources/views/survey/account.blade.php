@@ -167,7 +167,6 @@
                     </div>
                 </div>
 
-
             {{-- Mobile Menu Button (Hamburger) --}}
             <div class="md:hidden">
                 <button id="mobile-menu-button" class="text-gray-600 hover:text-gray-900 focus:outline-none focus:text-gray-900">
@@ -192,166 +191,79 @@
         </div>
     </nav>
 
-    {{-- Hero Section --}}
-    <section id="user" class="pb-5 mt-5" style="background-color: #e6edfc">
-    <div class="container mx-auto px-6 py-16 text-center">
-        <h1 class="text-4xl font-bold text-gray-800 mb-4">User Management</h1>
-        <p class="text-lg text-gray-600 mb-8">Manage survey users and their roles</p>
+        {{-- Flash Message for Success --}}
+       
 
-        <div class="bg-white rounded-lg shadow-lg p-6">
-            <table class="min-w-full bg-white">
-                <thead>
-                    <tr>
-                        <th class="py-2 px-4 border-b border-gray-200 bg-gray-100 text-left text-sm font-semibold text-gray-700">Name</th>
-                        <th class="py-2 px-4 border-b border-gray-200 bg-gray-100 text-left text-sm font-semibold text-gray-700">Email</th>
-                        <th class="py-2 px-4 border-b border-gray-200 bg-gray-100 text-left text-sm font-semibold text-gray-700">Department</th>
-                        <th class="py-2 px-4 border-b border-gray-200 bg-gray-100 text-left text-sm font-semibold text-gray-700">Status</th>
-                        <th class="py-2 px-4 border-b border-gray-200 bg-gray-100 text-left text-sm font-semibold text-gray-700">Role</th>
-                        <th class="py-2 px-4 border-b border-gray-200 bg-gray-100 text-left text-sm font-semibold text-gray-700">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach ($users as $user)
-                    <tr>
-                        <td class="py-2 px-4 border-b border-gray-200 text-left">{{ ucfirst($user->name) }}</td>
-                        <td class="py-2 px-4 border-b border-gray-200 text-left">{{ $user->email }}</td>
-                        <td class="py-2 px-4 border-b border-gray-200 text-left">{{ $user->department->title }}</td>
-                        <td class="py-2 px-4 border-b border-gray-200 text-left">{{ ucfirst($user->status) }}</td>
-                        <td class="py-2 px-4 border-b border-gray-200 text-left">{{ ucfirst($user->role) }}</td>
-                        <td class="py-2 px-4 border-b border-gray-200 text-left">
-                            <!-- Edit Button -->
-                            <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-3 rounded mr-2" onclick="editUser({{ $user->id }}, '{{ $user->name }}', '{{ $user->email }}', '{{ $user->role }}')">Edit</button>
-                            <!-- Delete Button -->
-                            <form action="{{ route('survey.management', $user->id) }}" method="POST" class="inline">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-3 rounded" onclick="return confirm('Are you sure you want to delete this user?')">Delete</button>
-                            </form>
-                        </td>
-                    </tr>
-                    @endforeach
-                </tbody>
-            </table>
-                <div class="mt-4">
-                    {{ $users->links('pagination::tailwind') }}
+    {{-- Account Section --}}
+    <section id="user" class="pb-5 mt-5 mb-10" style="background-color: #e6edfc">
+    <div class="container mx-auto px-6 py-16 text-center bg-white rounded-lg shadow-md">
+        {{-- Section Title and Description --}}
+         @if (session('success'))
+            <div class="flex items-center justify-between mb-4 p-4 rounded-lg bg-green-100 border border-green-300 text-green-800 text-sm">
+                <span>{{ session('success') }}</span>
+                <button type="button" class="text-green-700 hover:text-green-900" onclick="this.parentElement.remove()">
+                    &times;
+                </button>   
+            </div>
+        @endif
+        <h1 class="text-4xl font-bold text-gray-800 mb-4">My Profile </h1>
+        <p class="text-lg text-gray-600 mb-8">Account Details</p>
+
+        {{-- User Information --}}
+        <img src="{{ asset('img/close-up-white-cat-with-blue-eyes-121224.jpg') }}" alt="User Avatar" class="w-32 h-32 mx-auto mb-4 rounded-full border-4 border-blue-500">
+        <button class="bg-blue btn mx-auto max-w-40"><i class="material-icons align-middle">upload</i> Change Image</button>
+        <br>
+
+        <h2 class="text-2xl font-semibold text-gray-800 mb-2">{{ auth()->user()->name }}</h2>
+        <p class="text-gray-600 mb-4"><strong>Email:</strong> {{ auth()->user()->email }}</p>
+        <p class="text-gray-600 mb-4"><strong>Department:</strong> {{ auth()->user()->department->title ?? 'N/A' }}</p>
+        <p class="text-gray-600 mb-4"><strong>Role:</strong> {{ ucfirst(auth()->user()->role) }}</p>
+        {{-- <p class="text-gray-600 mb-4"><strong>Account Created:</strong> {{ auth()->user()->created_at->format('F j, Y, g:i a') }}</p> --}}
+
+        {{-- Reset Password --}}
+        <div class="mt-6 bg-gray-200 bordered p-6 rounded-lg shadow-md inline-block min-w-full max-w-md text-left">
+            {{-- Password Reset Form --}}
+            <form action="{{ route('survey.changePassword') }}" method="POST" class="space-y-4">
+                @csrf
+             
+                
+                <h3 class="text-xl font-semibold text-gray-800 mb-4">Change Password</h3>
+                
+                <div>
+                    <label for="current_password" class="block text-gray-700 mb-2">Current Password</label>
+                    <input type="password" name="current_password" id="current_password" class="w-full p-2 border border-gray-300 rounded-md focus:ring focus:ring-blue-300" required>
+                    @error('current_password')
+                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                    @enderror
                 </div>
+                
+                <div>
+                    <label for="new_password" class="block text-gray-700 mb-2">New Password</label>
+                    <input type="password" name="new_password" id="new_password" class="w-full p-2 border border-gray-300 rounded-md focus:ring focus:ring-blue-300" required>
+                    @error('new_password')
+                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+                
+                <div>
+                    <label for="new_password_confirmation" class="block text-gray-700 mb-2">Confirm New Password</label>
+                    <input type="password" name="new_password_confirmation" id="new_password_confirmation" class="w-full p-2 border border-gray-300 rounded-md focus:ring focus:ring-blue-300" required>
+                </div>
+                
+                <button type="submit" class="w-full px-4 py-2 bg-gradient-to-r from-slate-800 to-blue-950 text-white font-semibold rounded-md hover:from-blue-700 hover:to-blue-900 transition duration-200">
+                    <i class="material-icons align-middle">lock</i> Update Password
+                </button>   
+            
+
+
+        
 
     </div>
 
 
     </section>  
 
-    {{-- section for adding survey employee --}}
-    <section class="pb-5 bg-white" id="add-user">
-        <div class="container mx-auto px-6 py-16 text-center">
-            <h2 class="text-3xl font-bold text-gray-800 mb-4">List of Survey Employees</h2>
-            <p class="text-lg text-gray-600 mb-8">Create a new survey user account</p>
-
-            <div class="bg-white rounded-lg shadow-lg p-6">
-                <form action="{{ route('survey.uploadEmployees') }}" method="POST" enctype="multipart/form-data">
-                    @csrf
-                    <div class="mb-4">
-                        <input type="file" name="file" class="border border-gray-300 p-2 rounded w-full" required>
-                    </div>
-                    <button type="submit" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">Import</button>
-                </form>
-            </div>
-
-            <div class="bg-white rounded-lg shadow-lg p-6 text-left">
-                <p class="mt-5 text-lg text-gray-600 mb-8 font-bold"> List of Employees</p>
-
-                <table class="min-w-full bg-white">
-                <thead>
-                    <tr>
-                        <th class="py-2 px-4 border-b border-gray-200 bg-gray-100 text-left text-sm font-semibold text-gray-700">Name</th>
-                        <th class="py-2 px-4 border-b border-gray-200 bg-gray-100 text-left text-sm font-semibold text-gray-700">Email</th>
-                        <th class="py-2 px-4 border-b border-gray-200 bg-gray-100 text-left text-sm font-semibold text-gray-700">Department</th>
-                        <th class="py-2 px-4 border-b border-gray-200 bg-gray-100 text-left text-sm font-semibold text-gray-700">Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach ($employees as $employee)
-                    <tr>
-                        <td class="py-2 px-4 border-b border-gray-200 text-left">{{ ucfirst($employee->name) }}</td>
-                        <td class="py-2 px-4 border-b border-gray-200 text-left">{{ $employee->email }}</td>
-                        <td class="py-2 px-4 border-b border-gray-200 text-left">{{ $employee->department->title }}</td>
-                        <td class="py-2 px-4 border-b border-gray-200 text-left">
-                            <!-- Edit Button -->
-                            <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-3 rounded mr-2" onclick="editUser({{ $employee->id }}, '{{ $employee->name }}', '{{ $employee->email }}', '{{ $employee->role }}')">Edit</button>
-                            <!-- Edit Button -->
-                        </td>
-                    </tr>
-                    @endforeach
-                </tbody>
-
-            </table>
-                <div class="mt-4">
-                    {{ $employees->links('pagination::tailwind') }}
-                </div>
-            </div>
-
-            
-            
-        </div>
     
-    
-    {{-- this is for data import --}}
-    <section class="pb-5 bg-white" id="import">
-        <div class="container mx-auto px-6 py-16 text-center">
-            <h2 class="text-3xl font-bold text-gray-800 mb-4">Data Importation</h2>
-            <p class="text-lg text-gray-600 mb-8">Import data from other office</p>
-
-            <div class="bg-white rounded-lg shadow-lg p-6">
-                <form action="{{ route('survey.management') }}" method="POST" enctype="multipart/form-data">
-                    @csrf
-                    <div class="mb-4">
-                        <input type="file" name="file" class="border border-gray-300 p-2 rounded w-full" required>
-                    </div>
-                    <button type="submit" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">Import</button>
-                </form>
-                 <div class="mt-4 text-sm text-gray-500">
-                <p>Note: Only CSV files are supported.</p>
-
-            </div>
-
-
-
-
-            {{-- list of uploaded files --}}
-            <div class="mt-8">
-                <h3 class="text-xl font-semibold text-gray-800 mb-4">Uploaded Files</h3>
-                <table class="min-w-full bg-white">
-                    <thead>
-                        <tr>
-                            <th class="py-2 px-4 border-b border-gray-200 bg-gray-100 text-left text-sm font-semibold text-gray-700">File Name</th>
-                            <th class="py-2 px-4 border-b border-gray-200 bg-gray-100 text-left text-sm font-semibold text-gray-700">Uploaded At</th>
-                            <th class="py-2 px-4 border-b border-gray-200 bg-gray-100 text-left text-sm font-semibold text-gray-700">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {{-- @foreach ($files as $file)
-                        <tr>
-                            <td class="py-2 px-4 border-b border-gray-200 text-left">{{ $file->filename }}</td>
-                            <td class="py-2 px-4 border-b border-gray-200 text-left">{{ $file->created_at->format('Y-m-d H:i') }}</td>
-                            <td class="py-2 px-4 border-b border-gray-200 text-left">
-                                <a href="{{ route('files.download', $file->id) }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-3 rounded mr-2">Download</a>
-                                <form action="{{ route('files.delete', $file->id) }}" method="POST" class="inline">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-3 rounded" onclick="return confirm('Are you sure you want to delete this file?')">Delete</button>
-                                </form>
-                            </td>
-                        </tr>
-                        @endforeach --}}
-                    </tbody>
-                </table>
-            </div>
-          
-           
-        </div>
-
-    </section>
-    {{-- Footer --}}
        
 
 {{--     

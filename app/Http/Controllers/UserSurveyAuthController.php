@@ -35,6 +35,8 @@ class UserSurveyAuthController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect('/survey/index');
+        return redirect('/survey')->with('success', 'Logged out successfully');
     }
+
+   
 }
