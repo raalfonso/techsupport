@@ -20,7 +20,15 @@ class UserSurveyAuthController extends Controller
         if (Auth::guard('userSurvey')->attempt($credentials)) {
             $request->session()->regenerate();
 
-            return redirect()->route('survey.dashboard');
+            // this to check if th user first time login
+            $user = Auth::guard('userSurvey')->user();
+            if ($user->first_login) {
+                return redirect()->route('survey.changePasswordForm');
+            }
+            else {
+                return redirect()->route('survey.dashboard');
+            }
+           
         }
 
         return back()->withErrors([

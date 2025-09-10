@@ -247,6 +247,27 @@ class SurveyController extends Controller
             'userInfo' => $userInfo,
         ] );
     }
+    public function changePasswordForm()
+    {
+        return view('survey.formpassword');
+    }
+
+    public function changeFirstLogin(Request $request)
+    {   
+        // Validate the request
+         $request->validate([
+            'password' => 'required|min:3|confirmed',
+        ]);
+        $user = auth()->user();
+      
+        // Update the password
+        $user->password = Hash::make($request->password);
+        $user = auth()->user();
+        $user->first_login = false;
+        $user->save();
+
+        return redirect()->route('survey.dashboard')->with('success', 'Password changed successfully. Welcome to the survey dashboard!');
+    }
 
     public function changePassword(Request $request)
     {
