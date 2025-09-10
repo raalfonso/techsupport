@@ -178,15 +178,24 @@
         </div>
 
         {{-- Mobile Navigation (Hidden by default) --}}
-        <div id="mobile-menu" class="mt-5 hidden md:hidden bg-white pt-2 pb-3 space-y-1 sm:px-3">
+        <div id="mobile-menu" class="mt-20hidden md:hidden bg-white pt-2 pb-3 space-y-1 sm:px-3">
             {{-- Container for mobile menu links --}}
             <br><br><br>
-            <br>
-            <div class="container mx-auto mt-5"> 
-                <a href="#home-section" class="block text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-base font-medium">Home</a>
-                <a href="#about" class="block text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-base font-medium">About</a>
-                <a href="#projects" class="block text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-base font-medium">Project</a>
-                <a href="#contact" class="block text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-base font-medium">Report</a>
+            <br><br><br><br><br>
+            <div class="container mx-auto mt-10"> 
+                <a href="{{ route('survey.dashboard') }}" class="block text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-base font-medium">Home</a>
+                <a href="{{ route('survey.dashboard') }}" class="block text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-base font-medium">About</a>
+                <a href="{{ route('survey.dashboard') }}" class="block text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-base font-medium">Project</a>
+                <a href="{{ route('survey.dashboard') }}" class="block text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-base font-medium">Report</a>
+                <a href="{{ route('survey.account') }}" class="block text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-base font-medium">Account</a>
+              <!-- Logout -->
+                <form method="POST" action="{{ route('userSurvey.logout') }}">
+                    @csrf
+                    <button type="submit"
+                            class="block text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-base font-medium">
+                            Logout
+                    </button>
+                </form>
             </div>
         </div>
     </nav>

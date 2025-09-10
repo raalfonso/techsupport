@@ -178,15 +178,24 @@
         </div>
 
         {{-- Mobile Navigation (Hidden by default) --}}
-        <div id="mobile-menu" class="mt-5 hidden md:hidden bg-white pt-2 pb-3 space-y-1 sm:px-3">
+        <div id="mobile-menu" class="mt-20hidden md:hidden bg-white pt-2 pb-3 space-y-1 sm:px-3">
             {{-- Container for mobile menu links --}}
             <br><br><br>
-            <br>
-            <div class="container mx-auto mt-5"> 
-                <a href="#home-section" class="block text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-base font-medium">Home</a>
-                <a href="#about" class="block text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-base font-medium">About</a>
-                <a href="#projects" class="block text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-base font-medium">Project</a>
-                <a href="#contact" class="block text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-base font-medium">Report</a>
+            <br><br><br><br><br>
+            <div class="container mx-auto mt-10"> 
+                <a href="{{ route('survey.dashboard') }}" class="block text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-base font-medium">Home</a>
+                <a href="{{ route('survey.dashboard') }}" class="block text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-base font-medium">About</a>
+                <a href="{{ route('survey.dashboard') }}" class="block text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-base font-medium">Project</a>
+                <a href="{{ route('survey.dashboard') }}" class="block text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-base font-medium">Report</a>
+                <a href="{{ route('survey.dashboard') }}" class="block text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-base font-medium">Account</a>
+              <!-- Logout -->
+                <form method="POST" action="{{ route('userSurvey.logout') }}">
+                    @csrf
+                    <button type="submit"
+                            class="block text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-base font-medium">
+                            Logout
+                    </button>
+                </form>
             </div>
         </div>
     </nav>
@@ -210,9 +219,9 @@
         <p class="text-lg text-gray-600 mb-8">Account Details</p>
 
         {{-- User Information --}}
-        <img src="{{ asset('img/close-up-white-cat-with-blue-eyes-121224.jpg') }}" alt="User Avatar" class="w-32 h-32 mx-auto mb-4 rounded-full border-4 border-blue-500">
+        {{-- <img src="{{ asset('img/close-up-white-cat-with-blue-eyes-121224.jpg') }}" alt="User Avatar" class="w-32 h-32 mx-auto mb-4 rounded-full border-4 border-blue-500">
         <button class="bg-blue btn mx-auto max-w-40"><i class="material-icons align-middle">upload</i> Change Image</button>
-        <br>
+        <br> --}}
 
         <h2 class="text-2xl font-semibold text-gray-800 mb-2">{{ auth()->user()->name }}</h2>
         <p class="text-gray-600 mb-4"><strong>Email:</strong> {{ auth()->user()->email }}</p>
