@@ -108,8 +108,8 @@
 
     <section id="top" class="bg-blue-700 text-white py-20">
       <div class="max-w-6xl mx-auto px-6 text-center transition-all duration-700 opacity-0 translate-y-4" data-scroll>
-        <h1 class="text-4xl md:text-5xl font-bold mb-4">Welcome to the IT Division</h1>
-        <p class="text-lg md:text-xl mb-6">Empowering innovation, security, and digital transformation across the organization.</p>
+        <h1 class="text-4xl md:text-5xl font-bold mb-4">BCDA IT MISSION</h1>
+        <p class="text-lg md:text-xl mb-6">To empower BCDA by responding to its enterprise wide requirements by using appropriate technologies.</p>
         <a href="#services" class="inline-block bg-white text-blue-700 px-6 py-3 rounded-full font-semibold shadow transition hover:bg-blue-100">Explore Services</a>
       </div>
     </section>

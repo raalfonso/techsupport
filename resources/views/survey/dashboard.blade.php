@@ -257,7 +257,7 @@
     <section id="top" class="pb-5" style="background-color: #e6edfc">
       <div class="container mx-auto lg:max-w-screen-xl md:max-w-screen-md px-4 pt-5 transition-all duration-700 opacity-0 translate-y-4" data-scroll>
             {{-- this is for first graph --}}
-          
+     
           <div class="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-2 gap-6">
             <!-- Survey Scorecard -->
             <div class="bg-white shadow rounded-lg">
@@ -361,10 +361,12 @@
                               <span class="text-red-500 font-semibold">Inactive</span>
                           @endif
                       </td>
-                      <td class="py-4 px-6 text-sm">
-                          <a href="{{ route('survey.form', ['id' => $employee->id]) }}" class="text-blue-600 hover:underline">
-                              Edit
-                          </a>
+                      <td class="py-4 px-6 text-sm text-center">
+                          {{-- Edit Button --}}
+                          <a href="#" data-modal-target="edit-modal" data-modal-toggle="edit-modal"
+                            class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-lg shadow hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 transition">
+                                <i class="material-icons text-sm mr-2">edit</i> Edit
+                            </a>
                       </td>
                   </tr>
               @endforeach
@@ -416,88 +418,130 @@
                       </button>
                     </div>
                   </form>
-
               </div>
           </div>
       </div>
-    <footer class="bg-blue-800 text-white py-8">
-      <div class="max-w-6xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center text-sm">
-        <p class="mb-4 md:mb-0">&copy; {{ date('Y') }} IT Division - Bases Conversion and Development Authority</p>
-        <div class="flex gap-4">
-          <a href="#home-section" class="hover:underline">Home</a>
-          <a href="#about" class="hover:underline">About</a>
-          <a href="#services" class="hover:underline">Services</a>
-          <a href="#projects" class="hover:underline">Projects</a>
-          <a href="#contact" class="hover:underline">Report</a>
-        </div>
+    {{-- end of modal Registration --}}
+
+
+   {{-- -- this is for edit modal -- --}}
+        <div id="edit-modal" tabindex="-1" aria-hidden="true" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full ">
+          <div class="relative p-4 w-full max-w-md max-h-full">
+              <!-- Modal content -->
+              <div class="relative bg-white rounded-lg shadow-sm dark:bg-gray-700">
+                  <!-- Modal header -->
+                  <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600 border-gray-200">
+                      <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+                         <span class="text-blue-700 font-semibold">Edit Form</span>
+                      </h3>
+                      <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-toggle="edit-modal">
+                          <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+                          </svg>
+                          <span class="sr-only">Close modal</span>
+                      </button>
+                  </div>
+                  <!-- Modal body -->
+                  <form action="{{ route('survey.employee.store') }}" method="post" id="registration-form" class="p-4 md:p-5">
+                    @csrf
+                    <div class="grid gap-4 mb-4 grid-cols-2">
+                      <div class="col-span-2">
+                        <label for="email" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Name</label>
+                        <input type="text" name="name" id="name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Enter your email address" required>
+                      </div>
+                      <div class="col-span-2">
+                        <label for="email" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Email</label>
+                        <input type="text" name="email" id="email" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Enter your email address" required>
+                      </div>
+                      <input type="text" name="department_id" class="" value="{{ auth()->user()->department_id }}" hidden>
+
+                      <button type="submit" id="modal-action-button" class="col-span-2 bg-blue-700 text-white px-6 py-3 rounded-full font-semibold shadow transition hover:bg-blue-800">
+                        <span class="font-semibold">Submit</span>
+                      </button>
+                    </div>
+                  </form>
+              </div>
+          </div>
       </div>
-    </footer>
 
-    <script>
-        // JavaScript to toggle mobile menu
-        document.addEventListener('DOMContentLoaded', function () {
-            const mobileMenuButton = document.getElementById('mobile-menu-button');
-            const mobileMenu = document.getElementById('mobile-menu');
 
-            if (mobileMenuButton && mobileMenu) {
-                mobileMenuButton.addEventListener('click', function () {
-                    mobileMenu.classList.toggle('hidden');
-                });
-            }
-        });
+{{-- Footer --}}
+<footer class="bg-blue-800 text-white py-8">
+    <div class="max-w-6xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center text-sm">
+    <p class="mb-4 md:mb-0">&copy; {{ date('Y') }} IT Division - Bases Conversion and Development Authority</p>
+    <div class="flex gap-4">
+        <a href="#home-section" class="hover:underline">Home</a>
+        <a href="#about" class="hover:underline">About</a>
+        <a href="#services" class="hover:underline">Services</a>
+        <a href="#projects" class="hover:underline">Projects</a>
+        <a href="#contact" class="hover:underline">Report</a>
+    </div>
+    </div>
+</footer>
 
-        document.addEventListener("DOMContentLoaded", () => {
-        const elements = document.querySelectorAll('[data-scroll]');
 
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.remove('opacity-0', 'translate-y-4');
-                    entry.target.classList.add('opacity-100', 'translate-y-0');
-                    observer.unobserve(entry.target); // only animate once
-                }
+<script>
+    // JavaScript to toggle mobile menu
+    document.addEventListener('DOMContentLoaded', function () {
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+
+        if (mobileMenuButton && mobileMenu) {
+            mobileMenuButton.addEventListener('click', function () {
+                mobileMenu.classList.toggle('hidden');
             });
-        }, {
-            threshold: 0.1
-        });
+        }
+    });
 
-        elements.forEach(el => observer.observe(el));
-        });
+    document.addEventListener("DOMContentLoaded", () => {
+    const elements = document.querySelectorAll('[data-scroll]');
 
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function(e) {
-          e.preventDefault();
-          const target = document.querySelector(this.getAttribute('href'));
-          if (target) {
-            target.scrollIntoView({ behavior: 'smooth' });
-          }
-        });
-      });
-
-      // this is for modal request
-      document.addEventListener('DOMContentLoaded', function () {
-        const modalTitle = document.getElementById('modal-project-title');
-        const actionButton = document.getElementById('modal-action-button');
-        const main = document.getElementById('modal-project-main');
-
-        document.querySelectorAll('[data-modal-toggle="crud-modal"]').forEach(el => {
-          el.addEventListener('click', function () {
-            const title = this.getAttribute('data-project-title');
-            const mainData = this.getAttribute('data-project-main');
-            const projectButton = this.getAttribute('data-project-button') || 'Submit';
-            if (modalTitle) {
-              modalTitle.textContent = title;
-              actionButton.textContent = projectButton;
-              main.value = mainData;
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.remove('opacity-0', 'translate-y-4');
+                entry.target.classList.add('opacity-100', 'translate-y-0');
+                observer.unobserve(entry.target); // only animate once
             }
-          });
         });
-      });
+    }, {
+        threshold: 0.1
+    });
 
+    elements.forEach(el => observer.observe(el));
+    });
 
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function(e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+        target.scrollIntoView({ behavior: 'smooth' });
+        }
+    });
+    });
 
+    // this is for modal request
+    document.addEventListener('DOMContentLoaded', function () {
+    const modalTitle = document.getElementById('modal-project-title');
+    const actionButton = document.getElementById('modal-action-button');
+    const main = document.getElementById('modal-project-main');
 
+    document.querySelectorAll('[data-modal-toggle="crud-modal"]').forEach(el => {
+        el.addEventListener('click', function () {
+        const title = this.getAttribute('data-project-title');
+        const mainData = this.getAttribute('data-project-main');
+        const projectButton = this.getAttribute('data-project-button') || 'Submit';
+        if (modalTitle) {
+            modalTitle.textContent = title;
+            actionButton.textContent = projectButton;
+            main.value = mainData;
+        }
+        });
+    });
+    });
 
+    // this is for highchart
 Highcharts.chart('container', {
     chart: {
         type: 'column'
@@ -506,8 +550,18 @@ Highcharts.chart('container', {
         text: 'Degree of Competence & Accuracy of Service'
     },
     xAxis: {
+        //categories: @json(collect($superData)->pluck('employee_name')),
+        //crosshair: true
         categories: @json(collect($superData)->pluck('employee_name')),
-        crosshair: true
+        crosshair: true,
+        labels: {
+            rotation: -75,
+            style: {
+                fontSize: '13px',
+                fontFamily: 'Verdana, sans-serif'
+            },
+            step: 1, // Show every label
+        }
     },
     yAxis: {
         min: 0,
@@ -554,7 +608,15 @@ Highcharts.chart('container2', {
     },
     xAxis: {
         categories: @json(collect($superDataR)->pluck('employee_name')),
-        crosshair: true
+        crosshair: true,
+        labels: {
+            rotation: -75,
+            style: {
+                fontSize: '13px',
+                fontFamily: 'Verdana, sans-serif'
+            },
+            step: 1, // Show every label
+        }
     },
     yAxis: {
         min: 0,
