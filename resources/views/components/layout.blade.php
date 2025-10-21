@@ -52,6 +52,7 @@
                 <a href="{{ route('issues.index') }}" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">Issue</a>
                 <a href="{{ route('category.index') }}" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">Category</a>
                 <a href="{{ route('department.index') }}" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">Department</a>
+            
                 <a href="{{ route('profile') }}" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">Profile</a>
                 <form action="{{ route('logout') }}" method="post" class="inline">
                     @csrf

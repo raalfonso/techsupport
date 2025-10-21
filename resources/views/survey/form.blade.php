@@ -59,7 +59,7 @@
                     autocomplete="off"
                 >
                 <div class="absolute inset-y-0 right-0 flex items-center pr-3">
-                    <i class="fas fa-search text-gray-400 ml-5"></i>
+                    <i class="fas fa-caret-down text-gray-400 ml-5"></i>
                 </div>
                 <div id="suggestions-container" class="hidden absolute z-10 w-full mt-1 bg-white rounded-lg shadow-lg border border-gray-200 max-h-60 overflow-y-auto"></div>
 
@@ -209,7 +209,7 @@
         searchInput.addEventListener('input', debounce(async function(e) {
             const query = e.target.value.trim();
             
-            if (query.length < 2) {
+            if (query.length < 0) {
                 suggestionsContainer.classList.add('hidden');
                 return;
             }
@@ -217,7 +217,11 @@
             const results = await fetchEmployees(query);
             displaySuggestions(results);
         }, 300));
-        
+        // ✅ New: Show all employees when clicking the input
+            searchInput.addEventListener('focus', async function() {
+                const results = await fetchEmployees(''); // Empty query = show all
+                displaySuggestions(results);
+            });
         // Display suggestions
         function displaySuggestions(employees) {
             if (employees.length === 0) {
