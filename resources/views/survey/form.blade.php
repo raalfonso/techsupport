@@ -34,19 +34,6 @@
           </div>
 
         <input type="text" name="department_id" value="{{ $department->id }}" hidden>
-
-        {{-- <div class="flex items-center space-x-2">
-            <label for="survey_employees_id" class="text-md font-medium">Person(s) you transacted with:</label>
-            <select name="survey_employees_id"
-                class="border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                <option value="">--Select employee--</option>
-                @foreach ($employees as $employee)
-                    <option value="{{ $employee->id }}">{{ $employee->name }}</option>
-                @endforeach
-            </select>
-
-        </div> --}}
-
        
          <div class="flex items-center space-x-2">
             <label for="employee-search" class="text-md font-medium">Person(s) you transacted with:</label>

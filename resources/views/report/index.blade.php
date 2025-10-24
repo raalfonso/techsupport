@@ -24,19 +24,31 @@
                         @csrf
 
                         <!-- Requestor Name -->
-                        <div>
+                        {{-- <div>
                             <label for="client_id" class="block text-sm font-medium text-gray-700">Requestor Name</label>
                             <select name="client_id" id="client_id" class="input block w-full mt-1 border-gray-300 rounded-lg">
                                 <option value="">Select Name</option>
                                 @foreach($clients as $client)
                                     <option value="{{ $client->id }}">{{ $client->name }}</option>
-                                @endforeach
+                                @endforeach 
                             </select>
                             @error('client_id')
                                 <p class="text-red-500 text-sm mt-2">{{ $message }}</p>
                             @enderror
-                        </div>
+                        </div> --}}
+                        <div class="items-center space-x-2">
+                             <label for="client_id" class="block text-sm font-medium text-gray-700">Requestor Name</label>
+                                <div class="relative" id="client-search-container mr-2">
+                                <input type="text" id="client_id" class="w-full px-2 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-sm" 
+                                autocomplete="off"
+                                >
+                                <div class="absolute inset-y-0 right-0 flex items-center pr-3">
+                                    <i class="fas fa-caret-down text-gray-400 ml-5"></i>
+                                </div>
+                                <div id="suggestions-container" class="hidden absolute z-10 w-full mt-1 bg-white rounded-lg shadow-lg border border-gray-200 max-h-60 overflow-y-auto"></div>
 
+                            </div>
+                            </div>
                         <!-- Date Created -->
                         <div>
                             <label for="request_datetime" class="block text-sm font-medium text-gray-700">Requested Date Time</label>
@@ -423,7 +435,7 @@
        
         });
 
-
+       
     </script>
 
 
