@@ -68,6 +68,7 @@ Route::prefix('survey')->group(function () {
         Route::post('/change-password', [SurveyController::class, 'changePassword'])->name('survey.changePassword');
         Route::post('/chane-password-first-login', [SurveyController::class, 'changeFirstLogin'])->name('survey.changePasswordFirstLogin');
         Route::get('/changePasswordForm', [SurveyController::class, 'changePasswordForm'])->name('survey.changePasswordForm');
+        Route::post('/employee/edit', [SurveyEmployeeController::class, 'edit'])->name('survey.employee.edit');
     });
 
     // Public employee survey routes

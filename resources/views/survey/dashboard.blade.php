@@ -199,6 +199,7 @@
             </div>
         </div>
     </nav>
+    
 
     {{-- Hero Section --}}
     <section id="home-section" class="pb-5" style="background-color: #e6edfc">
@@ -363,7 +364,12 @@
                       </td>
                       <td class="py-4 px-6 text-sm text-center">
                           {{-- Edit Button --}}
-                          <a href="#" data-modal-target="edit-modal" data-modal-toggle="edit-modal"
+                          <a href="#" 
+                            data-modal-target="edit-modal" 
+                            data-modal-toggle="edit-modal"
+                            data-employee-id="{{ $employee->id }}"
+                            data-employee-name="{{ $employee->name }}"
+                            data-employee-email="{{ $employee->email }}"
                             class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-lg shadow hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 transition">
                                 <i class="material-icons text-sm mr-2">edit</i> Edit
                             </a>
@@ -442,16 +448,17 @@
                       </button>
                   </div>
                   <!-- Modal body -->
-                  <form action="{{ route('survey.employee.store') }}" method="post" id="registration-form" class="p-4 md:p-5">
+                  <form action="{{ route('survey.employee.edit') }}" method="post" id="registration-form" class="p-4 md:p-5">
                     @csrf
                     <div class="grid gap-4 mb-4 grid-cols-2">
+                      <input type="hidden" name="id" id="edit-id">
                       <div class="col-span-2">
-                        <label for="email" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Name</label>
-                        <input type="text" name="name" id="name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Enter your email address" required>
+                        <label for="edit-name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Name</label>
+                        <input type="text" name="name" id="edit-name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Enter name" required>
                       </div>
                       <div class="col-span-2">
-                        <label for="email" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Email</label>
-                        <input type="text" name="email" id="email" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Enter your email address" required>
+                        <label for="edit-email" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Email</label>
+                        <input type="text" name="email" id="edit-email" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Enter email address" required>
                       </div>
                       <input type="text" name="department_id" class="" value="{{ auth()->user()->department_id }}" hidden>
 
@@ -492,7 +499,24 @@
             });
         }
     });
+    
+    // Populate Edit Modal fields when Edit button is clicked
+    document.addEventListener('click', function (e) {
+        const trigger = e.target.closest('[data-modal-toggle="edit-modal"]');
+        if (!trigger) return;
+        const id = trigger.getAttribute('data-employee-id') || '';
+        const name = trigger.getAttribute('data-employee-name') || '';
+        const email = trigger.getAttribute('data-employee-email') || '';
 
+        const inputId = document.getElementById('edit-id');
+        const inputName = document.getElementById('edit-name');
+        const inputEmail = document.getElementById('edit-email');
+
+        if (inputId) inputId.value = id;
+        if (inputName) inputName.value = name;
+        if (inputEmail) inputEmail.value = email;
+    });
+ 
     document.addEventListener("DOMContentLoaded", () => {
     const elements = document.querySelectorAll('[data-scroll]');
 
@@ -653,6 +677,22 @@ Highcharts.chart('container2', {
 });
 </script>
 
+{{-- SweetAlert2 notification for success messages --}}
+@if(session('success'))
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'success',
+            title: @json(session('success')),
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true,
+        });
+    });
+</script>
+@endif
 
 </body>
 </html>
