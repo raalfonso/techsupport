@@ -9,6 +9,7 @@ use App\Models\Department;
 use App\Models\Issues;
 use App\Models\User;
 use App\Models\Clients;
+use App\Models\SurveyEmployees;
 use App\Exports\ReportsExport;
 use Maatwebsite\Excel\Facades\Excel;
 use Carbon\Carbon;
@@ -47,8 +48,16 @@ class ReportController extends Controller
             ->paginate(5);
         }
         
-        $clients = Clients::orderBy('name','asc')->get();
+        
 
+         $employees = SurveyEmployees::select('id', 'name')
+        ->get()
+        ->map(function($employee) {
+            return [
+                'id' => $employee->id,
+                'name' => $employee->name,
+            ];
+        });
      
 
 
@@ -67,7 +76,7 @@ class ReportController extends Controller
             'users' => $users,
             'resolved'  => $resolved,
             'countReport' => $countReport,
-            'clients' => $clients,
+            'employees' =>  $employees,
         ]);
     }
 
@@ -108,6 +117,9 @@ class ReportController extends Controller
      */
     public function store(Request $request)
     {
+
+        //  dd($request->all());
+        // exit;
         $fields = $request->validate([
             'client_id' => 'required',
             'department_id' => 'required',
@@ -118,7 +130,7 @@ class ReportController extends Controller
         // Convert request_datetime to proper format
         $fields['request_datetime'] = Carbon::parse($fields['request_datetime'])->format('Y-m-d H:i:s');
 
-        // dd($fields);
+       
     
         Report::create($fields);
      

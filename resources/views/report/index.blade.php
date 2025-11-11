@@ -38,17 +38,30 @@
                         </div> --}}
                         <div class="items-center space-x-2">
                              <label for="client_id" class="block text-sm font-medium text-gray-700">Requestor Name</label>
-                                <div class="relative" id="client-search-container mr-2">
-                                <input type="text" id="client_id" class="w-full px-2 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-sm" 
-                                autocomplete="off"
-                                >
-                                <div class="absolute inset-y-0 right-0 flex items-center pr-3">
-                                    <i class="fas fa-caret-down text-gray-400 ml-5"></i>
-                                </div>
-                                <div id="suggestions-container" class="hidden absolute z-10 w-full mt-1 bg-white rounded-lg shadow-lg border border-gray-200 max-h-60 overflow-y-auto"></div>
+                                <div class="relative" id="client-search-container" style="margin-left: -0.03%;">
+                                 <div class="relative" id="employee-search-container">
+                                    <input type="text" id="client_id" class="w-full p-2 border rounded-lg resize-y transition text-sm employee-search" autocomplete="off">
+                                    
+                                    <div class="absolute inset-y-0 right-0 flex items-center pr-3">
+                                        <i class="fas fa-caret-down text-gray-400 ml-5"></i>
+                                    </div>
+                                 </div>
+                                 <div class="hidden">
+                                     <input type="text" name="client_id" id="client_id_data" class="w-full p-2 border rounded-lg resize-y transition text-sm employee-search" autocomplete="off">
+                                 </div>
+                                <div id="suggestions-container" class="absolute z-10 w-full mt-1 bg-white rounded-lg shadow-lg border border-gray-200 max-h-60 overflow-y-auto">
+                                   
 
+                                </div>
+                                <div id="selected-employee" class="hidden">
+                                    <span id="selected-name" class="font-semibold"></span>
+                                    <button id="clear-selection" class="ml-2 text-blue-500 text-sm">Clear</button>
+                                    </div>
                             </div>
-                            </div>
+                        </div>
+
+
+                        
                         <!-- Date Created -->
                         <div>
                             <label for="request_datetime" class="block text-sm font-medium text-gray-700">Requested Date Time</label>
@@ -435,7 +448,114 @@
        
         });
 
-       
+    
+        document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('client_id');
+        const suggestionsContainer = document.getElementById('suggestions-container');
+        const selectedEmployee = document.getElementById('selected-employee');
+        const selectedName = document.getElementById('selected-name');
+        const employeeId = document.getElementById('client_id_data');
+        const clearButton = document.getElementById('clear-selection');
+         const employeeSearchContainer = document.getElementById('employee-search-container');
+              // Mock data - replace with actual data from your server
+        const employees = @json($employees);
+        
+        // console.log(employees);
+        
+        // Function to fetch employees (simulating AJAX call)
+        function fetchEmployees(query) {
+            return new Promise(resolve => {
+                setTimeout(() => {
+                    const results = employees.filter(employee => 
+                        employee.name.toLowerCase().includes(query.toLowerCase())
+                    );
+                    resolve(results);
+                }, 200);
+            });
+        }
+        
+        // Event listener for input
+        searchInput.addEventListener('input', debounce(async function(e) {
+            const query = e.target.value.trim();
+            
+            if (query.length < 0) {
+                suggestionsContainer.classList.add('hidden');
+                return;
+            }
+            
+            const results = await fetchEmployees(query);
+            displaySuggestions(results);
+        }, 300));
+        // ✅ New: Show all employees when clicking the input
+            searchInput.addEventListener('focus', async function() {
+                const results = await fetchEmployees(''); // Empty query = show all
+                displaySuggestions(results);
+            });
+        // Display suggestions
+        function displaySuggestions(employees) {
+            if (employees.length === 0) {
+                suggestionsContainer.innerHTML = '<div class="p-4 text-gray-500 text-sm">No employees found</div>';
+                suggestionsContainer.classList.remove('hidden');
+                return;
+            }
+            
+            suggestionsContainer.innerHTML = '';
+            employees.forEach(employee => {
+                const div = document.createElement('div');
+                div.className = 'p-3 border-b border-gray-100 hover:bg-blue-50 cursor-pointer transition';
+                div.innerHTML = `
+                    <div class="font-medium text-gray-800 text-sm">${employee.name}</div>
+                    
+                `;
+                div.addEventListener('click', () => {
+                    selectEmployee(employee);
+                });
+                suggestionsContainer.appendChild(div);
+            });
+            
+            suggestionsContainer.classList.remove('hidden');
+        }
+        
+        // Select an employee
+        function selectEmployee(employee) {
+            selectedName.textContent = employee.name;
+            employeeId.value = employee.id;
+            selectedEmployee.classList.remove('hidden');
+            searchInput.value = '';
+            suggestionsContainer.classList.add('hidden');
+            employeeSearchContainer.classList.add('hidden');
+        }
+        
+        // Clear selection
+        clearButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            selectedEmployee.classList.add('hidden');
+            employeeSearchContainer.classList.remove('hidden');
+            employeeId.value = '';
+            searchInput.value = '';
+            searchInput.focus();
+        });
+        
+        // Close suggestions when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!searchInput.contains(e.target) && !suggestionsContainer.contains(e.target)) {
+                suggestionsContainer.classList.add('hidden');
+            }
+        });
+        
+        // Debounce function to limit API calls
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+    });
     </script>
 
 
