@@ -68,4 +68,22 @@ class QrCodeController extends Controller
         ]);
     }
 
+    public function show()
+    {
+        // Just show the form
+        return view('qr.show');
+    }
+
+    public function generateshow(Request $request)
+    {
+        $request->validate([
+            'url' => 'required|url',
+        ]);
+
+        $websiteUrl = $request->input('url');
+        $qrCode = QrCode::size(400)->generate($websiteUrl);
+
+        return view('qr.show', compact('qrCode', 'websiteUrl'));
+    }
+
 }

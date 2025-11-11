@@ -82,6 +82,8 @@ Route::prefix('survey')->group(function () {
     Route::view('/', 'survey.index')->name('survey.index');
     Route::get('/qrcode/{departmentCode}', [QrCodeController::class, 'generate'])->name('qrcode');
     Route::view('/thankyou', 'survey.thankyou')->name('survey.thankyou');   
+    
+
 });
 
 /*
@@ -121,6 +123,7 @@ Route::middleware('guest')->group(function () {
    
     Route::get('/vcard', [QrCodeController::class, 'vcardform'])->name('vcard');
     Route::post('/generate-qrcode', [QrCodeController::class, 'generateVCard'])->name('generate.qr');
-   
+    Route::get('/qrcode', [QRCodeController::class, 'show'])->name('qr.show');
+    Route::post('/qrcode/generateshow', [QRCodeController::class, 'generateshow'])->name('qr.generateshow');
 
 });
