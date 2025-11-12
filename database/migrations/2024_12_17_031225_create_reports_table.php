@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('reports', function (Blueprint $table) {
             $table->id();
             $table->string('ticket_number')->nullable();
-            $table->unsignedBigInteger('client_id');
+            $table->unsignedBigInteger('survey_employees_id');
             $table->unsignedBigInteger('department_id');
             $table->string('location')->nullable();
             $table->unsignedBigInteger('issues_id');

@@ -40,6 +40,15 @@ return new class extends Migration
             $table->foreign('user_survey_id')->references('id')->on('user_survey')->onDelete('cascade');
         });
 
+        Schema::table('reports', function (Blueprint $table) {
+            $table->foreign('survey_employees_id') // Define the foreign key
+                  ->references('id') 
+                  ->on('survey_employees')
+                  ->onDelete('cascade');
+            
+        });
+
+
     }
 
     /**

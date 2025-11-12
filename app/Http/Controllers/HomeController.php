@@ -10,6 +10,7 @@ use App\Models\Department;
 use App\Models\Issues;
 use App\Models\User;
 use App\Models\Clients;
+use App\Models\SurveyEmployees;
 use Carbon\Carbon;
 
 class HomeController extends Controller
@@ -60,8 +61,8 @@ class HomeController extends Controller
             return redirect()->route('home.index')->with('error', 'Session expired or missing.');
         }
 
-        $client = Clients::where('email_address', $email)->first();
-        $reports = Report::where('client_id', $client->id)
+        $client = SurveyEmployees::where('email_address', $email)->first();
+        $reports = Report::where('survey_employees_id', $client->id)
             ->orderBy('id', 'desc')
             ->get();
 
@@ -81,7 +82,7 @@ class HomeController extends Controller
        
 
 
-        $client = Clients::where('email_address', $fields['email'])->first();
+        $client = SurveyEmployees::where('email_address', $fields['email'])->first();
         if ($client) {
             if ($fields['main'] == 0) {
                
@@ -90,11 +91,11 @@ class HomeController extends Controller
                
             }
             else {
-                // Redirect to the add form with client_id and main
+                // Redirect to the add form with survey_employees_id and main
                 $id = $fields['main'];
                 return redirect()->route('home.add', [
                     'id' => $id,
-                    'client_id' => $client->id
+                    'survey_employees_id' => $client->id
                 ]);
             }
             
@@ -102,12 +103,12 @@ class HomeController extends Controller
         } 
     }
    
-    public function add($id,$client_id){
+    public function add($id,$survey_employees_id){
         $categories = Category::orderBy('title', 'asc')->get();
         $departments = Department::orderBy('title', 'asc')->get();
         $issues = Issues::where('mains_id', $id)->get();
-        $client = Clients::where('id',$client_id)->first();
-        $user_department = Report::select('department_id')->where('client_id', $client_id)->orderBy('id','desc')->first();
+        $client = SurveyEmployees::where('id',$survey_employees_id)->first();
+        $user_department = Report::select('department_id')->where('survey_employees_id', $survey_employees_id)->orderBy('id','desc')->first();
         return view('home.form', [
             'categories' => $categories,
             'departments' => $departments,
@@ -129,8 +130,8 @@ class HomeController extends Controller
 
     public function view($id){
       
-        $client = Clients::where('id', $id)->first();
-        $reports = Report::where('client_id', $client->id)
+        $client = SurveyEmployees::where('id', $id)->first();
+        $reports = Report::where('survey_employees_id', $client->id)
         ->orderBy('id', 'desc')
         ->get();
       
@@ -165,7 +166,7 @@ class HomeController extends Controller
     public function saveData(Request $request){
         
         $fields = $request->validate([
-            'client_id' => 'required',
+            'survey_employees_id' => 'required',
             'department_id' => 'required',
             'issues_id' => 'required',
             'location'  => 'required',
@@ -176,7 +177,7 @@ class HomeController extends Controller
         $reports = Report::create($fields);
         
         //Redirect
-        return redirect()->route('home.view', ['id' => $fields['client_id']]);
+        return redirect()->route('home.view', ['id' => $fields['survey_employees_id']]);
        
     }
 

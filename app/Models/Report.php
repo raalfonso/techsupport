@@ -13,7 +13,7 @@ class Report extends Model
 
     protected $fillable = [
         'ticket_number',
-        'client_id',
+        'survey_employees_id',
         'department_id',
         'location',
         'issues_id',
@@ -90,7 +90,7 @@ class Report extends Model
 
     public function client()
     {
-        return $this->belongsTo(Clients::class, 'client_id', 'id');
+        return $this->belongsTo(SurveyEmployees::class, 'survey_employees_id', 'id');
     }
 
 

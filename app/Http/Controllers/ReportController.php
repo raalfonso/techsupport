@@ -121,7 +121,7 @@ class ReportController extends Controller
         //  dd($request->all());
         // exit;
         $fields = $request->validate([
-            'client_id' => 'required',
+            'survey_employees_id' => 'required',
             'department_id' => 'required',
             'issues_id' => 'required',
             'request_datetime' => 'required',

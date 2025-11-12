@@ -25,29 +25,29 @@
 
                         <!-- Requestor Name -->
                         {{-- <div>
-                            <label for="client_id" class="block text-sm font-medium text-gray-700">Requestor Name</label>
-                            <select name="client_id" id="client_id" class="input block w-full mt-1 border-gray-300 rounded-lg">
+                            <label for="survey_employees_id" class="block text-sm font-medium text-gray-700">Requestor Name</label>
+                            <select name="survey_employees_id" id="survey_employees_id" class="input block w-full mt-1 border-gray-300 rounded-lg">
                                 <option value="">Select Name</option>
                                 @foreach($clients as $client)
                                     <option value="{{ $client->id }}">{{ $client->name }}</option>
                                 @endforeach 
                             </select>
-                            @error('client_id')
+                            @error('survey_employees_id')
                                 <p class="text-red-500 text-sm mt-2">{{ $message }}</p>
                             @enderror
                         </div> --}}
                         <div class="items-center space-x-2">
-                             <label for="client_id" class="block text-sm font-medium text-gray-700">Requestor Name</label>
+                             <label for="survey_employees_id" class="block text-sm font-medium text-gray-700">Requestor Name</label>
                                 <div class="relative" id="client-search-container" style="margin-left: -0.03%;">
                                  <div class="relative" id="employee-search-container">
-                                    <input type="text" id="client_id" class="w-full p-2 border rounded-lg resize-y transition text-sm employee-search" autocomplete="off">
+                                    <input type="text" id="survey_employees_id" class="w-full p-2 border rounded-lg resize-y transition text-sm employee-search" autocomplete="off">
                                     
                                     <div class="absolute inset-y-0 right-0 flex items-center pr-3">
                                         <i class="fas fa-caret-down text-gray-400 ml-5"></i>
                                     </div>
                                  </div>
                                  <div class="hidden">
-                                     <input type="text" name="client_id" id="client_id_data" class="w-full p-2 border rounded-lg resize-y transition text-sm employee-search" autocomplete="off">
+                                     <input type="text" name="survey_employees_id" id="survey_employees_id_data" class="w-full p-2 border rounded-lg resize-y transition text-sm employee-search" autocomplete="off">
                                  </div>
                                 <div id="suggestions-container" class="absolute z-10 w-full mt-1 bg-white rounded-lg shadow-lg border border-gray-200 max-h-60 overflow-y-auto">
                                    
@@ -450,11 +450,11 @@
 
     
         document.addEventListener('DOMContentLoaded', function() {
-        const searchInput = document.getElementById('client_id');
+        const searchInput = document.getElementById('survey_employees_id');
         const suggestionsContainer = document.getElementById('suggestions-container');
         const selectedEmployee = document.getElementById('selected-employee');
         const selectedName = document.getElementById('selected-name');
-        const employeeId = document.getElementById('client_id_data');
+        const employeeId = document.getElementById('survey_employees_id_data');
         const clearButton = document.getElementById('clear-selection');
          const employeeSearchContainer = document.getElementById('employee-search-container');
               // Mock data - replace with actual data from your server
