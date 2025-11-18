@@ -61,7 +61,7 @@ class HomeController extends Controller
             return redirect()->route('home.index')->with('error', 'Session expired or missing.');
         }
 
-        $client = SurveyEmployees::where('email_address', $email)->first();
+        $client = SurveyEmployees::where('email', $email)->first();
         $reports = Report::where('survey_employees_id', $client->id)
             ->orderBy('id', 'desc')
             ->get();
@@ -82,7 +82,7 @@ class HomeController extends Controller
        
 
 
-        $client = SurveyEmployees::where('email_address', $fields['email'])->first();
+        $client = SurveyEmployees::where('email', $fields['email'])->first();
         if ($client) {
             if ($fields['main'] == 0) {
                
@@ -98,8 +98,6 @@ class HomeController extends Controller
                     'survey_employees_id' => $client->id
                 ]);
             }
-            
-            
         } 
     }
    

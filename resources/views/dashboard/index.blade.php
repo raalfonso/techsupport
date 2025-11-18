@@ -126,7 +126,19 @@
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
+$(document).ready(function() {
+   
+      if (Highcharts.charts[0]) {
+        Highcharts.charts[0].destroy();
+      }
+        const isDark = document.documentElement.classList.contains('dark');
+        const titleColor = isDark ? '#fff' : '#000';
+        const labelColor = isDark ? '#fff' : '#000';
+        const legendColor = isDark ? '#fff' : '#000';
+      renderChart(titleColor,labelColor,legendColor);
 
+  
+});
 $('.theme-toggle').click(function(){
     if (Highcharts.charts[0]) {
       Highcharts.charts[0].destroy();
@@ -235,35 +247,34 @@ function renderChart(titleColor,labelColor,legendColor) {
             }]
         });
 
-console.log(@json($recurringIssues));
+// console.log(@json($recurringIssues));
 // 3rd recurring issues
-Highcharts.chart('container-recurring', {
-    chart: {
-        type: 'bar',
-        backgroundColor: 'transparent'
-    },
-    title: {
-        text: 'Recurring Issues (3+ Occurrences)',
-        style: { color: titleColor }
-    },
-    xAxis: {
-        type: 'category',
-        labels: { style: { color: titleColor } }
-    },
-    yAxis: {
-        title: {
-            text: 'Occurrences',
-            style: { color: titleColor }
-        },
-        labels: { style: { color: titleColor } }
-    },
-    series: [{
-        name: 'Issues',
-        colorByPoint: true,
-        color: '#344fd9',
-        data: @json($recurringIssues)
-    }]
-});
+       Highcharts.chart('container-recurring', {
+            chart: {
+                type: 'bar',
+                backgroundColor: 'transparent'
+            },
+            title: {
+                text: 'Recurring Issues (3+ Occurrences)',
+                style: { color: titleColor }
+            },
+            xAxis: {
+                type: 'category',
+                labels: { style: { color: titleColor } }
+            },
+            yAxis: {
+                title: {
+                    text: 'Occurrences',
+                    style: { color: titleColor }
+                },
+                labels: { style: { color: titleColor } }
+            },
+            series: [{
+                name: 'Issues',
+                color: '#344fd9', // This will work now
+                data: @json($recurringIssues)
+            }]
+        });
 
 
 
@@ -331,19 +342,7 @@ Highcharts.chart('container-recurring', {
         });
 }
 
-$(document).ready(function() {
-   
-      if (Highcharts.charts[0]) {
-        Highcharts.charts[0].destroy();
-      }
-        const isDark = document.documentElement.classList.contains('dark');
-        const titleColor = isDark ? '#fff' : '#000';
-        const labelColor = isDark ? '#fff' : '#000';
-        const legendColor = isDark ? '#fff' : '#000';
-      renderChart(titleColor,labelColor,legendColor);
 
-  
-});
         
 
     

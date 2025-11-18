@@ -52,6 +52,7 @@ class DashboardController extends Controller
                 return [];
             });
 
+            
 
             $labels = array_keys($formattedResults->toArray());
             $values = array_values($data);
@@ -163,27 +164,36 @@ class DashboardController extends Controller
         $reports_pending = Report::where('status', 'Pending')->count();
         $reports_ongoing = Report::where('status', 'Ongoing')->count();
 
-        $months = collect(range(1, 12))->mapWithKeys(fn($month) => [$month => 0]);
+        // 1–12 months in correct order
+            $months = collect([
+                    1 => 0, 2 => 0, 3 => 0, 4 => 0, 5 => 0, 6 => 0,
+                    7 => 0, 8 => 0, 9 => 0, 10 => 0, 11 => 0, 12 => 0
+                ]);
 
-        $data = DB::table('reports')
-            ->selectRaw('MONTH(request_datetime) as month, COUNT(*) as total')
-            ->where('status','!=','Void')
-            ->groupByRaw('MONTH(request_datetime)')
-            ->pluck('total', 'month')
-            ->toArray();
+                $data = DB::table('reports')
+                    ->selectRaw('MONTH(request_datetime) as month, COUNT(*) as total')
+                    ->where('status','!=','Void')
+                    ->groupByRaw('MONTH(request_datetime)')
+                    ->pluck('total', 'month');  // Example: [9 => 37, 10 => 4, 11 => 2]
 
-        $results = $months->merge($data);
+                // Overwrite only the months that exist in the DB result
+                $filled = $months->map(function ($default, $month) use ($data) {
+                    return $data[$month] ?? 0;
+                });
 
-        $formattedResults = $results->mapWithKeys(function ($count, $month) {
-            if ($month >= 1 && $month <= 12) {
-                return [Carbon::createFromFormat('!m', $month)->format('F') => $count];
-            }
-            return [];
-        });
+                // Convert numeric months → Month Names
+                $final = $filled->mapWithKeys(function ($value, $month) {
+                    return [Carbon::create()->month($month)->format('F') => $value];
+                });
+
+                print_r($final->toArray());
 
 
-        $labels = array_keys($formattedResults->toArray());
-        $values = array_values($data);
+
+
+
+        $labels = array_keys($final->toArray());
+        $values = array_values($final->toArray());
 
         //department showdown
         $department_data = DB::table('reports')
@@ -264,7 +274,7 @@ class DashboardController extends Controller
         ->map(fn($data) => [
         'name' => $data->title,
         'y' => (int) $data->data,
-        'color' => '#14B8A6',
+        'color' => '#344fd9',
         ])->values();
 
                
