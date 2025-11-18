@@ -50,12 +50,13 @@ class ReportController extends Controller
         
         
 
-         $employees = SurveyEmployees::select('id', 'name')
+         $employees = SurveyEmployees::select('id', 'name','department_id')
         ->get()
         ->map(function($employee) {
             return [
                 'id' => $employee->id,
                 'name' => $employee->name,
+                'department_id' => $employee->department_id,
             ];
         });
      

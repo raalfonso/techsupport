@@ -22,20 +22,6 @@
                     </div>
                     <form action="{{ route('report.store') }}" method="post" class="space-y-4">
                         @csrf
-
-                        <!-- Requestor Name -->
-                        {{-- <div>
-                            <label for="survey_employees_id" class="block text-sm font-medium text-gray-700">Requestor Name</label>
-                            <select name="survey_employees_id" id="survey_employees_id" class="input block w-full mt-1 border-gray-300 rounded-lg">
-                                <option value="">Select Name</option>
-                                @foreach($clients as $client)
-                                    <option value="{{ $client->id }}">{{ $client->name }}</option>
-                                @endforeach 
-                            </select>
-                            @error('survey_employees_id')
-                                <p class="text-red-500 text-sm mt-2">{{ $message }}</p>
-                            @enderror
-                        </div> --}}
                         <div class="items-center space-x-2">
                              <label for="survey_employees_id" class="block text-sm font-medium text-gray-700">Requestor Name</label>
                                 <div class="relative" id="client-search-container" style="margin-left: -0.03%;">
@@ -57,7 +43,7 @@
                                     <span id="selected-name" class="font-semibold"></span>
                                     <button id="clear-selection" class="ml-2 text-blue-500 text-sm">Clear</button>
                                     </div>
-                            </div>
+                                </div>
                         </div>
 
 
@@ -108,9 +94,10 @@
 
                         <!-- Submit Button -->
                         <div class="flex justify-end">
-                            <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                            <button type="submit" onclick="this.disabled=true;this.form.submit();" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
                                 Create
                             </button>
+                     
                         </div>
                     </form>
                 </div>
@@ -456,8 +443,9 @@
         const selectedName = document.getElementById('selected-name');
         const employeeId = document.getElementById('survey_employees_id_data');
         const clearButton = document.getElementById('clear-selection');
-         const employeeSearchContainer = document.getElementById('employee-search-container');
-              // Mock data - replace with actual data from your server
+        const employeeSearchContainer = document.getElementById('employee-search-container');
+        const departmentSelect = document.getElementById('department_id'); 
+
         const employees = @json($employees);
         
         // console.log(employees);
@@ -518,8 +506,10 @@
         
         // Select an employee
         function selectEmployee(employee) {
+            console.log(employee);
             selectedName.textContent = employee.name;
             employeeId.value = employee.id;
+            department_id.value = employee.department_id;
             selectedEmployee.classList.remove('hidden');
             searchInput.value = '';
             suggestionsContainer.classList.add('hidden');
