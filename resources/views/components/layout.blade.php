@@ -47,16 +47,43 @@
             @auth
             <div class="hidden md:flex space-x-4">
                 
-                <a href="{{ route('dashboard') }}" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">Dashboard</a>
-                <a href="{{ route('report.index') }}" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">Report</a>
-                <a href="{{ route('issues.index') }}" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">Issue</a>
-                <a href="{{ route('category.index') }}" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">Category</a>
-                <a href="{{ route('department.index') }}" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">Department</a>
-            
-                <a href="{{ route('profile') }}" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">Profile</a>
+                <a href="{{ route('dashboard') }}" class="flex items-center gap-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ease-in-out"> 
+                    <i class="material-icons text-lg">dashboard</i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="{{ route('report.index') }}" class="flex items-center gap-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ease-in-out">
+                    <i class="material-icons text-lg">article</i>
+                    <span>Report</span>
+                </a>
+                <a href="{{ route('issues.index') }}" class="flex items-center gap-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ease-in-out">
+                    <i class="material-icons text-lg">report</i>
+                    <span>Issues</span>
+                </a>
+                <a href="{{ route('category.index') }}" class="flex items-center gap-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ease-in-out">
+                    <i class="material-icons text-lg">category</i>
+                    <span>Category</span>
+                </a>
+                <a href="{{ route('department.index') }}" class="flex items-center gap-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ease-in-out">
+                    <i class="material-icons text-lg">account_tree</i>
+                    <span>Department</span>
+                </a>
+          
+                <a href="{{ route('users.index') }}" class="flex items-center gap-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ease-in-out">
+                    <i class="material-icons text-lg">settings</i>
+                    <span>User Management</span>
+                </a>
+               
+                <a href="{{ route('profile') }}" class="flex items-center gap-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ease-in-out">
+                    <i class="material-icons text-lg">account_circle</i>
+                    <span>Profile</span>
+                </a>
                 <form action="{{ route('logout') }}" method="post" class="inline">
-                    @csrf
-                    <button class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">Logout</button>
+                    @csrf 
+                    <button class="flex items-center gap-2 text-gray-600 hover:text-red-600 hover:bg-red-50 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ease-in-out">
+                        <span><?=auth()->user()->role;?></span>
+                        <i class="material-icons text-lg">logout</i>
+                        <span>Logout</span>
+                    </button>
                 </form>
             </div>
 

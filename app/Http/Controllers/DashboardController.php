@@ -27,10 +27,6 @@ class DashboardController extends Controller
                 ->where('response_by', $user_id)
                 ->count();
 
-
-
-
-
             $reports_pending = Report::where('status', 'Pending')->count();
             $reports_ongoing = Report::where('status', 'Ongoing')->where('response_by',$user_id)->count();
 
@@ -165,32 +161,26 @@ class DashboardController extends Controller
         $reports_ongoing = Report::where('status', 'Ongoing')->count();
 
         // 1–12 months in correct order
-            $months = collect([
-                    1 => 0, 2 => 0, 3 => 0, 4 => 0, 5 => 0, 6 => 0,
-                    7 => 0, 8 => 0, 9 => 0, 10 => 0, 11 => 0, 12 => 0
-                ]);
+        $months = collect([
+                1 => 0, 2 => 0, 3 => 0, 4 => 0, 5 => 0, 6 => 0,
+                7 => 0, 8 => 0, 9 => 0, 10 => 0, 11 => 0, 12 => 0
+            ]);
 
-                $data = DB::table('reports')
-                    ->selectRaw('MONTH(request_datetime) as month, COUNT(*) as total')
-                    ->where('status','!=','Void')
-                    ->groupByRaw('MONTH(request_datetime)')
-                    ->pluck('total', 'month');  // Example: [9 => 37, 10 => 4, 11 => 2]
+            $data = DB::table('reports')
+                ->selectRaw('MONTH(request_datetime) as month, COUNT(*) as total')
+                ->where('status','!=','Void')
+                ->groupByRaw('MONTH(request_datetime)')
+                ->pluck('total', 'month');  // Example: [9 => 37, 10 => 4, 11 => 2]
 
-                // Overwrite only the months that exist in the DB result
-                $filled = $months->map(function ($default, $month) use ($data) {
-                    return $data[$month] ?? 0;
-                });
+            // Overwrite only the months that exist in the DB result
+            $filled = $months->map(function ($default, $month) use ($data) {
+                return $data[$month] ?? 0;
+            });
 
-                // Convert numeric months → Month Names
-                $final = $filled->mapWithKeys(function ($value, $month) {
-                    return [Carbon::create()->month($month)->format('F') => $value];
-                });
-
-                print_r($final->toArray());
-
-
-
-
+            // Convert numeric months → Month Names
+            $final = $filled->mapWithKeys(function ($value, $month) {
+                return [Carbon::create()->month($month)->format('F') => $value];
+            });
 
         $labels = array_keys($final->toArray());
         $values = array_values($final->toArray());
