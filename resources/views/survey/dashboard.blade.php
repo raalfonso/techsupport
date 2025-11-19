@@ -202,77 +202,81 @@
     
 
     {{-- Hero Section --}}
-    <section id="home-section" class="pb-5" style="background-color: #e6edfc">
-        <div class="container mx-auto lg:max-w-screen-xl md:max-w-screen-md px-4 pt-20 transition-all duration-700 opacity-0 translate-y-4" data-scroll>
-            {{-- this is for first graph --}}
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-5">
-            <!-- Survey Scorecard -->
-            <div class="bg-white shadow rounded-lg p-6 flex items-center justify-between">
-                <div>
-                    <p class="text-md text-gray-600 font-semibold">Total Surveys Submitted</p>
-                    <p class="text-3xl font-bold text-green-600">{{$total}}</p>
+    <section id="home-section" class="pb-8" style="background-color: #e6edfc">
+        <div class="container mx-auto lg:max-w-screen-xl md:max-w-screen-md px-6 pt-24 transition-all duration-700 opacity-0 translate-y-4" data-scroll>
+            <h2 class="text-2xl font-bold text-gray-800 mb-8">Survey Dashboard Overview</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                <!-- Total Surveys Card -->
+                <div class="bg-white shadow-lg rounded-xl p-6 transform transition duration-300 hover:scale-105">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-lg text-gray-600 font-semibold mb-2">Total Surveys</p>
+                            <p class="text-4xl font-bold text-blue-600">{{$total}}</p>
+                        </div>
+                        <div class="bg-blue-100 p-4 rounded-full">
+                            <i class="material-icons text-blue-600 text-[40px]">assignment</i>
+                        </div>
+                    </div>
                 </div>
-                <div class="text-green-500">
-                    <!-- Optional icon -->
-                     <i class="material-icons align-middle text-[60px]">assignment</i>
-                </div>
-            </div>
-             <!-- Survey Scorecard -->
-            <div class="bg-white shadow rounded-lg p-6 flex items-center justify-between">
-                <div>
-                    <p class="text-md text-gray-600 font-semibold">Super Like</p>
-                    <p class="text-3xl font-bold text-green-600">{{$percentageSuperLike}}%</p>
-                </div>
-                <div class="text-green-500">
-                    <!-- Optional icon -->
-                    <i class="material-icons align-middle text-[60px]">sentiment_very_satisfied</i>
-                    
-                </div>
-            </div>
-             <!-- Survey Scorecard -->
-            <div class="bg-white shadow rounded-lg p-6 flex items-center justify-between">
-                <div>
-                    <p class="text-md text-gray-600 font-semibold">Like</p>
-                    <p class="text-3xl font-bold text-green-600">{{$percentageLike}}%</p>
-                </div>
-                <div class="text-blue-500">
-                    <!-- Optional icon -->
-                    <i class="material-icons align-middle text-[60px]">sentiment_satisfied</i>
-                </div>
-            </div>
-             <!-- Survey Scorecard -->
-            <div class="bg-white shadow rounded-lg p-6 flex items-center justify-between">
-                <div>
-                    <p class="text-md text-gray-600 font-semibold">Dislike</p>
-                    <p class="text-3xl font-bold text-green-600">{{$percentageDislike}}%</p>
-                </div>
-                <div class="text-red-500">
-                  <i class="material-icons align-middle text-[60px]">sentiment_neutral</i>
-                </div>
-            </div>
-          </div>
 
+                <!-- Super Like Card -->
+                <div class="bg-white shadow-lg rounded-xl p-6 transform transition duration-300 hover:scale-105">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-lg text-gray-600 font-semibold mb-2">Super Like</p>
+                            <p class="text-4xl font-bold text-emerald-600">{{$percentageSuperLike}}%</p>
+                        </div>
+                        <div class="bg-emerald-100 p-4 rounded-full">
+                            <i class="material-icons text-emerald-600 text-[40px]">sentiment_very_satisfied</i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Like Card -->
+                <div class="bg-white shadow-lg rounded-xl p-6 transform transition duration-300 hover:scale-105">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-lg text-gray-600 font-semibold mb-2">Like</p>
+                            <p class="text-4xl font-bold text-indigo-600">{{$percentageLike}}%</p>
+                        </div>
+                        <div class="bg-indigo-100 p-4 rounded-full">
+                            <i class="material-icons text-indigo-600 text-[40px]">sentiment_satisfied</i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dislike Card -->
+                <div class="bg-white shadow-lg rounded-xl p-6 transform transition duration-300 hover:scale-105">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-lg text-gray-600 font-semibold mb-2">Dislike</p>
+                            <p class="text-4xl font-bold text-rose-600">{{$percentageDislike}}%</p>
+                        </div>
+                        <div class="bg-rose-100 p-4 rounded-full">
+                            <i class="material-icons text-rose-600 text-[40px]">sentiment_neutral</i>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </section>
 
-    <section id="top" class="pb-5" style="background-color: #e6edfc">
-      <div class="container mx-auto lg:max-w-screen-xl md:max-w-screen-md px-4 pt-5 transition-all duration-700 opacity-0 translate-y-4" data-scroll>
-            {{-- this is for first graph --}}
-     
-          <div class="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-2 gap-6">
-            <!-- Survey Scorecard -->
-            <div class="bg-white shadow rounded-lg">
+    <section id="top" class="pb-8" style="background-color: #e6edfc">
+      <div class="container mx-auto lg:max-w-screen-xl md:max-w-screen-md px-6 pt-8 transition-all duration-700 opacity-0 translate-y-4" data-scroll>
+            {{-- Charts Section --}}
+          <div class="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Survey Accuracy Chart -->
+            <div class="bg-white shadow-lg rounded-xl p-6 hover:shadow-xl transition duration-300">
                  <figure class="highcharts-figure">
-                  <div id="container"></div>
+                  <div id="container" class="min-h-[400px]"></div>
                 </figure>
             </div>
-             <!-- Survey Scorecard -->
-            <div class="bg-white shadow rounded-lg">
+             <!-- Survey Response Time Chart -->
+            <div class="bg-white shadow-lg rounded-xl p-6 hover:shadow-xl transition duration-300">
                  <figure class="highcharts-figure">
-                  <div id="container2"></div>
+                  <div id="container2" class="min-h-[400px]"></div>
                 </figure>
             </div>
-            
           </div>
 
         </div>
@@ -281,112 +285,173 @@
 
     <section id="about" class="py-16" style="background-color: #e6edfc">
       <div class="container mx-auto lg:max-w-screen-xl md:max-w-screen-md px-4 transition-all duration-700 opacity-0 translate-y-4" data-scroll>
-        <h1 class="text-4xl font-bold mb-4">Surveys Result</h1>
+        <h1 class="text-4xl font-bold mb-8 text-gray-800">Survey Results</h1>
 
-        <table class="min-w-full bg-white shadow-lg rounded-lg overflow-scroll mt-5">
-            <thead>
-              <tr class="bg-white-800 text-blue-800">
-                <th class="py-3 px-6 text-left text-md font-medium">Date Submitted</th>
-                <th class="py-3 px-6 text-left text-md font-medium">Employee's Name</th>
-                <th class="py-3 px-6 text-left text-md font-medium">Degree of Competence & Accuracy of Service</th>
-                <th class="py-3 px-6 text-left text-md font-medium">Degree of Responsiveness/Timeliness</th>
-                <th class="py-3 px-6 text-left text-md font-medium">Comment</th>
-                <th class="py-3 px-6 text-left text-md font-medium">Client Name</th>
-              </tr>
-            </thead>
-            <tbody>
-              @foreach($surveys as $survey)
-                  <tr class="border-b hover:bg-gray-50 text-gray-600 font-semibold">
-                      <td class="py-4 px-6 text-sm">{{ $survey->created_at->format('F j, Y') }}</td>
-                      <td class="py-4 px-6 text-sm">{{ $survey->surveyEmployee->name }}</td>
-                      <td class="py-4 px-6 text-sm">
-                          @if ($survey->accuracy_of_service == 2)
-                              <span class="text-green-500 font-semibold">Super Like</span>
-                          @elseif ($survey->accuracy_of_service == 1)
-                              <span class="text-blue-500 font-semibold">Like</span>
-                          @else
-                              <span class="text-red-500 font-semibold">Dislike</span>
-                          @endif
-                      </td>
-                      <td class="py-4 px-6 text-sm">
-                          @if ($survey->response_time == 2)
-                              <span class="text-green-500 font-semibold">Super Like</span>
-                          @elseif ($survey->response_time == 1)
-                              <span class="text-blue-500 font-semibold">Like</span>
-                          @else
-                              <span class="text-red-500 font-semibold">Dislike</span>
-                          @endif
-                      </td>
-                      <td class="py-4 px-6 text-sm">{{ $survey->comments }}</td>
-                      <td class="py-4 px-6 text-sm">{{ $survey->client_name }}</td>
+        <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead>
+                  <tr class="bg-gray-50">
+                    <th class="py-4 px-6 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Date Submitted</th>
+                    <th class="py-4 px-6 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Employee's Name</th>
+                    <th class="py-4 px-6 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Competence & Accuracy</th>
+                    <th class="py-4 px-6 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Responsiveness</th>
+                    <th class="py-4 px-6 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Comment</th>
+                    <th class="py-4 px-6 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Client Name</th>
                   </tr>
-              @endforeach
-          </tbody>
-        </table>
-        <div class="mt-4">
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                  @foreach($surveys as $survey)
+                      <tr class="hover:bg-gray-50 transition duration-150">
+                          <td class="py-4 px-6 text-sm text-gray-600">{{ $survey->created_at->format('F j, Y') }}</td>
+                          <td class="py-4 px-6 text-sm text-gray-600 font-medium">{{ $survey->surveyEmployee->name }}</td>
+                          <td class="py-4 px-6">
+                              @if ($survey->accuracy_of_service == 2)
+                                  <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                                    <svg class="w-4 h-4 mr-1.5" fill="currentColor" viewBox="0 0 20 20">
+                                      <path d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"/>
+                                    </svg>
+                                    Super Like
+                                  </span>
+                              @elseif ($survey->accuracy_of_service == 1)
+                                  <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                                    <svg class="w-4 h-4 mr-1.5" fill="currentColor" viewBox="0 0 20 20">
+                                      <path d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v3.586L7.707 9.293a1 1 0 00-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 10.586V7z"/>
+                                    </svg>
+                                    Like
+                                  </span>
+                              @else
+                                  <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
+                                    <svg class="w-4 h-4 mr-1.5" fill="currentColor" viewBox="0 0 20 20">
+                                      <path d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"/>
+                                    </svg>
+                                    Dislike
+                                  </span>
+                              @endif
+                          </td>
+                          <td class="py-4 px-6">
+                              @if ($survey->response_time == 2)
+                                  <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                                    <svg class="w-4 h-4 mr-1.5" fill="currentColor" viewBox="0 0 20 20">
+                                      <path d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"/>
+                                    </svg>
+                                    Super Like
+                                  </span>
+                              @elseif ($survey->response_time == 1)
+                                  <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                                    <svg class="w-4 h-4 mr-1.5" fill="currentColor" viewBox="0 0 20 20">
+                                      <path d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v3.586L7.707 9.293a1 1 0 00-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 10.586V7z"/>
+                                    </svg>
+                                    Like
+                                  </span>
+                              @else
+                                  <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
+                                    <svg class="w-4 h-4 mr-1.5" fill="currentColor" viewBox="0 0 20 20">
+                                      <path d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"/>
+                                    </svg>
+                                    Dislike
+                                  </span>
+                              @endif
+                          </td>
+                          <td class="py-4 px-6 text-sm text-gray-600">{{ $survey->comments }}</td>
+                          <td class="py-4 px-6 text-sm text-gray-600">{{ $survey->client_name }}</td>
+                      </tr>
+                  @endforeach
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="mt-6">
             {{ $surveys->links('pagination::tailwind') }}
         </div>
       </div>
     </section>
 
-    {{-- this is for employee registration --}}
-
-    <section id="contact" class="py-10" style="background-color: #e6edfc">
+    <section id="contact" class="py-16" style="background-color: #e6edfc">
       <div class="container mx-auto lg:max-w-screen-xl md:max-w-screen-md px-4 transition-all duration-700 opacity-0 translate-y-4" data-scroll>
-        <h2 class="text-3xl font-bold text-left mb-5">Register Employee</h2>
-        <h3 class="text-xl font-normal text-left mb-12"></h3>
-        <a href="#" data-modal-target="crud-modal" data-modal-toggle="crud-modal" class="inline-block bg-blue-700 text-white px-6 py-3 rounded-full font-semibold shadow transition hover:bg-blue-800">Add Employee</a>
-         <table class="min-w-full bg-white shadow-md rounded-lg overflow-hidden mt-5">
-            <thead>
-              <tr class="bg-blue-700 text-white">
-                <th class="py-3 px-6 text-left text-sm font-medium">Name</th>
-                <th class="py-3 px-6 text-left text-sm font-medium">Email</th>
-                <th class="py-3 px-6 text-left text-sm font-medium">Department</th>
-                <th class="py-3 px-6 text-left text-sm font-medium">Status</th>
-                <th class="py-3 px-6 text-left text-sm font-medium">Action</th>
-              </tr>
-              
-            </thead>
-            <tbody>
-              @foreach($employees as $employee)
-                  <tr class="border-b hover:bg-gray-50">
-                      <td class="py-4 px-6 text-sm">{{ $employee->name }}</td>
-                      <td class="py-4 px-6 text-sm">{{ $employee->email }}</td>
-                      <td class="py-4 px-6 text-sm">{{ $employee->department->title }}</td>
-                      <td class="py-4 px-6 text-sm">
-                          @if ($employee->status === 'active')
-                              <span class="text-white bg-green-500 w-8 p-2 font-semibold rounded-full text-center leading-8">
-                                  Active
-                              </span>
-                          @else
-                              <span class="text-red-500 font-semibold">Inactive</span>
-                          @endif
-                      </td>
-                      <td class="py-4 px-6 text-sm text-center">
-                          {{-- Edit Button --}}
-                          <a href="#" 
-                            data-modal-target="edit-modal" 
-                            data-modal-toggle="edit-modal"
-                            data-employee-id="{{ $employee->id }}"
-                            data-employee-name="{{ $employee->name }}"
-                            data-employee-email="{{ $employee->email }}"
-                            class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-lg shadow hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 transition">
-                                <i class="material-icons text-sm mr-2">edit</i> Edit
-                            </a>
-                      </td>
-                  </tr>
-              @endforeach
-          </tbody>
-          </table>
-
-          {{-- Pagination Links --}}
-          <div class="mt-4">
-          {{ $employees->links('pagination::tailwind') }}
+        <div class="flex justify-between items-center mb-8">
+          <div>
+            <h2 class="text-3xl font-bold text-gray-800">Employee Management</h2>
+            <p class="mt-2 text-gray-600">Add and manage employee information</p>
           </div>
-        
+          <a href="#" 
+             data-modal-target="crud-modal" 
+             data-modal-toggle="crud-modal" 
+             class="inline-flex items-center px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 transition duration-150 ease-in-out">
+             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+             </svg>
+             Add Employee
+          </a>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead>
+                  <tr class="bg-gray-50">
+                    <th class="py-4 px-6 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Name</th>
+                    <th class="py-4 px-6 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Email</th>
+                    <th class="py-4 px-6 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Department</th>
+                    <th class="py-4 px-6 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Status</th>
+                    <th class="py-4 px-6 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider">Actions</th>
+                  </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                  @foreach($employees as $employee)
+                      <tr class="hover:bg-gray-50 transition duration-150">
+                          <td class="py-4 px-6">
+                            <div class="flex items-center">
+                              <div class="h-10 w-10 flex-shrink-0 bg-gray-100 rounded-full flex items-center justify-center">
+                                <span class="text-xl font-medium text-gray-600">{{ substr($employee->name, 0, 1) }}</span>
+                              </div>
+                              <div class="ml-4">
+                                <div class="text-sm font-medium text-gray-900">{{ $employee->name }}</div>
+                              </div>
+                            </div>
+                          </td>
+                          <td class="py-4 px-6 text-sm text-gray-600">{{ $employee->email }}</td>
+                          <td class="py-4 px-6 text-sm text-gray-600">{{ $employee->department->title }}</td>
+                          <td class="py-4 px-6">
+                              @if ($employee->status === 'active')
+                                  <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                                    <svg class="w-4 h-4 mr-1.5" fill="currentColor" viewBox="0 0 20 20">
+                                      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                    </svg>
+                                    Active
+                                  </span>
+                              @else
+                                  <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
+                                    <svg class="w-4 h-4 mr-1.5" fill="currentColor" viewBox="0 0 20 20">
+                                      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                                    </svg>
+                                    Inactive
+                                  </span>
+                              @endif
+                          </td>
+                          <td class="py-4 px-6 text-center">
+                              <a href="#" 
+                                data-modal-target="edit-modal" 
+                                data-modal-toggle="edit-modal"
+                                data-employee-id="{{ $employee->id }}"
+                                data-employee-name="{{ $employee->name }}"
+                                data-employee-email="{{ $employee->email }}"
+                                class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg shadow hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition duration-150 ease-in-out">
+                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                    </svg>
+                                    Edit
+                                </a>
+                          </td>
+                      </tr>
+                  @endforeach
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
     </section>
-
     {{-- this is for modal  --}}
     <!-- Main modal -->
       <div id="crud-modal" tabindex="-1" aria-hidden="true" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full ">
@@ -470,19 +535,20 @@
               </div>
           </div>
       </div>
+    
 
 
 {{-- Footer --}}
-<footer class="bg-blue-800 text-white py-8">
+<footer class="bg-blue-800 text-white py-8 bottom-0 w-full">
     <div class="max-w-6xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center text-sm">
-    <p class="mb-4 md:mb-0">&copy; {{ date('Y') }} IT Division - Bases Conversion and Development Authority</p>
-    <div class="flex gap-4">
-        <a href="#home-section" class="hover:underline">Home</a>
-        <a href="#about" class="hover:underline">About</a>
-        <a href="#services" class="hover:underline">Services</a>
-        <a href="#projects" class="hover:underline">Projects</a>
-        <a href="#contact" class="hover:underline">Report</a>
-    </div>
+        <p class="mb-4 md:mb-0">© {{ date('Y') }} IT Division - Bases Conversion and Development Authority</p>
+        <div class="flex gap-4">
+            <a href="#home-section" class="hover:underline">Home</a>
+            <a href="#about" class="hover:underline">About</a>
+            <a href="#services" class="hover:underline">Services</a>
+            <a href="#projects" class="hover:underline">Projects</a>
+            <a href="#contact" class="hover:underline">Report</a>
+        </div>
     </div>
 </footer>
 
