@@ -70,7 +70,7 @@ class Report extends Model
 
     public function resolve()
     {
-        return $this->belongsTo(resolve::class, 'id', 'report_id');
+        return $this->belongsTo(Resolve::class, 'id', 'report_id');
     }
 
     public function response()
