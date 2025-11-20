@@ -24,12 +24,16 @@ class UserController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
+            'level' => 'required|string|max:2',
+            'team' => 'required|string|max:50',
             'password' => 'required|string|min:8|confirmed',
         ]);
 
         User::create([
             'name' => $validated['name'],
             'email' => $validated['email'],
+            'level' => $validated['level'],
+            'team' => $validated['team'],
             'password' => Hash::make($validated['password']),
         ]);
 

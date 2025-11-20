@@ -30,29 +30,42 @@
                                    name="email" 
                                    value="{{ old('email') }}" 
                                    required>
-                        </div>
+                        </div> 
 
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700" for="password">
-                                Password
-                            </label>
-                            <input class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm transition duration-150 ease-in-out" 
-                                   id="password" 
-                                   type="password" 
-                                   name="password" 
-                                   required>
-                        </div>
+                        <div class="mb-4">
+                <label for="level">Level</label>
+                <input type="text" name="level" class="input" value="{{ old('level')}}">
+                @error('level')
+                    <p class="error">{{ $message }}</p>
+                @enderror
+            </div>
 
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700" for="password_confirmation">
-                                Confirm Password
-                            </label>
-                            <input class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm transition duration-150 ease-in-out" 
-                                   id="password_confirmation" 
-                                   type="password" 
-                                   name="password_confirmation" 
-                                   required>
-                        </div>
+            <div class="mb-4">
+                <label for="team">Team</label>
+                <select name="team" id="team" class="input">
+                    <option value="">Select team</option>
+                    <option value="Systems">Systems</option>
+                    <option value="NIS">NIS</option>
+                    <option value="Admin">Admin</option>
+                </select>
+                @error('issues_id')
+                <p class="error">{{ $message }}</p>
+            @enderror
+            </div>
+
+            <div class="mb-4">
+                <label for="password">Password</label>
+                <input type="password" name="password" class="input">
+                @error('password')
+                    <p class="error">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <div class="mb-4">
+                <label for="password_confirmation">Confirm Password</label>
+                <input type="password" name="password_confirmation" class="input">
+                
+            </div>
 
                         <div class="flex items-center justify-end space-x-4 mt-8">
                             <a href="{{ route('users.index') }}" 
