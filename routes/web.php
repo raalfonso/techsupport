@@ -69,6 +69,7 @@ Route::prefix('survey')->group(function () {
     // Authenticated employee routes
     Route::middleware('auth:userSurvey')->group(function () {
         Route::get('/dashboard', [SurveyController::class, 'index'])->name('survey.dashboard');
+        Route::get('/dashboard/filter', [SurveyController::class, 'filter'])->name('survey.dashboard.filter');
         Route::post('/user-survey/logout', [UserSurveyAuthController::class, 'logout'])->name('userSurvey.logout');
         Route::post('/survey/register', [SurveyEmployeeController::class, 'store'])->name('survey.employee.store');
         Route::get('/management',[SurveyController::class, 'management'])->name('survey.management');
@@ -78,6 +79,8 @@ Route::prefix('survey')->group(function () {
         Route::post('/chane-password-first-login', [SurveyController::class, 'changeFirstLogin'])->name('survey.changePasswordFirstLogin');
         Route::get('/changePasswordForm', [SurveyController::class, 'changePasswordForm'])->name('survey.changePasswordForm');
         Route::post('/employee/edit', [SurveyEmployeeController::class, 'edit'])->name('survey.employee.edit');
+        Route::get('/export-results', [SurveyController::class, 'exportResults'])->name('survey.exportResults');
+        
     });
 
     // Public employee survey routes

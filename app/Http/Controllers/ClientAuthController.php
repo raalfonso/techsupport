@@ -20,14 +20,14 @@ class ClientAuthController extends Controller
         ]);
 
         $credentials = $request->only('email_address');
-        $client = \App\Models\Clients::where('email_address', $request->email_address)->first();
+        $client = \App\Models\Clients::where('email_address', '=', $request->email_address)->first();
         
       
         if ($client && $client->active) {
             // Auth::guard('client')->login($client); // Use 'client' guard here
             // return redirect()->route('home.index',['client'=>$client]);
 
-            $reports = Report::where('client_id',$client->id)->get();
+            $reports = Report::where('client_id', '=', $client->id)->get();
             $feedback = "False";
             $id="";
             foreach($reports as $report){

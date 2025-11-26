@@ -102,7 +102,6 @@
                <img src="{{ asset('img/itd_logo.png') }}" alt="ITD Logo" class="h-24 w-auto p-0 rounded">
                 BCDA ICT PORTAL {{-- Changed from MyBrand to match context --}}
             </div>
-
             {{-- Desktop Navigation --}}
                 <div class="hidden md:flex space-x-4 float-right items-center">
                     {{-- Navigation links --}}
@@ -110,30 +109,25 @@
                         <i class="material-icons align-middle">dashboard</i>
                         Dashboard
                     </a>
-
                     <a href="#about" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
                         <i class="material-icons align-middle">assignment</i>
                         Survey Result
                     </a>
-
                     <a href="{{ route('qrcode', ['departmentCode' => auth()->user()->department_id]) }}"
                     class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium" target="_blank">
                         <i class="material-icons align-middle">qr_code</i>
                         QR Code
                     </a>
-
                     <a href="#contact" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
                         <i class="material-icons align-middle">people</i>
                         Employee Registration
                     </a>
-
                     @if (auth()->user()->role === 'superadmin')
                         <a href="{{ route('survey.management') }}" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
                             <i class="material-icons align-middle">settings</i>
                             User Management
                         </a>
                     @endif
-
                     {{-- User dropdown --}}
                     <div x-data="{ open: false }" class="relative">
                         <!-- Username button -->
@@ -205,13 +199,64 @@
     <section id="home-section" class="pb-8" style="background-color: #e6edfc">
         <div class="container mx-auto lg:max-w-screen-xl md:max-w-screen-md px-6 pt-24 transition-all duration-700 opacity-0 translate-y-4" data-scroll>
             <h2 class="text-2xl font-bold text-gray-800 mb-8">Survey Dashboard Overview</h2>
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            <!-- Add this date range filter form after the Survey Dashboard Overview heading -->
+        <div class="mb-8">
+            <div class="flex flex-wrap gap-3 items-end">
+                <div class="flex-1 min-w-[200px]">
+                    <label for="start_date" class="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
+                    <input type="date" 
+                            id="start_date" 
+                            name="start_date" 
+                            value="{{ request('start_date') }}"
+                            class="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                </div>
+
+                <div class="flex-1 min-w-[200px]">
+                    <label for="end_date" class="block text-sm font-medium text-gray-700 mb-1">End Date</label>
+                    <input type="date" 
+                            id="end_date" 
+                            name="end_date"
+                            value="{{ request('end_date') }}" 
+                            class="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                </div>
+                <div class="flex gap-3">
+                    <a href="#/" 
+                       onclick="filterResults()"
+                       class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg shadow hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                        </svg>
+                        Filter
+                    </a>
+
+                    <a href="{{ route('survey.dashboard') }}" 
+                        class="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg shadow hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                        </svg>
+                        Reset
+                    </a>
+
+                    <button id="export-result-btn"
+                        class="export-result-btn inline-flex items-center px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg shadow hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                        </svg>                        
+                        Export
+                    </button>
+            </div>
+        </div>
+
+
+            {{-- this is for range filter --}}
+        
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mt-5">
                 <!-- Total Surveys Card -->
                 <div class="bg-white shadow-lg rounded-xl p-6 transform transition duration-300 hover:scale-105">
                     <div class="flex items-center justify-between">
                         <div>
                             <p class="text-lg text-gray-600 font-semibold mb-2">Total Surveys</p>
-                            <p class="text-4xl font-bold text-blue-600">{{$total}}</p>
+                            <p class="text-4xl font-bold text-blue-600 total-survey">{{$total}}</p>
                         </div>
                         <div class="bg-blue-100 p-4 rounded-full">
                             <i class="material-icons text-blue-600 text-[40px]">assignment</i>
@@ -224,7 +269,7 @@
                     <div class="flex items-center justify-between">
                         <div>
                             <p class="text-lg text-gray-600 font-semibold mb-2">Super Like</p>
-                            <p class="text-4xl font-bold text-emerald-600">{{$percentageSuperLike}}%</p>
+                            <p class="text-4xl font-bold text-emerald-600 super-survey">{{$percentageSuperLike}}%</p>
                         </div>
                         <div class="bg-emerald-100 p-4 rounded-full">
                             <i class="material-icons text-emerald-600 text-[40px]">sentiment_very_satisfied</i>
@@ -237,7 +282,7 @@
                     <div class="flex items-center justify-between">
                         <div>
                             <p class="text-lg text-gray-600 font-semibold mb-2">Like</p>
-                            <p class="text-4xl font-bold text-indigo-600">{{$percentageLike}}%</p>
+                            <p class="text-4xl font-bold text-indigo-600 like-survey">{{$percentageLike}}%</p>
                         </div>
                         <div class="bg-indigo-100 p-4 rounded-full">
                             <i class="material-icons text-indigo-600 text-[40px]">sentiment_satisfied</i>
@@ -250,7 +295,7 @@
                     <div class="flex items-center justify-between">
                         <div>
                             <p class="text-lg text-gray-600 font-semibold mb-2">Dislike</p>
-                            <p class="text-4xl font-bold text-rose-600">{{$percentageDislike}}%</p>
+                            <p class="text-4xl font-bold text-rose-600 dislike-survey">{{$percentageDislike}}%</p>
                         </div>
                         <div class="bg-rose-100 p-4 rounded-full">
                             <i class="material-icons text-rose-600 text-[40px]">sentiment_neutral</i>
@@ -632,115 +677,318 @@
     });
 
     // this is for highchart
-Highcharts.chart('container', {
-    chart: {
-        type: 'column'
-    },
-    title: {
-        text: 'Degree of Competence & Accuracy of Service'
-    },
-    xAxis: {
-        //categories: @json(collect($superData)->pluck('employee_name')),
-        //crosshair: true
-        categories: @json(collect($superData)->pluck('employee_name')),
-        crosshair: true,
-        labels: {
-            rotation: -75,
-            style: {
-                fontSize: '13px',
-                fontFamily: 'Verdana, sans-serif'
-            },
-            step: 1, // Show every label
-        }
-    },
-    yAxis: {
-        min: 0,
+    Highcharts.chart('container', {
+        chart: {
+            type: 'column'
+        },
         title: {
-            text: 'Total Responses'
-        }
-    },
-    tooltip: {
-        valueSuffix: ' responses'
-    },
-    plotOptions: {
-        column: {
-            pointPadding: 0.2,
-            borderWidth: 0
-        }
-    },
-    series: [
-        {
-            name: 'Super Like',
-            data: @json(collect($superData)->pluck('super_like')),
-            color: 'rgb(34, 197, 94)' // Tailwind CSS green-500
+            text: 'Degree of Competence & Accuracy of Service'
         },
-        {
-            name: 'Like',
-            data: @json(collect($superData)->pluck('like')),
-            color: 'rgb(59, 130, 246)' // Tailwind CSS blue-500
+        xAxis: {
+            //categories: @json(collect($superData)->pluck('employee_name')),
+            //crosshair: true
+            categories: @json(collect($superData)->pluck('employee_name')),
+            crosshair: true,
+            labels: {
+                rotation: -75,
+                style: {
+                    fontSize: '13px',
+                    fontFamily: 'Verdana, sans-serif'
+                },
+                step: 1, // Show every label
+            }
         },
-        {
-            name: 'Dislike',
-            data: @json(collect($superData)->pluck('dislike')),
-            color: 'rgb(239, 68, 68)' // Tailwind CSS red-500
-        }
-    ]
-});
-
-
-
-Highcharts.chart('container2', {
-    chart: {
-        type: 'column'
-    },
-    title: {
-        text: 'Degree of Responsiveness and Timeliness'
-    },
-    xAxis: {
-        categories: @json(collect($superDataR)->pluck('employee_name')),
-        crosshair: true,
-        labels: {
-            rotation: -75,
-            style: {
-                fontSize: '13px',
-                fontFamily: 'Verdana, sans-serif'
+        yAxis: {
+            min: 0,
+            title: {
+                text: 'Total Responses'
+            }
+        },
+        tooltip: {
+            valueSuffix: ' responses'
+        },
+        plotOptions: {
+            column: {
+                pointPadding: 0.2,
+                borderWidth: 0
+            }
+        },
+        series: [
+            {
+                name: 'Super Like',
+                data: @json(collect($superData)->pluck('super_like')),
+                color: 'rgb(34, 197, 94)' // Tailwind CSS green-500
             },
-            step: 1, // Show every label
-        }
-    },
-    yAxis: {
-        min: 0,
+            {
+                name: 'Like',
+                data: @json(collect($superData)->pluck('like')),
+                color: 'rgb(59, 130, 246)' // Tailwind CSS blue-500
+            },
+            {
+                name: 'Dislike',
+                data: @json(collect($superData)->pluck('dislike')),
+                color: 'rgb(239, 68, 68)' // Tailwind CSS red-500
+            }
+        ]
+    });
+
+
+
+    Highcharts.chart('container2', {
+        chart: {
+            type: 'column'
+        },
         title: {
-            text: 'Total Responses'
-        }
-    },
-    tooltip: {
-        valueSuffix: ' responses'
-    },
-    plotOptions: {
-        column: {
-            pointPadding: 0.2,
-            borderWidth: 0
-        }
-    },
-    series: [
-         {
-            name: 'Super Like',
-            data: @json(collect($superDataR)->pluck('super_like')),
-            color: 'rgb(34, 197, 94)' // Tailwind CSS green-500
+            text: 'Degree of Responsiveness and Timeliness'
         },
-        {
-            name: 'Like',
-            data: @json(collect($superDataR)->pluck('like')),
-            color: 'rgb(59, 130, 246)' // Tailwind CSS blue-500
+        xAxis: {
+            categories: @json(collect($superDataR)->pluck('employee_name')),
+            crosshair: true,
+            labels: {
+                rotation: -75,
+                style: {
+                    fontSize: '13px',
+                    fontFamily: 'Verdana, sans-serif'
+                },
+                step: 1, // Show every label
+            }
         },
-        {
-            name: 'Dislike',
-            data: @json(collect($superDataR)->pluck('dislike')),
-            color: 'rgb(239, 68, 68)' // Tailwind CSS red-500
+        yAxis: {
+            min: 0,
+            title: {
+                text: 'Total Responses'
+            }
+        },
+        tooltip: {
+            valueSuffix: ' responses'
+        },
+        plotOptions: {
+            column: {
+                pointPadding: 0.2,
+                borderWidth: 0
+            }
+        },
+        series: [
+            {
+                name: 'Super Like',
+                data: @json(collect($superDataR)->pluck('super_like')),
+                color: 'rgb(34, 197, 94)' // Tailwind CSS green-500
+            },
+            {
+                name: 'Like',
+                data: @json(collect($superDataR)->pluck('like')),
+                color: 'rgb(59, 130, 246)' // Tailwind CSS blue-500
+            },
+            {
+                name: 'Dislike',
+                data: @json(collect($superDataR)->pluck('dislike')),
+                color: 'rgb(239, 68, 68)' // Tailwind CSS red-500
+            }
+        ]
+    });
+
+
+
+    function filterResults() {
+
+        const startDate = document.getElementById('start_date').value;
+        const endDate = document.getElementById('end_date').value;
+        console.log(startDate, endDate);
+        // Validate dates
+        if (!startDate || !endDate) {
+            Swal.fire({
+                toast: true,
+                position: 'top-end', 
+                icon: 'warning',
+                title: 'Please select both start and end dates',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true
+            });
+            return;
         }
-    ]
-});
+       else if (startDate > endDate) {
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'error', 
+                title: 'Start date cannot be later than end date',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true
+            });
+            return;
+        }
+
+        else {
+            $.ajax({
+                url: '{{ route("survey.dashboard.filter") }}',
+                method: 'GET',
+                data: {
+                    start_date: startDate,
+                    end_date: endDate
+                },
+                success: function(response) {
+                    // Handle successful response
+                    // console.log(response.superDataR);
+                    $('.total-survey').html(response.total);
+                    $('.super-survey').html(response.percentageSuperLike);
+                    $('.like-survey').html(response.percentageLike);
+                    $('.dislike-survey').html(response.percentageDislike);
+
+
+
+
+                    //////////////////////////////////////////////////////////////////////
+                    // this is for highchart
+                        Highcharts.chart('container', {
+                            chart: {
+                                type: 'column'
+                            },
+                            title: {
+                                text: 'Degree of Competence & Accuracy of Service'
+                            },
+                            xAxis: {
+                                //categories: @json(collect($superData)->pluck('employee_name')),
+                                //crosshair: true
+                                categories: response.superData.map(item => item.employee_name),
+                                crosshair: true,
+                                labels: {
+                                    rotation: -75,
+                                    style: {
+                                        fontSize: '13px',
+                                        fontFamily: 'Verdana, sans-serif'
+                                    },
+                                    step: 1, // Show every label
+                                }
+                            },
+                            yAxis: {
+                                min: 0,
+                                title: {
+                                    text: 'Total Responses'
+                                }
+                            },
+                            tooltip: {
+                                valueSuffix: ' responses'
+                            },
+                            plotOptions: {
+                                column: {
+                                    pointPadding: 0.2,
+                                    borderWidth: 0
+                                }
+                            },
+                            series: [
+                                {
+                                    name: 'Super Like',
+                                    data: response.superData.map(item => item.super_like),
+                                    color: 'rgb(34, 197, 94)' // Tailwind CSS green-500
+                                },
+                                {
+                                    name: 'Like',
+                                    data: response.superData.map(item => item.like),
+                                    color: 'rgb(59, 130, 246)' // Tailwind CSS blue-500
+                                },
+                                {
+                                    name: 'Dislike',
+                                    data: response.superData.map(item => item.dislike),
+                                    color: 'rgb(239, 68, 68)' // Tailwind CSS red-500
+                                }
+                            ]
+                        });
+
+                        Highcharts.chart('container2', {
+                            chart: {
+                                type: 'column'
+                            },
+                            title: {
+                                text: 'Degree of Responsiveness and Timeliness'
+                            },
+                            xAxis: {
+                                categories: response.superDataR.map(item => item.employee_name),
+                                crosshair: true,
+                                labels: {
+                                    rotation: -75,
+                                    style: {
+                                        fontSize: '13px',
+                                        fontFamily: 'Verdana, sans-serif'
+                                    },
+                                    step: 1, // Show every label
+                                }
+                            },
+                            yAxis: {
+                                min: 0,
+                                title: {
+                                    text: 'Total Responses'
+                                }
+                            },
+                            tooltip: {
+                                valueSuffix: ' responses'
+                            },
+                            plotOptions: {
+                                column: {
+                                    pointPadding: 0.2,
+                                    borderWidth: 0
+                                }
+                            },
+                            series: [
+                                {
+                                    name: 'Super Like',
+                                    data: response.superDataR.map(item => item.super_like),
+                                    color: 'rgb(34, 197, 94)' // Tailwind CSS green-500
+                                },
+                                {
+                                    name: 'Like',
+                                    data: response.superDataR.map(item => item.like),
+                                    color: 'rgb(59, 130, 246)' // Tailwind CSS blue-500
+                                },
+                                {
+                                    name: 'Dislike',
+                                    data: response.superDataR.map(item => item.dislike),
+                                    color: 'rgb(239, 68, 68)' // Tailwind CSS red-500
+                                }
+                            ]
+                        });
+                },
+                error: function(xhr, status, error) {
+                    // Handle error
+                    console.error('Error fetching filtered data:', error);
+                }
+            });
+
+
+            
+        }
+
+
+
+        
+    }
+
+    $('#export-result-btn').click(function() {
+        const startDate = document.getElementById('start_date').value;
+        const endDate = document.getElementById('end_date').value;
+
+        if (startDate > endDate) {
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'error', 
+                title: 'Start date cannot be later than end date',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true
+            });
+            return;
+        }
+        else{
+            let url = '{{ route("survey.exportResults") }}';
+            if (startDate && endDate) {
+                url += `?start_date=${startDate}&end_date=${endDate}`;
+            }
+           window.open(url, "_blank");
+        }
+    });
+
 </script>
 
 {{-- SweetAlert2 notification for success messages --}}

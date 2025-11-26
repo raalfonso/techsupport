@@ -48,16 +48,16 @@ class QrCodeController extends Controller
         // Create vCard content
         $vCard = "BEGIN:VCARD\n";
         $vCard .= "VERSION:3.0\n";
-        $vCard .= "FN:{$fullName}\n";
+        $vCard .= "FN:" . e($fullName) . "\n";
         $vCard .= "ORG:Bases Conversion and Development Authority\n";
         if ($designation) {
-            $vCard .= "TITLE:{$designation}\n";
+            $vCard .= "TITLE:" . e($designation) . "\n";
         }
         if ($email) {
-            $vCard .= "EMAIL;TYPE=INTERNET:{$email}\n";
+            $vCard .= "EMAIL;TYPE=INTERNET:" . e($email) . "\n";
         }
         if ($telephone) {
-            $vCard .= "TEL;TYPE=WORK,VOICE:{$telephone}\n";
+            $vCard .= "TEL;TYPE=WORK,VOICE:" . e($telephone) . "\n";
         }
         $vCard .= "ADR;TYPE=WORK:2F Bonifacio Technology Center 31st St. corner 2nd Ave. Bonifacio Global City 1634 Taguig City, Philippines\n";
         $vCard .= "END:VCARD";
@@ -83,7 +83,7 @@ class QrCodeController extends Controller
         $websiteUrl = $request->input('url');
         $qrCode = QrCode::size(400)->generate($websiteUrl);
 
-        return view('qr.show', compact('qrCode', 'websiteUrl'));
+        return view('qr.show', compact('qrCode'))->with('websiteUrl', e($websiteUrl));
     }
 
 }

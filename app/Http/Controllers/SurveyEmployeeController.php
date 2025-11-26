@@ -49,7 +49,7 @@ class SurveyEmployeeController extends Controller
         $updateData = $request->only(['name','email','department_id']);
 
         // Option A: simple query update (bypasses $fillable)
-        SurveyEmployees::where('id', $id)->update($updateData);
+        SurveyEmployees::where('id', '=', $id)->update($updateData);
 
         // Option B (preferred if you set $fillable on the model):
         // $employee = SurveyEmployees::findOrFail($id);

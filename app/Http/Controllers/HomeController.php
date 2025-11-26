@@ -82,7 +82,7 @@ class HomeController extends Controller
        
 
 
-        $client = SurveyEmployees::where('email', $fields['email'])->first();
+        $client = SurveyEmployees::where('email', '=', $fields['email'])->first();
         if ($client) {
             if ($fields['main'] == 0) {
                
@@ -105,7 +105,7 @@ class HomeController extends Controller
         $categories = Category::orderBy('title', 'asc')->get();
         $departments = Department::orderBy('title', 'asc')->get();
         $issues = Issues::where('mains_id', $id)->get();
-        $client = SurveyEmployees::where('id',$survey_employees_id)->first();
+        $client = SurveyEmployees::where('id', '=', $survey_employees_id)->first();
         $user_department = Report::select('department_id')->where('survey_employees_id', $survey_employees_id)->orderBy('id','desc')->first();
         return view('home.form', [
             'categories' => $categories,
@@ -128,7 +128,7 @@ class HomeController extends Controller
 
     public function view($id){
       
-        $client = SurveyEmployees::where('id', $id)->first();
+        $client = SurveyEmployees::where('id', '=', $id)->first();
         $reports = Report::where('survey_employees_id', $client->id)
         ->orderBy('id', 'desc')
         ->get();
@@ -143,7 +143,7 @@ class HomeController extends Controller
     public function viewStatus($id){
       
         
-        $reports = Report::where('ticket_number', $id )->get();
+        $reports = Report::where('ticket_number', '=', $id)->get();
         
         // print_r($reports);
         return view('home.status', [
@@ -155,7 +155,7 @@ class HomeController extends Controller
     public function feedback($id){
       
         
-      return  $reports = Report::select('feedback')->where('ticket_number', $id )->get();
+      return  $reports = Report::select('feedback')->where('ticket_number', '=', $id)->get();
         
       
     
