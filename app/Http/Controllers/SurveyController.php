@@ -548,6 +548,196 @@ class SurveyController extends Controller
                 }
 
         }
+        else if(auth()->user()->role === 'user'){
+            $total = SurveyReport::whereBetween('created_at', [$startDate, $endDate])
+            ->where('department_id', auth()->user()->department_id)->count();
+
+            $superLikeAccuracy = SurveyReport::whereBetween('created_at', [$startDate, $endDate])
+                ->where('accuracy_of_service', 2)
+                ->where('department_id', auth()->user()->department_id)
+                ->count();
+
+            $superLikeResponse = SurveyReport::whereBetween('created_at', [$startDate, $endDate])
+                ->where('response_time', 2)
+                ->where('department_id', auth()->user()->department_id)
+                ->count();
+
+        
+            if($superLikeAccuracy > 0)
+            {
+                $superLikeA = $superLikeAccuracy / $total * 0.5;
+            }
+            else
+            {
+                $superLikeA = 0;
+            }
+
+            if($superLikeResponse > 0)
+            {     
+                $superLikeR = $superLikeResponse / $total * 0.5;
+            }
+            else
+            {
+                $superLikeR = 0;
+            }
+
+             $superLike = $superLikeA + $superLikeR;
+            // Calculate the percentage of "Super Like"
+            $percentageSuperLike = round($superLike * 100, 2)."%";
+
+            // Calculate the percentage of "Like"
+            $likeAccuracy = SurveyReport::where('accuracy_of_service', 1)
+                ->whereBetween('created_at', [$startDate, $endDate])
+                ->where('department_id', auth()->user()->department_id)
+                ->count();
+            $likeResponse = SurveyReport::where('response_time', 1)
+                ->whereBetween('created_at', [$startDate, $endDate])
+                ->where('department_id', auth()->user()->department_id)
+                ->count();
+            
+            if($likeAccuracy > 0)
+            {
+                $likeA = $likeAccuracy / $total * 0.5;
+            }
+            else
+            {
+                $likeA = 0;
+            }
+
+            if($likeResponse > 0)
+            {
+                $likeR = $likeResponse / $total * 0.5;
+            }
+            else
+            {
+                $likeR = 0;
+            }
+            
+        
+            $like = $likeA + $likeR;
+            $percentageLike = round($like * 100, 2)."%";        
+
+            // Calculate the percentage of "Dislike"
+            $dislikeAccuracy = SurveyReport::where('accuracy_of_service', 0)
+                ->whereBetween('created_at', [$startDate, $endDate])
+                ->where('department_id', auth()->user()->department_id)
+                ->count();
+            $dislikeResponse = SurveyReport::where('response_time', 0)
+            ->whereBetween('created_at', [$startDate, $endDate])
+            ->where('department_id', auth()->user()->department_id)
+            ->count();
+
+
+            if($dislikeAccuracy > 0){
+                $dislikeA = $dislikeAccuracy / $total * 0.5;
+            }
+            else
+            {
+                $dislikeA = 0;
+            }
+
+            if($dislikeResponse > 0){
+                $dislikeR = $dislikeResponse / $total * 0.5;
+            }
+            else
+            {
+                $dislikeR = 0;
+            }
+        
+        
+            $dislike = $dislikeA + $dislikeR;
+            $percentageDislike = round($dislike * 100, 2)."%";
+
+
+         //this is for graph
+            $employeess = SurveyEmployees::where('department_id', auth()->user()->department_id)
+                ->orderBy('name', 'asc')
+                ->get()->toArray();
+            $superLikeAccuracy = SurveyReport::selectRaw('COUNT(accuracy_of_service) as total_responses, survey_employees_id')
+                ->where('accuracy_of_service', 2)
+                ->groupBy('survey_employees_id')
+                ->orderBy('survey_employees_id','asc')
+                ->get()
+                ->toArray();
+            $likeAccuracy = SurveyReport::selectRaw('COUNT(accuracy_of_service) as total_responses, survey_employees_id')
+                ->where('accuracy_of_service', 1)
+                ->groupBy('survey_employees_id')
+                ->get()->toArray();
+            $dislikeAccuracy = SurveyReport::selectRaw('COUNT(accuracy_of_service) as total_responses, survey_employees_id')
+                ->where('accuracy_of_service', 0)
+                ->groupBy('survey_employees_id')
+                ->get();
+
+        // Re-index arrays for quick access
+            $superLikeMap = collect($superLikeAccuracy)->keyBy('survey_employees_id');
+            $likeMap = collect($likeAccuracy)->keyBy('survey_employees_id');
+            $dislikeMap = collect($dislikeAccuracy)->keyBy('survey_employees_id');
+
+            $superData = [];
+                foreach ($employeess as $employee) {
+                    $id = $employee['id'];
+
+                    $superData[] = [
+                        'employee_name' => $employee['name'],
+                        'super_like'    => $superLikeMap[$id]['total_responses'] ?? 0,
+                        'like'          => $likeMap[$id]['total_responses'] ?? 0,
+                        'dislike'       => $dislikeMap[$id]['total_responses'] ?? 0,
+                    ];
+                }
+        
+        
+        
+            $superLikeResponseTime = SurveyReport::selectRaw('COUNT(response_time) as total_responses, survey_employees_id')
+            ->where('response_time', 2)
+            ->groupBy('survey_employees_id')
+            ->get();
+
+            $likeResponseTime = SurveyReport::selectRaw('COUNT(response_time) as total_responses, survey_employees_id')
+            ->where('response_time', 1)
+            ->groupBy('survey_employees_id')
+            ->get();
+
+            $dislikeResponseTime = SurveyReport::selectRaw('COUNT(response_time) as total_responses, survey_employees_id')
+            ->where('response_time', 0)
+            ->groupBy('survey_employees_id')
+            ->get();   
+
+        // Re-index arrays for quick access
+            $superLikeMapR = collect($superLikeResponseTime)->keyBy('survey_employees_id');
+            $likeMapR = collect($likeResponseTime)->keyBy('survey_employees_id');
+            $dislikeMapR = collect($dislikeResponseTime)->keyBy('survey_employees_id');
+
+            $superDataR = [];
+                foreach ($employeess as $employee) {
+                    $id = $employee['id'];
+
+                    $superDataR[] = [
+                        'employee_name' => $employee['name'],
+                        'super_like'    => $superLikeMapR[$id]['total_responses'] ?? 0,
+                        'like'          => $likeMapR[$id]['total_responses'] ?? 0,
+                        'dislike'       => $dislikeMapR[$id]['total_responses'] ?? 0,
+                    ];
+                }
+ 
+
+            // // Re-index arrays for quick access
+            // $superLikeMapR = collect($superLikeResponseTime)->keyBy('department_id');
+            // $likeMapR = collect($likeResponseTime)->keyBy('department_id');
+            // $dislikeMapR = collect($dislikeResponseTime)->keyBy('department_id');
+
+            // $superDataR = [];
+            //      foreach ($departments as $department) {
+            //         $id = $department['id'];
+
+            //         $superDataR[] = [
+            //             'employee_name' => $department['acronym'],
+            //             'super_like'    => $superLikeMapR[$id]['total_responses'] ?? 0,
+            //             'like'          => $likeMapR[$id]['total_responses'] ?? 0,
+            //             'dislike'       => $dislikeMapR[$id]['total_responses'] ?? 0,
+            //         ];
+            //     }
+
+        }
 
         return response()->json([
             'total' => $total,
