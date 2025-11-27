@@ -46,5 +46,7 @@ class UserSurveyAuthController extends Controller
         return redirect('/survey')->with('success', 'Logged out successfully');
     }
 
+    
+
    
 }

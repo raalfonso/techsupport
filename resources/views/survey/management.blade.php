@@ -386,8 +386,8 @@
                 menu.classList.add('hidden');
             }
         });
-</script>
 
+        
 
 </body>
 </html>

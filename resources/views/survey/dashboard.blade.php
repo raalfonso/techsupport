@@ -196,7 +196,7 @@
     
 
     {{-- Hero Section --}}
-    <section id="home-section" class="pb-8" style="background-color: #e6edfc">
+    <section id="home-section" class="pb-2" style="background-color: #e6edfc">
         <div class="container mx-auto lg:max-w-screen-xl md:max-w-screen-md px-6 pt-24 transition-all duration-700 opacity-0 translate-y-4" data-scroll>
             <h2 class="text-2xl font-bold text-gray-800 mb-8">Survey Dashboard Overview</h2>
             <!-- Add this date range filter form after the Survey Dashboard Overview heading -->
@@ -220,14 +220,14 @@
                             class="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
                 </div>
                 <div class="flex gap-3">
-                    <a href="#/" 
+                    <button 
                        onclick="filterResults()"
                        class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg shadow hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition">
                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                         </svg>
                         Filter
-                    </a>
+                    </button>
 
                     <a href="{{ route('survey.dashboard') }}" 
                         class="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg shadow hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition">
@@ -793,7 +793,7 @@
 
         const startDate = document.getElementById('start_date').value;
         const endDate = document.getElementById('end_date').value;
-        console.log(startDate, endDate);
+        // console.log(startDate, endDate);
         // Validate dates
         if (!startDate || !endDate) {
             Swal.fire({

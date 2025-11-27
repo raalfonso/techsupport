@@ -23,11 +23,16 @@
     <div class="container mx-auto px-4 py-8 max-w-4xl">
         <h2 class="text-3xl font-bold text-gray-800 mb-6 text-center">Customer Feedback Summary</h2>
         @if (auth()->user()->role == 'user')
-            <h3 class="text-xl font-semibold text-gray-700 mb-4 text-center">{{ auth()->user()->department->name }}</h3>
+            <h3 class="text-xl font-semibold text-gray-700 mb-4 text-center">{{ auth()->user()->department->title}}</h3>
         @else
             <h3 class="text-xl font-semibold text-gray-700 mb-4 text-center">Department: All Departments</h3>
         @endif
-        
+
+        @if ($startDate && $endDate)
+            <p class="text-md text-gray-600 mb-6 text-center">From <strong>{{ \Carbon\Carbon::parse($startDate)->format('F j, Y') }}</strong> to <strong>{{ \Carbon\Carbon::parse($endDate)->format('F j, Y') }}</strong></p>
+            
+        @endif
+
         <table class="w-full bg-white shadow-lg rounded-lg overflow-hidden mb-8">
             <thead class="bg-gray-100">
                 <tr>
@@ -42,14 +47,14 @@
                 <tr class=" hover:bg-gray-50">
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">1. Degree of Competence and Accuracy of Service</td>
                     @foreach ($consolidation as $consolidate) 
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $consolidate }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">{{ $consolidate }}</td>
                     @endforeach                    
         
                 </tr>
                 <tr class="hover:bg-gray-50">
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">2. Degree of Responsiveness/Timeliness</td>
                     @foreach ($consolidationResponse as $response) 
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $response }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">{{ $response }}</td>
                         
                     @endforeach
                     
@@ -57,7 +62,7 @@
                 <tr class="bg-gray-200 font-bold hover:bg-gray-50">
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Performance</td>
                     @foreach ($performance as $perf) 
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $perf }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">{{ $perf }}</td>
                     @endforeach
                     
                     
@@ -71,7 +76,7 @@
                 </tr>                                <tr class="hover:bg-gray-50">
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">1. Good Service</td>
                     @foreach ($consolidationPercentage as $consPercent) 
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $consPercent }}%</td>       
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">{{ $consPercent }}%</td>       
                         
                     @endforeach
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">100%</td>
@@ -79,16 +84,16 @@
                 <tr class="hover:bg-gray-50">
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">2. Responsive and Accommodating</td>
                     @foreach ($responsePercentage as $resPercent) 
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $resPercent }}%</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">{{ $resPercent }}%</td>
                     @endforeach
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">100%</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">100%</td>
                 </tr>
                 <tr class="bg-gray-200 font-bold hover:bg-gray-50">
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Performance</td>
                     @foreach ($performancePercentage as $perfCentage) 
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $perfCentage }}%</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">{{ $perfCentage }}%</td>
                     @endforeach
-                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">100%</td>
+                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">100%</td>
                     
                 </tr>
             </tbody>
@@ -135,7 +140,9 @@
         
         ]
     }]
-});    </script>
+});    
+
+</script>
 </body>
 </html>    
     

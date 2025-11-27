@@ -882,6 +882,8 @@ class SurveyController extends Controller
                 'consolidationPercentage' => $consolidationPercentage,
                 'responsePercentage' => $responsePercentage,
                 'performancePercentage' => $performancePercentage,
+                'startDate' => $startDate,
+                'endDate' => $endDate,
             ]);
 
 
@@ -980,6 +982,8 @@ class SurveyController extends Controller
                 'consolidationPercentage' => $consolidationPercentage,
                 'responsePercentage' => $responsePercentage,
                 'performancePercentage' => $performancePercentage,
+                'startDate' => $startDate,
+                'endDate' => $endDate,
             ]);
             }else{
                 return redirect()->back()->with('error', 'Unauthorized access.');
@@ -1067,6 +1071,8 @@ class SurveyController extends Controller
                 'consolidationPercentage' => $consolidationPercentage,
                 'responsePercentage' => $responsePercentage,
                 'performancePercentage' => $performancePercentage,
+                'startDate' => $startDate,
+                'endDate' => $endDate,
             ]);
 
 
@@ -1159,6 +1165,8 @@ class SurveyController extends Controller
                 'consolidationPercentage' => $consolidationPercentage,
                 'responsePercentage' => $responsePercentage,
                 'performancePercentage' => $performancePercentage,
+                'startDate' => $startDate,
+                'endDate' => $endDate,
             ]);
        }else{
           return redirect()->back()->with('error', 'Unauthorized access.');
