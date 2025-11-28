@@ -821,6 +821,7 @@
         }
 
         else {
+            
             $.ajax({
                 url: '{{ route("survey.dashboard.filter") }}',
                 method: 'GET',
@@ -837,7 +838,8 @@
                     $('.dislike-survey').html(response.percentageDislike);
 
 
-
+                    console.log(response.superData);
+                    // re-render the charts with new data
 
                     //////////////////////////////////////////////////////////////////////
                     // this is for highchart
