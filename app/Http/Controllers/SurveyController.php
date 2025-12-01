@@ -373,6 +373,7 @@ class SurveyController extends Controller
             'percentageDislike' => $percentageDislike,
             'superData' => $superData,
             'superDataR' => $superDataR,
+            'departments' => Department::where('active','1')->orderBy('title', 'asc')->get(),
         ] );
     
     }
