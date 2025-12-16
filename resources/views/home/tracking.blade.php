@@ -230,144 +230,119 @@
       </div>
     </footer>
 
-    <!-- Login modal -->
-      <div id="feedback-modal" tabindex="-1" aria-hidden="true" class="hidden overflow-y-auto overflow-x-hidden fixed top-10 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full mt-5">
-          <div class="relative p-4 w-full max-w-md max-h-full">
-              <!-- Modal content -->
-              <div class="relative bg-white rounded-lg shadow-sm dark:bg-gray-700 ">
-                  <!-- Modal header -->
-                  <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600 border-gray-200">
-                      <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-                         <span class="text-blue-700 font-semibold"></span>
-                      </h3>
-                      <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-toggle="feedback-modal">
-                          <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
-                              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
-                          </svg>
-                          <span class="sr-only">Close modal</span>
-                      </button>
-                  </div>
-                  <!-- Modal body -->
-                  <div class="rounded-lg shadow w-full max-w-lg mt-[0%] sm:mt-[-1/2]">
-                   
-                    <div class="bg-white w-full max-w-lg p-5 rounded-lg shadow-lg overflow-auto max-h-full" style="">
-                        <div class="flex justify-between items-center">
-                            <h2 class="text-lg font-bold">ICTD Customer Feedback</h2>
-                        </div>
+    <!-- feedback modal -->
+<div id="feedback-modal" tabindex="-1" aria-hidden="true" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-screen bg-black bg-opacity-50 flex">
+    <div class="relative p-4 w-full max-w-2xl mx-auto my-8">
+        <!-- Modal content -->
+        <div class="relative bg-white rounded-xl shadow-2xl dark:bg-gray-800 animate-modal-slide-in">
+            <!-- Modal header -->
+            <div class="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
+                <h3 class="text-2xl font-bold text-gray-900 dark:text-white">
+                    <span class="text-blue-600">ICTD Customer Feedback</span>
+                </h3>
+                <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-100 hover:text-gray-900 rounded-lg text-sm p-2 inline-flex items-center dark:hover:bg-gray-600 dark:hover:text-white transition-colors duration-200" data-modal-toggle="feedback-modal">
+                    <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+                    </svg>
+                </button>
+            </div>
 
-                    <div class="flex text-xs justify-between items-center mb-4">
+            <!-- Modal body -->
+            <div class="p-6 overflow-y-auto max-h-[calc(100vh-200px)]">
+                <div class="mb-6">
+                    <p class="text-gray-600 text-sm leading-relaxed">
                         We would love to hear your thoughts or feedback on how we can improve your experience!
-                    </div>
-                        <form action="{{ route('feedback.store') }}" method="post">
-                            @csrf
-                        
-                            <div class="mb-4 mt-4" style="display: none;">
-                                <label for="report_id">Report ID <span class="text-green-600 text-xs">(Optional)</span></label>
-                                <input type="text" name="report_id" id="report-id" class="input" value="">
-                            </div>
-
-                            <div class="mb-4">
-                                <p>1. How quickly did the support attend to you? <span class="text-red-600 text-xs">(Required)</span></p>
-                                <p class="text-sm text-gray-600 mt-2 ml-4">Please rate, with 1 (Slow) being the lowest and 5 (Fast) as the highest.</p>
-                                
-                                    <div class="flex items-center p-2 ml-10">
-                                        <input id="default-radio-1" type="radio" value="5" name="answer1" class="rb-q1 w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
-                                        <label for="default-radio-1" class="ms-2 text-sm font-medium text-gray-900  ">5. Within a few minutes</label>
-                                    </div>
-                                    <div class="flex items-center p-2 ml-10">
-                                        <input id="default-radio-2" type="radio" value="4" name="answer1" class="rb-q1 w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
-                                        <label for="default-radio-2" class="ms-2 text-sm font-medium text-gray-900  ">4. within a few hours</label>
-                                    </div>
-                                    <div class="flex items-center p-2 ml-10">
-                                        <input id="default-radio-3" type="radio" value="3" name="answer1" class="rb-q1 w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
-                                        <label for="default-radio-3" class="ms-2 text-sm font-medium text-gray-900  ">3. Within the day</label>
-                                    </div>
-                                    <div class="flex items-center p-2 ml-10">
-                                        <input id="default-radio-4" type="radio" value="2" name="answer1" class=" rb-q1 w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
-                                        <label for="default-radio-4" class="ms-2 text-sm font-medium text-gray-900  ">2. The next day</label>
-                                    </div>
-                                    <div class="flex items-center p-2 ml-10">
-                                        <input id="default-radio-5" type="radio" value="1" name="answer1" class="rb-q1 w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
-                                        <label for="default-radio-5" class="ms-2 text-sm font-medium text-gray-900  ">1. After a few days</label>
-                                    </div>
-                            </div>
-                            
-                            {{-- if resolve --}}
-                            <div class="mb-4" style="display: none;">
-                                <p>2. Was your issue or concern resolved? <span class="text-red-600 text-xs">(Required)</span></p>
-                                    <div class="flex">
-                                    
-                                        <div class="flex items-center p-2 ml-10">
-                                            <input id="default-radio-6" type="radio" value="1" name="answer2" class="rb-q2 w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" checked>
-                                            <label for="default-radio-6" class="ms-2 text-sm font-medium text-gray-900  ">Yes</label>
-                                        </div>
-                                        <div class="flex items-center p-2 ml-10">
-                                            <input id="default-radio-7" type="radio" value="0" name="answer2" class="rb-q2 w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
-                                            <label for="default-radio-7" class="ms-2 text-sm font-medium text-gray-900  ">No</label>
-                                        </div>
-                                    </div>    
-                                    
-                            </div>
-                            {{-- rate support service provided --}}
-                            <div class="mb-4">
-                                <p>2. How would you rate the support service provided? <span class="text-red-600 text-xs">(Required)</span></p>
-                                <p class="text-sm text-gray-600 mt-2 ml-4">Please rate the service, with 1 (Poor) being the lowest and 5 (Excellent) as the highest. </p>
-                                    <div class="flex items-center p-2 ml-10">
-                                        <input id="default-radio-8" type="radio" value="5" name="answer3" class="rb-q3 w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
-                                        <label for="default-radio-8" class="ms-2 text-sm font-medium text-gray-900  ">5. Excellent</label>
-                                    </div>
-                                    <div class="flex items-center p-2 ml-10">
-                                        <input  id="default-radio-9" type="radio" value="4" name="answer3" class="rb-q3 w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
-                                        <label for="default-radio-9" class="ms-2 text-sm font-medium text-gray-900  ">4. Very Satisfactory</label>
-                                    </div>
-                                    <div class="flex items-center p-2 ml-10">
-                                        <input id="default-radio-10" type="radio" value="3" name="answer3" class="rb-q3 w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
-                                        <label for="default-radio-10" class="ms-2 text-sm font-medium text-gray-900  ">3. Satisfactory</label>
-                                    </div>
-                                    <div class="flex items-center p-2 ml-10">
-                                        <input id="default-radio-11" type="radio" value="2" name="answer3" class=" rb-q3 w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
-                                        <label for="default-radio-11" class="ms-2 text-sm font-medium text-gray-900  ">2. Unsatisfactory</label>
-                                    </div>
-                                    <div class="flex items-center p-2 ml-10">
-                                        <input id="default-radio-12" type="radio" value="1" name="answer3" class="rb-q3 w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
-                                        <label for="default-radio-12" class="ms-2 text-sm font-medium text-gray-900  ">1. Poor</label>
-                                    </div>
-                            </div>
-
-                            <div class="mb-4">
-                                <p>3. Why did you rate as you did? <span class="text-green-600 text-xs">(Optional)</span></p>
-                                <p class="text-sm text-gray-600 mt-2 ml-4">Provide a reason for your rating. </p>
-
-                                <div class="p-5" style="">
-                                    {{-- <label for="report_id">Report ID <span class="text-green-600 text-xs">(Optional)</span></label> --}}
-                                <input type="text" name="reason" class="input" value="">
-                                </div>
-                            </div>
-
-                            <div class="mb-4">
-                                <p>4. How can we improve? <span class="text-green-600 text-xs">(Optional)</span></p>
-                                <p class="text-sm text-gray-600 mt-2 ml-4">Suggest what we can do to improve. </p>
-
-                                <div class="p-5" style="">
-                                    {{-- <label for="report_id">Report ID <span class="text-green-600 text-xs">(Optional)</span></label> --}}
-                                <input type="text" name="suggestion" class="input" value="">
-                                </div>
-                            </div>
-
-
-                            <button class="btn">Submit</button>
-                        </form>
-
-                    </div>
-                
-                    </div>
-                    
+                    </p>
                 </div>
 
-              </div>
-          </div>
-      </div> 
+                <form action="{{ route('feedback.store') }}" method="post" class="space-y-6">
+                    @csrf
+                    
+                    <input type="hidden" name="report_id" id="report-id">
 
+                    <!-- Question 1 -->
+                    <div class="bg-gray-50 rounded-lg p-6">
+                        <p class="font-semibold text-gray-900 mb-2">1. How quickly did the support attend to you? <span class="text-red-500 text-xs">*</span></p>
+                        <p class="text-sm text-gray-600 mb-4">Please rate, with 1 (Slow) being the lowest and 5 (Fast) as the highest.</p>
+                        
+                        <div class="space-y-3 ml-4">
+                            <label class="flex items-center p-3 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
+                                <input type="radio" value="5" name="answer1" class="rb-q1 w-4 h-4 text-blue-600" required>
+                                <span class="ml-3 text-gray-800">5. Within a few minutes</span>
+                            </label>
+                            <label class="flex items-center p-3 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
+                                <input type="radio" value="4" name="answer1" class="rb-q1 w-4 h-4 text-blue-600">
+                                <span class="ml-3 text-gray-800">4. Within a few hours</span>
+                            </label>
+                            <label class="flex items-center p-3 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
+                                <input type="radio" value="3" name="answer1" class="rb-q1 w-4 h-4 text-blue-600">
+                                <span class="ml-3 text-gray-800">3. Within the day</span>
+                            </label>
+                            <label class="flex items-center p-3 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
+                                <input type="radio" value="2" name="answer1" class="rb-q1 w-4 h-4 text-blue-600">
+                                <span class="ml-3 text-gray-800">2. The next day</span>
+                            </label>
+                            <label class="flex items-center p-3 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
+                                <input type="radio" value="1" name="answer1" class="rb-q1 w-4 h-4 text-blue-600">
+                                <span class="ml-3 text-gray-800">1. After a few days</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Question 2 -->
+                    <div class="bg-gray-50 rounded-lg p-6">
+                        <p class="font-semibold text-gray-900 mb-2">2. How would you rate the support service provided? <span class="text-red-500 text-xs">*</span></p>
+                        <p class="text-sm text-gray-600 mb-4">Please rate the service, with 1 (Poor) being the lowest and 5 (Excellent) as the highest.</p>
+                        
+                        <div class="space-y-3 ml-4">
+                            <label class="flex items-center p-3 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
+                                <input type="radio" value="5" name="answer3" class="rb-q3 w-4 h-4 text-blue-600" required>
+                                <span class="ml-3 text-gray-800">5. Excellent</span>
+                            </label>
+                            <label class="flex items-center p-3 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
+                                <input type="radio" value="4" name="answer3" class="rb-q3 w-4 h-4 text-blue-600">
+                                <span class="ml-3 text-gray-800">4. Very Satisfactory</span>
+                            </label>
+                            <label class="flex items-center p-3 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
+                                <input type="radio" value="3" name="answer3" class="rb-q3 w-4 h-4 text-blue-600">
+                                <span class="ml-3 text-gray-800">3. Satisfactory</span>
+                            </label>
+                            <label class="flex items-center p-3 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
+                                <input type="radio" value="2" name="answer3" class="rb-q3 w-4 h-4 text-blue-600">
+                                <span class="ml-3 text-gray-800">2. Unsatisfactory</span>
+                            </label>
+                            <label class="flex items-center p-3 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
+                                <input type="radio" value="1" name="answer3" class="rb-q3 w-4 h-4 text-blue-600">
+                                <span class="ml-3 text-gray-800">1. Poor</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Question 3 -->
+                    <div class="bg-gray-50 rounded-lg p-6">
+                        <p class="font-semibold text-gray-900 mb-2">3. Why did you rate as you did? <span class="text-green-500 text-xs">(Optional)</span></p>
+                        <p class="text-sm text-gray-600 mb-4">Provide a reason for your rating.</p>
+                        <textarea name="reason" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
+                    </div>
+
+                    <!-- Question 4 -->
+                    <div class="bg-gray-50 rounded-lg p-6">
+                        <p class="font-semibold text-gray-900 mb-2">4. How can we improve? <span class="text-green-500 text-xs">(Optional)</span></p>
+                        <p class="text-sm text-gray-600 mb-4">Suggest what we can do to improve.</p>
+                        <textarea name="suggestion" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
+                    </div>
+
+                    <div class="flex justify-end pt-4">
+                        <button type="submit" class="px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200">
+                            Submit Feedback
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+    
     <script>
        // JavaScript to toggle mobile menu
         document.addEventListener('DOMContentLoaded', function () {
