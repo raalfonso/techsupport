@@ -128,7 +128,6 @@
     @endauth
     </header>
 
-
     <!-- Main Content -->
     <main class="mx-auto mt-5 p-5 max-w-screen">
         {{-- Slot for dynamic content --}}

@@ -124,12 +124,10 @@
 
           {{-- Display a message if no reports are found --}}
           @foreach ($reports as $report)
-          <div class="flex items-start justify-between px-6 py-4 border-b hover:bg-gray-50">
-          
-            {{-- Left: PDF Button --}}
+          <div class="flex items-start justify-between px-6 py-4 border-b hover:bg-gray-50" id="report{{ $report->id }}">
               <div class="flex flex-col w-2/6">
                   <span class="text-sm font-semibold px-4 py-2 text-gray-700 flex items-start">
-                      {{ $report->issues->title }} {{-- Display the issue title --}}
+                      {{ $report->issues->title }}
                   </span>
               </div>
 
@@ -423,7 +421,91 @@
             }
           });
         });
-      });
+     });
+
+
+    //  this is for the click function to add rows
+    // Add click event listener to each report div
+     document.querySelectorAll('[id^="report"]').forEach(reportDiv => {
+    reportDiv.addEventListener('click', function() {
+        const reportId = this.id.replace('report', '');
+
+        // Remove existing details if already open
+        const existingDetails = document.getElementById(`details${reportId}`);
+        if (existingDetails) {
+            existingDetails.remove();
+            return;
+        }
+
+        // Create placeholder row
+        const detailsRow = document.createElement('div');
+        detailsRow.id = `details${reportId}`;
+        detailsRow.className = 'flex items-start justify-between px-6 py-4 border-b bg-gray-50';
+        this.after(detailsRow);
+
+        // Build URL using Laravel route helper with placeholder
+        const url = "{{ route('report.loghistory', ':id') }}".replace(':id', reportId);
+
+        // Fetch JSON history
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                // Build timeline list items dynamically
+                let timelineItems = '';
+                data.forEach(item => {
+                    console.log(item);
+                    timelineItems += `
+                        <div class="flex items-start space-x-3 hover:bg-gray-50 p-2 rounded-lg transition-colors duration-200">
+                            <div class="mt-1 w-3 h-3 bg-blue-500 rounded-full shadow-md"></div>
+                            <div class="flex-1">
+                                <p class="text-sm text-gray-700">
+                                    <span class="font-medium">${item.perform_at || ''}</span>
+                                    <span class="mx-2 text-gray-400">|</span>
+                                    <span class="font-semibold ${item.action === 'responded' ? 'bg-orange-100 text-orange-600 px-2 py-1 rounded' : item.action === 'resolved' ? 'bg-green-100 text-green-600 px-2 py-1 rounded' : 'bg-blue-100 text-blue-600 px-2 py-1 rounded'}">${item.action}</span>                                                              <span class="text-gray-500">by</span>
+                                    <span class="font-bold text-gray-800">${item.perform_by}</span>
+                                    <hr class="my-2">
+                                </p>
+                            </div>
+                        </div>                    `;
+                });
+
+                // Render details card
+                detailsRow.innerHTML = `
+                    <div class="w-full bg-white rounded-lg shadow-sm p-6">
+                        <div class="flex justify-between items-center mb-4 border-b pb-3">
+                            <h3 class="font-bold text-lg text-gray-800">Log History</h3>
+                            <button class="text-gray-500 hover:text-gray-700 transition-colors duration-200">
+                                <i class="material-icons">close</i>
+                            </button>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-1 gap-6">
+                            <div class="bg-white p-4 rounded-lg">
+                                <ul class="text-sm">
+                                    ${timelineItems}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                // Close button handler
+                detailsRow.querySelector('button').addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    detailsRow.remove();
+                });
+            })
+            .catch(error => {
+                console.error('Error fetching report details:', error);
+                detailsRow.innerHTML = `
+                    <div class="w-full bg-white rounded-lg shadow-sm p-6">
+                        <p class="text-red-500">Error loading report details</p>
+                    </div>
+                `;
+            });
+    });
+});
+
+         
 
 
      

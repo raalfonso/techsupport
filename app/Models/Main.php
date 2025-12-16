@@ -12,6 +12,8 @@ class Main extends Model
 
     protected $fillable = [
         'title',
-
+        'type',
+        'description',
     ];
+
 }

@@ -1,8 +1,10 @@
 <x-layout>
+
     <div class="mx-auto w-full p-4 mt-5">
+        
         <!-- Card Container -->
         <div class="mx-auto bg-white mt-5 shadow-md rounded-lg p-5" 
-            x-data="{ showModal: false, resolveModal: false, escalateModal: false, endorseModal: false, responseModal: false, selectedId: null }">
+            x-data="{ showModal: false, resolveModal: false,validateModal: false, escalateModal: false, endorseModal: false, responseModal: false, selectedId: null }">
             
             <h1 class="text-lg md:text-xl font-bold mb-4 text-slate-800 dark:text-slate-100">List of Requested / Reported Issues</h1>
             <input type="text" class="firstCount input" style="display: none;" value="{{$countReport}}">
@@ -357,8 +359,13 @@
                         </td>
                         <td class="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">
                             @php
-                                $diffInMinutes = \Carbon\Carbon::parse($resolve->response_datetime)->diffInMinutes(\Carbon\Carbon::parse($resolve->resolve_datetime));
+                                if($resolve->validation_date_time == null){
+                                    $diffInMinutes = \Carbon\Carbon::parse($resolve->response_datetime)->diffInMinutes(\Carbon\Carbon::parse($resolve->resolve_datetime));
+                                } else {
+                                    $diffInMinutes = \Carbon\Carbon::parse($resolve->validation_date_time)->diffInMinutes(\Carbon\Carbon::parse($resolve->resolve_datetime));
+                                }
                             @endphp
+                               
                             {{ $diffInMinutes >= 60 ? round($diffInMinutes / 60) . ' hrs' : round($diffInMinutes) . ' mins' }}
                         </td>
                         <td class="px-4 py-3 text-sm text-gray-600 dark:text-gray-300 whitespace-nowrap">{{ date('F d, Y h:i a', strtotime($resolve->resolve_datetime)) }}</td>

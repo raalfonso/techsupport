@@ -50,7 +50,7 @@ class HomeController extends Controller
 
     public function track(){
 
-        return view('track');
+        // return view('track');
     }
 
     public function employeeReport()
@@ -163,12 +163,15 @@ class HomeController extends Controller
 
     public function saveData(Request $request){
         
+       
         $fields = $request->validate([
             'survey_employees_id' => 'required',
             'department_id' => 'required',
             'issues_id' => 'required',
             'location'  => 'required',
         ]);
+
+      
         
         $fields['request_datetime'] = now();
   

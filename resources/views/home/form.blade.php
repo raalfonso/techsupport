@@ -74,60 +74,63 @@
           <p class="text-gray-600 mb-2"> Fill out the form below to request assistance.</p>
           <p class="text-gray-600 mb-2">Please ensure that you have selected the correct department and issue to expedite your request.</p>
           <meta name="csrf-token" content="{{ csrf_token() }}">
-            <form action="{{ route('home.data') }}" method="post" class="space">
+            <form action="{{ route('home.data') }}" method="post" class="space" x-data="{ loading: false }" @submit="loading = true">
                     @csrf
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-2">
-                        <div>
-                            <label for="requestor_name" class="text-gray-800 text-md">Name</label>
-                            <input type="text" class="input @error('title') ring-red-500 @enderror" value="{{ $client->name }}" disabled>
-                            <input type="hidden" name="client_id" value="{{ $client->id }}">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                        <div class="transition duration-300 hover:shadow-md p-3 rounded-lg">
+                            <label for="requestor_name" class="text-gray-800 text-md font-medium">Name</label>
+                            <input type="text" class="input w-full transition duration-300 focus:ring-2 focus:ring-teal-500 @error('title') ring-red-500 @enderror" value="{{ $client->name }}" disabled>
+                            <input type="hidden" name="survey_employees_id" value="{{ $client->id }}">
                         </div>
-                        <div>
-                            <label for="email" class="text-gray-800">Email Address</label>
-                            <input type="text" class="input" value="{{ $client->email_address }}" disabled>
+                        <div class="transition duration-300 hover:shadow-md p-3 rounded-lg hidden">
+                            <label for="email" class="text-gray-800 font-medium">Email Address</label>
+                            <input type="text" class="input w-full transition duration-300 focus:ring-2 focus:ring-teal-500" value="{{ $client->email_address }}" disabled>
                         </div>
     
                         @if ($user_department)
-                            <div>
-                                <label for="department_id" class="text-gray-800">Department <span class="text-rose-500 text-xs">(Required)</span></label>
+                            <div class="transition duration-300 hover:shadow-md p-3 rounded-lg">
+                                <label for="department_id" class="text-gray-800 font-medium">Department <span class="text-rose-500 text-xs">(Required)</span></label>
                                 <input type="hidden" id="department_id" name="department_id" value="{{$user_department->department_id }}">
-                                <input type="text" id="auto-department" class="input @error('department') ring-red-500 @enderror" placeholder="Type to search..." autocomplete="off" value="{{$user_department->department->title}}">
-                                <div id="suggestions" class="suggestions-box input cursor-pointer" style="display: none;"></div>
+                                <input type="text" id="auto-department" class="input w-full transition duration-300 focus:ring-2 focus:ring-teal-500 @error('department') ring-red-500 @enderror" placeholder="Type to search..." autocomplete="off" value="{{$user_department->department->title}}">
+                                <div id="suggestions" class="suggestions-box input cursor-pointer shadow-lg max-h-48 overflow-y-auto" style="display: none;"></div>
                                 @error('department')
-                                    <p class="error">{{ $message }}</p>
+                                    <p class="error text-red-500 text-sm mt-1">{{ $message }}</p>
                                 @enderror
                             </div>
                         @else
-                            <div>
-                                <label for="department_id" class="text-gray-800">Department <span class="text-rose-500 text-xs">(Required)</span></label>
+                            <div class="transition duration-300 hover:shadow-md p-3 rounded-lg">
+                                <label for="department_id" class="text-gray-800 font-medium">Department <span class="text-rose-500 text-xs">(Required)</span></label>
                                 <input type="hidden" id="department_id" name="department_id">
-                                <input type="text" id="auto-department" class="input @error('department') ring-red-500 @enderror" placeholder="Type to search..." autocomplete="off">
-                                <div id="suggestions" class="suggestions-box input cursor-pointer" style="display: none;"></div>
+                                <input type="text" id="auto-department" class="input w-full transition duration-300 focus:ring-2 focus:ring-teal-500 @error('department') ring-red-500 @enderror" placeholder="Type to search..." autocomplete="off">
+                                <div id="suggestions" class="suggestions-box input cursor-pointer shadow-lg max-h-48 overflow-y-auto" style="display: none;"></div>
                                 @error('department')
-                                    <p class="error">{{ $message }}</p>
+                                    <p class="error text-red-500 text-sm mt-1">{{ $message }}</p>
                                 @enderror
                             </div>
                         @endif
     
-                        <div>
-                            <label for="location" class="text-gray-800">Location <span class="text-red-500 text-xs">(Required)</span></label>
-                            <select name="location" id="location" class="input @error('location') ring-red-500 @enderror"> 
+                        <div class="transition duration-300 hover:shadow-md p-3 rounded-lg">
+                            <label for="location" class="text-gray-800 font-medium">Location <span class="text-red-500 text-xs">(Required)</span></label>
+                            <select name="location" id="location" class="input w-full transition duration-300 focus:ring-2 focus:ring-teal-500 @error('location') ring-red-500 @enderror"> 
                                 <option value="">Select Location</option>
                                 <option value="BTC">BTC</option>
                                 <option value="One west">One west</option>
                             </select>
+                            @error('location')
+                                <p class="error text-red-500 text-sm mt-1">{{ $message }}</p>
+                            @enderror
                         </div>
     
-                        <div>
-                            <label for="issues_id" class="text-gray-800">Issue <span class="text-rose-500 text-xs">(Required)</span></label>
-                            <select name="issues_id" id="issues_id" class="input">
+                        <div class="transition duration-300 hover:shadow-md p-3 rounded-lg">
+                            <label for="issues_id" class="text-gray-800 font-medium">Issue <span class="text-rose-500 text-xs">(Required)</span></label>
+                            <select name="issues_id" id="issues_id" class="input w-full transition duration-300 focus:ring-2 focus:ring-teal-500">
                                 <option value="">Select issue</option>
                                 @foreach($issues as $issue)
                                     <option value="{{ $issue->id }}">{{ $issue->title }}</option>
                                 @endforeach
                             </select>
                             @error('issues_id')
-                                <p class="error">{{ $message }}</p>
+                                <p class="error text-red-500 text-sm mt-1">{{ $message }}</p>
                                 <script>
                                     Swal.fire({
                                         icon: "error",
@@ -139,12 +142,21 @@
                         </div>
                     </div>
     
-                    <div>
-                        <label for="remarks" class="text-gray-800">Remarks <span class="text-green-600 text-xs">(Optional)</span></label>
-                        <textarea rows="4" class="w-full p-2 border rounded-lg resize-y" placeholder="Enter your message here..."></textarea>
+                    <div class="mt-4 transition duration-300 hover:shadow-md p-3 rounded-lg">
+                        <label for="remarks" class="text-gray-800 font-medium">Remarks <span class="text-green-600 text-xs">(Optional)</span></label>
+                        <textarea name="remarks" rows="4" class="w-full p-2 border rounded-lg resize-y transition duration-300 focus:ring-2 focus:ring-teal-500" placeholder="Enter your message here..."></textarea>
                     </div>
     
-                    <button class="text-gray-800 bg-teal-500 rounded-md w-full h-12">Submit</button>
+                    <button type="submit" class="mt-6 text-white bg-indigo-700 rounded-lg w-full h-12 font-medium transition duration-300 hover:bg-indigo-900 focus:ring-4 focus:ring-teal-300 disabled:opacity-50 flex items-center justify-center" :disabled="loading">
+                        <span x-show="!loading">Submit Request</span>
+                        <span x-show="loading" class="flex items-center">
+                            <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            Processing...
+                        </span>
+                    </button>
                 </form>
         </div>
 

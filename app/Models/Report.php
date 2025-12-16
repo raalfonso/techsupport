@@ -5,12 +5,14 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
-use Ramsey\Uuid\Guid\Guid;
+use Ramsey\Uuid\Uuid;
+ use \App\Loghistory;
 class Report extends Model
 {
     /** @use HasFactory<\Database\Factories\ReportFactory> */
     use HasFactory;
-
+   
+    use Loghistory;
     protected $fillable = [
         'ticket_number',
         'survey_employees_id',
@@ -20,6 +22,7 @@ class Report extends Model
         'status',
         'procedure',
         'request_datetime',
+        'validation_date_time',
         'response_by',
         'resolve_by',
         'escalated_to',
@@ -93,6 +96,5 @@ class Report extends Model
         return $this->belongsTo(SurveyEmployees::class, 'survey_employees_id', 'id');
     }
 
-
-
+    
 }

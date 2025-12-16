@@ -28,7 +28,7 @@ use App\Http\Controllers\{
 */
 Route::middleware('auth')->group(function () {
     Route::resource('issues', IssuesController::class);
-    
+
     Route::resource('category', CategoryController::class);
     Route::resource('department', DepartmentController::class);
     Route::resource('main', ReportController::class);
@@ -40,6 +40,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/report/resolve/{id}', [ReportController::class, 'resolve'])->name('report.resolve');
     Route::get('/report/escalate/{id}', [ReportController::class, 'escalate'])->name('report.escalate');
     Route::get('/report/endorse/{id}', [ReportController::class, 'endorse'])->name('report.endorse');
+    Route::post('/report/validate',[ReportController::class, 'validateReport'])->name('report.validate');
+   
     
 
     Route::get('/reports', [ReportController::class, 'getReports']);
@@ -94,7 +96,7 @@ Route::prefix('survey')->group(function () {
     Route::view('/', 'survey.index')->name('survey.index');
     Route::get('/qrcode/{departmentCode}', [QrCodeController::class, 'generate'])->name('qrcode');
     Route::view('/thankyou', 'survey.thankyou')->name('survey.thankyou');   
-    
+    Route::get('/reports/loghistory/{id}', [ReportController::class, 'logHistory'])->name('report.loghistory');
 
 });
 
@@ -113,7 +115,7 @@ Route::middleware('guest')->group(function () {
     Route::view('/track', 'home.track')->name('track');
     Route::get('/home.index/{id}', [HomeController::class, 'index'])->name('home.index');
     Route::get('/home.cancel/{id}', [HomeController::class, 'cancel'])->name('home.cancel');
-    Route::get('/home/add/{id}/{client_id}', [HomeController::class, 'add'])->name('home.add');
+    Route::get('/home/add/{id}/{survey_employees_id}', [HomeController::class, 'add'])->name('home.add');
 
     Route::get('/view/{id}', [HomeController::class, 'view'])->name('home.view');
     Route::get('/viewstatus/{id}', [HomeController::class, 'viewStatus'])->name('home.status');
