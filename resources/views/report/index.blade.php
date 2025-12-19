@@ -315,10 +315,64 @@
     <div class="flex justify-end mb-6">
         <a href="{{ route('report.export') }}" class="btn bg-teal-600 text-white hover:bg-teal-700 rounded-lg px-6 py-3 flex items-center gap-2 transition duration-200 shadow-md">
             <i class="fa-solid fa-file-export"></i>
-            <span>Export to Excel</span>
+            <span>Export List of Resolved Issues</span>
         </a>
     </div>
 
+    <!-- Filter Section -->
+    <div class="mb-6 grid grid-cols-1 md:grid-cols-4 gap-4">
+        <!-- Date Range Filter -->
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Date Range</label>
+            <div class="flex gap-2">
+                <input type="date" class="form-input rounded-lg text-sm w-full" placeholder="From">
+                <input type="date" class="form-input rounded-lg text-sm w-full" placeholder="To">
+            </div>
+        </div>
+
+        <!-- Department Filter -->
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Department</label>
+            <select class="form-select rounded-lg text-sm w-full">
+                <option value="">All Departments</option>
+                @foreach($departments as $department)
+                    <option value="{{ $department->id }}">{{ $department->title }}</option>
+                @endforeach
+            </select>
+        </div>
+
+        <!-- Issue Category Filter -->
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Issue Category</label>
+            <select class="form-select rounded-lg text-sm w-full">
+                <option value="">All Categories</option>
+                @foreach($issues->unique('category_id') as $issue)
+                    <option value="{{ $issue->category_id }}">{{ $issue->Category?->title }}</option>
+                @endforeach
+            </select>
+        </div>
+
+        <!-- Technical Staff Filter -->
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Technical Staff</label>
+            <select class="form-select rounded-lg text-sm w-full">
+                <option value="">All Staff</option>
+                @foreach($users as $user)
+                    <option value="{{ $user->id }}">{{ $user->name }}</option>
+                @endforeach
+            </select>
+        </div>
+    </div>    
+    <div class="flex justify-end mb-6 gap-4">
+        <button class="bg-slate-700 text-white hover:bg-slate-800 rounded px-4 py-2 flex items-center gap-2">
+            <i class="fa-solid fa-filter"></i>
+            <span>Apply Filters</span>
+        </button>
+        <button class="bg-gray-200 text-gray-600 hover:bg-gray-300 rounded px-4 py-2 flex items-center gap-2">
+            <i class="fa-solid fa-rotate"></i>
+            <span>Reset Filters</span>w
+        </button>
+    </div>        
     <div class="overflow-auto max-h-[650px] pb-10">
         <!-- Desktop Table -->
         <div class="hidden md:block">
