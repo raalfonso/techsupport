@@ -3,6 +3,12 @@
         <div class="mx-auto max-w-screen-lg mt-5 card p-5 shadow-lg rounded-lg">
             <h1 class="text-3xl font-bold mb-6 text-gray-800">Departments</h1>
 
+            @if(session('success'))
+                <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-6">
+                    {{ session('success') }}
+                </div>
+            @endif
+
             <form action="{{ route('department.store') }}" method="post" class="bg-white p-6 rounded-lg shadow-sm mb-8">
                 @csrf
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">

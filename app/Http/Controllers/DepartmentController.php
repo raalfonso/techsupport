@@ -41,7 +41,9 @@ class DepartmentController extends Controller
      */
     public function store(StoreDepartmentRequest $request)
     {
-        //
+        Department::create($request->validated());
+        
+        return redirect()->route('department.index')->with('success', 'Department created successfully.');
     }
 
     /**
@@ -75,6 +77,8 @@ class DepartmentController extends Controller
      */
     public function destroy(Department $department)
     {
-        //
+        $department->delete();
+        
+        return redirect()->route('department.index')->with('success', 'Department deleted successfully.');
     }
 }

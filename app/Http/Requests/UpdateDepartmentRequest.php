@@ -23,7 +23,7 @@ class UpdateDepartmentRequest extends FormRequest
     {
         return [
             'title' => 'required|string|max:255',
-            'acronym' => 'required|string|max:10',
+            'acronym' => 'required|string|max:10|unique:departments,acronym,' . $this->department->id,
             'active' => 'required|boolean',
         ];
     }
