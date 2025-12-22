@@ -28,7 +28,20 @@ class SurveyController extends Controller
   
         // Fetch necessary data for the dashboard
         if((auth()->user()->role === 'superadmin')||(auth()->user()->role === 'admin')){
-            $employees = SurveyEmployees::where('status', 'active')->paginate(10);
+            $employeesQuery = SurveyEmployees::where('status', 'active');
+            
+            if (request('search')) {
+                $search = request('search');
+                $employeesQuery->where(function($q) use ($search) {
+                    $q->where('name', 'like', '%' . $search . '%')
+                      ->orWhere('email', 'like', '%' . $search . '%')
+                      ->orWhereHas('department', function($dept) use ($search) {
+                          $dept->where('title', 'like', '%' . $search . '%');
+                      });
+                });
+            }
+            
+            $employees = $employeesQuery->paginate(10)->withQueryString();
             $survey = SurveyReport::orderBy('id','desc')->paginate(10);
 
             $total = SurveyReport::count();
@@ -190,7 +203,17 @@ class SurveyController extends Controller
 
        
         }else{
-            $employees = SurveyEmployees::where('department_id', auth()->user()->department_id)->paginate(10);
+            $employeesQuery = SurveyEmployees::where('department_id', auth()->user()->department_id);
+            
+            if (request('search')) {
+                $search = request('search');
+                $employeesQuery->where(function($q) use ($search) {
+                    $q->where('name', 'like', '%' . $search . '%')
+                      ->orWhere('email', 'like', '%' . $search . '%');
+                });
+            }
+            
+            $employees = $employeesQuery->paginate(10)->withQueryString();
             $survey = SurveyReport::where('department_id', auth()->user()->department_id)->orderBy('id','desc')->paginate(10);
 
             $total = SurveyReport::where('department_id', auth()->user()->department_id)->count();

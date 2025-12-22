@@ -13,7 +13,17 @@ class DepartmentController extends Controller
      */
     public function index()
     {
-        $departments = Department::orderBy('id','asc')->paginate(10);
+        $query = Department::orderBy('id','asc');
+        
+        if (request('search')) {
+            $search = request('search');
+            $query->where(function($q) use ($search) {
+                $q->where('title', 'like', '%' . $search . '%')
+                  ->orWhere('acronym', 'like', '%' . $search . '%');
+            });
+        }
+        
+        $departments = $query->paginate(10)->withQueryString();
 
         return view('department.index',['departments' => $departments]);
     }
@@ -47,7 +57,7 @@ class DepartmentController extends Controller
      */
     public function edit(Department $department)
     {
-        //
+        return view('department.edit', compact('department'));
     }
 
     /**
@@ -55,7 +65,9 @@ class DepartmentController extends Controller
      */
     public function update(UpdateDepartmentRequest $request, Department $department)
     {
-        //
+        $department->update($request->validated());
+        
+        return redirect()->route('department.index')->with('success', 'Department updated successfully.');
     }
 
     /**
