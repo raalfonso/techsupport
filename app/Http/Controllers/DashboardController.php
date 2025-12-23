@@ -174,12 +174,13 @@ class DashboardController extends Controller
                 ->map(fn($item) => round($item->satisfaction ?? 0));
                 
             $peakHours = DB::table('reports')
-                ->selectRaw('HOUR(request_datetime) as hour, DAYOFWEEK(request_datetime) as day, COUNT(*) as count')
+                ->selectRaw('HOUR(request_datetime) as hour, DAYOFWEEK(request_datetime) - 1 as day, COUNT(*) as count')
                 ->where('status','!=','Void')
                 ->groupBy('hour', 'day')
                 ->get()
-                ->groupBy('day')
-                ->map(fn($dayData) => $dayData->pluck('count', 'hour')->toArray());
+                ->map(function($item) {
+                    return [$item->hour, $item->day, $item->count];
+                });
 
                 
                 
@@ -358,12 +359,13 @@ class DashboardController extends Controller
             ->map(fn($item) => round($item->satisfaction ?? 0));
             
         $peakHours = DB::table('reports')
-            ->selectRaw('HOUR(request_datetime) as hour, DAYOFWEEK(request_datetime) as day, COUNT(*) as count')
+            ->selectRaw('HOUR(request_datetime) as hour, DAYOFWEEK(request_datetime) - 1 as day, COUNT(*) as count')
             ->where('status','!=','Void')
             ->groupBy('hour', 'day')
             ->get()
-            ->groupBy('day')
-            ->map(fn($dayData) => $dayData->pluck('count', 'hour')->toArray());
+            ->map(function($item) {
+                return [$item->hour, $item->day, $item->count];
+            });
 
                
                

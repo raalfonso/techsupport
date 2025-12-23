@@ -543,7 +543,7 @@ function renderChart(titleColor,labelColor,legendColor) {
             series: [{
                 name: 'Requests',
                 borderWidth: 1,
-                data: [],
+                data: @json($peakHours),
                 dataLabels: {
                     enabled: true,
                     color: '#000000'
