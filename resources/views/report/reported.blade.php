@@ -26,7 +26,11 @@
                 ?>
             @foreach($reports as $report)
     
-                <tr class="hover:bg-slate-100 dark:bg-slate-800 dark:text-white text-slate-950 dark:hover:bg-slate-500 transition duration-150">
+                @php
+                    $waitingMinutes = \Carbon\Carbon::parse($report->request_datetime)->diffInMinutes(now());
+                    $isOverdue = $report->status == 'Pending' && $waitingMinutes >= 5;
+                @endphp
+                <tr class="{{ $isOverdue ? 'bg-red-50 hover:bg-red-100 animate-pulse' : 'hover:bg-slate-100' }} dark:bg-slate-800 dark:text-white text-slate-950 dark:hover:bg-slate-500 transition duration-150 {{ $isOverdue ? 'border-l-4 border-red-500' : '' }}">
     <td class="border border-gray-300 px-4 py-3 text-center">{{ $count }}</td>
     <td class="border border-gray-300 px-4 py-3 whitespace-nowrap font-medium">{{ $report->ticket_number }}</td>
     <td class="border border-gray-300 px-4 py-3 font-medium">{{ $report->client->name }}</td>
@@ -90,7 +94,10 @@
             <span class="ongoingValue{{$count}} text-blue-600 font-medium"></span>
         @endif
     </td>
-    <td class="border border-gray-300 px-4 py-3 whitespace-nowrap text-sm">{{ date('F d, Y h:i a', strtotime($report->request_datetime)) }}</td>
+    <td class="border border-gray-300 px-4 py-3 whitespace-nowrap text-sm">
+        <div>{{ date('F d, Y', strtotime($report->request_datetime)) }}</div>
+        <div class="text-xs text-gray-500">{{ date('h:i a', strtotime($report->request_datetime)) }}</div>
+    </td>
     <td class="border border-gray-300 px-4 py-3">{{ $report->remarks }}</td>
     @if ($report->status == 'Pending')
         <td class="border border-gray-300 px-4 py-3">
@@ -144,7 +151,11 @@
         $now = now();
         ?>
          @foreach($reports as $report)
-        <div class="border p-4 rounded-lg shadow-md mb-4 dark:text-white bg-white dark:bg-slate-800 transition-all hover:shadow-lg">
+        @php
+            $waitingMinutes = \Carbon\Carbon::parse($report->request_datetime)->diffInMinutes(now());
+            $isOverdue = $report->status == 'Pending' && $waitingMinutes >= 5;
+        @endphp
+        <div class="border p-4 rounded-lg shadow-md mb-4 dark:text-white {{ $isOverdue ? 'bg-red-50 border-red-200 animate-pulse' : 'bg-white' }} dark:bg-slate-800 transition-all hover:shadow-lg {{ $isOverdue ? 'border-l-4 border-l-red-500' : '' }}">
             <div class="flex justify-between items-center mb-3">
                 <h2 class="font-bold text-lg">{{ $report->client->name }} - {{ $report->department->title }}</h2>
                 <span class="px-3 py-1 rounded-full text-sm font-medium

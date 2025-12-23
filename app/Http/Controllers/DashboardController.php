@@ -135,6 +135,52 @@ class DashboardController extends Controller
             'color' => '#14B8A6',
             ])->values();
 
+            // New chart data
+            $avgResponseTime = DB::table('reports')
+                ->whereNotNull('response_datetime')
+                ->where('status','!=','Void')
+                ->selectRaw('AVG(TIMESTAMPDIFF(MINUTE, request_datetime, response_datetime)) as avg_minutes')
+                ->value('avg_minutes') ?? 0;
+                
+            $issueCategories = DB::table('reports')
+                ->leftJoin('issues', 'reports.issues_id', '=', 'issues.id')
+                ->leftJoin('categories', 'issues.category_id', '=', 'categories.id')
+                ->select('categories.title', DB::raw('COUNT(*) as count'))
+                ->where('reports.status','!=','Void')
+                ->groupBy('categories.title')
+                ->get()
+                ->map(fn($item) => ['name' => $item->title, 'y' => (int)$item->count]);
+                
+            $resolutionTrend = DB::table('reports')
+                ->selectRaw('MONTH(resolve_datetime) as month, AVG(TIMESTAMPDIFF(MINUTE, response_datetime, resolve_datetime)) as avg_minutes')
+                ->whereNotNull('resolve_datetime')
+                ->where('status', 'Done')
+                ->groupBy('month')
+                ->orderBy('month')
+                ->get()
+                ->map(fn($item) => round($item->avg_minutes ?? 0));
+                
+            $statusDistribution = [
+                ['name' => 'Pending', 'y' => $reports_pending],
+                ['name' => 'Ongoing', 'y' => $reports_ongoing], 
+                ['name' => 'Resolved', 'y' => $report_resolved]
+            ];
+            
+            $satisfactionTrend = DB::table('feedback')
+                ->selectRaw('MONTH(created_at) as month, AVG((answer1 + answer3)/2) * 20 as satisfaction')
+                ->groupBy('month')
+                ->orderBy('month')
+                ->get()
+                ->map(fn($item) => round($item->satisfaction ?? 0));
+                
+            $peakHours = DB::table('reports')
+                ->selectRaw('HOUR(request_datetime) as hour, DAYOFWEEK(request_datetime) as day, COUNT(*) as count')
+                ->where('status','!=','Void')
+                ->groupBy('hour', 'day')
+                ->get()
+                ->groupBy('day')
+                ->map(fn($dayData) => $dayData->pluck('count', 'hour')->toArray());
+
                 
                 
 
@@ -153,6 +199,12 @@ class DashboardController extends Controller
                 'formattedData'   => $formattedData,
                 'user' => $user,
                 'report_response' => $report_response,
+                'avgResponseTime' => $avgResponseTime,
+                'issueCategories' => $issueCategories,
+                'resolutionTrend' => $resolutionTrend,
+                'statusDistribution' => $statusDistribution,
+                'satisfactionTrend' => $satisfactionTrend,
+                'peakHours' => $peakHours,
             ]);
         } else {
            $reports_total = Report::where('status','!=','Void')->count();
@@ -267,6 +319,52 @@ class DashboardController extends Controller
         'color' => '#344fd9',
         ])->values();
 
+        // New chart data
+        $avgResponseTime = DB::table('reports')
+            ->whereNotNull('response_datetime')
+            ->where('status','!=','Void')
+            ->selectRaw('AVG(TIMESTAMPDIFF(MINUTE, request_datetime, response_datetime)) as avg_minutes')
+            ->value('avg_minutes') ?? 0;
+            
+        $issueCategories = DB::table('reports')
+            ->leftJoin('issues', 'reports.issues_id', '=', 'issues.id')
+            ->leftJoin('categories', 'issues.category_id', '=', 'categories.id')
+            ->select('categories.title', DB::raw('COUNT(*) as count'))
+            ->where('reports.status','!=','Void')
+            ->groupBy('categories.title')
+            ->get()
+            ->map(fn($item) => ['name' => $item->title, 'y' => (int)$item->count]);
+            
+        $resolutionTrend = DB::table('reports')
+            ->selectRaw('MONTH(resolve_datetime) as month, AVG(TIMESTAMPDIFF(MINUTE, response_datetime, resolve_datetime)) as avg_minutes')
+            ->whereNotNull('resolve_datetime')
+            ->where('status', 'Done')
+            ->groupBy('month')
+            ->orderBy('month')
+            ->get()
+            ->map(fn($item) => round($item->avg_minutes ?? 0));
+            
+        $statusDistribution = [
+            ['name' => 'Pending', 'y' => $reports_pending],
+            ['name' => 'Ongoing', 'y' => $reports_ongoing], 
+            ['name' => 'Resolved', 'y' => $report_resolved]
+        ];
+        
+        $satisfactionTrend = DB::table('feedback')
+            ->selectRaw('MONTH(created_at) as month, AVG((answer1 + answer3)/2) * 20 as satisfaction')
+            ->groupBy('month')
+            ->orderBy('month')
+            ->get()
+            ->map(fn($item) => round($item->satisfaction ?? 0));
+            
+        $peakHours = DB::table('reports')
+            ->selectRaw('HOUR(request_datetime) as hour, DAYOFWEEK(request_datetime) as day, COUNT(*) as count')
+            ->where('status','!=','Void')
+            ->groupBy('hour', 'day')
+            ->get()
+            ->groupBy('day')
+            ->map(fn($dayData) => $dayData->pluck('count', 'hour')->toArray());
+
                
                
 
@@ -283,6 +381,12 @@ class DashboardController extends Controller
             'userData' => $users,
             'recurringIssues' => $recurringIssues,
             'formattedData'   => $formattedData,
+            'avgResponseTime' => $avgResponseTime,
+            'issueCategories' => $issueCategories,
+            'resolutionTrend' => $resolutionTrend,
+            'statusDistribution' => $statusDistribution,
+            'satisfactionTrend' => $satisfactionTrend,
+            'peakHours' => $peakHours,
         ]);
         }
 

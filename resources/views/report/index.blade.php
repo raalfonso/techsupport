@@ -312,31 +312,25 @@
     <div class="mt-10 card px-6 py-8 bg-white dark:bg-slate-800 rounded-lg shadow-lg">
     <h1 class="text-2xl font-bold mb-6 text-gray-800 dark:text-slate-100">List of Resolved Issues</h1>
     
-    <div class="flex justify-end mb-6">
-        <a href="{{ route('report.export') }}" class="btn bg-teal-600 text-white hover:bg-teal-700 rounded-lg px-6 py-3 flex items-center gap-2 transition duration-200 shadow-md">
-            <i class="fa-solid fa-file-export"></i>
-            <span>Export List of Resolved Issues</span>
-        </a>
-    </div>
-
     <!-- Filter Section -->
+    <form method="GET" action="{{ route('report.index') }}">
     <div class="mb-6 grid grid-cols-1 md:grid-cols-4 gap-4">
         <!-- Date Range Filter -->
         <div>
             <label class="block text-sm font-medium text-gray-700 mb-2">Date Range</label>
             <div class="flex gap-2">
-                <input type="date" class="form-input rounded-lg text-sm w-full" placeholder="From">
-                <input type="date" class="form-input rounded-lg text-sm w-full" placeholder="To">
+                <input type="date" name="date_from" class="form-input rounded-lg text-sm w-full" placeholder="From" value="{{ request('date_from') }}">
+                <input type="date" name="date_to" class="form-input rounded-lg text-sm w-full" placeholder="To" value="{{ request('date_to') }}">
             </div>
         </div>
 
         <!-- Department Filter -->
         <div>
             <label class="block text-sm font-medium text-gray-700 mb-2">Department</label>
-            <select class="form-select rounded-lg text-sm w-full">
+            <select name="department_id" class="form-select rounded-lg text-sm w-full">
                 <option value="">All Departments</option>
                 @foreach($departments as $department)
-                    <option value="{{ $department->id }}">{{ $department->title }}</option>
+                    <option value="{{ $department->id }}" {{ request('department_id') == $department->id ? 'selected' : '' }}>{{ $department->title }}</option>
                 @endforeach
             </select>
         </div>
@@ -344,10 +338,10 @@
         <!-- Issue Category Filter -->
         <div>
             <label class="block text-sm font-medium text-gray-700 mb-2">Issue Category</label>
-            <select class="form-select rounded-lg text-sm w-full">
+            <select name="category_id" class="form-select rounded-lg text-sm w-full">
                 <option value="">All Categories</option>
-                @foreach($issues->unique('category_id') as $issue)
-                    <option value="{{ $issue->category_id }}">{{ $issue->Category?->title }}</option>
+                @foreach($categories as $category)
+                    <option value="{{ $category->id }}" {{ request('category_id') == $category->id ? 'selected' : '' }}>{{ $category->title }}</option>
                 @endforeach
             </select>
         </div>
@@ -355,24 +349,29 @@
         <!-- Technical Staff Filter -->
         <div>
             <label class="block text-sm font-medium text-gray-700 mb-2">Technical Staff</label>
-            <select class="form-select rounded-lg text-sm w-full">
+            <select name="user_id" class="form-select rounded-lg text-sm w-full">
                 <option value="">All Staff</option>
                 @foreach($users as $user)
-                    <option value="{{ $user->id }}">{{ $user->name }}</option>
+                    <option value="{{ $user->id }}" {{ request('user_id') == $user->id ? 'selected' : '' }}>{{ $user->name }}</option>
                 @endforeach
             </select>
         </div>
     </div>    
     <div class="flex justify-end mb-6 gap-4">
-        <button class="bg-slate-700 text-white hover:bg-slate-800 rounded px-4 py-2 flex items-center gap-2">
+        <button type="submit" class="bg-slate-700 text-white hover:bg-slate-800 rounded px-4 py-2 flex items-center gap-2">
             <i class="fa-solid fa-filter"></i>
             <span>Apply Filters</span>
         </button>
-        <button class="bg-gray-200 text-gray-600 hover:bg-gray-300 rounded px-4 py-2 flex items-center gap-2">
+        <a href="{{ route('report.index') }}" class="bg-gray-200 text-gray-600 hover:bg-gray-300 rounded px-4 py-2 flex items-center gap-2">
             <i class="fa-solid fa-rotate"></i>
-            <span>Reset Filters</span>w
-        </button>
-    </div>        
+            <span>Reset Filters</span>
+        </a>
+        <a href="{{ route('report.export', request()->query()) }}" class="bg-teal-600 text-white hover:bg-teal-700 rounded px-4 py-2 flex items-center gap-2">
+            <i class="fa-solid fa-file-export"></i>
+            <span>Export</span>
+        </a>
+    </div>
+    </form>        
     <div class="overflow-auto max-h-[650px] pb-10">
         <!-- Desktop Table -->
         <div class="hidden md:block">

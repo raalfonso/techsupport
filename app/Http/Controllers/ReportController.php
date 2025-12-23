@@ -24,7 +24,7 @@ class ReportController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
        
         $reports = Report::whereIn('status', ['Pending', 'Ongoing'])
@@ -37,22 +37,38 @@ class ReportController extends Controller
         $user_team = auth()->user()->team;
         $user_id = auth()->user()->id;
        
-        if ($user_level == 1) {
-            $resolved = Report::whereIn('status', ['Done'])
-            ->orderBy('id', 'desc')
-            ->paginate(5);
-           
-        }
-        else {
-        
-            $resolved = Report::whereIn('status', ['Done'])
-            ->orderBy('id', 'desc')
-            ->paginate(5);
+        // Build query for resolved reports with filters
+        $resolvedQuery = Report::whereIn('status', ['Done'])
+            ->orderBy('id', 'desc');
+            
+        // Apply filters
+        if ($request->filled('date_from')) {
+            $resolvedQuery->whereDate('resolve_datetime', '>=', $request->date_from);
         }
         
+        if ($request->filled('date_to')) {
+            $resolvedQuery->whereDate('resolve_datetime', '<=', $request->date_to);
+        }
         
-
-         $employees = SurveyEmployees::select('id', 'name','department_id')
+        if ($request->filled('department_id')) {
+            $resolvedQuery->where('department_id', '=', $request->department_id);
+        }
+        
+        if ($request->filled('category_id')) {
+            $resolvedQuery->whereHas('Issues', function($q) use ($request) {
+                $q->where('category_id', '=', $request->category_id);
+            });
+        }
+        
+        if ($request->filled('user_id')) {
+            $resolvedQuery->whereHas('resolve', function($q) use ($request) {
+                $q->where('user_id', '=', $request->user_id);
+            });
+        }
+        
+        $resolved = $resolvedQuery->paginate(5)->withQueryString();
+        
+        $employees = SurveyEmployees::select('id', 'name','department_id')
         ->get()
         ->map(function($employee) {
             return [
@@ -87,7 +103,7 @@ class ReportController extends Controller
     {
         $reports = Report::whereIn('status', ['Pending', 'Ongoing', 'For Validation'])
         ->orderBy('id', 'asc')
-        ->paginate(5);
+        ->paginate(15);
         $categories = Category::orderBy('title', 'asc')->get();
         $departments = Department::orderBy('title', 'asc')->get();
         $issues = Issues::all();
@@ -308,10 +324,9 @@ class ReportController extends Controller
         //
     }
 
-    public function export()
+    public function export(Request $request)
     {
-
-        return Excel::download(new ReportsExport, 'reports.xlsx');
+        return Excel::download(new ReportsExport($request->all()), 'reports.xlsx');
     }
 
     public function logHistory($id)

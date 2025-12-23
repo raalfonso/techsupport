@@ -103,10 +103,10 @@ class HomeController extends Controller
    
     public function add($id,$survey_employees_id){
         $categories = Category::orderBy('title', 'asc')->get();
-        $departments = Department::orderBy('title', 'asc')->get();
+        $departments = Department::where('active', '=', 1)->orderBy('title', 'asc')->get();
         $issues = Issues::where('mains_id', $id)->get();
         $client = SurveyEmployees::where('id', '=', $survey_employees_id)->first();
-        $user_department = Report::select('department_id')->where('survey_employees_id', $survey_employees_id)->orderBy('id','desc')->first();
+        $user_department = Report::select('department_id')->with('department')->where('survey_employees_id', '=', $survey_employees_id)->orderBy('id','desc')->first();
         return view('home.form', [
             'categories' => $categories,
             'departments' => $departments,

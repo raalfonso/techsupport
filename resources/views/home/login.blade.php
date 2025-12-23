@@ -308,14 +308,9 @@
           </div>
       </div> 
     <footer class="bg-blue-800 text-white py-8">
-      <div class="max-w-6xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center text-sm">
-        <p class="mb-4 md:mb-0">&copy; {{ date('Y') }} IT Division - Bases Conversion and Development Authority</p>
-        <div class="flex gap-4">
-          <a href="#home-section" class="hover:underline">Home</a>
-          <a href="#about" class="hover:underline">About</a>
-          <a href="#projects" class="hover:underline">Projects</a>
-          <a href="#contact" class="hover:underline">Report</a>
-        </div>
+      <div class="max-w-6xl mx-auto px-6 text-center">
+        <p class="text-sm">&copy; {{ date('Y') }} IT Division - Bases Conversion and Development Authority</p>
+        <p class="text-xs mt-2 text-blue-200">Developed by ICTD-ITD 2025</p>
       </div>
     </footer>
 

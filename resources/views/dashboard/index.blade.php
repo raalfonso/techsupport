@@ -114,6 +114,36 @@
             <div id="container-recurring" class="h-[450px]"></div>
         </div>
     </div>
+    
+    <!-- New Charts Row 1 -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 gap-8 mt-8">
+        <div class="bg-white text-slate-800 p-8 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 dark:bg-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-700">
+            <div id="response-time-gauge" class="h-[450px]"></div>
+        </div>
+        <div class="bg-white text-slate-800 p-8 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 dark:bg-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-700">
+            <div id="issue-categories-pie" class="h-[450px]"></div>
+        </div>
+    </div>
+    
+    <!-- New Charts Row 2 -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 gap-8 mt-8">
+        <div class="bg-white text-slate-800 p-8 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 dark:bg-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-700">
+            <div id="resolution-trend" class="h-[450px]"></div>
+        </div>
+        <div class="bg-white text-slate-800 p-8 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 dark:bg-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-700">
+            <div id="status-distribution" class="h-[450px]"></div>
+        </div>
+    </div>
+    
+    <!-- New Charts Row 3 -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 gap-8 mt-8">
+        <div class="bg-white text-slate-800 p-8 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 dark:bg-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-700">
+            <div id="satisfaction-trend" class="h-[450px]"></div>
+        </div>
+        <div class="bg-white text-slate-800 p-8 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 dark:bg-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-700">
+            <div id="peak-hours" class="h-[450px]"></div>
+        </div>
+    </div>
     <br>            
 </div>
 
@@ -121,6 +151,9 @@
         
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://code.highcharts.com/highcharts-more.js"></script>
+<script src="https://code.highcharts.com/modules/solid-gauge.js"></script>
+<script src="https://code.highcharts.com/modules/heatmap.js"></script>
 <script>
  $(document).ready(function() {
    
@@ -335,6 +368,187 @@ function renderChart(titleColor,labelColor,legendColor) {
                 },
                 
             }
+        });
+        
+        // Response Time Gauge
+        Highcharts.chart('response-time-gauge', {
+            chart: {
+                type: 'gauge',
+                backgroundColor: 'transparent'
+            },
+            title: {
+                text: 'Average Response Time',
+                style: { color: titleColor }
+            },
+            pane: {
+                startAngle: -90,
+                endAngle: 89.9,
+                background: null,
+                center: ['50%', '75%'],
+                size: '110%'
+            },
+            yAxis: {
+                min: 0,
+                max: 60,
+                tickPixelInterval: 72,
+                tickPosition: 'inside',
+                tickColor: titleColor,
+                tickLength: 20,
+                tickWidth: 2,
+                minorTickInterval: null,
+                labels: {
+                    distance: 20,
+                    style: { fontSize: '14px', color: titleColor }
+                },
+                plotBands: [{
+                    from: 0,
+                    to: 15,
+                    color: '#55BF3B'
+                }, {
+                    from: 15,
+                    to: 30,
+                    color: '#DDDF0D'
+                }, {
+                    from: 30,
+                    to: 60,
+                    color: '#DF5353'
+                }]
+            },
+            series: [{
+                name: 'Minutes',
+                data: [{{ $avgResponseTime }}],
+                tooltip: {
+                    valueSuffix: ' minutes'
+                }
+            }]
+        });
+        
+        // Issue Categories Pie
+        Highcharts.chart('issue-categories-pie', {
+            chart: {
+                type: 'pie',
+                backgroundColor: 'transparent'
+            },
+            title: {
+                text: 'Issue Category Breakdown',
+                style: { color: titleColor }
+            },
+            series: [{
+                name: 'Issues',
+                colorByPoint: true,
+                data: @json($issueCategories)
+            }]
+        });
+        
+        // Resolution Time Trend
+        Highcharts.chart('resolution-trend', {
+            chart: {
+                type: 'line',
+                backgroundColor: 'transparent'
+            },
+            title: {
+                text: 'Resolution Time Trends',
+                style: { color: titleColor }
+            },
+            xAxis: {
+                categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                labels: { style: { color: labelColor } }
+            },
+            yAxis: {
+                title: {
+                    text: 'Minutes',
+                    style: { color: labelColor }
+                },
+                labels: { style: { color: labelColor } }
+            },
+            series: [{
+                name: 'Avg Resolution Time',
+                data: @json($resolutionTrend),
+                color: '#344fd9'
+            }]
+        });
+        
+        // Status Distribution Donut
+        Highcharts.chart('status-distribution', {
+            chart: {
+                type: 'pie',
+                backgroundColor: 'transparent'
+            },
+            title: {
+                text: 'Status Distribution',
+                style: { color: titleColor }
+            },
+            plotOptions: {
+                pie: {
+                    innerSize: '50%'
+                }
+            },
+            series: [{
+                name: 'Status',
+                data: @json($statusDistribution)
+            }]
+        });
+        
+        // Satisfaction Trend
+        Highcharts.chart('satisfaction-trend', {
+            chart: {
+                type: 'line',
+                backgroundColor: 'transparent'
+            },
+            title: {
+                text: 'Customer Satisfaction Trend',
+                style: { color: titleColor }
+            },
+            xAxis: {
+                categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                labels: { style: { color: labelColor } }
+            },
+            yAxis: {
+                title: {
+                    text: 'Satisfaction %',
+                    style: { color: labelColor }
+                },
+                labels: { style: { color: labelColor } }
+            },
+            series: [{
+                name: 'Satisfaction',
+                data: @json($satisfactionTrend),
+                color: '#28a745'
+            }]
+        });
+        
+        // Peak Hours Heatmap
+        Highcharts.chart('peak-hours', {
+            chart: {
+                type: 'heatmap',
+                backgroundColor: 'transparent'
+            },
+            title: {
+                text: 'Peak Hours Analysis',
+                style: { color: titleColor }
+            },
+            xAxis: {
+                categories: Array.from({length: 24}, (_, i) => i + ':00'),
+                labels: { style: { color: labelColor } }
+            },
+            yAxis: {
+                categories: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+                labels: { style: { color: labelColor } }
+            },
+            colorAxis: {
+                min: 0,
+                minColor: '#FFFFFF',
+                maxColor: '#344fd9'
+            },
+            series: [{
+                name: 'Requests',
+                borderWidth: 1,
+                data: [],
+                dataLabels: {
+                    enabled: true,
+                    color: '#000000'
+                }
+            }]
         });
 }
 

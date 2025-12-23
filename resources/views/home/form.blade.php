@@ -87,34 +87,37 @@
                             <input type="text" class="input w-full transition duration-300 focus:ring-2 focus:ring-teal-500" value="{{ $client->email_address }}" disabled>
                         </div>
     
-                        @if ($user_department)
+                        {{-- @if ($user_department)
                             <div class="transition duration-300 hover:shadow-md p-3 rounded-lg">
                                 <label for="department_id" class="text-gray-800 font-medium">Department <span class="text-rose-500 text-xs">(Required)</span></label>
-                                <input type="hidden" id="department_id" name="department_id" value="{{$user_department->department_id }}">
+                                <input type="text" id="department_id" name="department_id" value="{{$user_department->department_id }}">
                                 <input type="text" id="auto-department" class="input w-full transition duration-300 focus:ring-2 focus:ring-teal-500 @error('department') ring-red-500 @enderror" placeholder="Type to search..." autocomplete="off" value="{{$user_department->department->title}}">
                                 <div id="suggestions" class="suggestions-box input cursor-pointer shadow-lg max-h-48 overflow-y-auto" style="display: none;"></div>
                                 @error('department')
                                     <p class="error text-red-500 text-sm mt-1">{{ $message }}</p>
                                 @enderror
                             </div>
-                        @else
-                            <div class="transition duration-300 hover:shadow-md p-3 rounded-lg">
+                        @else --}}
+                            {{-- <div class="transition duration-300 hover:shadow-md p-3 rounded-lg">
                                 <label for="department_id" class="text-gray-800 font-medium">Department <span class="text-rose-500 text-xs">(Required)</span></label>
-                                <input type="hidden" id="department_id" name="department_id">
-                                <input type="text" id="auto-department" class="input w-full transition duration-300 focus:ring-2 focus:ring-teal-500 @error('department') ring-red-500 @enderror" placeholder="Type to search..." autocomplete="off">
+                                <input type="hidden" id="department_id" name="department_id" value="{{$client->department->id }}">
+                                <input type="text" id="auto-department" class="input w-full transition duration-300 focus:ring-2 focus:ring-teal-500 @error('department') ring-red-500 @enderror" placeholder="Type to search..." value={{$client->department->title }} autocomplete="off">
                                 <div id="suggestions" class="suggestions-box input cursor-pointer shadow-lg max-h-48 overflow-y-auto" style="display: none;"></div>
                                 @error('department')
                                     <p class="error text-red-500 text-sm mt-1">{{ $message }}</p>
                                 @enderror
-                            </div>
-                        @endif
-    
+                            </div> --}}
+                        {{-- @endif --}}
+                              <input type="hidden" id="department_id" name="department_id" value="{{$client->department->id }}">
                         <div class="transition duration-300 hover:shadow-md p-3 rounded-lg">
                             <label for="location" class="text-gray-800 font-medium">Location <span class="text-red-500 text-xs">(Required)</span></label>
                             <select name="location" id="location" class="input w-full transition duration-300 focus:ring-2 focus:ring-teal-500 @error('location') ring-red-500 @enderror"> 
                                 <option value="">Select Location</option>
                                 <option value="BTC">BTC</option>
                                 <option value="One west">One west</option>
+                                <option value="PMO">PMO</option>
+                                <option value="NCC">NCC</option>
+                                <option value="BTP">BTP</option>
                             </select>
                             @error('location')
                                 <p class="error text-red-500 text-sm mt-1">{{ $message }}</p>
@@ -185,41 +188,41 @@
 
 
 <script>
-     document.getElementById('auto-department').addEventListener('input', function () {
-        const query = this.value;
-            // console.log(query);
-        if (query.length >= 3) {
+    //  document.getElementById('auto-department').addEventListener('input', function () {
+    //     const query = this.value;
+    //         // console.log(query);
+    //     if (query.length >= 3) {
             
-            fetch(`/search-department?q=${encodeURIComponent(query)}`)
-                .then(response => response.json())
-                .then(data => {
-                    const suggestionsBox = document.getElementById('suggestions');
-                    suggestionsBox.innerHTML = '';
+    //         fetch(`/search-department?q=${encodeURIComponent(query)}`)
+    //             .then(response => response.json())
+    //             .then(data => {
+    //                 const suggestionsBox = document.getElementById('suggestions');
+    //                 suggestionsBox.innerHTML = '';
 
-                    if (data.length) {
-                        suggestionsBox.style.display = 'block';
-                        data.forEach(item => {
-                            const suggestion = document.createElement('div');
-                            $('.suggestions-box').show();
-                            suggestion.textContent = item.title; // Adjust based on your data structure
-                            suggestion.className = "border border-slate-500 p-2 mb-0 rounded-md bg-white hover:bg-slate-400 cursor-pointer transition duration-200";
-                            suggestion.addEventListener('click', () => {
-                                // console.log('hi');
-                                document.getElementById('auto-department').value = item.title;
-                                document.getElementById('department_id').value = item.id;
-                                suggestionsBox.style.display = 'none';
+    //                 if (data.length) {
+    //                     suggestionsBox.style.display = 'block';
+    //                     data.forEach(item => {
+    //                         const suggestion = document.createElement('div');
+    //                         $('.suggestions-box').show();
+    //                         suggestion.textContent = item.title; // Adjust based on your data structure
+    //                         suggestion.className = "border border-slate-500 p-2 mb-0 rounded-md bg-white hover:bg-slate-400 cursor-pointer transition duration-200";
+    //                         suggestion.addEventListener('click', () => {
+    //                             // console.log('hi');
+    //                             document.getElementById('auto-department').value = item.title;
+    //                             document.getElementById('department_id').value = item.id;
+    //                             suggestionsBox.style.display = 'none';
                                
-                            });
-                            suggestionsBox.appendChild(suggestion);
-                        });
-                    } else {
-                        suggestionsBox.style.display = 'none';
-                    }
-                });
-        } else {
-            document.getElementById('suggestions').style.display = 'none';
-        }
-    });
+    //                         });
+    //                         suggestionsBox.appendChild(suggestion);
+    //                     });
+    //                 } else {
+    //                     suggestionsBox.style.display = 'none';
+    //                 }
+    //             });
+    //     } else {
+    //         document.getElementById('suggestions').style.display = 'none';
+    //     }
+    // });
 
        // JavaScript to toggle mobile menu
         document.addEventListener('DOMContentLoaded', function () {
