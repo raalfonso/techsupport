@@ -1,9 +1,22 @@
 <x-layout>
     
+    <!-- Floating Year Filter -->
+    <div style="position: fixed; top: 80px; right: 20px; z-index: 1000;">
+        <form method="GET" class="bg-white dark:bg-slate-800 rounded-xl shadow-xl p-4 border border-gray-200 dark:border-slate-600">
+            <div class="flex items-center gap-3">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-blue-600">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5a2.25 2.25 0 0 0 2.25-2.25m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5a2.25 2.25 0 0 1 2.25 2.25v7.5" />
+                </svg>
+                <select name="year" class="bg-transparent border-0 text-sm font-medium text-gray-700 dark:text-gray-300 focus:outline-none cursor-pointer" onchange="this.form.submit()">
+                    @for($year = date('Y'); $year >= 2020; $year--)
+                        <option value="{{ $year }}" {{ request('year', date('Y')) == $year ? 'selected' : '' }}>{{ $year }}</option>
+                    @endfor
+                </select>
+            </div>
+        </form>
+    </div>
+
     <div class="container-fluid p-5 mt-5">
-        <!-- Scorecards -->
-        <!-- Responsive cards -->
-       
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
             <!-- Card 1 -->
             <div class="flex items-center p-6 bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 dark:bg-slate-800">
@@ -70,13 +83,6 @@
                 </div>
             </div>
         </div>
-        
-
-
-        {{-- end of Scorecards --}}
-
-
-    <!-- 2nd layer Chart -->
 
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 gap-8 mt-12">
         <div class="bg-white text-slate-800 p-8 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 dark:bg-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-700">
