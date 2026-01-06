@@ -228,7 +228,7 @@ function renderChart(titleColor,labelColor,legendColor) {
                 backgroundColor: 'transparent' // Remove white background, no comma after this
             },
             title: {
-                text: "Department Showdown 2025",
+                text: "Department Showdown",
                 style: { color: titleColor }
             },
             subtitle: {
