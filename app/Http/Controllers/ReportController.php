@@ -14,7 +14,7 @@ use App\Models\History;
 use App\Exports\ReportsExport;
 use App\Loghistory;
 use Maatwebsite\Excel\Facades\Excel;
-use Carbon\Carbon;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 
@@ -27,11 +27,16 @@ class ReportController extends Controller
     public function index(Request $request)
     {
        
-        $reports = Report::whereIn('status', ['Pending', 'Ongoing'])
+        // Get actual counts from database for stats
+        $pendingCount = Report::where('status', 'Pending')->count();
+        $ongoingCount = Report::where('status', 'Ongoing')->count();
+        $validationCount = Report::where('status', 'For validation')->count();
+        
+        $reports = Report::whereIn('status', ['Pending', 'Ongoing', 'For validation'])
         ->orderBy('id', 'asc')
         ->paginate(5);
 
-        $countReport = Report::whereIn('status', ['Pending', 'Ongoing'])->count();
+        $countReport = Report::whereIn('status', ['Pending', 'Ongoing', 'For validation'])->count();
 
         $user_level = auth()->user()->level;
         $user_team = auth()->user()->team;
@@ -96,6 +101,9 @@ class ReportController extends Controller
             'resolved'  => $resolved,
             'countReport' => $countReport,
             'employees' =>  $employees,
+            'pendingCount' => $pendingCount,
+            'ongoingCount' => $ongoingCount,
+            'validationCount' => $validationCount,
         ]);
     }
 
@@ -118,7 +126,7 @@ class ReportController extends Controller
     }
 
     public function getTotalReports(){
-        $countReport = Report::whereIn('status', ['Pending', 'Ongoing'])->count();
+        $countReport = Report::whereIn('status', ['Pending', 'Ongoing', 'For validation'])->count();
 
         return $countReport;
     }
@@ -155,6 +163,52 @@ class ReportController extends Controller
      
         //Redirect
       return redirect()->route('report.index');
+    }
+
+    public function emergency(Request $request)
+    {
+        $fields = $request->validate([
+            'survey_employees_id' => 'required',
+            'department_id' => 'required',
+            'issues_id' => 'required',
+            'location' => 'string',
+        ]);
+
+        $fields['request_datetime'] = now();
+        $fields['response_datetime'] = now();
+        $fields['validation_date_time'] = now();
+        $fields['response_by'] = Auth::id();
+
+        $fields['status'] = 'Ongoing';
+        
+        $report = Report::create($fields);
+
+        return view('report.qr', [
+            'report_id' => $report->id,
+            'qr_url' => route('report.complete', $report->id),
+            'qrCode' => QrCode::size(200)->generate(route('report.complete', $report->id))
+        ]);
+    }
+
+    public function complete($id)
+    {
+        $report = Report::findOrFail($id);
+        
+        if ($report->status === 'Ongoing') {
+            $report->status = "Done";
+            $report->feedback = "No";
+            $report->remarks = "Emergency Report Completed via QR Code";
+            $report->resolve_datetime = now();
+            $report->save();
+
+            $user['report_id'] = $report->id; 
+            $user['user_id'] = $report->response_by;
+            \App\Models\Resolve::create($user);
+            
+            return view('report.completed', ['report_id' => $report->id]);
+        }
+        
+        return view('report.completed', ['report_id' => $report->id, 'error' => 'Report already completed']);
     }
 
     /**

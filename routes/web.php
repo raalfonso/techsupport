@@ -47,6 +47,8 @@ Route::middleware('auth')->group(function () {
     Route::resource('department', DepartmentController::class);
     Route::resource('main', ReportController::class);
     Route::get('/report/export', [ReportController::class, 'export'])->name('report.export');
+    Route::post('/report/emergency', [ReportController::class, 'emergency'])->name('report.emergency');
+   
     Route::resource('report', ReportController::class);
 
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -147,7 +149,7 @@ Route::prefix('survey')->group(function () {
 
 Route::get('/', [GoogleController::class, 'redirect'])->name('google.login');
 Route::get('/auth/google/callback', [GoogleController::class, 'callback']);
-
+Route::get('/report/complete/{id}', [ReportController::class, 'complete'])->name('report.complete');
 Route::middleware('guest')->group(function () {
    
     Route::view('/register', 'auth.register')->name('register');
