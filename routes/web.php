@@ -1,8 +1,13 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Auth\GoogleController;
+use App\Http\Controllers\Auth\GoogleSurveyController;
 use App\Http\Controllers\{
     AuthController,
+    AuthItemController,
+    AuthItemChildController,
+    AuthAssignmentController,
     DashboardController,
     IssuesController,
     CategoryController,
@@ -26,8 +31,17 @@ use App\Http\Controllers\{
 | Authenticated Routes (IT Users)
 |--------------------------------------------------------------------------
 */
+
+
+
+
+
+
 Route::middleware('auth')->group(function () {
     Route::resource('issues', IssuesController::class);
+    Route::resource('auth', AuthItemController::class);
+    Route::resource('auth-child', AuthItemChildController::class);
+    Route::resource('auth-assignment', AuthAssignmentController::class);
 
     Route::resource('category', CategoryController::class);
     Route::resource('department', DepartmentController::class);
@@ -42,7 +56,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/report/endorse/{id}', [ReportController::class, 'endorse'])->name('report.endorse');
     Route::post('/report/validate',[ReportController::class, 'validateReport'])->name('report.validate');
    
-    
+    Route::get('/home', [HomeController::class, 'login'])->name('home');
+    // Route::view('/', 'home.home')->name('home');
 
     Route::get('/reports', [ReportController::class, 'getReports']);
     Route::get('/getstotal', [ReportController::class, 'getTotalReports']);
@@ -56,8 +71,25 @@ Route::middleware('auth')->group(function () {
     Route::get('/users/{user}/edit', [UserController::class, 'edit'])->name('users.edit');
     Route::put('/users/{user}', [UserController::class, 'update'])->name('users.update');
     Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
-
+  
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
+
+    //user employee
+    Route::view('/track', 'home.track')->name('track');
+    Route::post('/check-email', [HomeController::class, 'checkEmail'])->name('client.check-email');
+    Route::get('/tracking', [HomeController::class, 'employeeReport'])->name('home.employeeReport');
+    Route::get('/home.index/{id}', [HomeController::class, 'index'])->name('home.index');
+    Route::get('/home.cancel/{id}', [HomeController::class, 'cancel'])->name('home.cancel');
+    Route::get('/home/add/{id}/{survey_employees_id}', [HomeController::class, 'add'])->name('home.add');
+
+    Route::get('/view/{id}', [HomeController::class, 'view'])->name('home.view');
+    Route::get('/viewstatus/{id}', [HomeController::class, 'viewStatus'])->name('home.status');
+    Route::get('/feedback/{id}', [HomeController::class, 'feedback'])->name('home.feedback');
+    Route::post('/feedback-store', [FeedbackController::class, 'store'])->name('feedback.store');
+
+    Route::post('/save-data', [HomeController::class, 'saveData'])->name('home.data');
+    Route::post('/track-view', [HomeController::class, 'trackView'])->name('home.track-view');
 });
 
 /*
@@ -66,8 +98,12 @@ Route::middleware('auth')->group(function () {
 |--------------------------------------------------------------------------
 */
 Route::prefix('survey')->group(function () {
-    Route::view('/', 'survey.index')->name('survey.index');
+    Route::view('/survey/home', 'survey.index')->name('survey.index');
 
+    //Check if already login using google
+    Route::get('/', [SurveyController::class, 'checkLogin'])->name('survey.checkLogin');
+    Route::get('/google/login', [GoogleSurveyController::class, 'redirect'])->name('survey.google.login');
+    Route::get('/google/callback', [GoogleSurveyController::class, 'callback'])->name('survey.google.callback');
     // Authenticated employee routes
     Route::middleware('auth:userSurvey')->group(function () {
         Route::get('/dashboard', [SurveyController::class, 'index'])->name('survey.dashboard');
@@ -93,7 +129,7 @@ Route::prefix('survey')->group(function () {
     Route::post('/submit', [SurveyController::class, 'submit'])->name('survey.submit');
     Route::get('/thank-you', [SurveyController::class, 'thankYou'])->name('survey.thank-you');
     Route::post('/user-survey/login', [UserSurveyAuthController::class, 'login'])->name('userSurvey.login');
-    Route::view('/', 'survey.index')->name('survey.index');
+    // Route::view('/', 'survey.index')->name('survey.index');
     Route::get('/qrcode/{departmentCode}', [QrCodeController::class, 'generate'])->name('qrcode');
     Route::view('/thankyou', 'survey.thankyou')->name('survey.thankyou');   
     Route::get('/reports/loghistory/{id}', [ReportController::class, 'logHistory'])->name('report.loghistory');
@@ -105,29 +141,21 @@ Route::prefix('survey')->group(function () {
 | Guest Routes (Public Access)
 |--------------------------------------------------------------------------
 */
+
+
+
+
+Route::get('/', [GoogleController::class, 'redirect'])->name('google.login');
+Route::get('/auth/google/callback', [GoogleController::class, 'callback']);
+
 Route::middleware('guest')->group(function () {
-    Route::get('/', [HomeController::class, 'login'])->name('home');
+   
     Route::view('/register', 'auth.register')->name('register');
     Route::post('/register', [AuthController::class, 'register']);
-    Route::view('/login', 'auth.login')->name('login');
-    Route::post('/login', [AuthController::class, 'login']);
-
-    Route::view('/track', 'home.track')->name('track');
-    Route::get('/home.index/{id}', [HomeController::class, 'index'])->name('home.index');
-    Route::get('/home.cancel/{id}', [HomeController::class, 'cancel'])->name('home.cancel');
-    Route::get('/home/add/{id}/{survey_employees_id}', [HomeController::class, 'add'])->name('home.add');
-
-    Route::get('/view/{id}', [HomeController::class, 'view'])->name('home.view');
-    Route::get('/viewstatus/{id}', [HomeController::class, 'viewStatus'])->name('home.status');
-    Route::get('/feedback/{id}', [HomeController::class, 'feedback'])->name('home.feedback');
-    Route::post('/feedback-store', [FeedbackController::class, 'store'])->name('feedback.store');
-
-    Route::post('/save-data', [HomeController::class, 'saveData'])->name('home.data');
-    Route::post('/track-view', [HomeController::class, 'trackView'])->name('home.track-view');
-
-    Route::post('/check-email', [HomeController::class, 'checkEmail'])->name('client.check-email');
-    Route::get('/tracking', [HomeController::class, 'employeeReport'])->name('home.employeeReport');
-
+    Route::get('/login', [GoogleController::class, 'redirect'])->name('login');
+    // Route::post('/login', [AuthController::class, 'login']);
+    
+  
     Route::get('/login-client', [ClientAuthController::class, 'showLoginForm'])->name('client.login');
     Route::post('/ticket', [ClientAuthController::class, 'login'])->name('client.login.submit');
 

@@ -36,6 +36,7 @@
                <img src="{{ asset('img/itd_logo.png') }}" alt="ITD Logo" class="h-24 w-auto p-0 rounded">
                 BCDA IT DIVISION {{-- Changed from MyBrand to match context --}}
             </div>
+           
 
             {{-- Desktop Navigation --}}
             <div class="hidden md:flex space-x-4 float-right">

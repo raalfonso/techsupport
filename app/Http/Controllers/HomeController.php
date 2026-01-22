@@ -45,7 +45,10 @@ class HomeController extends Controller
     }
 
     public function login(){
-        return view('home.login',);
+        if (!auth()->check()) {
+            return redirect()->route('google.login');
+        }
+        return view('home.home');
     }
 
     public function track(){
@@ -79,8 +82,6 @@ class HomeController extends Controller
             'email' => ['required', 'email'],
             'main' => ['required'],
         ]); 
-       
-
 
         $client = SurveyEmployees::where('email', '=', $fields['email'])->first();
         if ($client) {
@@ -98,7 +99,11 @@ class HomeController extends Controller
                     'survey_employees_id' => $client->id
                 ]);
             }
-        } 
+        }
+        else
+        {
+            return view('home.email');
+        }
     }
    
     public function add($id,$survey_employees_id){

@@ -37,7 +37,7 @@
             </center>
 
             <div class="mt-[-15%] p-6">
-                <h1 class="text-2xl font-bold text-center mb-5 text-gray-800">BCDA Survey Hub Login</h1>
+                <h1 class="text-2xl font-bold text-center mb-5 text-gray-800">BCDA Survey Hub Logins/h1>
     
                 <form action="{{ route('userSurvey.login')}}" method="post">
                     @csrf

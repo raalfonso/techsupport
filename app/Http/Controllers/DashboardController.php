@@ -123,7 +123,10 @@ class DashboardController extends Controller
         ->leftJoin('reports', 'reports.issues_id', '=', 'issues.id')
         ->select('issues.title', \DB::raw('COUNT(reports.id) as data'))
         ->where('reports.status','!=','Void')
-        ->whereYear('reports.request_datetime', $selectedYear)
+        ->whereBetween('reports.request_datetime', [
+            Carbon::now()->startOfWeek(),
+            Carbon::now()->endOfWeek()
+        ])
         ->groupBy('issues.title')
         ->get()
         ->filter(function ($data) {

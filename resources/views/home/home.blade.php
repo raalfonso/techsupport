@@ -35,18 +35,21 @@
                <img src="{{ asset('img/itd_logo.png') }}" alt="ITD Logo" class="h-24 w-auto p-0 rounded">
                 BCDA IT DIVISION {{-- Changed from MyBrand to match context --}}
             </div>
-
+            
             {{-- Desktop Navigation --}}
-            <div class="hidden md:flex space-x-4 float-right">
+            <div class="hidden md:flex space-x-4 float-right items-center">
                 {{-- Navigation links --}}
                 <a href="#home-section" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">Home</a>
                 <a href="#about" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">About</a>
                 <a href="#projects" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">Project</a>
-                <a href="#contact" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">Report</a> {{-- Assuming 'Report' links to 'Contact' or another relevant section --}}
-                <a href="#"   data-modal-target="login-modal"
-                  data-modal-toggle="login-modal"
-                  class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">Login</a>
-              </div>
+                <a href="#contact" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">Report</a>
+                @auth
+                    <span class="text-gray-800 px-3 py-2 text-sm font-semibold">{{ auth()->user()->name }}</span>
+                    @if (auth()->user()->authAssignments->contains('item_name', 'Administrator'))
+                        <a href="{{ route('dashboard') }}" class="bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-800">SolveIT</a>
+                    @endif
+                @endauth
+            </div>
 
             {{-- Mobile Menu Button (Hamburger) --}}
             <div class="md:hidden">
@@ -68,9 +71,13 @@
                 <a href="#about" class="block text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-base font-medium">About</a>
                 <a href="#projects" class="block text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-base font-medium">Project</a>
                 <a href="#contact" class="block text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-base font-medium">Report</a>
-                <a href="#"   data-modal-target="login-modal"
-                  data-modal-toggle="login-modal"
-                  class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">Login</a>
+                
+                 @auth
+                    @if (auth()->user()->authAssignments->contains('item_name', 'Administrator'))
+                        <a href="{{ route('dashboard') }}"  class="block text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-base font-medium">SolveIT</a>
+                    @endif
+                @endauth                                  
+                </div>
             </div>
         </div>
     </nav>
@@ -85,7 +92,11 @@
                     </div>
 
                     <h1 class="text-gray-900 text-4xl sm:text-5xl font-semibold pt-5 lg:pt-0">
-                        The IT Solution Starts Here.
+                        @auth
+                            Welcome back, {{ auth()->user()->name }}!
+                        @else
+                            The IT Solution Starts Here.
+                        @endauth
                     </h1>
 
                     <h3 class="text-black/70 text-lg pt-5 lg:pt-0">
@@ -151,7 +162,7 @@
             ['title' => 'Acumatica ERP', 'desc' => 'Cloud-based ERP platform for managing finance, inventory, sales, and operations in one integrated system.', 'url' => 'https://bcda.cloudtwogo.com/Frames/Login.aspx?ReturnUrl=%2f'],
             ['title' => 'BCDA QR Maker', 'desc' => 'BCDA’s smart way to share information—one scan away.', 'url' => route('vcard')],
             // ['title' => 'BCDA Careers Portal', 'desc' => 'Job posting site that integrates HRIS and applicant tracking.', 'url' => '#careers'],
-            ['title' => 'BCDA Survey Hub', 'desc' => 'Your gateway to sharing insights, giving feedback, and shaping the future of BCDA through quick and secure surveys.', 'url' => route('survey.index')],
+            ['title' => 'BCDA Survey Hub', 'desc' => 'Your gateway to sharing insights, giving feedback, and shaping the future of BCDA through quick and secure surveys.', 'url' => route('survey.checkLogin')],
             ['title' => 'ITD Assets Maintenance', 'desc' => 'An IT asset management hub for tracking hardware, software licenses, and maintenance schedules to ensure timely updates and repairs', 'url' => 'https://www.appsheet.com/start/98c13452-6136-41b8-bd56-72559f573536'],
             ] as $project)
             <a href="{{ $project['url'] }}" target="_blank" rel="noopener noreferrer" class="block bg-gray-100 p-6 rounded-lg shadow-md hover:shadow-lg transition duration-300 transform hover:scale-105">
@@ -182,8 +193,9 @@
           ] as $project)
             {{-- Use data attributes for modal functionality --}}
             <a href="#"
-              data-modal-target="crud-modal"
-              data-modal-toggle="crud-modal"
+              @guest onclick="event.preventDefault(); window.location.href='{{ route('google.login') }}';" @endguest
+              @auth data-modal-target="crud-modal"
+              data-modal-toggle="crud-modal" @endauth
               data-project-title="{{ $project['title'] }}"
               data-project-button="{{ $project['button'] }}"
               data-project-main="{{ $project['main'] }}"
@@ -204,71 +216,7 @@
     </section>
 
     {{-- this is for modal request --}}
-    <!-- Login modal -->
-      <div id="login-modal" tabindex="-1" aria-hidden="true" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full ">
-          <div class="relative p-4 w-full max-w-md max-h-full">
-              <!-- Modal content -->
-              <div class="relative bg-white rounded-lg shadow-sm dark:bg-gray-700">
-                  <!-- Modal header -->
-                  <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600 border-gray-200">
-                      <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-                         <span class="text-blue-700 font-semibold"></span>
-                      </h3>
-                      <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-toggle="login-modal">
-                          <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
-                              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
-                          </svg>
-                          <span class="sr-only">Close modal</span>
-                      </button>
-                  </div>
-                  <!-- Modal body -->
-                  <div class="rounded-lg shadow w-full max-w-md mt-[0%] sm:mt-[-1/2]">
-                    <center>
-                        <img src="{{asset('img/itd_logo.png')}}" alt="" class="max-w-48 h-48 mx-auto mt-[-10%] mb-[-10%]">
-                    </center>
-
-                    <div class="mt-[-15%] p-6">
-                        <h1 class="text-2xl font-bold text-center mb-5 text-gray-800">ICTD Login</h1>
-            
-                        <form action="{{ route('login')}}" method="post">
-                            @csrf
-                            <div class="mb-4">
-                                <label for="email" class="block font-semibold text-gray-700">Email</label>
-                                <input type="text" name="email" class="w-full p-3 border border-gray-300 rounded-md focus:ring focus:ring-blue-300 @error('email') ring-red-500 @enderror" value="{{ old('email') }}">
-                                @error('email')
-                                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                                @enderror
-                            </div>
-                
-                            <div class="mb-4">
-                                <label for="password" class="block font-semibold text-gray-700">Password</label>
-                                <input type="password" name="password" class="w-full p-3 border border-gray-300 rounded-md focus:ring focus:ring-blue-300">
-                                @error('password')
-                                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                                @enderror
-                            </div>
-                
-                            <!-- Remember me checkbox -->
-                            <div class="mb-4 flex items-center">
-                                <input type="checkbox" name="remember" id="remember" class="mr-2">
-                                <label for="remember" class="text-gray-700">Remember me</label>
-                            </div>
-                
-                            @error('failed')
-                                <p class="text-red-500 text-sm mb-4">{{ $message }}</p>
-                            @enderror
-                
-                            <button class="w-full px-4 py-3  bg-gradient-to-r from-slate-800 to-blue-950 text-white font-semibold rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300 transition duration-200">
-                                Login
-                            </button>
-                        </form>
-                    </div>
-                    
-                </div>
-
-              </div>
-          </div>
-      </div> 
+    
      <!-- Main modal -->
       <div id="crud-modal" tabindex="-1" aria-hidden="true" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full ">
           <div class="relative p-4 w-full max-w-md max-h-full">
@@ -292,7 +240,7 @@
                     <div class="grid gap-4 mb-4 grid-cols-2">
                       <div class="col-span-2">
                         <label for="email" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Email</label>
-                        <input type="text" name="email" id="email" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Enter your email address" required>
+                        <input type="text" name="email" id="email" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Enter your email address" value="{{ auth()->user()->email }}" required>
 
                       
                       </div>
