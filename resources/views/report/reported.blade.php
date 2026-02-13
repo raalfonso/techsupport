@@ -42,12 +42,20 @@
                         </td>
                     @elseif ($report->status == 'For validation')
                         <td class="px-6 py-4">
-                            <button 
-                                @click="validateModal = true; selectedId = '{{ $report->id }}'" 
-                                class="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white px-4 py-2.5 rounded-xl w-full transition-all duration-200 shadow-lg hover:shadow-xl font-medium text-sm">
-                                <i class="fa-solid fa-check-double mr-1"></i>
-                                Validate
-                            </button>
+                            <div class="flex flex-col space-y-2">
+                                <button 
+                                    @click="confirmValidateModal = true; selectedId = '{{ $report->id }}'" 
+                                    class="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white px-3 py-2 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl font-medium text-xs">
+                                    <i class="fa-solid fa-check-double mr-1"></i>
+                                    Validate
+                                </button>
+                                <button 
+                                    @click="changeIssueModal = true; selectedId = '{{ $report->id }}'" 
+                                    class="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white px-3 py-2 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl font-medium text-xs">
+                                    <i class="fa-solid fa-exchange-alt mr-1"></i>
+                                    Change Issue
+                                </button>
+                            </div>
                         </td>
                     @else
                         <td class="px-6 py-4">
@@ -221,13 +229,20 @@
                         Response
                     </button>
                 @elseif ($report->status == 'For validation')
-                    <td class="border border-gray-300 px-4 py-3">
+                    <div class="flex flex-col gap-2">
                         <button 
-                            @click="validateModal = true; selectedId = '{{ $report->id }}'" 
-                            class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 w-full transition duration-150 shadow-sm">
+                            @click="confirmValidateModal = true; selectedId = '{{ $report->id }}'" 
+                            class="w-full bg-purple-600 text-white px-4 py-2.5 rounded-lg hover:bg-purple-700 transition duration-150 shadow-sm text-sm font-medium">
+                            <i class="fa-solid fa-check-double mr-1"></i>
                             Validate
                         </button>
-                    </td>
+                        <button 
+                            @click="changeIssueModal = true; selectedId = '{{ $report->id }}'" 
+                            class="w-full bg-orange-500 text-white px-4 py-2.5 rounded-lg hover:bg-orange-600 transition duration-150 shadow-sm text-sm font-medium">
+                            <i class="fa-solid fa-exchange-alt mr-1"></i>
+                            Change Issue
+                        </button>
+                    </div>
                 @else
                     <button 
                         @click="resolveModal = true; selectedId = '{{ $report->id }}'" 
@@ -277,8 +292,9 @@
             </div>
             
             <!-- Body -->
+            <form :action="'/report/edit/' + selectedId" method="GET" class="space-y-5">
             <div class="p-6 max-h-[70vh] overflow-y-auto">
-                <form :action="'/report/edit/' + selectedId" method="GET" class="space-y-5">
+                
                     @csrf
                     <!-- Technical Staff -->
                     <div class="space-y-2">
@@ -326,7 +342,7 @@
                         </label>
                         <textarea id="notes" rows="4" name="notes" class="w-full p-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200 resize-none" placeholder="Write your response notes here..."></textarea>
                     </div>
-                </form>
+                
             </div>
             
             <!-- Footer -->
@@ -341,13 +357,12 @@
                     </button>
                 </div>
             </div>
+            </form>
         </div>
     </div>
-<!-- Modal -->
-<!-- Validation Modal -->
-<div x-show="validateModal" x-cloak class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-60 backdrop-blur-sm z-50" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
-    <div class="bg-white p-0 rounded-2xl w-11/12 md:w-screen lg:w-1/2 max-w-2xl shadow-2xl border border-gray-100" x-transition:enter="transition ease-out duration-300 transform" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-200 transform" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95">
-        <!-- Header -->
+<!-- Confirm Validate Modal -->
+<div x-show="confirmValidateModal" x-cloak class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-60 backdrop-blur-sm z-50">
+    <div class="bg-white p-0 rounded-2xl w-11/12 md:w-screen lg:w-1/2 max-w-2xl shadow-2xl border border-gray-100">
         <div class="bg-gradient-to-r from-purple-600 to-purple-700 px-6 py-4 rounded-t-2xl">
             <div class="flex justify-between items-center">
                 <div class="flex items-center space-x-3">
@@ -356,93 +371,119 @@
                     </div>
                     <h3 class="text-xl font-bold text-white">Validate Resolution</h3>
                 </div>
-                <button @click="validateModal = false" class="text-white hover:bg-white hover:bg-opacity-20 rounded-full p-2 transition-all duration-200">
+                <button @click="confirmValidateModal = false" class="text-white hover:bg-white hover:bg-opacity-20 rounded-full p-2 transition-all duration-200">
                     <i class="fa-solid fa-times text-lg"></i>
                 </button>
             </div>
         </div>
         
-        <!-- Body -->
-        <div class="p-6 max-h-[70vh] overflow-y-auto">
-            <form action="{{ route('report.validate') }}" method="POST" class="space-y-5">
-                @csrf
-                <div class="hidden">
-                    <input type="text" name="id-issues" id="id-issues" :value="selectedId">
-                </div>
-                
-                <!-- Validation Date Time -->
-                <div class="space-y-2">
-                    <label for="validation_datetime" class="block text-sm font-semibold text-gray-700 flex items-center space-x-2">
+        <form action="{{ route('report.confirmValidate') }}" method="POST">
+            @csrf
+            <div class="p-6">
+                <input type="hidden" name="report_id" :value="selectedId">
+                <div class="space-y-2 mb-4">
+                    <label class="block text-sm font-semibold text-gray-700 flex items-center space-x-2">
                         <i class="fa-solid fa-calendar-check text-purple-600"></i>
                         <span>Validation Date Time</span>
                     </label>
-                    <input type="datetime-local" class="w-full p-3 border-2 border-gray-200 rounded-xl focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all duration-200" name="validation_datetime" value="{{ old('validation_datetime') }}">
-                    @error('validation_datetime')
-                        <p class="text-red-500 text-sm mt-1 flex items-center space-x-1">
-                            <i class="fa-solid fa-exclamation-circle"></i>
-                            <span>{{ $message }}</span>
-                        </p>
-                    @enderror
+                    <input type="datetime-local" class="w-full p-3 border-2 border-gray-200 rounded-xl focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all duration-200" name="validation_datetime" required>
                 </div>
-                
-                <!-- Confirmation Status -->
-                <div class="space-y-3">
-                    <label class="block text-sm font-semibold text-gray-700 flex items-center space-x-2">
-                        <i class="fa-solid fa-clipboard-check text-purple-600"></i>
-                        <span>Confirmation Status</span>
-                    </label>
-                    <div class="space-y-3">
-                        <div class="flex items-center p-3 border-2 border-gray-200 rounded-xl hover:border-purple-300 transition-all duration-200">
-                            <input type="radio" id="resolved" name="validation_status" value="confirm" class="h-4 w-4 text-purple-600 border-gray-300 focus:ring-purple-500" onclick="document.getElementById('changeIssueDiv').classList.add('hidden')">
-                            <label for="resolved" class="ml-3 text-sm font-medium text-gray-700 flex items-center space-x-2">
-                                <i class="fa-solid fa-check-circle text-green-600"></i>
-                                <span>Confirm Resolution</span>
-                            </label>
-                        </div>
-                        <div class="flex items-center p-3 border-2 border-gray-200 rounded-xl hover:border-purple-300 transition-all duration-200">
-                            <input type="radio" id="unresolved" name="validation_status" value="unresolved" class="h-4 w-4 text-purple-600 border-gray-300 focus:ring-purple-500" onclick="document.getElementById('changeIssueDiv').classList.remove('hidden')">
-                            <label for="unresolved" class="ml-3 text-sm font-medium text-gray-700 flex items-center space-x-2">
-                                <i class="fa-solid fa-exchange-alt text-orange-600"></i>
-                                <span>Change Issue</span>
-                            </label>
-                        </div>
+                <div class="text-center py-4">
+                    <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-purple-100 mb-4">
+                        <i class="fa-solid fa-question text-purple-600 text-3xl"></i>
                     </div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Confirm Validation</h3>
+                    <p class="text-gray-600">Are you sure you want to validate this issue?</p>
                 </div>
-                
-                <!-- Change Issue Section -->
-                <div class="hidden space-y-2" id="changeIssueDiv">
-                    <label for="issues_id" class="block text-sm font-semibold text-gray-700 flex items-center space-x-2">
-                        <i class="fa-solid fa-exclamation-triangle text-purple-600"></i>
-                        <span>New Issue</span>
-                    </label>
-                    <select name="issues_id" id="issues_id" class="w-full p-3 border-2 border-gray-200 rounded-xl focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all duration-200">
-                        <option value="">Select Issue</option>
-                        @foreach($issues as $issue)
-                            <option value="{{ $issue->id }}">{{ $issue->title }}</option>
-                        @endforeach
-                    </select>
-                    @error('issues_id')
-                        <p class="text-red-500 text-sm mt-1 flex items-center space-x-1">
-                            <i class="fa-solid fa-exclamation-circle"></i>
-                            <span>{{ $message }}</span>
-                        </p>
-                    @enderror
+            </div>
+            <div class="bg-gray-50 px-6 py-4 rounded-b-2xl border-t border-gray-100">
+                <div class="flex justify-end space-x-3">
+                    <button type="button" @click="confirmValidateModal = false" class="px-6 py-2.5 text-gray-600 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 transition-all duration-200 font-medium">
+                        Cancel
+                    </button>
+                    <button type="submit" class="px-6 py-2.5 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-xl hover:from-purple-700 hover:to-purple-800 transition-all duration-200 font-medium shadow-lg hover:shadow-xl">
+                        <i class="fa-solid fa-check mr-2"></i>
+                        Yes, Validate
+                    </button>
                 </div>
-            </form>
-        </div>
-        
-        <!-- Footer -->
-        <div class="bg-gray-50 px-6 py-4 rounded-b-2xl border-t border-gray-100">
-            <div class="flex justify-end space-x-3">
-                <button type="button" @click="validateModal = false" class="px-6 py-2.5 text-gray-600 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 transition-all duration-200 font-medium">
-                    Cancel
-                </button>
-                <button type="submit" class="px-6 py-2.5 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-xl hover:from-purple-700 hover:to-purple-800 transition-all duration-200 font-medium shadow-lg hover:shadow-xl">
-                    <i class="fa-solid fa-check-double mr-2"></i>
-                    Submit Validation
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Change Issue Modal -->
+<div x-show="changeIssueModal" x-cloak class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-60 backdrop-blur-sm z-50">
+    <div class="bg-white p-0 rounded-2xl w-11/12 md:w-screen lg:w-1/2 max-w-2xl shadow-2xl border border-gray-100">
+        <div class="bg-gradient-to-r from-orange-500 to-orange-600 px-6 py-4 rounded-t-2xl">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-3">
+                    <div class="bg-white bg-opacity-20 p-2 rounded-lg">
+                        <i class="fa-solid fa-exchange-alt text-white text-lg"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-white">Change Issue</h3>
+                </div>
+                <button @click="changeIssueModal = false" class="text-white hover:bg-white hover:bg-opacity-20 rounded-full p-2 transition-all duration-200">
+                    <i class="fa-solid fa-times text-lg"></i>
                 </button>
             </div>
         </div>
+        
+        <form action="{{ route('report.changeIssue') }}" method="POST">
+            @csrf
+            <div class="p-6">
+                <input type="hidden" name="report_id" :value="selectedId">
+                <div class="space-y-5">
+                    <div class="space-y-2">
+                        <label class="block text-sm font-semibold text-gray-700 flex items-center space-x-2">
+                            <i class="fa-solid fa-calendar-check text-orange-600"></i>
+                            <span>Validation Date Time</span>
+                        </label>
+                        <input type="datetime-local" class="w-full p-3 border-2 border-gray-200 rounded-xl focus:border-orange-500 focus:ring-2 focus:ring-orange-200 transition-all duration-200" name="validation_datetime">
+                    </div>
+                    
+                    <div class="space-y-2">
+                        <label class="block text-sm font-semibold text-gray-700 flex items-center space-x-2">
+                            <i class="fa-solid fa-exclamation-triangle text-orange-600"></i>
+                            <span>New Issue</span>
+                        </label>
+                        <div class="relative" id="change-issue-search-container">
+                            <div class="relative">
+                                <input type="text" id="change_issue_search" class="w-full p-3 border-2 border-gray-200 rounded-xl focus:border-orange-500 focus:ring-2 focus:ring-orange-200 transition-all duration-200 text-sm" placeholder="Search for issue..." autocomplete="off">
+                                <div class="absolute inset-y-0 right-0 flex items-center pr-3">
+                                    <i class="fas fa-search text-gray-400"></i>
+                                </div>
+                            </div>
+                            <div class="hidden">
+                                <input type="text" name="issues_id" id="change_issues_id_data" class="w-full" autocomplete="off" required>
+                            </div>
+                            <div id="change-issue-suggestions-container" class="absolute z-10 w-full mt-1 bg-white rounded-xl shadow-lg border border-gray-200 max-h-60 overflow-y-auto"></div>
+                            <div id="change-selected-issue" class="hidden mt-2 p-3 bg-orange-50 border border-orange-200 rounded-xl">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center space-x-2">
+                                        <i class="fa-solid fa-check-circle text-orange-600"></i>
+                                        <span id="change-selected-issue-name" class="font-semibold text-orange-800"></span>
+                                    </div>
+                                    <button type="button" id="change-clear-issue-selection" class="text-orange-600 hover:text-orange-800 text-sm font-medium">
+                                        <i class="fa-solid fa-times"></i> Clear
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-gray-50 px-6 py-4 rounded-b-2xl border-t border-gray-100">
+                <div class="flex justify-end space-x-3">
+                    <button type="button" @click="changeIssueModal = false" class="px-6 py-2.5 text-gray-600 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 transition-all duration-200 font-medium">
+                        Cancel
+                    </button>
+                    <button type="submit" class="px-6 py-2.5 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-xl hover:from-orange-600 hover:to-orange-700 transition-all duration-200 font-medium shadow-lg hover:shadow-xl">
+                        <i class="fa-solid fa-check mr-2"></i>
+                        Submit Change
+                    </button>
+                </div>
+            </div>
+        </form>
     </div>
 </div>
 

@@ -105,9 +105,8 @@ class DashboardController extends Controller
         $users = \DB::table('users')
         ->leftJoin('resolve', 'users.id', '=', 'resolve.user_id')
         ->leftJoin('reports', 'resolve.report_id', '=', 'reports.id')
-        ->select('users.name', \DB::raw('COUNT(resolve.id) as count'))
+        ->select('users.name', \DB::raw('COUNT(CASE WHEN reports.status != "Void" AND YEAR(reports.request_datetime) = ' . $selectedYear . ' THEN reports.id END) as count'))
         ->whereIn('users.team', ['NIS', 'Systems'])
-        ->whereYear('reports.request_datetime', $selectedYear)
         ->groupBy('users.id', 'users.name')
         ->get()
         ->map(function ($item) {
@@ -118,6 +117,24 @@ class DashboardController extends Controller
             ];
         })
         ->toArray();
+
+        $usersResponse = \DB::table('users')
+        ->leftJoin('reports', 'users.id', '=', 'reports.response_by')
+        ->select('users.name', \DB::raw('COUNT(CASE WHEN reports.status != "Void" AND YEAR(reports.request_datetime) = ' . $selectedYear . ' THEN reports.id END) as count'))
+        ->whereIn('users.team', ['NIS', 'Systems'])
+        ->groupBy('users.id', 'users.name')
+        ->get()
+        ->map(function ($item) {
+            return [
+                'name' => $item->name,
+                'y' => (int) $item->count,
+                'drilldown' => $item->name,
+            ];
+        })
+        ->toArray();
+
+        // print_r($usersResponse);
+        // exit;
 
         $recurringIssues = \DB::table('issues')
         ->leftJoin('reports', 'reports.issues_id', '=', 'issues.id')
@@ -205,6 +222,7 @@ class DashboardController extends Controller
             'satisfaction'  => $satisfaction,
             'results'   =>  $results,
             'userData' => $users,
+            'responseData' => $usersResponse,
             'recurringIssues' => $recurringIssues,
             'formattedData'   => $formattedData,
             'avgResponseTime' => $avgResponseTime,

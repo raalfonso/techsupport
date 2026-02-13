@@ -70,49 +70,32 @@
     <main class="flex-grow">
     {{-- Your page content here --}}
       <section id="home-section" class="" >
-        <div class="max-w-5xl mx-auto bg-white rounded-lg shadow mt-5 p-6 transition-all duration-700 opacity-0 translate-y-4" data-scroll>
-          <h1 class="text-2xl font-bold mb-4">Welcome, {{ $client->name }}</h1>
-          <p class="text-gray-600 mb-2"> Fill out the form below to request assistance.</p>
-          <p class="text-gray-600 mb-2">Please ensure that you have selected the correct department and issue to expedite your request.</p>
+        <div class="max-w-4xl mx-auto bg-white rounded-2xl shadow-xl mt-8 p-8 transition-all duration-700 opacity-0 translate-y-4" data-scroll>
+          <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">Welcome, {{ $client->name }}</h1>
+            <p class="text-gray-600">Fill out the form below to request assistance from our IT support team.</p>
+          </div>
           <meta name="csrf-token" content="{{ csrf_token() }}">
             <form action="{{ route('home.data') }}" method="post" class="space" x-data="{ loading: false }" @submit="loading = true">
                     @csrf
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                        <div class="transition duration-300 hover:shadow-md p-3 rounded-lg">
-                            <label for="requestor_name" class="text-gray-800 text-md font-medium">Name</label>
-                            <input type="text" class="input w-full transition duration-300 focus:ring-2 focus:ring-teal-500 @error('title') ring-red-500 @enderror" value="{{ $client->name }}" disabled>
+                    <div class="grid grid-cols-1 gap-6">
+                        <div class="space-y-2">
+                            <label for="requestor_name" class="block text-sm font-semibold text-gray-700 flex items-center space-x-2">
+                                <i class="fas fa-user text-blue-600"></i>
+                                <span>Name</span>
+                            </label>
+                            <input type="text" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200 bg-gray-50" value="{{ $client->name }}" disabled>
                             <input type="hidden" name="survey_employees_id" value="{{ $client->id }}">
                         </div>
-                        <div class="transition duration-300 hover:shadow-md p-3 rounded-lg hidden">
-                            <label for="email" class="text-gray-800 font-medium">Email Address</label>
-                            <input type="text" class="input w-full transition duration-300 focus:ring-2 focus:ring-teal-500" value="{{ $client->email_address }}" disabled>
-                        </div>
-    
-                        {{-- @if ($user_department)
-                            <div class="transition duration-300 hover:shadow-md p-3 rounded-lg">
-                                <label for="department_id" class="text-gray-800 font-medium">Department <span class="text-rose-500 text-xs">(Required)</span></label>
-                                <input type="text" id="department_id" name="department_id" value="{{$user_department->department_id }}">
-                                <input type="text" id="auto-department" class="input w-full transition duration-300 focus:ring-2 focus:ring-teal-500 @error('department') ring-red-500 @enderror" placeholder="Type to search..." autocomplete="off" value="{{$user_department->department->title}}">
-                                <div id="suggestions" class="suggestions-box input cursor-pointer shadow-lg max-h-48 overflow-y-auto" style="display: none;"></div>
-                                @error('department')
-                                    <p class="error text-red-500 text-sm mt-1">{{ $message }}</p>
-                                @enderror
-                            </div>
-                        @else --}}
-                            {{-- <div class="transition duration-300 hover:shadow-md p-3 rounded-lg">
-                                <label for="department_id" class="text-gray-800 font-medium">Department <span class="text-rose-500 text-xs">(Required)</span></label>
-                                <input type="hidden" id="department_id" name="department_id" value="{{$client->department->id }}">
-                                <input type="text" id="auto-department" class="input w-full transition duration-300 focus:ring-2 focus:ring-teal-500 @error('department') ring-red-500 @enderror" placeholder="Type to search..." value={{$client->department->title }} autocomplete="off">
-                                <div id="suggestions" class="suggestions-box input cursor-pointer shadow-lg max-h-48 overflow-y-auto" style="display: none;"></div>
-                                @error('department')
-                                    <p class="error text-red-500 text-sm mt-1">{{ $message }}</p>
-                                @enderror
-                            </div> --}}
-                        {{-- @endif --}}
-                              <input type="hidden" id="department_id" name="department_id" value="{{$client->department->id }}">
-                        <div class="transition duration-300 hover:shadow-md p-3 rounded-lg">
-                            <label for="location" class="text-gray-800 font-medium">Location <span class="text-red-500 text-xs">(Required)</span></label>
-                            <select name="location" id="location" class="input w-full transition duration-300 focus:ring-2 focus:ring-teal-500 @error('location') ring-red-500 @enderror"> 
+
+                        <input type="hidden" id="department_id" name="department_id" value="{{$client->department->id }}">
+                        
+                        <div class="space-y-2">
+                            <label for="location" class="block text-sm font-semibold text-gray-700 flex items-center space-x-2">
+                                <i class="fas fa-map-marker-alt text-blue-600"></i>
+                                <span>Location <span class="text-red-500 text-xs">*</span></span>
+                            </label>
+                            <select name="location" id="location" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200 @error('location') border-red-500 @enderror"> 
                                 <option value="">Select Location</option>
                                 <option value="BTC">BTC</option>
                                 <option value="One west">One west</option>
@@ -121,18 +104,41 @@
                                 <option value="BTP">BTP</option>
                             </select>
                             @error('location')
-                                <p class="error text-red-500 text-sm mt-1">{{ $message }}</p>
+                                <p class="text-red-500 text-sm mt-1 flex items-center space-x-1">
+                                    <i class="fas fa-exclamation-circle"></i>
+                                    <span>{{ $message }}</span>
+                                </p>
                             @enderror
                         </div>
     
-                        <div class="transition duration-300 hover:shadow-md p-3 rounded-lg">
-                            <label for="issues_id" class="text-gray-800 font-medium">Issue <span class="text-rose-500 text-xs">(Required)</span></label>
-                            <select name="issues_id" id="issues_id" class="input w-full transition duration-300 focus:ring-2 focus:ring-teal-500">
-                                <option value="">Select issue</option>
-                                @foreach($issues as $issue)
-                                    <option value="{{ $issue->id }}">{{ $issue->title }}</option>
-                                @endforeach
-                            </select>
+                        <div class="space-y-2">
+                            <label for="issues_id" class="block text-sm font-semibold text-gray-700 flex items-center space-x-2">
+                                <i class="fas fa-exclamation-triangle text-blue-600"></i>
+                                <span>Issue <span class="text-red-500 text-xs">*</span></span>
+                            </label>
+                            <div class="relative" id="home-issue-search-container">
+                                <div class="relative" id="home-issue-input-container">
+                                    <input type="text" id="home_issue_search" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200 text-sm" placeholder="Search for issue..." autocomplete="off">
+                                    <div class="absolute inset-y-0 right-0 flex items-center pr-4">
+                                        <i class="fas fa-search text-gray-400"></i>
+                                    </div>
+                                </div>
+                                <div class="hidden">
+                                    <input type="text" name="issues_id" id="home_issues_id_data" class="w-full" autocomplete="off">
+                                </div>
+                                <div id="home-issue-suggestions-container" class="absolute z-10 w-full mt-1 bg-white rounded-xl shadow-lg border border-gray-200 max-h-60 overflow-y-auto"></div>
+                                <div id="home-selected-issue" class="hidden mt-2 p-3 bg-blue-50 border-2 border-blue-200 rounded-xl">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center space-x-2">
+                                            <i class="fas fa-check-circle text-blue-600"></i>
+                                            <span id="home-selected-issue-name" class="font-semibold text-blue-800"></span>
+                                        </div>
+                                        <button type="button" id="home-clear-issue-selection" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                                            <i class="fas fa-times"></i> Clear
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
                             @error('issues_id')
                                 <p class="error text-red-500 text-sm mt-1">{{ $message }}</p>
                                 <script>
@@ -146,19 +152,25 @@
                         </div>
                     </div>
     
-                    <div class="mt-4 transition duration-300 hover:shadow-md p-3 rounded-lg">
-                        <label for="remarks" class="text-gray-800 font-medium">Remarks <span class="text-green-600 text-xs">(Optional)</span></label>
-                        <textarea name="remarks" rows="4" class="w-full p-2 border rounded-lg resize-y transition duration-300 focus:ring-2 focus:ring-teal-500" placeholder="Enter your message here..."></textarea>
+                    <div class="space-y-2 mt-5">
+                        <label for="remarks" class="block text-sm font-semibold text-gray-700 flex items-center space-x-2">
+                            <i class="fas fa-comment text-blue-600"></i>
+                            <span>Remarks <span class="text-gray-500 text-xs">(Optional)</span></span>
+                        </label>
+                        <textarea name="remarks" rows="4" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200 resize-none" placeholder="Provide additional details about your request..."></textarea>
                     </div>
     
-                    <button type="submit" class="mt-6 text-white bg-indigo-700 rounded-lg w-full h-12 font-medium transition duration-300 hover:bg-indigo-900 focus:ring-4 focus:ring-teal-300 disabled:opacity-50 flex items-center justify-center" :disabled="loading">
-                        <span x-show="!loading">Submit Request</span>
-                        <span x-show="loading" class="flex items-center">
-                            <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <button type="submit" class="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white py-4 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 flex items-center justify-center" :disabled="loading">
+                        <span x-show="!loading" class="flex items-center space-x-2">
+                            <i class="fas fa-paper-plane"></i>
+                            <span>Submit Request</span>
+                        </span>
+                        <span x-show="loading" class="flex items-center space-x-2">
+                            <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                             </svg>
-                            Processing...
+                            <span>Processing...</span>
                         </span>
                     </button>
                 </form>
@@ -264,6 +276,95 @@
           }
         });
       });
+      
+    // Home Issue search functionality
+    const homeIssues = @json($issues);
+    const homeIssueSearchInput = document.getElementById('home_issue_search');
+    const homeIssueSuggestionsContainer = document.getElementById('home-issue-suggestions-container');
+    const homeSelectedIssue = document.getElementById('home-selected-issue');
+    const homeSelectedIssueName = document.getElementById('home-selected-issue-name');
+    const homeIssueId = document.getElementById('home_issues_id_data');
+    const homeClearIssueButton = document.getElementById('home-clear-issue-selection');
+    const homeIssueInputContainer = document.getElementById('home-issue-input-container');
+    
+    function fetchHomeIssues(query) {
+        return new Promise(resolve => {
+            setTimeout(() => {
+                const results = homeIssues.filter(issue => 
+                    issue.title.toLowerCase().includes(query.toLowerCase())
+                );
+                resolve(results);
+            }, 200);
+        });
+    }
+    
+    function debounceHome(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    }
+    
+    homeIssueSearchInput.addEventListener('input', debounceHome(async function(e) {
+        const query = e.target.value.trim();
+        const results = await fetchHomeIssues(query);
+        displayHomeIssueSuggestions(results);
+    }, 300));
+    
+    homeIssueSearchInput.addEventListener('focus', async function() {
+        const results = await fetchHomeIssues('');
+        displayHomeIssueSuggestions(results);
+    });
+    
+    function displayHomeIssueSuggestions(issues) {
+        if (issues.length === 0) {
+            homeIssueSuggestionsContainer.innerHTML = '<div class="p-4 text-gray-500 text-sm">No issues found</div>';
+            homeIssueSuggestionsContainer.classList.remove('hidden');
+            return;
+        }
+        
+        homeIssueSuggestionsContainer.innerHTML = '';
+        issues.forEach(issue => {
+            const div = document.createElement('div');
+            div.className = 'p-3 border-b border-gray-100 hover:bg-teal-50 cursor-pointer transition';
+            div.innerHTML = `<div class="font-medium text-gray-800 text-sm">${issue.title}</div>`;
+            div.addEventListener('click', () => {
+                selectHomeIssue(issue);
+            });
+            homeIssueSuggestionsContainer.appendChild(div);
+        });
+        
+        homeIssueSuggestionsContainer.classList.remove('hidden');
+    }
+    
+    function selectHomeIssue(issue) {
+        homeSelectedIssueName.textContent = issue.title;
+        homeIssueId.value = issue.id;
+        homeSelectedIssue.classList.remove('hidden');
+        homeIssueSearchInput.value = '';
+        homeIssueSuggestionsContainer.classList.add('hidden');
+        homeIssueInputContainer.classList.add('hidden');
+    }
+    
+    homeClearIssueButton.addEventListener('click', function(e) {
+        e.preventDefault();
+        homeSelectedIssue.classList.add('hidden');
+        homeIssueInputContainer.classList.remove('hidden');
+        homeIssueId.value = '';
+        homeIssueSearchInput.value = '';
+        homeIssueSearchInput.focus();
+    });
+    
+    document.addEventListener('click', function(e) {
+        if (!homeIssueSearchInput.contains(e.target) && !homeIssueSuggestionsContainer.contains(e.target)) {
+            homeIssueSuggestionsContainer.classList.add('hidden');
+        }
+    });
     </script>
 </body>
 </html>

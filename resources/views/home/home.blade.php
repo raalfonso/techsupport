@@ -32,8 +32,10 @@
             {{-- Logo or Brand Name --}}
             <div class="text-lg font-bold text-gray-800 flex items-center">
                 {{-- Logo image --}}
-               <img src="{{ asset('img/itd_logo.png') }}" alt="ITD Logo" class="h-24 w-auto p-0 rounded">
-                BCDA IT DIVISION {{-- Changed from MyBrand to match context --}}
+               <img src="{{ asset('images/bcda-digitalhub.png') }}"
+                alt="ITD Logo"
+                class="h-40 w-auto p-0 drop-shadow-lg">
+                {{-- BCDA IT DIVISION Changed from MyBrand to match context --}}
             </div>
             
             {{-- Desktop Navigation --}}
@@ -174,7 +176,7 @@
       </div>
     </section>
 
-    <section id="contact" class="py-10 bg-gray-50">
+    <section id="contact" class="py-16 bg-gradient-to-b from-white to-blue-50">
       <div class="max-w-6xl mx-auto px-6 transition-all duration-700 opacity-0 translate-y-4 mt-5" data-scroll>
         <h2 class="text-3xl font-bold text-left mb-5">How can we help you today?</h2>
         <h3 class="text-xl font-normal text-left mb-12">Pick one from the topics below and we’ll find the best solution for you.</h3>
@@ -199,16 +201,24 @@
               data-project-title="{{ $project['title'] }}"
               data-project-button="{{ $project['button'] }}"
               data-project-main="{{ $project['main'] }}"
-              class="bg-white p-4 rounded-lg shadow hover:shadow-lg transition">
-              <div class="flex justify-left items-center text-center mb-3">
-                <i class="{{ $project['icon'] }} text-blue-700 text-2xl"></i>
-                <h2 class="text-lg font-semibold text-blue-800 ml-2">
-                  {{ $project['title'] }}
-                </h2>
+              class="group bg-white p-6 rounded-2xl shadow-md hover:shadow-2xl transition-all duration-300 border border-gray-100 hover:border-blue-200 hover:-translate-y-1">
+              <div class="flex items-start space-x-4 mb-4">
+                <div class="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-700 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                  <i class="{{ $project['icon'] }} text-white text-2xl"></i>
+                </div>
+                <div class="flex-1">
+                  <h3 class="text-lg font-bold text-gray-900 group-hover:text-blue-700 transition-colors duration-300 mb-2">
+                    {{ $project['title'] }}
+                  </h3>
+                  <p class="text-sm text-gray-600 leading-relaxed">
+                    {{ $project['desc'] }}
+                  </p>
+                </div>
               </div>
-              <p class="text-sm text-justify">
-                {{ $project['desc'] }}
-              </p>
+              <div class="flex items-center justify-end text-blue-600 font-medium text-sm group-hover:text-blue-700">
+                <span>{{ $project['button'] }}</span>
+                <i class="fas fa-arrow-right ml-2 group-hover:translate-x-1 transition-transform duration-300"></i>
+              </div>
             </a>
           @endforeach
         </div>

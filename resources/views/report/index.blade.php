@@ -1,4 +1,18 @@
 <x-layout>
+    @if(session('success'))
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success!',
+                    text: '{{ session('success') }}',
+                    timer: 3000,
+                    showConfirmButton: false
+                });
+            });
+        </script>
+    @endif
+    
     <div class="mx-auto w-full p-6">
         <!-- Header Section -->
         <div class="mb-8">
@@ -34,7 +48,8 @@
                 emergencyModal: false,
                 qrModal: false,
                 resolveModal: false,
-                validateModal: false, 
+                confirmValidateModal: false,
+                changeIssueModal: false,
                 escalateModal: false, 
                 endorseModal: false, 
                 responseModal: false, 
@@ -102,8 +117,9 @@
                     </div>
                     
                     <!-- Body -->
+                    <form action="{{ route('report.store') }}" method="post" class="space-y-5">
                     <div class="p-6 max-h-[70vh] overflow-y-auto">
-                        <form action="{{ route('report.store') }}" method="post" class="space-y-5">
+                       
                             @csrf
                             <!-- Requestor Name -->
                             <div class="space-y-2">
@@ -177,12 +193,29 @@
                                     <i class="fa-solid fa-exclamation-triangle text-teal-600"></i>
                                     <span>Issue</span>
                                 </label>
-                                <select name="issues_id" id="issues_id" class="w-full p-3 border-2 border-gray-200 rounded-xl focus:border-teal-500 focus:ring-2 focus:ring-teal-200 transition-all duration-200">
-                                    <option value="">Select Issue</option>
-                                    @foreach($issues as $issue)
-                                        <option value="{{ $issue->id }}">{{ $issue->title }}</option>
-                                    @endforeach
-                                </select>
+                                <div class="relative" id="issue-search-container">
+                                    <div class="relative" id="issue-input-container">
+                                        <input type="text" id="issue_search" class="w-full p-3 border-2 border-gray-200 rounded-xl focus:border-teal-500 focus:ring-2 focus:ring-teal-200 transition-all duration-200 text-sm issue-search" placeholder="Search for issue..." autocomplete="off">
+                                        <div class="absolute inset-y-0 right-0 flex items-center pr-3">
+                                            <i class="fas fa-search text-gray-400"></i>
+                                        </div>
+                                    </div>
+                                    <div class="hidden">
+                                        <input type="text" name="issues_id" id="issues_id_data" class="w-full p-3 border-2 border-gray-200 rounded-xl" autocomplete="off">
+                                    </div>
+                                    <div id="issue-suggestions-container" class="absolute z-10 w-full mt-1 bg-white rounded-xl shadow-lg border border-gray-200 max-h-60 overflow-y-auto"></div>
+                                    <div id="selected-issue" class="hidden mt-2 p-3 bg-teal-50 border border-teal-200 rounded-xl">
+                                        <div class="flex items-center justify-between">
+                                            <div class="flex items-center space-x-2">
+                                                <i class="fa-solid fa-check-circle text-teal-600"></i>
+                                                <span id="selected-issue-name" class="font-semibold text-teal-800"></span>
+                                            </div>
+                                            <button id="clear-issue-selection" class="text-teal-600 hover:text-teal-800 text-sm font-medium">
+                                                <i class="fa-solid fa-times"></i> Clear
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
                                 @error('issues_id')
                                     <p class="text-red-500 text-sm mt-1 flex items-center space-x-1">
                                         <i class="fa-solid fa-exclamation-circle"></i>
@@ -199,7 +232,7 @@
                                 </label>
                                 <textarea rows="4" class="w-full p-3 border-2 border-gray-200 rounded-xl focus:border-teal-500 focus:ring-2 focus:ring-teal-200 transition-all duration-200 resize-none" placeholder="Enter your message here..."></textarea>
                             </div>
-                        </form>
+                        
                     </div>
                     
                     <!-- Footer -->
@@ -214,6 +247,7 @@
                             </button>
                         </div>
                     </div>
+                    </form>
                 </div>
             </div>
         {{-- resolve modal --}}
@@ -288,21 +322,22 @@
                                 <textarea id="procedure" rows="4" name="procedure" class="w-full p-3 border-2 border-gray-200 rounded-xl focus:border-green-500 focus:ring-2 focus:ring-green-200 transition-all duration-200 resize-none" placeholder="Describe the procedure you followed to resolve this issue..."></textarea>
                             </div>
                         </div>
-                    </form>
+                    
                 </div>
                 
-                <!-- Footer -->
-                <div class="bg-gray-50 px-6 py-4 rounded-b-2xl border-t border-gray-100">
-                    <div class="flex justify-end space-x-3">
-                        <button @click="resolveModal = false" class="px-6 py-2.5 text-gray-600 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 transition-all duration-200 font-medium">
-                            Cancel
-                        </button>
-                        <button type="submit" class="px-6 py-2.5 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-xl hover:from-green-700 hover:to-green-800 transition-all duration-200 font-medium shadow-lg hover:shadow-xl">
-                            <i class="fa-solid fa-check mr-2"></i>
-                            Mark as Resolved
-                        </button>
-                    </div>
-                </div>
+                        <!-- Footer -->
+                        <div class="bg-gray-50 px-6 py-4 rounded-b-2xl border-t border-gray-100">
+                            <div class="flex justify-end space-x-3">
+                                <button @click="resolveModal = false" type="button" class="px-6 py-2.5 text-gray-600 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 transition-all duration-200 font-medium">
+                                    Cancel
+                                </button>
+                                <button type="submit" class="px-6 py-2.5 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-xl hover:from-green-700 hover:to-green-800 transition-all duration-200 font-medium shadow-lg hover:shadow-xl">
+                                    <i class="fa-solid fa-check mr-2"></i>
+                                    Mark as Resolved
+                                </button>
+                            </div>
+                        </div>
+                    </form>
             </div>
         </div>
     {{-- end of resolve --}}
@@ -379,21 +414,36 @@
                             </p>
                         @enderror
                     </div>
-
-                    <!-- Category -->
+                    <!-- Issue -->
                     <div class="space-y-2">
                         <label class="block text-sm font-semibold text-gray-700 flex items-center space-x-2">
-                            <i class="fa-solid fa-tags text-red-600"></i>
-                            <span>Category</span>
+                            <i class="fa-solid fa-exclamation-triangle text-red-600"></i>
+                            <span>Issue</span>
                         </label>
-                        <select name="category_id" class="w-full p-3 border-2 border-gray-200 rounded-xl focus:border-red-500 focus:ring-2 focus:ring-red-200 transition-all duration-200">
-                            <option value="">Select Category</option>
-                            @foreach($categories as $category)
-                                <option value="{{ $category->id }}">{{ $category->title }}</option>
-                            @endforeach
-                        </select>
+                        <div class="relative" id="emergency-issue-search-container">
+                            <div class="relative" id="emergency-issue-input-container">
+                                <input type="text" id="emergency_issue_search" class="w-full p-3 border-2 border-gray-200 rounded-xl focus:border-red-500 focus:ring-2 focus:ring-red-200 transition-all duration-200 text-sm emergency-issue-search" placeholder="Search for issue..." autocomplete="off">
+                                <div class="absolute inset-y-0 right-0 flex items-center pr-3">
+                                    <i class="fas fa-search text-gray-400"></i>
+                                </div>
+                            </div>
+                            <div class="hidden">
+                                <input type="text" name="issues_id" id="emergency_issues_id_data" class="w-full p-3 border-2 border-gray-200 rounded-xl" autocomplete="off">
+                            </div>
+                            <div id="emergency-issue-suggestions-container" class="absolute z-10 w-full mt-1 bg-white rounded-xl shadow-lg border border-gray-200 max-h-60 overflow-y-auto"></div>
+                            <div id="emergency-selected-issue" class="hidden mt-2 p-3 bg-red-50 border border-red-200 rounded-xl">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center space-x-2">
+                                        <i class="fa-solid fa-check-circle text-red-600"></i>
+                                        <span id="emergency-selected-issue-name" class="font-semibold text-red-800"></span>
+                                    </div>
+                                    <button id="emergency-clear-issue-selection" class="text-red-600 hover:text-red-800 text-sm font-medium">
+                                        <i class="fa-solid fa-times"></i> Clear
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-
                     <!-- Location -->
                     <div class="space-y-2">
                         <label class="block text-sm font-semibold text-gray-700 flex items-center space-x-2">
@@ -403,19 +453,7 @@
                         <input type="text" name="location" class="w-full p-3 border-2 border-gray-200 rounded-xl focus:border-red-500 focus:ring-2 focus:ring-red-200 transition-all duration-200" placeholder="Enter location...">
                     </div>
 
-                    <!-- Issue -->
-                    <div class="space-y-2">
-                        <label class="block text-sm font-semibold text-gray-700 flex items-center space-x-2">
-                            <i class="fa-solid fa-exclamation-triangle text-red-600"></i>
-                            <span>Issue</span>
-                        </label>
-                        <select name="issues_id" class="w-full p-3 border-2 border-gray-200 rounded-xl focus:border-red-500 focus:ring-2 focus:ring-red-200 transition-all duration-200">
-                            <option value="">Select Issue</option>
-                            @foreach($issues as $issue)
-                                <option value="{{ $issue->id }}">{{ $issue->title }}</option>
-                            @endforeach
-                        </select>
-                    </div>
+                    
                     <div class="bg-gray-50 px-6 py-4 rounded-b-2xl border-t border-gray-100">
                         <div class="flex justify-end space-x-3">
                             <button @click="emergencyModal = false" class="px-6 py-2.5 text-gray-600 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 transition-all duration-200 font-medium">
@@ -1090,6 +1128,7 @@
     const emergencyEmployeeSearchContainer = document.getElementById('emergency-employee-search-container');
     
     const employees = @json($employees);
+    const issues = @json($issues);
     
     function fetchEmployees(query) {
         return new Promise(resolve => {
@@ -1185,6 +1224,294 @@
         };
     }
     
+    // Issue search functionality
+    const issueSearchInput = document.getElementById('issue_search');
+    const issueSuggestionsContainer = document.getElementById('issue-suggestions-container');
+    const selectedIssue = document.getElementById('selected-issue');
+    const selectedIssueName = document.getElementById('selected-issue-name');
+    const issueId = document.getElementById('issues_id_data');
+    const clearIssueButton = document.getElementById('clear-issue-selection');
+    const issueInputContainer = document.getElementById('issue-input-container');
+    
+    function fetchIssues(query) {
+        return new Promise(resolve => {
+            setTimeout(() => {
+                const results = issues.filter(issue => 
+                    issue.title.toLowerCase().includes(query.toLowerCase())
+                );
+                resolve(results);
+            }, 200);
+        });
+    }
+    
+    issueSearchInput.addEventListener('input', debounce(async function(e) {
+        const query = e.target.value.trim();
+        const results = await fetchIssues(query);
+        displayIssueSuggestions(results);
+    }, 300));
+    
+    issueSearchInput.addEventListener('focus', async function() {
+        const results = await fetchIssues('');
+        displayIssueSuggestions(results);
+    });
+    
+    function displayIssueSuggestions(issues) {
+        if (issues.length === 0) {
+            issueSuggestionsContainer.innerHTML = '<div class="p-4 text-gray-500 text-sm">No issues found</div>';
+            issueSuggestionsContainer.classList.remove('hidden');
+            return;
+        }
+        
+        issueSuggestionsContainer.innerHTML = '';
+        issues.forEach(issue => {
+            const div = document.createElement('div');
+            div.className = 'p-3 border-b border-gray-100 hover:bg-teal-50 cursor-pointer transition';
+            div.innerHTML = `<div class="font-medium text-gray-800 text-sm">${issue.title}</div>`;
+            div.addEventListener('click', () => {
+                selectIssue(issue);
+            });
+            issueSuggestionsContainer.appendChild(div);
+        });
+        
+        issueSuggestionsContainer.classList.remove('hidden');
+    }
+    
+    function selectIssue(issue) {
+        selectedIssueName.textContent = issue.title;
+        issueId.value = issue.id;
+        selectedIssue.classList.remove('hidden');
+        issueSearchInput.value = '';
+        issueSuggestionsContainer.classList.add('hidden');
+        issueInputContainer.classList.add('hidden');
+    }
+    
+    clearIssueButton.addEventListener('click', function(e) {
+        e.preventDefault();
+        selectedIssue.classList.add('hidden');
+        issueInputContainer.classList.remove('hidden');
+        issueId.value = '';
+        issueSearchInput.value = '';
+        issueSearchInput.focus();
+    });
+    
+    document.addEventListener('click', function(e) {
+        if (!issueSearchInput.contains(e.target) && !issueSuggestionsContainer.contains(e.target)) {
+            issueSuggestionsContainer.classList.add('hidden');
+        }
+    });
+    
+    // Emergency Issue search functionality
+    const emergencyIssueSearchInput = document.getElementById('emergency_issue_search');
+    const emergencyIssueSuggestionsContainer = document.getElementById('emergency-issue-suggestions-container');
+    const emergencySelectedIssue = document.getElementById('emergency-selected-issue');
+    const emergencySelectedIssueName = document.getElementById('emergency-selected-issue-name');
+    const emergencyIssueId = document.getElementById('emergency_issues_id_data');
+    const emergencyClearIssueButton = document.getElementById('emergency-clear-issue-selection');
+    const emergencyIssueInputContainer = document.getElementById('emergency-issue-input-container');
+    
+    emergencyIssueSearchInput.addEventListener('input', debounce(async function(e) {
+        const query = e.target.value.trim();
+        const results = await fetchIssues(query);
+        displayEmergencyIssueSuggestions(results);
+    }, 300));
+    
+    emergencyIssueSearchInput.addEventListener('focus', async function() {
+        const results = await fetchIssues('');
+        displayEmergencyIssueSuggestions(results);
+    });
+    
+    function displayEmergencyIssueSuggestions(issues) {
+        if (issues.length === 0) {
+            emergencyIssueSuggestionsContainer.innerHTML = '<div class="p-4 text-gray-500 text-sm">No issues found</div>';
+            emergencyIssueSuggestionsContainer.classList.remove('hidden');
+            return;
+        }
+        
+        emergencyIssueSuggestionsContainer.innerHTML = '';
+        issues.forEach(issue => {
+            const div = document.createElement('div');
+            div.className = 'p-3 border-b border-gray-100 hover:bg-red-50 cursor-pointer transition';
+            div.innerHTML = `<div class="font-medium text-gray-800 text-sm">${issue.title}</div>`;
+            div.addEventListener('click', () => {
+                selectEmergencyIssue(issue);
+            });
+            emergencyIssueSuggestionsContainer.appendChild(div);
+        });
+        
+        emergencyIssueSuggestionsContainer.classList.remove('hidden');
+    }
+    
+    function selectEmergencyIssue(issue) {
+        emergencySelectedIssueName.textContent = issue.title;
+        emergencyIssueId.value = issue.id;
+        emergencySelectedIssue.classList.remove('hidden');
+        emergencyIssueSearchInput.value = '';
+        emergencyIssueSuggestionsContainer.classList.add('hidden');
+        emergencyIssueInputContainer.classList.add('hidden');
+    }
+    
+    emergencyClearIssueButton.addEventListener('click', function(e) {
+        e.preventDefault();
+        emergencySelectedIssue.classList.add('hidden');
+        emergencyIssueInputContainer.classList.remove('hidden');
+        emergencyIssueId.value = '';
+        emergencyIssueSearchInput.value = '';
+        emergencyIssueSearchInput.focus();
+    });
+    
+    document.addEventListener('click', function(e) {
+        if (!emergencyIssueSearchInput.contains(e.target) && !emergencyIssueSuggestionsContainer.contains(e.target)) {
+            emergencyIssueSuggestionsContainer.classList.add('hidden');
+        }
+    });
+    
+    // Validation Issue search functionality (using event delegation for dynamically loaded content)
+    $(document).on('input', '#validate_issue_search', debounce(async function(e) {
+        const query = e.target.value.trim();
+        const results = await fetchIssues(query);
+        displayValidateIssueSuggestions(results);
+    }, 300));
+    
+    $(document).on('focus', '#validate_issue_search', async function() {
+        const results = await fetchIssues('');
+        displayValidateIssueSuggestions(results);
+    });
+    
+    function displayValidateIssueSuggestions(issues) {
+        const container = document.getElementById('validate-issue-suggestions-container');
+        if (!container) return;
+        
+        if (issues.length === 0) {
+            container.innerHTML = '<div class="p-4 text-gray-500 text-sm">No issues found</div>';
+            container.classList.remove('hidden');
+            return;
+        }
+        
+        container.innerHTML = '';
+        issues.forEach(issue => {
+            const div = document.createElement('div');
+            div.className = 'p-3 border-b border-gray-100 hover:bg-purple-50 cursor-pointer transition';
+            div.innerHTML = `<div class="font-medium text-gray-800 text-sm">${issue.title}</div>`;
+            div.addEventListener('click', () => {
+                selectValidateIssue(issue);
+            });
+            container.appendChild(div);
+        });
+        
+        container.classList.remove('hidden');
+    }
+    
+    function selectValidateIssue(issue) {
+        const selectedIssueName = document.getElementById('validate-selected-issue-name');
+        const issueId = document.getElementById('validate_issues_id_data');
+        const selectedIssue = document.getElementById('validate-selected-issue');
+        const searchInput = document.getElementById('validate_issue_search');
+        const container = document.getElementById('validate-issue-suggestions-container');
+        const inputContainer = document.getElementById('validate-issue-input-container');
+        
+        if (selectedIssueName) selectedIssueName.textContent = issue.title;
+        if (issueId) issueId.value = issue.id;
+        if (selectedIssue) selectedIssue.classList.remove('hidden');
+        if (searchInput) searchInput.value = '';
+        if (container) container.classList.add('hidden');
+        if (inputContainer) inputContainer.classList.add('hidden');
+    }
+    
+    $(document).on('click', '#validate-clear-issue-selection', function(e) {
+        e.preventDefault();
+        const selectedIssue = document.getElementById('validate-selected-issue');
+        const inputContainer = document.getElementById('validate-issue-input-container');
+        const issueId = document.getElementById('validate_issues_id_data');
+        const searchInput = document.getElementById('validate_issue_search');
+        
+        if (selectedIssue) selectedIssue.classList.add('hidden');
+        if (inputContainer) inputContainer.classList.remove('hidden');
+        if (issueId) issueId.value = '';
+        if (searchInput) {
+            searchInput.value = '';
+            searchInput.focus();
+        }
+    });
+    
+    $(document).on('click', function(e) {
+        const searchInput = document.getElementById('validate_issue_search');
+        const container = document.getElementById('validate-issue-suggestions-container');
+        if (searchInput && container && !searchInput.contains(e.target) && !container.contains(e.target)) {
+            container.classList.add('hidden');
+        }
+    });
+    
+    // Change Issue search functionality (using event delegation for dynamically loaded content)
+    $(document).on('input', '#change_issue_search', debounce(async function(e) {
+        const query = e.target.value.trim();
+        const results = await fetchIssues(query);
+        displayChangeIssueSuggestions(results);
+    }, 300));
+    
+    $(document).on('focus', '#change_issue_search', async function() {
+        const results = await fetchIssues('');
+        displayChangeIssueSuggestions(results);
+    });
+    
+    function displayChangeIssueSuggestions(issues) {
+        const container = document.getElementById('change-issue-suggestions-container');
+        if (!container) return;
+        
+        if (issues.length === 0) {
+            container.innerHTML = '<div class="p-4 text-gray-500 text-sm">No issues found</div>';
+            container.classList.remove('hidden');
+            return;
+        }
+        
+        container.innerHTML = '';
+        issues.forEach(issue => {
+            const div = document.createElement('div');
+            div.className = 'p-3 border-b border-gray-100 hover:bg-orange-50 cursor-pointer transition';
+            div.innerHTML = `<div class="font-medium text-gray-800 text-sm">${issue.title}</div>`;
+            div.addEventListener('click', () => {
+                selectChangeIssue(issue);
+            });
+            container.appendChild(div);
+        });
+        
+        container.classList.remove('hidden');
+    }
+    
+    function selectChangeIssue(issue) {
+        const selectedIssueName = document.getElementById('change-selected-issue-name');
+        const issueId = document.getElementById('change_issues_id_data');
+        const selectedIssue = document.getElementById('change-selected-issue');
+        const searchInput = document.getElementById('change_issue_search');
+        const container = document.getElementById('change-issue-suggestions-container');
+        
+        if (selectedIssueName) selectedIssueName.textContent = issue.title;
+        if (issueId) issueId.value = issue.id;
+        if (selectedIssue) selectedIssue.classList.remove('hidden');
+        if (searchInput) searchInput.value = '';
+        if (container) container.classList.add('hidden');
+    }
+    
+    $(document).on('click', '#change-clear-issue-selection', function(e) {
+        e.preventDefault();
+        const selectedIssue = document.getElementById('change-selected-issue');
+        const issueId = document.getElementById('change_issues_id_data');
+        const searchInput = document.getElementById('change_issue_search');
+        
+        if (selectedIssue) selectedIssue.classList.add('hidden');
+        if (issueId) issueId.value = '';
+        if (searchInput) {
+            searchInput.value = '';
+            searchInput.focus();
+        }
+    });
+    
+    $(document).on('click', function(e) {
+        const searchInput = document.getElementById('change_issue_search');
+        const container = document.getElementById('change-issue-suggestions-container');
+        if (searchInput && container && !searchInput.contains(e.target) && !container.contains(e.target)) {
+            container.classList.add('hidden');
+        }
+    });
     
     </script>
 

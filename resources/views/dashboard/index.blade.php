@@ -315,66 +315,58 @@ function renderChart(titleColor,labelColor,legendColor) {
 
     // 4th technical staff efficiency
     Highcharts.chart('container', {
-            chart: {
-                type: 'column',
-                 backgroundColor: 'transparent'
-            },
-            title: {
-                text: 'Technical Staff Efficiency: Total Resolved Requests',
-                style: { color: titleColor }
-            },
-            accessibility: {
-                announceNewData: {
-                    enabled: true,
-                    style: { color: titleColor }
-                }
-            },
-            xAxis: {
-                type: 'category',
-                labels: {
-                    style: { color: titleColor }  // White labels for x-axis
-                }
-            },
-            yAxis: {
-                title: {
-                    text: 'Total number of issue resolved',
-                    style: { color: titleColor }
-                },
-                labels: {
-                    style: { color: titleColor }  // White labels for x-axis
-                }
-            },
-            legend: {
-                enabled: false
-            },
-            plotOptions: {
-                series: {
-                    borderWidth: 0,
-                    dataLabels: {
-                        enabled: true,
-                        format: '{point.y:}'
-                    }
-                }
-            },
-            tooltip: {
-                headerFormat: '<span style="font-size:11px">{series.name}</span><br>',
-                pointFormat: '<span style="color:{point.color}">{point.name}</span>: <b>{point.y}</b> of total<br/>'
-            },
-            series: [{
-                name: 'Staff',
-                colorByPoint: false,
-                color: '#344fd9',
-                data: @json($userData)
-            }],
-            drilldown: {
-                breadcrumbs: {
-                    position: {
-                        align: 'right'
-                    }
-                },
-                
+    chart: {
+        type: 'column',
+        backgroundColor: 'transparent'
+    },
+    title: {
+        text: 'Technical Staff Efficiency: Total Resolved Requests',
+        style: { color: titleColor }
+    },
+    xAxis: {
+        type: 'category',
+        labels: {
+            style: { color: titleColor }
+        }
+    },
+    yAxis: {
+        title: {
+            text: 'Total number of issues',
+            style: { color: titleColor }
+        },
+        labels: {
+            style: { color: titleColor }
+        }
+    },
+    legend: {
+        enabled: true
+    },
+    plotOptions: {
+        column: {
+            grouping: true,
+            dataLabels: {
+                enabled: true
             }
-        });
+        }
+    },
+    tooltip: {
+        shared: true
+    },
+    series: [
+        
+        {
+            name: 'Response',
+            color: '#2ecc71',
+            data: @json($responseData)
+        },
+        {
+            name: 'Resolved',
+            color: '#344fd9',
+            data: @json($userData)
+        }
+    ]
+});
+
         
         // Response Time Gauge
         Highcharts.chart('response-time-gauge', {

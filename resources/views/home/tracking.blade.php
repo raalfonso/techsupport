@@ -74,144 +74,85 @@
     <main class="flex-grow">
     {{-- Your page content here --}}
       <section id="home-section" class="p-5" >
-        <div class="mx-auto bg-white rounded-lg shadow mt-5 p-6 transition-all duration-700 opacity-0 translate-y-4" data-scroll>
-          <h1 class="text-2xl font-bold mb-4">Welcome, {{ $client->name }}</h1>
-          <p class="text-gray-600 mb-2">Here are your reported issues:</p>
-          <div class="flex items-start justify-between px-6 py-4 border-b hover:bg-gray-50">
-          
-            {{-- Column Header --}}
-              <div class="flex w-2/6">
-                  <span class=" text-sm font-semibold px-4 py-2 flex items-center">
-                      Issue Encounter {{-- column header --}}
-                  </span>
-              </div>
-
-              {{-- Middle Info --}}
-              <div class="flex flex-col w-2/6">
-                  <span class=" text-sm font-semibold px-4 py-2 flex items-center">
-                      Ticket Number {{-- column header --}}
-                  </span>
-                
-              </div>
-
-              {{-- Middle Info --}}
-              <div class="flex flex-col w-2/6">
-                  <span class=" text-sm font-semibold px-4 py-2 flex items-center">
-                      Responsed {{-- column header --}}
-                  </span>
-              </div>
-
-              {{-- Middle Info --}}
-              <div class="flex flex-col w-2/6">
-                  <span class=" text-sm font-semibold px-4 py-2 flex items-center">
-                      Resolved {{-- column header --}}
-                  </span>
-              </div>
-
-              <div class="flex flex-col w-2/6">
-                  <span class=" text-sm font-semibold px-4 py-2 flex items-center">
-                      Status {{-- column header --}}
-                  </span>
-              </div>
-
-              <div class="flex flex-col w-2/6">
-                  <span class=" text-sm font-semibold px-4 py-2 flex items-center">
-                      Action {{-- column header --}}
-                  </span>
-              </div>
-
+        <div class="max-w-7xl mx-auto bg-white rounded-2xl shadow-xl mt-8 p-8 transition-all duration-700 opacity-0 translate-y-4" data-scroll>
+          <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">Welcome, {{ $client->name }}</h1>
+            <p class="text-gray-600">Track the status of your reported issues below.</p>
           </div>
-
-          {{-- Display a message if no reports are found --}}
+          
+          <div class="grid gap-6">
           @foreach ($reports as $report)
-          <div class="flex items-start justify-between px-6 py-4 border-b hover:bg-gray-50" id="report{{ $report->id }}">
-              <div class="flex flex-col w-2/6">
-                  <span class="text-sm font-semibold px-4 py-2 text-gray-700 flex items-start">
-                      {{ $report->issues->title }}
-                  </span>
-              </div>
-
-              {{-- Middle Info --}}
-              <div class="flex flex-col w-2/6 px-4">
-                  <span class="text-sm text-gray-700 font-medium">{{ $report->ticket_number }}</span>
-                  <span class="text-sm text-gray-500">{{ \Carbon\Carbon::parse($report->request_datetime)->format('M d, Y') }}</span>
-                  <span class="text-sm font-semibold text-gray-800 mt-1">{{ \Carbon\Carbon::parse($report->request_datetime)->format('h:i A') }}</span>
-              </div>
-
-              {{-- response Info --}}
-             @if (in_array($report->status, ['Ongoing', 'Done']))
-                <div class="flex flex-col w-2/6">
-                    <span class="text-sm text-gray-700 font-medium">{{ $report->response->name }}</span>
-                    <span class="text-sm text-gray-500">{{ \Carbon\Carbon::parse($report->response_datetime)->format('M d, Y') }}</span>
-                    <span class="text-sm font-semibold text-gray-800 mt-1">{{ \Carbon\Carbon::parse($report->response_datetime)->format('h:i A') }}</span>
-                </div>
-                
-              @else
-                <div class="flex flex-col w-2/6">
-                    <span class="text-sm text-gray-700 font-medium ml-8"><i class="fa-solid fa-clock"></i></span>
-                  
-                </div>
-              @endif
-              
-
-              {{-- resolve Info --}}
-              @if ($report->status == 'Done')
-                <div class="flex flex-col w-2/6">
-                    <span class="text-gray-700 font-medium">{{ $report->resolve->user->name }}</span>
-                    <span class="text-sm text-gray-500">{{ \Carbon\Carbon::parse($report->resolve_datetime)->format('M d, Y') }}</span>
-                    <span class="text-sm font-semibold text-gray-800 mt-1">{{ \Carbon\Carbon::parse($report->resolve_datetime)->format('h:i A') }}</span>
-                </div>
-              @else
-               <div class="flex flex-col w-2/6">
-                    <span class="text-sm text-gray-700 font-medium ml-8"><i class="fa-solid fa-clock"></i></span>
-                </div>
-              @endif
-             
-
-              {{-- Right: Status --}}
-              <div class="flex flex-col w-2/6">
-                  <span class="text-sm font-semibold px-4 py-2 flex items-center">
+            <div class="bg-white border border-gray-200 rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden" id="report{{ $report->id }}">
+              <div class="p-6">
+                <div class="flex items-start justify-between mb-4">
+                  <div class="flex-1">
+                    <h3 class="text-lg font-bold text-gray-900 mb-2">{{ $report->issues->title }}</h3>
+                    <div class="flex items-center space-x-2">
+                      <span class="text-sm font-semibold text-blue-600">{{ $report->ticket_number }}</span>
+                      <span class="text-xs text-gray-400">•</span>
+                      <span class="text-xs text-gray-500">{{ \Carbon\Carbon::parse($report->request_datetime)->format('M d, Y h:i A') }}</span>
+                    </div>
+                  </div>
+                  <div>
                     @if ($report->status == 'Ongoing')
                       <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                          {{ $report->status }} {{-- Display the status --}}
+                          {{ $report->status }}
                       </span>
                     @elseif ($report->status == 'Done')
                       <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                          {{ $report->status }} {{-- Display the status --}}    
+                          {{ $report->status }}
                       </span>
                     @else
                       <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
-                          {{ $report->status }} {{-- Display the status --}}
+                          {{ $report->status }}
                       </span> 
                     @endif
-                     
-                  </span>
-                  
+                  </div>
                 </div>
 
-                {{-- Right: Status --}}
-                <div class="flex flex-col w-2/6">
-                  <span class="text-sm font-semibold px-4 py-2 flex items-center">
-                    @if (($report->status == 'Done') && ($report->feedback != 'Yes'))
-                      <a href="#" data-modal-target="feedback-modal"
-                        data-modal-toggle="feedback-modal" 
-                        data-report-id="{{ $report->id }}"
-                        class="focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900">Rate Us!</a>
-                    @elseif ($report->status == 'Done' && $report->feedback == 'Yes')
-                      <span class="inline-flex items-center px-3 py-1 rounded-full text-md font-medium bg-green-100 text-green-800 text-gray-800">
-                          Feedback Given {{-- Display the status --}}   
-                      </span>
-
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                  <div class="space-y-1">
+                    <p class="text-xs font-semibold text-gray-500 uppercase">Responded By</p>
+                    @if (in_array($report->status, ['Ongoing', 'Done']))
+                      <p class="text-sm font-medium text-gray-900">{{ $report->response->name }}</p>
+                      <p class="text-xs text-gray-500">{{ \Carbon\Carbon::parse($report->response_datetime)->format('M d, Y h:i A') }}</p>
                     @else
-                      
+                      <p class="text-sm text-gray-400"><i class="fas fa-clock"></i> Pending</p>
                     @endif
-                     
-                  </span>
-                  
+                  </div>
+
+                  <div class="space-y-1">
+                    <p class="text-xs font-semibold text-gray-500 uppercase">Resolved By</p>
+                    @if ($report->status == 'Done')
+                      <p class="text-sm font-medium text-gray-900">{{ $report->resolve->user->name }}</p>
+                      <p class="text-xs text-gray-500">{{ \Carbon\Carbon::parse($report->resolve_datetime)->format('M d, Y h:i A') }}</p>
+                    @else
+                      <p class="text-sm text-gray-400"><i class="fas fa-clock"></i> Pending</p>
+                    @endif
+                  </div>
                 </div>
+
+                @if (($report->status == 'Done') && ($report->feedback != 'Yes'))
+                  <div class="pt-4 border-t border-gray-200">
+                    <a href="#" data-modal-target="feedback-modal"
+                      data-modal-toggle="feedback-modal" 
+                      data-report-id="{{ $report->id }}"
+                      class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors duration-200">
+                      <i class="fas fa-star mr-2"></i>Rate Our Service
+                    </a>
+                  </div>
+                @elseif ($report->status == 'Done' && $report->feedback == 'Yes')
+                  <div class="pt-4 border-t border-gray-200">
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                        <i class="fas fa-check-circle mr-1"></i>Feedback Given
+                    </span>
+                  </div>
+                @endif
+              </div>
             </div>
           @endforeach
-
+          </div>
+        </div>
       </section>
 
   

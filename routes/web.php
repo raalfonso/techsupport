@@ -23,7 +23,9 @@ use App\Http\Controllers\{
     UserSurveyAuthController,
     QrCodeController,
     SurveyEmployeeController,
-    UserController
+    UserController,
+    DevWatchController,
+    ProjectController
 };
 
 /*
@@ -38,6 +40,15 @@ use App\Http\Controllers\{
 
 
 Route::middleware('auth')->group(function () {
+    // API Routes
+    Route::prefix('api')->group(function () {
+        Route::get('/reports', [\App\Http\Controllers\Api\ReportController::class, 'index']);
+        Route::get('/reports/{id}', [\App\Http\Controllers\Api\ReportController::class, 'show']);
+        Route::put('/reports/{id}', [\App\Http\Controllers\Api\ReportController::class, 'update']);
+        Route::delete('/reports/{id}', [\App\Http\Controllers\Api\ReportController::class, 'destroy']);
+        Route::get('/reports-stats', [\App\Http\Controllers\Api\ReportController::class, 'stats']);
+    });
+    
     Route::resource('issues', IssuesController::class);
     Route::resource('auth', AuthItemController::class);
     Route::resource('auth-child', AuthItemChildController::class);
@@ -45,6 +56,9 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('category', CategoryController::class);
     Route::resource('department', DepartmentController::class);
+    Route::resource('devwatch', DevWatchController::class);
+    Route::post('/projects', [ProjectController::class, 'store'])->name('projects.store');
+    Route::post('/projects/add-member', [ProjectController::class, 'addMember'])->name('projects.addMember');
     Route::resource('main', ReportController::class);
     Route::get('/report/export', [ReportController::class, 'export'])->name('report.export');
     Route::post('/report/emergency', [ReportController::class, 'emergency'])->name('report.emergency');
@@ -57,6 +71,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/report/escalate/{id}', [ReportController::class, 'escalate'])->name('report.escalate');
     Route::get('/report/endorse/{id}', [ReportController::class, 'endorse'])->name('report.endorse');
     Route::post('/report/validate',[ReportController::class, 'validateReport'])->name('report.validate');
+    Route::post('/report/confirm-validate',[ReportController::class, 'confirmValidate'])->name('report.confirmValidate');
+    Route::post('/report/change-issue',[ReportController::class, 'changeIssue'])->name('report.changeIssue');
    
     Route::get('/home', [HomeController::class, 'login'])->name('home');
     // Route::view('/', 'home.home')->name('home');
@@ -150,6 +166,13 @@ Route::prefix('survey')->group(function () {
 Route::get('/', [GoogleController::class, 'redirect'])->name('google.login');
 Route::get('/auth/google/callback', [GoogleController::class, 'callback']);
 Route::get('/report/complete/{id}', [ReportController::class, 'complete'])->name('report.complete');
+
+// Public API Routes
+Route::prefix('api')->group(function () {
+    Route::post('/reports', [\App\Http\Controllers\Api\ReportController::class, 'store']);
+    Route::get('/test', function() { return response()->json(['message' => 'API working']); });
+});
+
 Route::middleware('guest')->group(function () {
    
     Route::view('/register', 'auth.register')->name('register');

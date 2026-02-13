@@ -37,7 +37,7 @@
                 <!-- Logo Section -->
                 <div class="px-6 py-4 border-b border-gray-200 dark:border-slate-700">
                     <div class="flex items-center space-x-3">
-                        <img src="{{ asset('img/itd_logo.png') }}" alt="ITD Logo" class="h-12 w-12 rounded">
+                        <img src="{{ asset('img/itd_logo.png') }}" alt="ITD Logo" class="h-8 w-12 rounded">
                         <div x-show="sidebarOpen" class="flex flex-col">
                             <span class="text-lg font-bold text-gray-800 dark:text-white">SolveIT</span>
                             
@@ -48,33 +48,61 @@
                 <!-- Navigation Links -->
                 <nav class="px-3 pt-1">
                     <div class="space-y-1">
-                        <a href="{{ route('dashboard') }}" class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-slate-700 hover:text-blue-600 px-3 py-2 rounded-lg transition-all duration-200">
+                        <a href="{{ route('dashboard') }}" class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-slate-700 hover:text-blue-600 px-3 py-2 rounded-lg transition-all duration-200 relative group">
                             <i class="material-icons text-xl">dashboard</i>
                             <span x-show="sidebarOpen" class="font-medium">Dashboard</span>
+                            <div x-show="!sidebarOpen" class="absolute left-full ml-2 px-2 py-1 bg-gray-800 text-white text-sm rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-50">
+                                Dashboard
+                            </div>
                         </a>
-                        <a href="{{ route('report.index') }}" class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-slate-700 hover:text-blue-600 px-3 py-2 rounded-lg transition-all duration-200">
+                        <a href="{{ route('report.index') }}" class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-slate-700 hover:text-blue-600 px-3 py-2 rounded-lg transition-all duration-200 relative group">
                             <i class="material-icons text-xl">article</i>
                             <span x-show="sidebarOpen" class="font-medium">Report</span>
+                            <div x-show="!sidebarOpen" class="absolute left-full ml-2 px-2 py-1 bg-gray-800 text-white text-sm rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-50">
+                                Report
+                            </div>
                         </a>
-                        <a href="{{ route('issues.index') }}" class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-slate-700 hover:text-blue-600 px-3 py-2 rounded-lg transition-all duration-200">
+                        <a href="{{ route('issues.index') }}" class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-slate-700 hover:text-blue-600 px-3 py-2 rounded-lg transition-all duration-200 relative group">
                             <i class="material-icons text-xl">report</i>
                             <span x-show="sidebarOpen" class="font-medium">Issues</span>
+                            <div x-show="!sidebarOpen" class="absolute left-full ml-2 px-2 py-1 bg-gray-800 text-white text-sm rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-50">
+                                Issues
+                            </div>
                         </a>
-                        <a href="{{ route('category.index') }}" class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-slate-700 hover:text-blue-600 px-3 py-2 rounded-lg transition-all duration-200">
+                        <a href="{{ route('category.index') }}" class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-slate-700 hover:text-blue-600 px-3 py-2 rounded-lg transition-all duration-200 relative group">
                             <i class="material-icons text-xl">category</i>
                             <span x-show="sidebarOpen" class="font-medium">Category</span>
+                            <div x-show="!sidebarOpen" class="absolute left-full ml-2 px-2 py-1 bg-gray-800 text-white text-sm rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-50">
+                                Category
+                            </div>
                         </a>
-                        <a href="{{ route('department.index') }}" class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-slate-700 hover:text-blue-600 px-3 py-2 rounded-lg transition-all duration-200">
+                        <a href="{{ route('department.index') }}" class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-slate-700 hover:text-blue-600 px-3 py-2 rounded-lg transition-all duration-200 relative group">
                             <i class="material-icons text-xl">account_tree</i>
                             <span x-show="sidebarOpen" class="font-medium">Department</span>
+                            <div x-show="!sidebarOpen" class="absolute left-full ml-2 px-2 py-1 bg-gray-800 text-white text-sm rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-50">
+                                Department
+                            </div>
                         </a>
-                        <a href="{{ route('users.index') }}" class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-slate-700 hover:text-blue-600 px-3 py-2 rounded-lg transition-all duration-200">
+                        <a href="{{ route('devwatch.index') }}" class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-slate-700 hover:text-blue-600 px-3 py-2 rounded-lg transition-all duration-200 relative group">
+                            <i class="material-icons text-xl">code</i>
+                            <span x-show="sidebarOpen" class="font-medium">DevWatch</span>
+                            <div x-show="!sidebarOpen" class="absolute left-full ml-2 px-2 py-1 bg-gray-800 text-white text-sm rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-50">
+                                DevWatch
+                            </div>
+                        </a>
+                        <a href="{{ route('users.index') }}" class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-slate-700 hover:text-blue-600 px-3 py-2 rounded-lg transition-all duration-200 relative group">
                             <i class="material-icons text-xl">settings</i>
                             <span x-show="sidebarOpen" class="font-medium">User Management</span>
+                            <div x-show="!sidebarOpen" class="absolute left-full ml-2 px-2 py-1 bg-gray-800 text-white text-sm rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-50">
+                                User Management
+                            </div>
                         </a>
-                        <a href="{{ route('profile') }}" class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-slate-700 hover:text-blue-600 px-3 py-2 rounded-lg transition-all duration-200">
+                        <a href="{{ route('profile') }}" class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-slate-700 hover:text-blue-600 px-3 py-2 rounded-lg transition-all duration-200 relative group">
                             <i class="material-icons text-xl">account_circle</i>
                             <span x-show="sidebarOpen" class="font-medium">Profile</span>
+                            <div x-show="!sidebarOpen" class="absolute left-full ml-2 px-2 py-1 bg-gray-800 text-white text-sm rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-50">
+                                Profile
+                            </div>
                         </a>
                     </div>
                 </nav>
@@ -95,9 +123,12 @@
                     <!-- Logout -->
                     <form action="{{ route('logout') }}" method="post">
                         @csrf
-                        <button class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-slate-700 hover:text-red-600 px-3 py-2 rounded-lg transition-all duration-200 w-full">
+                        <button class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-slate-700 hover:text-red-600 px-3 py-2 rounded-lg transition-all duration-200 w-full relative group">
                             <i class="material-icons text-xl">logout</i>
                             <span x-show="sidebarOpen" class="font-medium">Logout</span>
+                            <div x-show="!sidebarOpen" class="absolute left-full ml-2 px-2 py-1 bg-gray-800 text-white text-sm rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-50">
+                                Logout
+                            </div>
                         </button>
                     </form>
                 </div>
@@ -112,9 +143,9 @@
         <!-- Main Content Area -->
         <div class="flex-1 flex flex-col overflow-hidden">
             <!-- Top Header -->
-            <header class="bg-white dark:bg-slate-800 shadow-sm border-b border-gray-200 dark:border-slate-700 px-6 py-4">
-                <div class="flex items-center justify-between">
-                    <h1 class="text-xl font-semibold text-gray-800 dark:text-white">{{ env('APP_NAME') }}</h1>
+            <header class="bg-white dark:bg-slate-800 shadow-sm border-b border-gray-200 dark:border-slate-700 px-6 py-6 h-16">
+                <div class="flex items-center justify-between h-full">
+                       <h1 class="text-2xl font-semibold text-gray-800 dark:text-white">{{ env('APP_NAME') }}</h1>  
                     <div class="flex items-center space-x-4">
                         <!-- Theme Toggle -->
                         <button class="theme-toggle p-2 mr-4 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors">
