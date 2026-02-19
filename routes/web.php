@@ -164,7 +164,7 @@ Route::prefix('survey')->group(function () {
 
 
 Route::get('/', [GoogleController::class, 'redirect'])->name('google.login');
-Route::get('/auth/google/callback', [GoogleController::class, 'callback']);
+Route::get('/auth/google/callback', [GoogleController::class, 'callback'])->name('google.callback');
 Route::get('/report/complete/{id}', [ReportController::class, 'complete'])->name('report.complete');
 
 // Public API Routes
