@@ -48,7 +48,7 @@ class GoogleController extends Controller
             }
 
             Auth::login($user);
-            return redirect()->route('dashboard');
+            return redirect()->route('home');
 
         } catch (\Exception $e) {
             return redirect()->route('login')->with('error', 'Google sign-in failed: ' . $e->getMessage());
