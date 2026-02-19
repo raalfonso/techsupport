@@ -10,22 +10,22 @@ use Illuminate\Support\Str;
 class GoogleController extends Controller
 {
     public function redirect()
-    {
-        return Socialite::driver('google')
-        ->with(['hd' => 'bcda.gov.ph'])
-        ->redirect();
-    }
+{
+    return Socialite::driver('google')
+    ->with(['hd' => 'bcda.gov.ph'])
+    ->redirect();
+}
 
     public function callback()
     {
         try {
-            $googleUser = Socialite::driver('google')->stateless()->user();
-
+            $googleUser = Socialite::driver('google')->user(); // remove stateless()
+            
             // Enforce BCDA domain
             if (!str_ends_with($googleUser->email, '@bcda.gov.ph')) {
                 return redirect()->route('login')->with('error', 'Only bcda.gov.ph Google accounts are allowed.');
             }
-            
+
             $user = User::where('email', '=', $googleUser->email)->first();
 
             if (!$user) {
@@ -48,11 +48,10 @@ class GoogleController extends Controller
             }
 
             Auth::login($user);
-
             return redirect()->route('dashboard');
+
         } catch (\Exception $e) {
-            // return redirect()->route('login')->with('error', 'Google sign-in failed: ' . $e->getMessage());
-            dd($e->getMessage());
+            return redirect()->route('login')->with('error', 'Google sign-in failed: ' . $e->getMessage());
         }
     }
 }
