@@ -11,6 +11,7 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
+         $middleware->trustProxies(at: '*');
        // Register route middleware here
         $middleware->alias([
             'employee.auth' => \App\Http\Middleware\Authenticate::class,
