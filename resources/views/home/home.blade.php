@@ -47,7 +47,7 @@
                 <a href="#contact" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">Report</a>
                 @auth
                     <span class="text-gray-800 px-3 py-2 text-sm font-semibold">{{ auth()->user()->name }}</span>
-                    @if (auth()->user()->authAssignments->contains('item_name', 'Administrator'))
+                    @if (auth()->user()->authAssignments->whereIn('item_name', ['Administrator', 'IT_User'])->isNotEmpty())
                         <a href="{{ route('dashboard') }}" class="bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-800">SolveIT</a>
                     @endif
                 @endauth
@@ -75,7 +75,7 @@
                 <a href="#contact" class="block text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-base font-medium">Report</a>
                 
                  @auth
-                    @if (auth()->user()->authAssignments->contains('item_name', 'Administrator'))
+                    @if (auth()->user()->authAssignments->whereIn('item_name', ['Administrator', 'IT_User'])->isNotEmpty())
                         <a href="{{ route('dashboard') }}"  class="block text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-base font-medium">SolveIT</a>
                     @endif
                 @endauth                                  
