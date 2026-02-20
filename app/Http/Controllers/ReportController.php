@@ -126,6 +126,17 @@ class ReportController extends Controller
         ]);
     }
 
+    public function publicReports()
+    {
+        $reports = Report::whereIn('status', ['Pending', 'Ongoing', 'For Validation'])
+        ->orderBy('id', 'desc')
+        ->paginate(20);
+        
+        return view('report.public',[
+            'reports' => $reports,
+        ]);
+    }
+
     public function getTotalReports(){
         $countReport = Report::whereIn('status', ['Pending', 'Ongoing', 'For validation'])->count();
 
@@ -162,7 +173,7 @@ class ReportController extends Controller
     
         Report::create($fields);
      
-        return redirect()->route('report.index')->with('success', 'New request created successfully!');
+        return redirect()->route('report.index', ['success' => 'New request created successfully!']);
     }
 
     public function emergency(Request $request)
