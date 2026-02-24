@@ -28,8 +28,29 @@
             animation: blinkYellow 1s infinite;
         }
     </style>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
+        const notificationSound = new Audio('{{ asset('sounds/387533__soundwarf__alert-short.wav') }}');
+        notificationSound.loop = true;
+        let isPlaying = false;
+
+        function loadReports() {
+            $.ajax({
+                url: '{{ route('report.public') }}',
+                type: 'GET',
+                success: function(response) {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(response, 'text/html');
+                    const newCards = doc.querySelector('.grid').innerHTML;
+                    $('.grid').html(newCards);
+                    checkOldReports();
+                }
+            });
+        }
+
         function checkOldReports() {
+            let hasOldPending = false;
+            
             document.querySelectorAll('.report-card').forEach(card => {
                 const reportTime = new Date(card.dataset.reportTime);
                 const reportStatus = card.dataset.reportStatus;
@@ -43,14 +64,41 @@
                         card.classList.add('blink-yellow');
                     } else if (diffMinutes > 5) {
                         card.classList.add('blink-red');
+                        hasOldPending = true;
                     }
                 }
             });
+            
+            if (hasOldPending && !isPlaying) {
+                notificationSound.play().catch(e => console.log('Audio play failed:', e));
+                isPlaying = true;
+            } else if (!hasOldPending && isPlaying) {
+                notificationSound.pause();
+                notificationSound.currentTime = 0;
+                isPlaying = false;
+            }
         }
         
         document.addEventListener('DOMContentLoaded', function() {
             checkOldReports();
-            setInterval(checkOldReports, 5000);
+            setInterval(loadReports, 5000);
+            
+            function updateDateTime() {
+                const now = new Date();
+                const options = { 
+                    weekday: 'long', 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric', 
+                    hour: '2-digit', 
+                    minute: '2-digit', 
+                    second: '2-digit' 
+                };
+                document.getElementById('current-datetime').textContent = now.toLocaleDateString('en-US', options);
+            }
+            
+            updateDateTime();
+            setInterval(updateDateTime, 1000);
         });
     </script>
 </head>
@@ -60,12 +108,12 @@
 <!-- Top Navigation Bar -->
 
 <main class="flex flex-1 justify-center py-8">
-<div class="layout-content-container flex flex-col max-w-[1200px] flex-1 px-4 sm:px-10">
+<div class="layout-content-container- flex flex-col max-w-auto flex-1 px-4 sm:px-10">
 <!-- Page Title and Actions -->
 <div class="flex flex-wrap justify-between items-end gap-4 mb-8">
 <div class="flex flex-col gap-1">
 <h1 class="text-slate-900 dark:text-slate-100 font-bold text-4xl font-black leading-tight tracking-[-0.033em]">Active Issues Reported</h1>
-{{-- <p class="text-slate-500 dark:text-slate-400 text-base font-normal leading-normal">Manage and track resolution of system issues.</p> --}}
+<p class="text-slate-500 dark:text-slate-400 text-base font-normal leading-normal" id="current-datetime"></p>
 </div>
 <div class="flex gap-3">
 

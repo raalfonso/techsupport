@@ -1,276 +1,158 @@
 <div class="block mt-4 overflow-auto">
-    <!-- Table: Visible on medium screens (md) and larger -->
-    <div class="hidden md:block">
-        <div class="overflow-x-auto rounded-2xl border border-gray-200 dark:border-gray-600 shadow-lg">
-            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                <thead>
-                    <tr class="bg-gradient-to-r from-slate-800 to-slate-900">
-                        <th class="px-6 py-4 text-left text-sm font-semibold text-white">Actions</th>
-                        <th class="px-6 py-4 text-left text-sm font-semibold text-white">Ticket Number</th>
-                        <th class="px-6 py-4 text-left text-sm font-semibold text-white">Requestor Name</th>
-                        <th class="px-6 py-4 text-left text-sm font-semibold text-white">Department</th>
-                        <th class="px-6 py-4 text-left text-sm font-semibold text-white">Category</th>
-                        <th class="px-6 py-4 text-left text-sm font-semibold text-white">Location</th>
-                        <th class="px-6 py-4 text-left text-sm font-semibold text-white">Issue</th>
-                        <th class="px-6 py-4 text-left text-sm font-semibold text-white">Status</th>
-                        <th class="px-6 py-4 text-left text-sm font-semibold text-white">Waiting Time</th>
-                        <th class="px-6 py-4 text-left text-sm font-semibold text-white">Processing Time</th>
-                        <th class="px-6 py-4 text-left text-sm font-semibold text-white">Request Date</th>
-                        <th class="px-6 py-4 text-left text-sm font-semibold text-white">Remarks</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-gray-800">            
-        <?php 
-                $count = 1;
-                $now = now();
-                ?>
-            @foreach($reports as $report)
-    
-                @php
-                    $waitingMinutes = \Carbon\Carbon::parse($report->request_datetime)->diffInMinutes(now());
-                    $isOverdue = $report->status == 'Pending' && $waitingMinutes >= 5;
-                @endphp
-                <tr class="{{ $isOverdue ? 'bg-red-50 hover:bg-red-100 animate-pulse border-l-4 border-red-500' : 'hover:bg-gray-50' }} dark:bg-gray-800 dark:text-white dark:hover:bg-gray-700 transition-all duration-200">
-                    @if ($report->status == 'Pending')
-                        <td class="px-6 py-4">
-                            <button 
-                                @click="responseModal = true; selectedId = '{{ $report->id }}'" 
-                                class="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-4 py-2.5 rounded-xl w-full transition-all duration-200 shadow-lg hover:shadow-xl font-medium text-sm">
-                                <i class="fa-solid fa-reply mr-1"></i>
-                                Response
-                            </button>
-                        </td>
-                    @elseif ($report->status == 'For validation')
-                        <td class="px-6 py-4">
-                            <div class="flex flex-col space-y-2">
-                                <button 
-                                    @click="confirmValidateModal = true; selectedId = '{{ $report->id }}'" 
-                                    class="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white px-3 py-2 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl font-medium text-xs">
-                                    <i class="fa-solid fa-check-double mr-1"></i>
-                                    Validate
-                                </button>
-                                <button 
-                                    @click="changeIssueModal = true; selectedId = '{{ $report->id }}'" 
-                                    class="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white px-3 py-2 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl font-medium text-xs">
-                                    <i class="fa-solid fa-exchange-alt mr-1"></i>
-                                    Change Issue
-                                </button>
-                            </div>
-                        </td>
-                    @else
-                        <td class="px-6 py-4">
-                            <div class="flex flex-col space-y-2">
-                                <button 
-                                    @click="resolveModal = true; selectedId = '{{ $report->id }}'" 
-                                    class="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white px-3 py-2 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl font-medium text-xs">
-                                    <i class="fa-solid fa-check mr-1"></i>
-                                    Resolved
-                                </button>
-                                
-                                <button 
-                                    @click="escalateModal = true; selectedId = '{{ $report->id }}'" 
-                                    class="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white px-3 py-2 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl font-medium text-xs">
-                                    <i class="fa-solid fa-arrow-up mr-1"></i>
-                                    Escalate
-                                </button>
-
-                                <button 
-                                    @click="endorseModal = true; selectedId = '{{ $report->id }}'" 
-                                    class="bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 text-white px-3 py-2 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl font-medium text-xs">
-                                    <i class="fa-solid fa-handshake mr-1"></i>
-                                    Endorse
-                                </button>
-                            </div>
-                        </td>
-                    @endif
-                    <td class="px-6 py-4 text-sm font-semibold text-gray-900 dark:text-white">
-                        <div class="flex items-center space-x-2">
-                            <div class="w-2 h-2 {{ $report->status == 'Pending' ? 'bg-yellow-500' : ($report->status == 'Ongoing' ? 'bg-blue-500' : 'bg-purple-500') }} rounded-full"></div>
-                            <span>{{ $report->ticket_number }}</span>
-                        </div>
-                    </td>
-                    <td class="px-6 py-4 text-sm text-gray-600 dark:text-gray-300">{{ $report->client->name }}</td>
-                    <td class="px-6 py-4 text-sm">
-                        <span class="px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full text-xs font-medium">
-                            {{ $report->department->title }}
-                        </span>
-                    </td>
-                    <td class="px-6 py-4 text-sm">
-                        <span class="px-3 py-1 bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 rounded-full text-xs font-medium">
-                            {{ $report->issues->category->title }}
-                        </span>
-                    </td>
-                    <td class="px-6 py-4 text-sm text-gray-600 dark:text-gray-300">{{ $report->location }}</td>
-                    <td class="px-6 py-4 text-sm text-gray-600 dark:text-gray-300">{{ $report->issues->title }}</td>
-                    <td class="px-6 py-4 text-sm">
-                        <span class="px-3 py-1 rounded-full text-xs font-medium
-                            @if($report->status == 'Pending') bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200
-                            @elseif($report->status == 'Ongoing') bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200
-                            @elseif($report->status == 'For validation') bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200
-                            @endif">
-                            {{ $report->status }}
-                        </span>
-                    </td>
-                    @if ($report->status == 'Pending')
-                        <td class="px-6 py-4 pending{{$count}}" style="display: none;">{{$report->request_datetime}}</td>
-                        <td class="px-6 py-4 text-sm">
-                            <span class="pendingValue{{$count}} px-2 py-1 bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-200 rounded-lg text-xs font-medium"></span>
-                        </td>
-                    @elseif ($report->status == 'For validation')
-                        <td class="px-6 py-4 text-sm">
-                            @php
-                                $diffInMinutes = \Carbon\Carbon::parse($report->request_datetime)->diffInMinutes(\Carbon\Carbon::parse($report->response_datetime));
-                            @endphp
-                            <span class="px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-lg text-xs font-medium">
-                                @if ($diffInMinutes >= 60)
-                                    {{ round($diffInMinutes / 60) }} hrs
-                                @else
-                                    {{ round($diffInMinutes) }} mins
-                                @endif
-                            </span>
-                        </td>
-                    @elseif ($report->status == 'Ongoing')
-                        <td class="px-6 py-4 text-sm">
-                            @php
-                                $diffInMinutes = \Carbon\Carbon::parse($report->request_datetime)->diffInMinutes(\Carbon\Carbon::parse($report->response_datetime));
-                            @endphp
-                            <span class="px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-lg text-xs font-medium">
-                                @if ($diffInMinutes >= 60)
-                                    {{ round($diffInMinutes / 60) }} hrs
-                                @else
-                                    {{ round($diffInMinutes) }} mins
-                                @endif
-                            </span>
-                        </td>
-                    @endif
-                    <td class="px-6 py-4 ongoing{{$count}}" style="display: none;">
-                        @if ($report->validation_date_time != null)
-                            {{ $report->validation_date_time }}
-                        @else
-                            {{$report->response_datetime}}
-                        @endif
-                    </td>
-                    <td class="px-6 py-4 text-sm">
-                        @if ($report->status == 'Ongoing')
-                            <span class="ongoingValue{{$count}} px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 rounded-lg text-xs font-medium"></span>
-                        @endif
-                    </td>
-                    <td class="px-6 py-4 text-sm text-gray-600 dark:text-gray-300">
-                        <div class="flex flex-col">
-                            <span class="font-medium">{{ date('M d, Y', strtotime($report->request_datetime)) }}</span>
-                            <span class="text-xs text-gray-500">{{ date('h:i A', strtotime($report->request_datetime)) }}</span>
-                        </div>
-                    </td>
-                    <td class="px-6 py-4 text-sm text-gray-600 dark:text-gray-300 max-w-xs truncate">{{ $report->remarks }}</td>
-                </tr>                @php
-                    $count++;
-                @endphp
-            @endforeach
-                </tbody>
-            </table>
+    @if($reports->isEmpty())
+        <div class="flex flex-col items-center justify-center py-16 px-4">
+            <div class="bg-gray-100 dark:bg-gray-800 rounded-full p-8 mb-4">
+                <svg class="w-24 h-24 text-gray-400 dark:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+            </div>
+            <h3 class="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-2">No Active Issues</h3>
+            <p class="text-gray-500 dark:text-gray-400 text-center">There are currently no active issues to display.</p>
         </div>
-    </div>
-
-    <!-- Card: Visible only on small screens (mobile) -->
-    <div class="block md:hidden">
+    @else
+    <!-- Cards Layout for all screens -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <?php 
-        $count1 = 1;
+        $count = 1;
         $now = now();
         ?>
-         @foreach($reports as $report)
-        @php
-            $waitingMinutes = \Carbon\Carbon::parse($report->request_datetime)->diffInMinutes(now());
-            $isOverdue = $report->status == 'Pending' && $waitingMinutes >= 5;
-        @endphp
-        <div class="border p-4 rounded-lg shadow-md mb-4 dark:text-white {{ $isOverdue ? 'bg-red-50 border-red-200 animate-pulse' : 'bg-white' }} dark:bg-slate-800 transition-all hover:shadow-lg {{ $isOverdue ? 'border-l-4 border-l-red-500' : '' }}">
-            <div class="flex justify-between items-center mb-3">
-                <h2 class="font-bold text-lg">{{ $report->client->name }} - {{ $report->department->title }}</h2>
-                <span class="px-3 py-1 rounded-full text-sm font-medium
-                    @if($report->status == 'Pending') bg-yellow-100 text-yellow-800
-                    @elseif($report->status == 'Ongoing') bg-blue-100 text-blue-800
-                    @elseif($report->status == 'For validation') bg-purple-100 text-purple-800
-                    @endif">
-                    {{ $report->status }}
-                </span>
-            </div>
-            <div class="space-y-2 mb-4">
-                <p class="text-sm text-gray-600 dark:text-gray-300"><span class="font-medium">Ticket No:</span> {{ $report->ticket_number }}</p>
-                <p class="text-sm text-gray-600 dark:text-gray-300"><span class="font-medium">Issues:</span> {{ $report->issues->title }}</p>
-                @if ($report->status == 'Pending')
-                    <div class="border border-gray-300 px-4 py-2 pending{{$count1}}" style="display: none;">
-                        {{$report->request_datetime}}
+        @foreach($reports as $report)
+            @php
+                $waitingMinutes = \Carbon\Carbon::parse($report->request_datetime)->diffInMinutes(now());
+                $isOverdue = $report->status == 'Pending' && $waitingMinutes >= 5;
+            @endphp
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border {{ $isOverdue ? 'border-red-500 border-l-4 bg-red-50 dark:bg-red-900/20 animate-pulse' : 'border-gray-200 dark:border-gray-700' }} p-6 hover:shadow-xl transition-all duration-200">
+                <!-- Header -->
+                <div class="flex justify-between items-start mb-4">
+                    <div class="flex items-center space-x-2">
+                        <div class="w-3 h-3 {{ $report->status == 'Pending' ? 'bg-yellow-500' : ($report->status == 'Ongoing' ? 'bg-blue-500' : 'bg-purple-500') }} rounded-full"></div>
+                        <span class="font-bold text-gray-900 dark:text-white">{{ $report->ticket_number }}</span>
                     </div>
-                    <p class="text-sm text-gray-600 dark:text-gray-300">
-                        <span class="font-medium">Pending Time:</span>
-                        <span class="dark:text-white ml-2 pendingValue{{$count1}} text-orange-600"></span>
-                    </p>
-                @else
-                    @php
-                        $diffInMinutes = \Carbon\Carbon::parse($report->request_datetime)->diffInMinutes(\Carbon\Carbon::parse($report->response_datetime));
-                    @endphp
-                    <p class="text-sm text-gray-600 dark:text-gray-300">
-                        <span class="font-medium">Ongoing Time:</span>
-                        <span class="text-blue-600 ml-2">
-                            @if ($diffInMinutes >= 60)
-                                {{ round($diffInMinutes / 60) }} hrs
-                            @else
-                                {{ round($diffInMinutes) }} mins
-                            @endif
+                    <span class="px-3 py-1 rounded-full text-xs font-medium
+                        @if($report->status == 'Pending') bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200
+                        @elseif($report->status == 'Ongoing') bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200
+                        @elseif($report->status == 'For validation') bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200
+                        @endif">
+                        {{ $report->status }}
+                    </span>
+                </div>
+
+                <!-- Content -->
+                <div class="space-y-3 mb-4">
+                    <div>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">Requestor</p>
+                        <p class="text-sm font-semibold text-gray-900 dark:text-white">{{ $report->client->name }}</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <span class="px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-lg text-xs font-medium">
+                            {{ $report->department->title }}
                         </span>
-                    </p>
-                @endif
-            </div>
-
-            <div class="flex flex-col gap-2">
-                @if ($report->status == 'Pending')
-                    <button 
-                        @click="responseModal = true; selectedId = '{{ $report->id }}'" 
-                        class="w-full bg-teal-600 text-white px-4 py-2.5 rounded-lg hover:bg-teal-700 transition duration-150 shadow-sm text-sm font-medium">
-                        Response
-                    </button>
-                @elseif ($report->status == 'For validation')
-                    <div class="flex flex-col gap-2">
-                        <button 
-                            @click="confirmValidateModal = true; selectedId = '{{ $report->id }}'" 
-                            class="w-full bg-purple-600 text-white px-4 py-2.5 rounded-lg hover:bg-purple-700 transition duration-150 shadow-sm text-sm font-medium">
-                            <i class="fa-solid fa-check-double mr-1"></i>
-                            Validate
-                        </button>
-                        <button 
-                            @click="changeIssueModal = true; selectedId = '{{ $report->id }}'" 
-                            class="w-full bg-orange-500 text-white px-4 py-2.5 rounded-lg hover:bg-orange-600 transition duration-150 shadow-sm text-sm font-medium">
-                            <i class="fa-solid fa-exchange-alt mr-1"></i>
-                            Change Issue
-                        </button>
+                        <span class="px-2 py-1 bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 rounded-lg text-xs font-medium">
+                            {{ $report->issues->category->title }}
+                        </span>
                     </div>
-                @else
-                    <button 
-                        @click="resolveModal = true; selectedId = '{{ $report->id }}'" 
-                        class="w-full bg-blue-600 text-white px-4 py-2.5 rounded-lg hover:bg-blue-700 transition duration-150 shadow-sm text-sm font-medium">
-                        Resolved
-                    </button>
-                    
-                    <button 
-                        @click="escalateModal = true; selectedId = '{{ $report->id }}'" 
-                        class="w-full bg-yellow-500 text-white px-4 py-2.5 rounded-lg hover:bg-yellow-600 transition duration-150 shadow-sm text-sm font-medium">
-                        Escalate
-                    </button>
+                    <div>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">Issue</p>
+                        <p class="text-sm text-gray-900 dark:text-white">{{ $report->issues->title }}</p>
+                    </div>
+                    @if($report->location)
+                    <div>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">Location</p>
+                        <p class="text-sm text-gray-900 dark:text-white">{{ $report->location }}</p>
+                    </div>
+                    @endif
+                    <div class="flex justify-between text-xs">
+                        <div>
+                            <p class="text-gray-500 dark:text-gray-400">Request Date</p>
+                            <p class="font-medium text-gray-900 dark:text-white">{{ date('M d, Y h:i A', strtotime($report->request_datetime)) }}</p>
+                        </div>
+                    </div>
+                    @if ($report->status == 'Pending')
+                        <div class="pending{{$count}}" style="display: none;">{{$report->request_datetime}}</div>
+                        <div class="flex items-center space-x-2">
+                            <span class="text-xs text-gray-500 dark:text-gray-400">Waiting:</span>
+                            <span class="pendingValue{{$count}} px-2 py-1 rounded-lg text-xs font-medium"></span>
+                        </div>
+                    @else
+                        @php
+                            $diffInMinutes = \Carbon\Carbon::parse($report->request_datetime)->diffInMinutes(\Carbon\Carbon::parse($report->response_datetime));
+                        @endphp
+                        <div class="flex items-center space-x-2">
+                            <span class="text-xs text-gray-500 dark:text-gray-400">Response Time:</span>
+                            <span class="px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-lg text-xs font-medium">
+                                {{ $diffInMinutes >= 60 ? round($diffInMinutes / 60) . ' hrs' : round($diffInMinutes) . ' mins' }}
+                            </span>
+                        </div>
+                    @endif
+                    @if ($report->status == 'Ongoing')
+                        <div class="ongoing{{$count}}" style="display: none;">
+                            {{ $report->validation_date_time ?? $report->response_datetime }}
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <span class="text-xs text-gray-500 dark:text-gray-400">Processing:</span>
+                            <span class="ongoingValue{{$count}} px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 rounded-lg text-xs font-medium"></span>
+                        </div>
+                    @endif
+                </div>
 
-                    <button 
-                        @click="endorseModal = true; selectedId = '{{ $report->id }}'" 
-                        class="w-full bg-green-500 text-white px-4 py-2.5 rounded-lg hover:bg-green-600 transition duration-150 shadow-sm text-sm font-medium">
-                        Endorse
-                    </button>
-                @endif
+                <!-- Actions -->
+                <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
+                    @if ($report->status == 'Pending')
+                        <button 
+                            @click="responseModal = true; selectedId = '{{ $report->id }}'" 
+                            class="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-4 py-2.5 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl font-medium text-sm">
+                            <i class="fa-solid fa-reply mr-1"></i>
+                            Response
+                        </button>
+                    @elseif ($report->status == 'For validation')
+                        <div class="flex flex-col space-y-2">
+                            <button 
+                                @click="confirmValidateModal = true; selectedId = '{{ $report->id }}'" 
+                                class="w-full bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white px-3 py-2 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl font-medium text-xs">
+                                <i class="fa-solid fa-check-double mr-1"></i>
+                                Validate
+                            </button>
+                            <button 
+                                @click="changeIssueModal = true; selectedId = '{{ $report->id }}'" 
+                                class="w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white px-3 py-2 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl font-medium text-xs">
+                                <i class="fa-solid fa-exchange-alt mr-1"></i>
+                                Change Issue
+                            </button>
+                        </div>
+                    @else
+                        <div class="flex flex-col space-y-2">
+                            <button 
+                                @click="resolveModal = true; selectedId = '{{ $report->id }}'" 
+                                class="w-full bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white px-3 py-2 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl font-medium text-xs">
+                                <i class="fa-solid fa-check mr-1"></i>
+                                Resolved
+                            </button>
+                            <button 
+                                @click="escalateModal = true; selectedId = '{{ $report->id }}'" 
+                                class="w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white px-3 py-2 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl font-medium text-xs">
+                                <i class="fa-solid fa-arrow-up mr-1"></i>
+                                Escalate
+                            </button>
+                            <button 
+                                @click="endorseModal = true; selectedId = '{{ $report->id }}'" 
+                                class="w-full bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 text-white px-3 py-2 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl font-medium text-xs">
+                                <i class="fa-solid fa-handshake mr-1"></i>
+                                Endorse
+                            </button>
+                        </div>
+                    @endif
+                </div>
             </div>
             @php
-                $count1++;
+                $count++;
             @endphp
-        </div>
         @endforeach
     </div>
-<div>
-    {{ $reports->links() }}
+    <div class="mt-4">
+        {{ $reports->links() }}
+    </div>
+    @endif
+</div>
 
 
 <!-- Response Modal -->
@@ -515,12 +397,21 @@
                 
                 const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
            
+                const $element = $('.pendingValue'+index);
+                
+                if (diffInMinutes < 3) {
+                    $element.removeClass('bg-red-100 text-red-800').addClass('bg-yellow-100 text-yellow-800 animate-pulse');
+                } else if (diffInMinutes >= 5) {
+                    $element.removeClass('bg-yellow-100 text-yellow-800 animate-pulse').addClass('bg-red-100 text-red-800 animate-pulse');
+                } else {
+                    $element.removeClass('bg-yellow-100 text-yellow-800 bg-red-100 text-red-800 animate-pulse').addClass('bg-orange-100 text-orange-800');
+                }
+                
                 if (diffInMinutes >= 60) {
-                  
-                    $('.pendingValue'+index).html(Math.round(diffInMinutes / 60)+' hrs');
+                    $element.html(Math.round(diffInMinutes / 60)+' hrs');
                 }
                 else {
-                    $('.pendingValue'+index).html(diffInMinutes+' mins');
+                    $element.html(diffInMinutes+' mins');
                 }
             }
         }
