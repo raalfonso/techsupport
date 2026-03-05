@@ -48,6 +48,11 @@ Route::middleware('auth')->group(function () {
         Route::delete('/reports/{id}', [\App\Http\Controllers\Api\ReportController::class, 'destroy']);
         Route::get('/reports-stats', [\App\Http\Controllers\Api\ReportController::class, 'stats']);
     });
+
+    Route::get('/vcard', [QrCodeController::class, 'vcardform'])->name('vcard');
+    Route::post('/generate-qrcode', [QrCodeController::class, 'generateVCard'])->name('generate.qr');
+    Route::get('/qrcode', [QRCodeController::class, 'show'])->name('qr.show');
+    Route::post('/qrcode/generateshow', [QRCodeController::class, 'generateshow'])->name('qr.generateshow');
     
     Route::resource('issues', IssuesController::class);
     Route::resource('auth', AuthItemController::class);
@@ -189,9 +194,6 @@ Route::middleware('guest')->group(function () {
     Route::get('/search-department', [ClientsController::class, 'departments']);
     Route::get('/thank-you', [SurveyController::class, 'thankYou'])->name('thank-you');
    
-    Route::get('/vcard', [QrCodeController::class, 'vcardform'])->name('vcard');
-    Route::post('/generate-qrcode', [QrCodeController::class, 'generateVCard'])->name('generate.qr');
-    Route::get('/qrcode', [QRCodeController::class, 'show'])->name('qr.show');
-    Route::post('/qrcode/generateshow', [QRCodeController::class, 'generateshow'])->name('qr.generateshow');
+    
 
 });
