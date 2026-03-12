@@ -46,6 +46,7 @@
                 <a href="#projects" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">Project</a>
                 <a href="#contact" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">Report</a>
                 @auth
+                    <a href="{{ route('attendance.dashboard') }}" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">Attendance</a>
                     <span class="text-gray-800 px-3 py-2 text-sm font-semibold">{{ auth()->user()->name }}</span>
                     @if (auth()->user()->authAssignments->whereIn('item_name', ['Administrator', 'IT_User'])->isNotEmpty())
                         <a href="{{ route('dashboard') }}" class="bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-800">SolveIT</a>
@@ -75,6 +76,7 @@
                 <a href="#contact" class="block text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-base font-medium">Report</a>
                 
                  @auth
+                    <a href="{{ route('attendance.dashboard') }}" class="block text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-base font-medium">Attendance</a>
                     @if (auth()->user()->authAssignments->whereIn('item_name', ['Administrator', 'IT_User'])->isNotEmpty())
                         <a href="{{ route('dashboard') }}"  class="block text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-base font-medium">SolveIT</a>
                     @endif

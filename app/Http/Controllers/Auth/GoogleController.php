@@ -11,6 +11,7 @@ class GoogleController extends Controller
 {
     public function redirect()
 {
+    session(['intended_url' => url()->previous()]);
     return Socialite::driver('google')
     ->with(['hd' => 'bcda.gov.ph'])
     ->redirect();
@@ -48,7 +49,8 @@ class GoogleController extends Controller
             }
 
             Auth::login($user);
-            return redirect()->route('home');
+            $intended = session('intended_url');
+            return redirect($intended ?? '/home');
 
         } catch (\Exception $e) {
             return redirect()->route('login')->with('error', 'Google sign-in failed: ' . $e->getMessage());

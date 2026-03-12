@@ -25,7 +25,8 @@ use App\Http\Controllers\{
     SurveyEmployeeController,
     UserController,
     DevWatchController,
-    ProjectController
+    ProjectController,
+    AttendanceLogController
 };
 
 /*
@@ -33,8 +34,6 @@ use App\Http\Controllers\{
 | Authenticated Routes (IT Users)
 |--------------------------------------------------------------------------
 */
-
-
 
 
 
@@ -64,6 +63,13 @@ Route::middleware('auth')->group(function () {
     Route::resource('devwatch', DevWatchController::class);
     Route::post('/projects', [ProjectController::class, 'store'])->name('projects.store');
     Route::post('/projects/add-member', [ProjectController::class, 'addMember'])->name('projects.addMember');
+    Route::get('/attendance', [AttendanceLogController::class, 'dashboard'])->name('attendance.dashboard');
+    Route::get('/attendance/search', [AttendanceLogController::class, 'search'])->name('attendance.search');
+    Route::get('/attendance/employees', [AttendanceLogController::class, 'getEmployees'])->name('attendance.employees');
+    Route::get('/attendance/departments', [AttendanceLogController::class, 'getDepartments'])->name('attendance.departments');
+    Route::post('/attendance/clock-in', [AttendanceLogController::class, 'clockIn'])->name('attendance.clock-in');
+    Route::post('/attendance/clock-out', [AttendanceLogController::class, 'clockOut'])->name('attendance.clock-out');
+    Route::resource('attendance-logs', AttendanceLogController::class);
     Route::resource('main', ReportController::class);
     Route::get('/report/export', [ReportController::class, 'export'])->name('report.export');
     Route::post('/report/emergency', [ReportController::class, 'emergency'])->name('report.emergency');
@@ -80,7 +86,6 @@ Route::middleware('auth')->group(function () {
     Route::post('/report/change-issue',[ReportController::class, 'changeIssue'])->name('report.changeIssue');
    
     Route::get('/home', [HomeController::class, 'login'])->name('home');
-    // Route::view('/', 'home.home')->name('home');
 
     Route::get('/reports', [ReportController::class, 'getReports']);
     Route::get('/getstotal', [ReportController::class, 'getTotalReports']);
@@ -88,17 +93,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
     Route::post('/profile/change-password', [ProfileController::class, 'changePassword'])->name('profile.change-password');
     
-    Route::get('/users', [UserController::class, 'index'])->name('users.index');
-    Route::get('/users/create', [UserController::class, 'create'])->name('users.create');
-    Route::post('/users', [UserController::class, 'store'])->name('users.store');
-    Route::get('/users/{user}/edit', [UserController::class, 'edit'])->name('users.edit');
-    Route::put('/users/{user}', [UserController::class, 'update'])->name('users.update');
-    Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
+    Route::resource('users', UserController::class);
   
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-
-    //user employee
     Route::view('/track', 'home.track')->name('track');
     Route::post('/check-email', [HomeController::class, 'checkEmail'])->name('client.check-email');
     Route::get('/tracking', [HomeController::class, 'employeeReport'])->name('home.employeeReport');
@@ -123,11 +121,10 @@ Route::middleware('auth')->group(function () {
 Route::prefix('survey')->group(function () {
     Route::view('/survey/home', 'survey.index')->name('survey.index');
 
-    //Check if already login using google
     Route::get('/', [SurveyController::class, 'checkLogin'])->name('survey.checkLogin');
     Route::get('/google/login', [GoogleSurveyController::class, 'redirect'])->name('survey.google.login');
     Route::get('/google/callback', [GoogleSurveyController::class, 'callback'])->name('survey.google.callback');
-    // Authenticated employee routes
+    
     Route::middleware('auth:userSurvey')->group(function () {
         Route::get('/dashboard', [SurveyController::class, 'index'])->name('survey.dashboard');
         Route::get('/dashboard/filter', [SurveyController::class, 'filter'])->name('survey.dashboard.filter');
@@ -141,22 +138,17 @@ Route::prefix('survey')->group(function () {
         Route::get('/changePasswordForm', [SurveyController::class, 'changePasswordForm'])->name('survey.changePasswordForm');
         Route::post('/employee/edit', [SurveyEmployeeController::class, 'edit'])->name('survey.employee.edit');
         Route::get('/export-results', [SurveyController::class, 'exportResults'])->name('survey.exportResults');
-        
     });
 
-    // Public employee survey routes
- 
     Route::get('/register', [SurveyController::class, 'register'])->name('survey.register');
     Route::post('/register', [SurveyController::class, 'registerStore'])->name('survey.register.store');
     Route::get('/form', [SurveyController::class, 'form'])->name('survey.form');
     Route::post('/submit', [SurveyController::class, 'submit'])->name('survey.submit');
     Route::get('/thank-you', [SurveyController::class, 'thankYou'])->name('survey.thank-you');
     Route::post('/user-survey/login', [UserSurveyAuthController::class, 'login'])->name('userSurvey.login');
-    // Route::view('/', 'survey.index')->name('survey.index');
     Route::get('/qrcode/{departmentCode}', [QrCodeController::class, 'generate'])->name('qrcode');
     Route::view('/thankyou', 'survey.thankyou')->name('survey.thankyou');   
     Route::get('/reports/loghistory/{id}', [ReportController::class, 'logHistory'])->name('report.loghistory');
-
 });
 
 /*
@@ -165,35 +157,32 @@ Route::prefix('survey')->group(function () {
 |--------------------------------------------------------------------------
 */
 
+Route::get('/', function() {
+    if (auth()->check()) {
+        return redirect()->route('home');
+    }
+    return redirect()->route('google.redirect');
+})->name('home.root');
 
-
-
-Route::get('/', [GoogleController::class, 'redirect'])->name('google.login');
+Route::get('/auth/google/redirect', [GoogleController::class, 'redirect'])->name('google.redirect');
 Route::get('/auth/google/callback', [GoogleController::class, 'callback'])->name('google.callback');
 Route::get('/report/complete/{id}', [ReportController::class, 'complete'])->name('report.complete');
 Route::get('/issues-reported', [ReportController::class, 'publicReports'])->name('report.public');
 
-// Public API Routes
 Route::prefix('api')->group(function () {
     Route::post('/reports', [\App\Http\Controllers\Api\ReportController::class, 'store']);
     Route::get('/test', function() { return response()->json(['message' => 'API working']); });
 });
 
 Route::middleware('guest')->group(function () {
-   
     Route::view('/register', 'auth.register')->name('register');
     Route::post('/register', [AuthController::class, 'register']);
     Route::get('/login', [GoogleController::class, 'redirect'])->name('login');
-    // Route::post('/login', [AuthController::class, 'login']);
     
-  
     Route::get('/login-client', [ClientAuthController::class, 'showLoginForm'])->name('client.login');
     Route::post('/ticket', [ClientAuthController::class, 'login'])->name('client.login.submit');
 
     Route::get('/search-suggestions', [ClientsController::class, 'suggestions']);
     Route::get('/search-department', [ClientsController::class, 'departments']);
     Route::get('/thank-you', [SurveyController::class, 'thankYou'])->name('thank-you');
-   
-    
-
 });

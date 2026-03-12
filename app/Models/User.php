@@ -60,4 +60,14 @@ class User extends Authenticatable
     {
         return $this->hasManyThrough(AuthItem::class, AuthAssignment::class, 'user_id', 'name', 'id', 'item_name');
     }
+
+    public function surveyEmployee()
+    {
+        return $this->hasOne(SurveyEmployees::class, 'email', 'email');
+    }
+
+     public function attendanceLogs()
+    {
+        return $this->hasMany(AttendanceLog::class);
+    }
 }

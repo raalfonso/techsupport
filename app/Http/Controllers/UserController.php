@@ -8,18 +8,12 @@ use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware(function ($request, $next) {
-            if (!auth()->user()->authAssignments->contains('item_name', 'Administrator')) {
-                abort(403, 'Unauthorized access.');
-            }
-            return $next($request);
-        });
-    }
 
     public function index()
     {
+        if (!auth()->user()->authAssignments->contains('item_name', 'Administrator')) {
+            abort(403, 'Unauthorized access.');
+        }
         $users = User::paginate(10);
         return view('users.index', compact('users'));
     }
