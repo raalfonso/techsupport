@@ -273,16 +273,29 @@
                             <tr class="border-b border-gray-200">
                                 <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Date</th>
                                 <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Time Logged</th>
+                                @if($isAdmin)
+                                <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Employee Name</th>
+                                @endif
                                 <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Employee ID</th>
                                 <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Mode/Type</th>
                                 <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Terminal Status</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @forelse(isset($logs) ? $logs : \App\Models\AttendanceLog::where('user_id', auth()->id())->with('user.surveyEmployee.department')->latest()->limit(50)->get() as $log)
+                            @php
+                                if ($isAdmin) {
+                                    $logsQuery = isset($logs) ? $logs : \App\Models\AttendanceLog::with('user.surveyEmployee.department')->latest()->limit(50)->get();
+                                } else {
+                                    $logsQuery = isset($logs) ? $logs : \App\Models\AttendanceLog::where('user_id', auth()->id())->with('user.surveyEmployee.department')->latest()->limit(50)->get();
+                                }
+                            @endphp
+                            @forelse($logsQuery as $log)
                                 <tr class="border-b border-gray-100 hover:bg-gray-50 transition">
                                     <td class="px-6 py-4 text-sm text-gray-900">{{ $log->date->format('M d, Y') }}</td>
                                     <td class="px-6 py-4 text-sm font-mono text-gray-700">{{ date('g:i A', strtotime($log->time)) }}</td>
+                                    @if($isAdmin)
+                                    <td class="px-6 py-4 text-sm text-gray-700">{{ $log->user->name ?? 'N/A' }}</td>
+                                    @endif
                                     <td class="px-6 py-4 text-sm text-gray-700">{{ $log->user->surveyEmployee->employee_id ?? 'N/A' }}</td>
                                     <td class="px-6 py-4">
                                         <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold {{ $log->mode === 'Attend' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' }}">
@@ -298,7 +311,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="5" class="px-6 py-8 text-center text-gray-500 text-sm">No attendance records found</td>
+                                    <td colspan="{{ $isAdmin ? 6 : 5 }}" class="px-6 py-8 text-center text-gray-500 text-sm">No attendance records found</td>
                                 </tr>
                             @endforelse
                         </tbody>
@@ -420,16 +433,24 @@
         });
 
         function exportToCSV() {
-            const logsData = @json(isset($logs) ? $logs : \App\Models\AttendanceLog::where('user_id', auth()->id())->with('user.surveyEmployee')->latest()->get());
+            const isAdmin = @json($isAdmin);
+            let logsData;
+            
+            if (isAdmin) {
+                logsData = @json(\App\Models\AttendanceLog::with('user.surveyEmployee')->latest()->get());
+            } else {
+                logsData = @json(isset($logs) ? $logs : \App\Models\AttendanceLog::where('user_id', auth()->id())->with('user.surveyEmployee')->latest()->get());
+            }
+            
             const user = @json(auth()->user());
             
-            let csv = 'Date,Time,User ID,Name,Employee ID,Class,Mode,Type,Card Serial,Result,Property,External Device,Coordinate\n';
+            let csv = isAdmin 
+                ? 'Date,Time,Employee Name,Employee ID,Class,Mode,Type,Card Serial,Result,Property,External Device,Coordinate\n'
+                : 'Date,Time,User ID,Name,Employee ID,Class,Mode,Type,Card Serial,Result,Property,External Device,Coordinate\n';
             
             logsData.forEach(log => {
                 const date = log.date.split('T')[0];
                 const time = log.time;
-                const userId = user.id;
-                const name = user.name;
                 const employeeId = (log.user && log.user.survey_employee) ? log.user.survey_employee.employee_id : '';
                 const className = 'User';
                 const mode = log.mode;
@@ -440,7 +461,14 @@
                 const externalDevice = 'ClockWize';
                 const coordinate = '0/0';
                 
-                csv += `"${date}","${time}","${userId}","${name}","${employeeId}","${className}","${mode}","${type}","${cardSerial}","${result}","${property}","${externalDevice}","${coordinate}"\n`;
+                if (isAdmin) {
+                    const employeeName = log.user ? log.user.name : 'N/A';
+                    csv += `"${date}","${time}","${employeeName}","${employeeId}","${className}","${mode}","${type}","${cardSerial}","${result}","${property}","${externalDevice}","${coordinate}"\n`;
+                } else {
+                    const userId = user.id;
+                    const name = user.name;
+                    csv += `"${date}","${time}","${userId}","${name}","${employeeId}","${className}","${mode}","${type}","${cardSerial}","${result}","${property}","${externalDevice}","${coordinate}"\n`;
+                }
             });
             
             const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
