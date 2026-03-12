@@ -26,7 +26,8 @@ use App\Http\Controllers\{
     UserController,
     DevWatchController,
     ProjectController,
-    AttendanceLogController
+    AttendanceLogController,
+    EmployeeMasterlistController
 };
 
 /*
@@ -63,6 +64,9 @@ Route::middleware('auth')->group(function () {
     Route::resource('devwatch', DevWatchController::class);
     Route::post('/projects', [ProjectController::class, 'store'])->name('projects.store');
     Route::post('/projects/add-member', [ProjectController::class, 'addMember'])->name('projects.addMember');
+    Route::resource('employee-masterlist', EmployeeMasterlistController::class);
+    Route::get('/employee-masterlist/import/form', [EmployeeMasterlistController::class, 'importForm'])->name('employee-masterlist.import-form');
+    Route::post('/employee-masterlist/import', [EmployeeMasterlistController::class, 'import'])->name('employee-masterlist.import');
     Route::get('/attendance', [AttendanceLogController::class, 'dashboard'])->name('attendance.dashboard');
     Route::get('/attendance/search', [AttendanceLogController::class, 'search'])->name('attendance.search');
     Route::get('/attendance/employees', [AttendanceLogController::class, 'getEmployees'])->name('attendance.employees');

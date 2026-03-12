@@ -226,10 +226,15 @@
                 <div class="flex justify-between items-center mb-6">
                     <h2 class="text-xl font-bold text-gray-900">Recent Attendance History</h2>
                     <div class="flex gap-3">
+                        @php
+                            $isAdmin = auth()->user()->authAssignments()->where('item_name', 'Administrator')->exists();
+                        @endphp
+                        @if($isAdmin)
                         <button onclick="exportToCSV()" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-blue-700 transition flex items-center gap-2">
                             <i class="fas fa-download"></i> Export CSV
                         </button>
                         <a href="{{ route('attendance.dashboard') }}" class="text-blue-600 text-sm font-semibold hover:text-blue-700 py-2">View Full History →</a>
+                        @endif
                     </div>
                 </div>
 

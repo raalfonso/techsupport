@@ -15,4 +15,9 @@ class Department extends Model
         'acronym',
         'active',
     ];
+
+    public function employees()
+    {
+        return $this->hasMany(EmployeeMasterlist::class);
+    }
 }
