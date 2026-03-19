@@ -70,4 +70,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(AttendanceLog::class);
     }
+
+    public function masterlist()
+    {
+        return $this->hasOne(EmployeeMasterlist::class, 'email', 'email');
+    }
 }

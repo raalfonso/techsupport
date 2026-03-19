@@ -47,6 +47,35 @@ class AttendanceLogController extends Controller
                 'mode' => 'Leave',
             ]);
 
+            // Save WFH accomplishments if provided
+            $accomplishments = request()->input('accomplishment');
+            $additionalAccomplishments = request()->input('accomplishments', []);
+            
+            $user = auth()->user();
+            $departmentId = $user->masterlist?->department_id ?? null;
+
+            // Save main accomplishment
+            if (!empty($accomplishments)) {
+                \App\Models\WFHAccomplishment::create([
+                    'employee_id' => auth()->id(),
+                    'department_id' => $departmentId,
+                    'accomplishment' => $accomplishments,
+                    'date' => today(),
+                ]);
+            }
+
+            // Save additional accomplishments
+            foreach ($additionalAccomplishments as $accomplishment) {
+                if (!empty($accomplishment)) {
+                    \App\Models\WFHAccomplishment::create([
+                        'employee_id' => auth()->id(),
+                        'department_id' => $departmentId,
+                        'accomplishment' => $accomplishment,
+                        'date' => today(),
+                    ]);
+                }
+            }
+
             return redirect()->route('attendance.dashboard')->with('success', 'Clocked out successfully at ' . now()->format('H:i:s'));
         } catch (\Exception $e) {
             return redirect()->route('attendance.dashboard')->with('error', 'Failed to clock out: ' . $e->getMessage());
@@ -121,14 +150,18 @@ class AttendanceLogController extends Controller
 
     public function search(Request $request)
     {
+        $isAdmin = auth()->user()->authAssignments()->where('item_name', 'Administrator')->exists();
         $name = $request->input('name');
         $department = $request->input('department');
+        $employmentType = $request->input('employment_type');
         $startDate = $request->input('start_date');
         $endDate = $request->input('end_date');
 
-        $query = AttendanceLog::where('user_id', auth()->id())
-            ->with('user.surveyEmployee.department')
-            ->latest();
+        $query = AttendanceLog::with('user.masterlist.department')->latest();
+
+        if (!$isAdmin) {
+            $query->where('user_id', auth()->id());
+        }
 
         if ($name) {
             $query->whereHas('user', function ($q) use ($name) {
@@ -137,8 +170,14 @@ class AttendanceLogController extends Controller
         }
 
         if ($department) {
-            $query->whereHas('user.surveyEmployee.department', function ($q) use ($department) {
+            $query->whereHas('user.masterlist.department', function ($q) use ($department) {
                 $q->where('title', 'like', '%' . $department . '%');
+            });
+        }
+
+        if ($employmentType) {
+            $query->whereHas('user.masterlist', function ($q) use ($employmentType) {
+                $q->where('employment_type', $employmentType);
             });
         }
 
@@ -150,13 +189,14 @@ class AttendanceLogController extends Controller
             $query->whereDate('date', '<=', $endDate);
         }
 
-        $logs = $query->limit(50)->get();
+        $logs = $query->limit(100)->get();
 
         return view('attendance_logs.dashboard', [
             'logs' => $logs,
             'filters' => [
                 'name' => $name,
                 'department' => $department,
+                'employment_type' => $employmentType,
                 'start_date' => $startDate,
                 'end_date' => $endDate
             ]
@@ -166,7 +206,7 @@ class AttendanceLogController extends Controller
     public function getEmployees(Request $request)
     {
         $search = $request->input('search', '');
-        $employees = User::with('surveyEmployee')
+        $employees = User::with('masterlist')
             ->where('name', 'like', '%' . $search . '%')
             ->limit(10)
             ->get()
@@ -174,7 +214,7 @@ class AttendanceLogController extends Controller
                 return [
                     'id' => $user->id,
                     'name' => $user->name,
-                    'employee_id' => $user->surveyEmployee->employee_id ?? 'N/A'
+                    'employee_id' => $user->masterlist->employee_number ?? 'N/A'
                 ];
             });
         
@@ -190,5 +230,160 @@ class AttendanceLogController extends Controller
             ->get(['id', 'title as name']);
         
         return response()->json($departments);
+    }
+
+    public function presentToday()
+    {
+        $isAdmin = auth()->user()->authAssignments()->where('item_name', 'Administrator')->exists();
+        
+        if (!$isAdmin) {
+            return redirect()->route('attendance.dashboard')->with('error', 'Unauthorized access');
+        }
+
+        $presentEmployees = AttendanceLog::where('mode', 'Attend')
+            ->whereDate('date', today())
+            ->with('user.masterlist.department')
+            ->distinct('user_id')
+            ->get();
+
+        return view('attendance_logs.present-today', compact('presentEmployees'));
+    }
+
+    public function reports(Request $request)
+    {
+        $isAdmin = auth()->user()->authAssignments()->where('item_name', 'Administrator')->exists();
+        
+        if (!$isAdmin) {
+            return redirect()->route('attendance.dashboard')->with('error', 'Unauthorized access');
+        }
+
+        $totalEmployees = User::count();
+        $presentToday = AttendanceLog::where('mode', 'Attend')
+            ->whereDate('date', today())
+            ->distinct('user_id')
+            ->count();
+        $absentToday = $totalEmployees - $presentToday;
+        
+        $attendanceByDepartment = AttendanceLog::where('mode', 'Attend')
+            ->whereDate('date', today())
+            ->with('user.masterlist.department')
+            ->get()
+            ->groupBy('user.masterlist.department.title')
+            ->map(function($logs) {
+                return $logs->count();
+            });
+
+        // WFH filters
+        $wfhDate = $request->input('wfh_date', today()->toDateString());
+        $wfhDepartment = $request->input('wfh_department', '');
+
+        $accomplishmentsQuery = \App\Models\WFHAccomplishment::with('user.masterlist', 'department')
+            ->whereDate('date', $wfhDate);
+
+        if ($wfhDepartment) {
+            $accomplishmentsQuery->whereHas('department', function ($q) use ($wfhDepartment) {
+                $q->where('title', $wfhDepartment);
+            });
+        }
+
+        $accomplishmentsRaw = $accomplishmentsQuery->orderBy('date', 'desc')->get();
+
+        $wfhAccomplishments = [];
+        foreach ($accomplishmentsRaw as $acc) {
+            $key = $acc->employee_id . '_' . $acc->date->format('Y-m-d');
+            if (!isset($wfhAccomplishments[$key])) {
+                $wfhAccomplishments[$key] = [
+                    'employee_name'  => $acc->user->name ?? 'N/A',
+                    'employee_id'    => $acc->user->masterlist->employee_number ?? 'N/A',
+                    'department'     => $acc->department->title ?? 'Unassigned',
+                    'date'           => $acc->date->format('M d, Y'),
+                    'accomplishments' => [],
+                ];
+            }
+            $wfhAccomplishments[$key]['accomplishments'][] = $acc->accomplishment;
+        }
+
+        $departments = \App\Models\Department::orderBy('title')->pluck('title');
+
+        return view('attendance_logs.reports', compact('totalEmployees', 'presentToday', 'absentToday', 'attendanceByDepartment', 'wfhAccomplishments', 'wfhDate', 'wfhDepartment', 'departments'));
+    }
+    public function exportWFHPdf(Request $request)
+        {
+            $isAdmin = auth()->user()->authAssignments()->where('item_name', 'Administrator')->exists();
+            if (!$isAdmin) {
+                return redirect()->route('attendance.dashboard')->with('error', 'Unauthorized access');
+            }
+
+            $wfhDate = $request->input('wfh_date', today()->toDateString());
+            $wfhDepartment = $request->input('wfh_department', '');
+
+            $accomplishmentsQuery = \App\Models\WFHAccomplishment::with('user.masterlist', 'department')
+                ->whereDate('date', $wfhDate);
+
+            if ($wfhDepartment) {
+                $accomplishmentsQuery->whereHas('department', function ($q) use ($wfhDepartment) {
+                    $q->where('title', $wfhDepartment);
+                });
+            }
+
+            $accomplishmentsRaw = $accomplishmentsQuery->orderBy('date', 'desc')->get();
+
+            $wfhAccomplishments = [];
+            foreach ($accomplishmentsRaw as $acc) {
+                $key = $acc->employee_id . '_' . $acc->date->format('Y-m-d');
+                if (!isset($wfhAccomplishments[$key])) {
+                    $wfhAccomplishments[$key] = [
+                        'employee_name'  => $acc->user->name ?? 'N/A',
+                        'employee_id'    => $acc->user->masterlist->employee_number ?? 'N/A',
+                        'department'     => $acc->department->title ?? 'Unassigned',
+                        'date'           => $acc->date->format('M d, Y'),
+                        'accomplishments' => [],
+                    ];
+                }
+                $wfhAccomplishments[$key]['accomplishments'][] = $acc->accomplishment;
+            }
+
+            $wfhAccomplishments = array_values($wfhAccomplishments);
+
+            $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('attendance_logs.wfh_accomplishments_pdf', compact('wfhAccomplishments', 'wfhDate', 'wfhDepartment'));
+            $pdf->setPaper('a4', 'portrait');
+
+            return $pdf->stream("wfh_accomplishments_{$wfhDate}.pdf");
+        }
+
+    public function storeAccomplishment()
+    {
+        try {
+            $user = auth()->user();
+            $departmentId = $user->masterlist?->department_id ?? null;
+
+            // Save main accomplishment
+            $accomplishment = request()->input('accomplishment');
+            if (!empty($accomplishment)) {
+                \App\Models\WFHAccomplishment::create([
+                    'employee_id' => auth()->id(),
+                    'department_id' => $departmentId,
+                    'accomplishment' => $accomplishment,
+                    'date' => today(),
+                ]);
+            }
+
+            // Save additional accomplishments
+            $additionalAccomplishments = request()->input('accomplishments', []);
+            foreach ($additionalAccomplishments as $acc) {
+                if (!empty($acc)) {
+                    \App\Models\WFHAccomplishment::create([
+                        'employee_id' => auth()->id(),
+                        'department_id' => $departmentId,
+                        'accomplishment' => $acc,
+                        'date' => today(),
+                    ]);
+                }
+            }
+
+            return redirect()->route('attendance.dashboard')->with('success', 'Accomplishment saved successfully!');
+        } catch (\Exception $e) {
+            return redirect()->route('attendance.dashboard')->with('error', 'Failed to save accomplishment: ' . $e->getMessage());
+        }
     }
 }

@@ -44,8 +44,8 @@
                             <tr class="border-b border-gray-100 hover:bg-gray-50 transition">
                                 <td class="px-6 py-4 text-sm font-mono text-gray-900">{{ $employee->employee_number }}</td>
                                 <td class="px-6 py-4 text-sm text-gray-900">{{ $employee->full_name }}</td>
-                                <td class="px-6 py-4 text-sm text-gray-700">{{ $employee->positions }}</td>
-                                <td class="px-6 py-4 text-sm text-gray-700">{{ $employee->department->titles ?? 'N/A' }}</td>
+                                <td class="px-6 py-4 text-sm text-gray-700">{{ $employee->position}}</td>
+                                <td class="px-6 py-4 text-sm text-gray-700">{{ $employee->department->acronym ?? 'N/A' }}</td>
                                 <td class="px-6 py-4 text-sm">
                                     <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold {{ $employee->employment_status === 'Active' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' }}">
                                         {{ $employee->employment_status }}

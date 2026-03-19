@@ -71,8 +71,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/attendance/search', [AttendanceLogController::class, 'search'])->name('attendance.search');
     Route::get('/attendance/employees', [AttendanceLogController::class, 'getEmployees'])->name('attendance.employees');
     Route::get('/attendance/departments', [AttendanceLogController::class, 'getDepartments'])->name('attendance.departments');
+    Route::get('/attendance/present-today', [AttendanceLogController::class, 'presentToday'])->name('attendance.present-today');
+    Route::get('/attendance/reports/export-pdf', [AttendanceLogController::class, 'exportWFHPdf'])->name('attendance.reports.export-pdf');
+    Route::get('/attendance/reports', [AttendanceLogController::class, 'reports'])->name('attendance.reports');
     Route::post('/attendance/clock-in', [AttendanceLogController::class, 'clockIn'])->name('attendance.clock-in');
     Route::post('/attendance/clock-out', [AttendanceLogController::class, 'clockOut'])->name('attendance.clock-out');
+    Route::post('/accomplishment/store', [AttendanceLogController::class, 'storeAccomplishment'])->name('accomplishment.store');
     Route::resource('attendance-logs', AttendanceLogController::class);
     Route::resource('main', ReportController::class);
     Route::get('/report/export', [ReportController::class, 'export'])->name('report.export');

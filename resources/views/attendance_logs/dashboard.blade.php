@@ -51,7 +51,11 @@
     </style>
 </head>
 
-<body style="background-color: #e6edfc" class="flex flex-col min-h-screen pt-16"> 
+<body style="background-color: #e6edfc" class="flex flex-col min-h-screen pt-16">
+    @php
+        $isAdmin = auth()->user()->authAssignments()->where('item_name', 'Administrator')->exists();
+    @endphp
+    
     <nav class="bg-white p-4 shadow-md top-0 z-50 min-w-full fixed max-h-16">
        <div class="flex items-center justify-between container mx-auto w-full">
             <div class="text-lg font-bold text-gray-800 flex items-center">
@@ -59,28 +63,57 @@
                 BCDA ClockWize
             </div>
 
-            <div class="hidden md:flex space-x-4 float-right">
-                <p class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">{{ auth()->user()->name}}</p>
+            <div class="hidden md:flex items-center space-x-1">
+                @if($isAdmin)
+                <a href="{{ route('attendance.dashboard') }}" class="flex items-center space-x-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 px-3 py-2 rounded-lg transition font-medium">
+                    <i class="material-icons text-lg">dashboard</i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="{{ route('attendance.present-today') }}" class="flex items-center space-x-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 px-3 py-2 rounded-lg transition font-medium">
+                    <i class="material-icons text-lg">people</i>
+                    <span>On Duty</span>
+                </a>
+                <a href="{{ route('attendance.reports') }}" class="flex items-center space-x-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 px-3 py-2 rounded-lg transition font-medium">
+                    <i class="material-icons text-lg">assessment</i>
+                    <span>Reports</span>
+                </a>
+                @endif
+                <p class="text-gray-600 px-3 py-2 text-sm font-medium">{{ auth()->user()->name }}</p>
             </div>
 
             <div class="md:hidden">
-                <button id="mobile-menu-button" class="text-gray-600 hover:text-gray-900 focus:outline-none focus:text-gray-900">
-                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <button id="mobile-menu-button" class="text-gray-600 hover:text-gray-900 focus:outline-none">
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
                     </svg>
                 </button>
             </div>
         </div>
 
-        <div id="mobile-menu" class="hidden md:hidden bg-white pt-2 pb-3 space-y-1 sm:px-3">
-            <div class="container mx-auto"> 
-                <a href="#home-section" class="block text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-base font-medium">Home</a>
-                <a href="#about" class="block text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-base font-medium">About</a>
-                <a href="#projects" class="block text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-base font-medium">Project</a>
-                <a href="#contact" class="block text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-base font-medium">Report</a>
-            </div>
+        <div id="mobile-menu" class="hidden md:hidden bg-white pt-2 pb-3 space-y-1 px-4 border-t border-gray-100">
+            <p class="text-gray-600 px-3 py-2 text-sm font-medium">{{ auth()->user()->name }}</p>
+            @if($isAdmin)
+            <a href="{{ route('attendance.dashboard') }}" class="flex items-center space-x-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 px-3 py-2 rounded-lg transition font-medium">
+                <i class="material-icons text-lg">dashboard</i>
+                <span>Dashboard</span>
+            </a>
+            <a href="{{ route('attendance.present-today') }}" class="flex items-center space-x-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 px-3 py-2 rounded-lg transition font-medium">
+                <i class="material-icons text-lg">people</i>
+                <span>On Duty</span>
+            </a>
+            <a href="{{ route('attendance.reports') }}" class="flex items-center space-x-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 px-3 py-2 rounded-lg transition font-medium">
+                <i class="material-icons text-lg">assessment</i>
+                <span>Reports</span>
+            </a>
+            @endif
         </div>
     </nav>
+
+    <script>
+        document.getElementById('mobile-menu-button').addEventListener('click', function() {
+            document.getElementById('mobile-menu').classList.toggle('hidden');
+        });
+    </script>
 
     <main class="flex-grow bg-gray-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -98,12 +131,12 @@
 
             <div class="flex justify-between items-start mb-8">
                 <div>
-                    <h1 class="text-3xl font-bold text-gray-900">Morning, {{ auth()->user()->name }}!</h1>
+                    <h1 class="text-3xl font-bold text-gray-900">Hello, {{ auth()->user()->name }}!</h1>
                     <p class="text-gray-600 mt-1">Your workday overview is ready.</p>
                 </div>
                 <div class="flex items-center space-x-2 bg-white px-4 py-2 rounded-full shadow-sm border border-gray-200">
                     <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                    <span class="text-sm text-gray-700">System Online • v1.0</span>
+                    <span class="text-sm text-gray-700">System Online • v1.1</span>
                 </div>
             </div>
 
@@ -152,12 +185,9 @@
                         End your work session. Ensure all logs and reports are updated before leaving.
                     </p>
                     @if($todayAttend && !$todayLeave)
-                        <form action="{{ route('attendance.clock-out') }}" method="POST" class="inline-block w-full">
-                            @csrf
-                            <button type="submit" class="w-full py-2 px-4 rounded-lg font-semibold text-sm bg-blue-600 text-white hover:bg-blue-700 transition">
-                                Clock Out Now
-                            </button>
-                        </form>
+                        <button type="button" onclick="openWFHModal()" class="w-full py-2 px-4 rounded-lg font-semibold text-sm bg-blue-600 text-white hover:bg-blue-700 transition">
+                            Clock Out Now
+                        </button>
                     @else
                         <button disabled class="w-full py-2 px-4 rounded-lg font-semibold text-sm bg-gray-100 text-gray-400 cursor-not-allowed">
                             {{ $todayLeave ? 'Already Clocked Out' : 'Clock In First' }}
@@ -239,7 +269,7 @@
                 </div>
                  @if($isAdmin)
                 <form id="searchForm" action="{{ route('attendance.search') }}" method="GET" class="mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
                         <div class="autocomplete-container">
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Search by Name</label>
                             <input type="text" name="name" id="filterName" placeholder="Type name..." value="{{ $filters['name'] ?? '' }}" autocomplete="off" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
@@ -249,6 +279,15 @@
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Department</label>
                             <input type="text" name="department" id="filterDepartment" placeholder="Type department..." value="{{ $filters['department'] ?? '' }}" autocomplete="off" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
                             <div id="departmentAutocomplete" class="autocomplete-list hidden"></div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Employment Type</label>
+                            <select name="employment_type" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="">All Types</option>
+                                @foreach(\App\Models\EmployeeMasterlist::distinct()->orderBy('employment_type')->pluck('employment_type') as $type)
+                                    <option value="{{ $type }}" {{ ($filters['employment_type'] ?? '') === $type ? 'selected' : '' }}>{{ $type }}</option>
+                                @endforeach
+                            </select>
                         </div>
                         <div>
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Date Range</label>
@@ -284,9 +323,9 @@
                         <tbody>
                             @php
                                 if ($isAdmin) {
-                                    $logsQuery = isset($logs) ? $logs : \App\Models\AttendanceLog::with('user.surveyEmployee.department')->latest()->limit(50)->get();
+                                    $logsQuery = isset($logs) ? $logs : \App\Models\AttendanceLog::with('user.masterlist.department')->latest()->limit(50)->get();
                                 } else {
-                                    $logsQuery = isset($logs) ? $logs : \App\Models\AttendanceLog::where('user_id', auth()->id())->with('user.surveyEmployee.department')->latest()->limit(50)->get();
+                                    $logsQuery = isset($logs) ? $logs : \App\Models\AttendanceLog::where('user_id', auth()->id())->with('user.masterlist.department')->latest()->limit(50)->get();
                                 }
                             @endphp
                             @forelse($logsQuery as $log)
@@ -296,7 +335,7 @@
                                     @if($isAdmin)
                                     <td class="px-6 py-4 text-sm text-gray-700">{{ $log->user->name ?? 'N/A' }}</td>
                                     @endif
-                                    <td class="px-6 py-4 text-sm text-gray-700">{{ $log->user->surveyEmployee->employee_id ?? 'N/A' }}</td>
+                                    <td class="px-6 py-4 text-sm text-gray-700">{{ $log->user->masterlist->employee_number ?? 'N/A' }}</td>
                                     <td class="px-6 py-4">
                                         <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold {{ $log->mode === 'Attend' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' }}">
                                             {{ $log->mode }}
@@ -437,9 +476,9 @@
             let logsData;
             
             if (isAdmin) {
-                logsData = @json(\App\Models\AttendanceLog::with('user.surveyEmployee')->latest()->get());
+                logsData = @json(\App\Models\AttendanceLog::with('user.masterlist')->latest()->get());
             } else {
-                logsData = @json(isset($logs) ? $logs : \App\Models\AttendanceLog::where('user_id', auth()->id())->with('user.surveyEmployee')->latest()->get());
+                logsData = @json(isset($logs) ? $logs : \App\Models\AttendanceLog::where('user_id', auth()->id())->with('user.masterlist')->latest()->get());
             }
             
             const user = @json(auth()->user());
@@ -451,7 +490,7 @@
             logsData.forEach(log => {
                 const date = log.date.split('T')[0];
                 const time = log.time;
-                const employeeId = (log.user && log.user.survey_employee) ? log.user.survey_employee.employee_id : '';
+                const employeeId = (log.user && log.user.masterlist) ? log.user.masterlist.employee_number : '';
                 const className = 'User';
                 const mode = log.mode;
                 const type = log.mode;
@@ -481,6 +520,182 @@
             link.click();
             document.body.removeChild(link);
         }
+    </script>
+</body>
+</html>
+
+    <!-- WFH Accomplishment Modal (Clock Out) -->
+    <div id="wfhModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+        <div class="bg-white rounded-2xl shadow-lg p-8 max-w-2xl w-full mx-4">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-2xl font-bold text-gray-900">Work From Home Accomplishment</h2>
+                <button onclick="closeWFHModal()" class="text-gray-500 hover:text-gray-700 text-2xl">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <form id="wfhForm" action="{{ route('attendance.clock-out') }}" method="POST">
+                @csrf
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Accomplishment</label>
+                        <textarea name="accomplishment" id="accomplishment" rows="6" placeholder="Describe your work accomplishments for today..." class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none" required></textarea>
+                        <p class="text-xs text-gray-500 mt-1">Please provide details of what you accomplished today.</p>
+                    </div>
+
+                    <!-- Add Accomplishment Button -->
+                    <button type="button" onclick="addAccomplishmentRow()" class="w-full px-4 py-2 rounded-lg font-semibold text-blue-600 bg-blue-50 hover:bg-blue-100 transition flex items-center justify-center gap-2">
+                        <i class="fas fa-plus"></i> Add Another Accomplishment
+                    </button>
+
+                    <!-- Additional Accomplishments Container -->
+                    <div id="accomplishmentsContainer"></div>
+                </div>
+
+                <div class="flex gap-3 mt-6">
+                    <button type="button" onclick="closeWFHModal()" class="flex-1 px-4 py-2 rounded-lg font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 transition">
+                        Cancel
+                    </button>
+                    <button type="submit" class="flex-1 px-4 py-2 rounded-lg font-semibold text-white bg-blue-600 hover:bg-blue-700 transition">
+                        Clock Out & Submit
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Accomplishment Modal (Anytime) -->
+    <div id="accomplishmentModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+        <div class="bg-white rounded-2xl shadow-lg p-8 max-w-2xl w-full mx-4">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-2xl font-bold text-gray-900">Add Accomplishment</h2>
+                <button onclick="closeAccomplishmentModal()" class="text-gray-500 hover:text-gray-700 text-2xl">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <form id="accomplishmentForm" action="{{ route('accomplishment.store') }}" method="POST">
+                @csrf
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Accomplishment</label>
+                        <textarea name="accomplishment" id="accomplishmentText" rows="6" placeholder="Describe what you accomplished today..." class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 resize-none" required></textarea>
+                        <p class="text-xs text-gray-500 mt-1">Please provide details of your work accomplishment.</p>
+                    </div>
+
+                    <!-- Add Accomplishment Button -->
+                    <button type="button" onclick="addAccomplishmentRowStandalone()" class="w-full px-4 py-2 rounded-lg font-semibold text-green-600 bg-green-50 hover:bg-green-100 transition flex items-center justify-center gap-2">
+                        <i class="fas fa-plus"></i> Add Another Accomplishment
+                    </button>
+
+                    <!-- Additional Accomplishments Container -->
+                    <div id="accomplishmentsContainerStandalone"></div>
+                </div>
+
+                <div class="flex gap-3 mt-6">
+                    <button type="button" onclick="closeAccomplishmentModal()" class="flex-1 px-4 py-2 rounded-lg font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 transition">
+                        Cancel
+                    </button>
+                    <button type="submit" class="flex-1 px-4 py-2 rounded-lg font-semibold text-white bg-green-600 hover:bg-green-700 transition">
+                        Save Accomplishment
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let accomplishmentCount = 0;
+        let accomplishmentCountStandalone = 0;
+
+        function openWFHModal() {
+            document.getElementById('wfhModal').classList.remove('hidden');
+            accomplishmentCount = 0;
+            document.getElementById('accomplishmentsContainer').innerHTML = '';
+        }
+
+        function closeWFHModal() {
+            document.getElementById('wfhModal').classList.add('hidden');
+            document.getElementById('accomplishment').value = '';
+            document.getElementById('accomplishmentsContainer').innerHTML = '';
+            accomplishmentCount = 0;
+        }
+
+        function openAccomplishmentModal() {
+            document.getElementById('accomplishmentModal').classList.remove('hidden');
+            accomplishmentCountStandalone = 0;
+            document.getElementById('accomplishmentsContainerStandalone').innerHTML = '';
+        }
+
+        function closeAccomplishmentModal() {
+            document.getElementById('accomplishmentModal').classList.add('hidden');
+            document.getElementById('accomplishmentText').value = '';
+            document.getElementById('accomplishmentsContainerStandalone').innerHTML = '';
+            accomplishmentCountStandalone = 0;
+        }
+
+        function addAccomplishmentRow() {
+            accomplishmentCount++;
+            const container = document.getElementById('accomplishmentsContainer');
+            const newRow = document.createElement('div');
+            newRow.className = 'p-4 bg-gray-50 rounded-lg border border-gray-200';
+            newRow.id = `accomplishment-${accomplishmentCount}`;
+            newRow.innerHTML = `
+                <div class="flex items-start justify-between mb-2">
+                    <label class="block text-sm font-semibold text-gray-700">Accomplishment ${accomplishmentCount + 1}</label>
+                    <button type="button" onclick="removeAccomplishmentRow(${accomplishmentCount})" class="text-red-600 hover:text-red-700 text-sm font-semibold">
+                        <i class="fas fa-trash"></i> Remove
+                    </button>
+                </div>
+                <textarea name="accomplishments[]" rows="4" placeholder="Describe another accomplishment..." class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none" required></textarea>
+            `;
+            container.appendChild(newRow);
+        }
+
+        function removeAccomplishmentRow(id) {
+            const row = document.getElementById(`accomplishment-${id}`);
+            if (row) {
+                row.remove();
+            }
+        }
+
+        function addAccomplishmentRowStandalone() {
+            accomplishmentCountStandalone++;
+            const container = document.getElementById('accomplishmentsContainerStandalone');
+            const newRow = document.createElement('div');
+            newRow.className = 'p-4 bg-gray-50 rounded-lg border border-gray-200';
+            newRow.id = `accomplishment-standalone-${accomplishmentCountStandalone}`;
+            newRow.innerHTML = `
+                <div class="flex items-start justify-between mb-2">
+                    <label class="block text-sm font-semibold text-gray-700">Accomplishment ${accomplishmentCountStandalone + 1}</label>
+                    <button type="button" onclick="removeAccomplishmentRowStandalone(${accomplishmentCountStandalone})" class="text-red-600 hover:text-red-700 text-sm font-semibold">
+                        <i class="fas fa-trash"></i> Remove
+                    </button>
+                </div>
+                <textarea name="accomplishments[]" rows="4" placeholder="Describe another accomplishment..." class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 resize-none" required></textarea>
+            `;
+            container.appendChild(newRow);
+        }
+
+        function removeAccomplishmentRowStandalone(id) {
+            const row = document.getElementById(`accomplishment-standalone-${id}`);
+            if (row) {
+                row.remove();
+            }
+        }
+
+        // Close modals when clicking outside
+        document.getElementById('wfhModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeWFHModal();
+            }
+        });
+
+        document.getElementById('accomplishmentModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeAccomplishmentModal();
+            }
+        });
     </script>
 </body>
 </html>
