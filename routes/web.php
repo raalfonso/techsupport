@@ -48,7 +48,9 @@ Route::middleware('auth')->group(function () {
         Route::delete('/reports/{id}', [\App\Http\Controllers\Api\ReportController::class, 'destroy']);
         Route::get('/reports-stats', [\App\Http\Controllers\Api\ReportController::class, 'stats']);
     });
-
+    Route::post('/test-upload', function () {
+        return 'OK';
+    })->name('test-upload');
     Route::get('/vcard', [QrCodeController::class, 'vcardform'])->name('vcard');
     Route::post('/generate-qrcode', [QrCodeController::class, 'generateVCard'])->name('generate.qr');
     Route::get('/qrcode', [QRCodeController::class, 'show'])->name('qr.show');

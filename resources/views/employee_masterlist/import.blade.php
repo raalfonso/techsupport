@@ -25,7 +25,7 @@
         </div>
 
         <div class="bg-white rounded-lg shadow-md p-6">
-            <form action="{{ route('employee-masterlist.import') }}" method="POST" enctype="multipart/form-data">
+            <form action="{{ route('test-upload') }}" method="POST" enctype="multipart/form-data">
                 @csrf
 
                 <div class="mb-6">
