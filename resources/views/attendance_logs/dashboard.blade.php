@@ -357,6 +357,39 @@
                     </table>
                 </div>
             </div>
+
+            <!-- WFH Accomplishment History -->
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mt-6">
+                <h2 class="text-xl font-bold text-gray-900 mb-6">My WFH Accomplishment History</h2>
+                @php
+                    $myAccomplishments = \App\Models\WFHAccomplishment::where('employee_id', auth()->id())
+                        ->orderBy('date', 'desc')
+                        ->orderBy('created_at', 'desc')
+                        ->limit(30)
+                        ->get()
+                        ->groupBy(fn($a) => $a->date->format('Y-m-d'));
+                @endphp
+                @forelse($myAccomplishments as $date => $items)
+                    <div class="mb-4 border border-gray-100 rounded-xl overflow-hidden">
+                        <div class="bg-gray-50 px-4 py-2 flex items-center gap-2">
+                            <i class="material-icons text-blue-500 text-sm">event</i>
+                            <span class="text-sm font-semibold text-gray-700">{{ \Carbon\Carbon::parse($date)->format('F d, Y') }}</span>
+                            <span class="ml-auto text-xs text-gray-400">{{ $items->count() }} {{ Str::plural('entry', $items->count()) }}</span>
+                        </div>
+                        <ul class="divide-y divide-gray-50">
+                            @foreach($items as $item)
+                                <li class="px-4 py-3 text-sm text-gray-700 flex items-start gap-2">
+                                    <span class="mt-1 w-2 h-2 rounded-full bg-blue-400 flex-shrink-0"></span>
+                                    {{ $item->accomplishment }}
+                                </li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @empty
+                    <p class="text-center text-gray-500 text-sm py-8">No accomplishments recorded yet.</p>
+                @endforelse
+            </div>
+
         </div>
     </main>
 
