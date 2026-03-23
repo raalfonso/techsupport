@@ -451,7 +451,11 @@ class AttendanceLogController extends Controller
 
             $records = array_values($grouped);
 
-            $signatories = \App\Models\Signatory::with('employee', 'department')->get();
+            $signatories = \App\Models\Signatory::with('employee', 'department')
+                ->when($department, function ($q) use ($department) {
+                    $q->whereHas('department', fn($d) => $d->where('title', 'like', "%$department%"));
+                })
+                ->get();
 
             $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('attendance_logs.attendance_print_pdf', compact('records', 'signatories'));
             $pdf->setPaper('a4', 'portrait');

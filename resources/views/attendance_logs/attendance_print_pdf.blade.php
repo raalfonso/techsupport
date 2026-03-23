@@ -70,7 +70,7 @@
                 <td style="width: {{ round(100 / $signatories->count()) }}%; vertical-align: top; padding-right: 20px;">
                     <div style="margin-top: 30px;">
                         <div style="padding-top: 4px;">
-                            <div class="signatory-name">{{ strtoupper($sig->employee->name ?? '') }}</div>
+                            <div class="signatory-name">{{ strtoupper($sig->employee->full_name ?? '') }}</div>
                             <div class="signatory-position">{{ $sig->position }}</div>
                             <div class="signatory-dept">{{ $sig->department->title ?? '' }}</div>
                         </div>

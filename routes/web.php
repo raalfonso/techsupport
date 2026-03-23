@@ -69,6 +69,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/projects/add-member', [ProjectController::class, 'addMember'])->name('projects.addMember');
     Route::resource('employee-masterlist', EmployeeMasterlistController::class);
     Route::resource('signatory', SignatoryController::class);
+    Route::get('/signatory-employees/search', [SignatoryController::class, 'searchEmployees'])->name('signatory.employees.search');
     Route::get('/employee-masterlist/import/form', [EmployeeMasterlistController::class, 'importForm'])->name('employee-masterlist.import-form');
     Route::post('/employee-masterlist/import', [EmployeeMasterlistController::class, 'import'])->name('employee-masterlist.import');
     Route::get('/attendance', [AttendanceLogController::class, 'dashboard'])->name('attendance.dashboard');

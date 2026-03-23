@@ -37,12 +37,12 @@
                                 <td class="px-6 py-4 text-sm text-gray-900 font-medium">
                                     <div class="flex items-center gap-3">
                                         <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                                            <span class="text-blue-600 text-sm font-bold">{{ substr($signatory->employee->name ?? '?', 0, 1) }}</span>
+                                            <span class="text-blue-600 text-sm font-bold">{{ substr($signatory->employee->full_name ?? '?', 0, 1) }}</span>
                                         </div>
-                                        {{ $signatory->employee->name ?? 'N/A' }}
+                                        {{ $signatory->employee->full_name ?? 'N/A' }}
                                     </div>
                                 </td>
-                                <td class="px-6 py-4 text-sm font-mono text-gray-700">{{ $signatory->employee->masterlist->employee_number ?? 'N/A' }}</td>
+                                <td class="px-6 py-4 text-sm font-mono text-gray-700">{{ $signatory->employee->employee_number ?? 'N/A' }}</td>
                                 <td class="px-6 py-4 text-sm">
                                     <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-blue-50 text-blue-700">
                                         {{ $signatory->position }}

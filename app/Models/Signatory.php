@@ -12,9 +12,10 @@ class Signatory extends Model
         'department_id',
     ];
 
+    // employee_id now references employee_masterlists.id
     public function employee()
     {
-        return $this->belongsTo(User::class, 'employee_id');
+        return $this->belongsTo(EmployeeMasterlist::class, 'employee_id');
     }
 
     public function department()
