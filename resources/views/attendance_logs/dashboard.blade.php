@@ -268,7 +268,9 @@
                     </div>
                 </div>
                  @if($isAdmin)
+                
                 <form id="searchForm" action="{{ route('attendance.search') }}" method="GET" class="mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                @csrf
                     <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
                         <div class="autocomplete-container">
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Search by Name</label>
