@@ -20,6 +20,7 @@
 <body style="background-color: #e6edfc" class="flex flex-col min-h-screen pt-16">
     @php
         $isAdmin = auth()->user()->authAssignments()->where('item_name', 'Administrator')->exists();
+        $canViewNav = $isAdmin || auth()->user()->authAssignments()->whereIn('item_name', ['HR_admin', 'depthead'])->exists();
     @endphp
     
     <nav class="bg-white p-4 shadow-md top-0 z-50 min-w-full fixed max-h-16">
@@ -30,7 +31,7 @@
             </div>
 
             <div class="hidden md:flex items-center space-x-1">
-                @if($isAdmin)
+                @if($canViewNav)
                 <a href="{{ route('attendance.dashboard') }}" class="flex items-center space-x-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 px-3 py-2 rounded-lg transition font-medium">
                     <i class="material-icons text-lg">dashboard</i>
                     <span>Dashboard</span>
@@ -58,7 +59,7 @@
 
         <div id="mobile-menu" class="hidden md:hidden bg-white pt-2 pb-3 space-y-1 px-4 border-t border-gray-100">
             <p class="text-gray-600 px-3 py-2 text-sm font-medium">{{ auth()->user()->name }}</p>
-            @if($isAdmin)
+            @if($canViewNav)
             <a href="{{ route('attendance.dashboard') }}" class="flex items-center space-x-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 px-3 py-2 rounded-lg transition font-medium">
                 <i class="material-icons text-lg">dashboard</i>
                 <span>Dashboard</span>
@@ -118,6 +119,7 @@
             </div>
 
             <!-- Department Breakdown -->
+            @if(!isset($deptHeadDeptTitle) || !$deptHeadDeptTitle)
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-8">
                 <h2 class="text-xl font-bold text-gray-900 mb-6">Attendance by Department</h2>
                 
@@ -153,6 +155,7 @@
                     </table>
                 </div>
             </div>
+            @endif
 
             <!-- WFH Accomplishment -->
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
@@ -170,6 +173,7 @@
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Date</label>
                             <input type="date" name="wfh_date" value="{{ $wfhDate }}" class="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
                         </div>
+                        @if(!isset($deptHeadDeptTitle) || !$deptHeadDeptTitle)
                         <div>
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Department</label>
                             <select name="wfh_department" class="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
@@ -179,7 +183,7 @@
                                 @endforeach
                             </select>
                         </div>
-                        <div class="flex gap-2">
+                        @endif
                             <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold text-sm hover:bg-blue-700 transition">Filter</button>
                             <a href="{{ route('attendance.reports') }}" class="bg-gray-400 text-white px-4 py-2 rounded-lg font-semibold text-sm hover:bg-gray-500 transition">Reset</a>
                         </div>

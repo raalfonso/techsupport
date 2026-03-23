@@ -20,6 +20,7 @@
 <body style="background-color: #e6edfc" class="flex flex-col min-h-screen pt-16">
     @php
         $isAdmin = auth()->user()->authAssignments()->where('item_name', 'Administrator')->exists();
+        $canViewNav = $isAdmin || auth()->user()->authAssignments()->whereIn('item_name', ['HR_admin', 'depthead'])->exists();
     @endphp
     
     <nav class="bg-white p-4 shadow-md top-0 z-50 min-w-full fixed max-h-16">
@@ -30,7 +31,7 @@
             </div>
 
             <div class="hidden md:flex items-center space-x-1">
-                @if($isAdmin)
+                @if($canViewNav)
                 <a href="{{ route('attendance.dashboard') }}" class="flex items-center space-x-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 px-3 py-2 rounded-lg transition font-medium">
                     <i class="material-icons text-lg">dashboard</i>
                     <span>Dashboard</span>
@@ -58,7 +59,7 @@
 
         <div id="mobile-menu" class="hidden md:hidden bg-white pt-2 pb-3 space-y-1 px-4 border-t border-gray-100">
             <p class="text-gray-600 px-3 py-2 text-sm font-medium">{{ auth()->user()->name }}</p>
-            @if($isAdmin)
+            @if($canViewNav)
             <a href="{{ route('attendance.dashboard') }}" class="flex items-center space-x-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 px-3 py-2 rounded-lg transition font-medium">
                 <i class="material-icons text-lg">dashboard</i>
                 <span>Dashboard</span>
@@ -80,6 +81,16 @@
             <div class="mb-8">
                 <h1 class="text-3xl font-bold text-gray-900">Present for Today</h1>
                 <p class="text-gray-600 mt-1">Employees who clocked in today - {{ now()->format('M d, Y') }}</p>
+                @php
+                    $isDeptHead = auth()->user()->authAssignments()->where('item_name', 'depthead')->exists();
+                    $isAdminOrHR = auth()->user()->authAssignments()->whereIn('item_name', ['Administrator', 'HR_admin'])->exists();
+                @endphp
+                @if($isDeptHead && !$isAdminOrHR)
+                    @php $myDept = auth()->user()->masterlist?->department?->title ?? 'Your Department'; @endphp
+                    <span class="inline-block mt-2 bg-blue-100 text-blue-700 text-xs font-semibold px-3 py-1 rounded-full">
+                        <i class="material-icons text-xs align-middle">filter_list</i> Filtered: {{ $myDept }}
+                    </span>
+                @endif
             </div>
 
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">

@@ -104,6 +104,13 @@
                                 Attendance
                             </div>
                         </a>
+                        <a href="{{ route('signatory.index') }}" class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-slate-700 hover:text-blue-600 px-3 py-2 rounded-lg transition-all duration-200 relative group">
+                            <i class="material-icons text-xl">draw</i>
+                            <span x-show="sidebarOpen" class="font-medium">Signatories</span>
+                            <div x-show="!sidebarOpen" class="absolute left-full ml-2 px-2 py-1 bg-gray-800 text-white text-sm rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-50">
+                                Signatories
+                            </div>
+                        </a>
                         <a href="{{ route('users.index') }}" class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-slate-700 hover:text-blue-600 px-3 py-2 rounded-lg transition-all duration-200 relative group">
                             <i class="material-icons text-xl">settings</i>
                             <span x-show="sidebarOpen" class="font-medium">User Management</span>

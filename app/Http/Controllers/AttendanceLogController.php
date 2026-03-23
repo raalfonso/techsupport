@@ -10,7 +10,21 @@ class AttendanceLogController extends Controller
 {
     public function dashboard()
     {
-        return view('attendance_logs.dashboard');
+        $isAdmin = auth()->user()->authAssignments()->where('item_name', 'Administrator')->exists();
+        $canViewAll = $isAdmin || auth()->user()->authAssignments()->whereIn('item_name', ['HR_admin', 'depthead'])->exists();
+
+        $logsQuery = AttendanceLog::with('user.masterlist.department')->latest();
+        if (!$canViewAll) {
+            $logsQuery->where('user_id', auth()->id());
+        }
+        $logs = $logsQuery->paginate(10, ['*'], 'logs_page');
+
+        $accomplishmentsQuery = \App\Models\WFHAccomplishment::where('employee_id', auth()->id())
+            ->orderBy('date', 'desc')
+            ->orderBy('created_at', 'desc');
+        $accomplishments = $accomplishmentsQuery->paginate(10, ['*'], 'acc_page');
+
+        return view('attendance_logs.dashboard', compact('logs', 'accomplishments', 'isAdmin'));
     }
 
     public function clockIn()
@@ -151,6 +165,7 @@ class AttendanceLogController extends Controller
     public function search(Request $request)
     {
         $isAdmin = auth()->user()->authAssignments()->where('item_name', 'Administrator')->exists();
+        $canViewAll = $isAdmin || auth()->user()->authAssignments()->whereIn('item_name', ['HR_admin', 'depthead'])->exists();
         $name = $request->input('name');
         $department = $request->input('department');
         $employmentType = $request->input('employment_type');
@@ -159,7 +174,7 @@ class AttendanceLogController extends Controller
 
         $query = AttendanceLog::with('user.masterlist.department')->latest();
 
-        if (!$isAdmin) {
+        if (!$canViewAll) {
             $query->where('user_id', auth()->id());
         }
 
@@ -189,10 +204,17 @@ class AttendanceLogController extends Controller
             $query->whereDate('date', '<=', $endDate);
         }
 
-        $logs = $query->limit(100)->get();
+        $logs = $query->paginate(10, ['*'], 'logs_page');
+
+        $accomplishments = \App\Models\WFHAccomplishment::where('employee_id', auth()->id())
+            ->orderBy('date', 'desc')
+            ->orderBy('created_at', 'desc')
+            ->paginate(10, ['*'], 'acc_page');
 
         return view('attendance_logs.dashboard', [
             'logs' => $logs,
+            'accomplishments' => $accomplishments,
+            'isAdmin' => $isAdmin,
             'filters' => [
                 'name' => $name,
                 'department' => $department,
@@ -234,48 +256,71 @@ class AttendanceLogController extends Controller
 
     public function presentToday()
     {
-        $isAdmin = auth()->user()->authAssignments()->where('item_name', 'Administrator')->exists();
-        
-        if (!$isAdmin) {
+        $user = auth()->user();
+        $isAdmin = $user->authAssignments()->where('item_name', 'Administrator')->exists();
+        $isHRAdmin = $user->authAssignments()->where('item_name', 'HR_admin')->exists();
+        $isDeptHead = $user->authAssignments()->where('item_name', 'depthead')->exists();
+
+        if (!$isAdmin && !$isHRAdmin && !$isDeptHead) {
             return redirect()->route('attendance.dashboard')->with('error', 'Unauthorized access');
         }
 
-        $presentEmployees = AttendanceLog::where('mode', 'Attend')
+        $query = AttendanceLog::where('mode', 'Attend')
             ->whereDate('date', today())
-            ->with('user.masterlist.department')
-            ->distinct('user_id')
-            ->get();
+            ->with('user.masterlist.department');
+
+        // depthead only sees their own department
+        if ($isDeptHead && !$isAdmin && !$isHRAdmin) {
+            $deptId = $user->masterlist?->department_id;
+            $query->whereHas('user.masterlist', fn($q) => $q->where('department_id', $deptId));
+        }
+
+        $presentEmployees = $query->distinct('user_id')->get();
 
         return view('attendance_logs.present-today', compact('presentEmployees'));
     }
 
     public function reports(Request $request)
     {
-        $isAdmin = auth()->user()->authAssignments()->where('item_name', 'Administrator')->exists();
-        
-        if (!$isAdmin) {
+        $user = auth()->user();
+        $isAdmin = $user->authAssignments()->where('item_name', 'Administrator')->exists();
+        $isHRAdmin = $user->authAssignments()->where('item_name', 'HR_admin')->exists();
+        $isDeptHead = $user->authAssignments()->where('item_name', 'depthead')->exists();
+
+        if (!$isAdmin && !$isHRAdmin && !$isDeptHead) {
             return redirect()->route('attendance.dashboard')->with('error', 'Unauthorized access');
         }
 
-        $totalEmployees = User::count();
-        $presentToday = AttendanceLog::where('mode', 'Attend')
-            ->whereDate('date', today())
-            ->distinct('user_id')
-            ->count();
-        $absentToday = $totalEmployees - $presentToday;
-        
-        $attendanceByDepartment = AttendanceLog::where('mode', 'Attend')
-            ->whereDate('date', today())
-            ->with('user.masterlist.department')
-            ->get()
-            ->groupBy('user.masterlist.department.title')
-            ->map(function($logs) {
-                return $logs->count();
-            });
+        // For depthead, scope everything to their department
+        $deptHeadDeptId = ($isDeptHead && !$isAdmin && !$isHRAdmin)
+            ? $user->masterlist?->department_id
+            : null;
+        $deptHeadDeptTitle = $deptHeadDeptId
+            ? \App\Models\Department::find($deptHeadDeptId)?->title
+            : null;
 
-        // WFH filters
-        $wfhDate = $request->input('wfh_date', today()->toDateString());
-        $wfhDepartment = $request->input('wfh_department', '');
+        // Stats — scoped to dept for depthead
+        $totalEmployeesQuery = User::query();
+        $presentTodayQuery = AttendanceLog::where('mode', 'Attend')->whereDate('date', today());
+        $attendanceByDeptQuery = AttendanceLog::where('mode', 'Attend')->whereDate('date', today())->with('user.masterlist.department');
+
+        if ($deptHeadDeptId) {
+            $totalEmployeesQuery->whereHas('masterlist', fn($q) => $q->where('department_id', $deptHeadDeptId));
+            $presentTodayQuery->whereHas('user.masterlist', fn($q) => $q->where('department_id', $deptHeadDeptId));
+            $attendanceByDeptQuery->whereHas('user.masterlist', fn($q) => $q->where('department_id', $deptHeadDeptId));
+        }
+
+        $totalEmployees = $totalEmployeesQuery->count();
+        $presentToday   = $presentTodayQuery->distinct('user_id')->count();
+        $absentToday    = $totalEmployees - $presentToday;
+
+        $attendanceByDepartment = $attendanceByDeptQuery->get()
+            ->groupBy('user.masterlist.department.title')
+            ->map(fn($logs) => $logs->count());
+
+        // WFH filters — depthead locked to their dept
+        $wfhDate       = $request->input('wfh_date', today()->toDateString());
+        $wfhDepartment = $deptHeadDeptTitle ?? $request->input('wfh_department', '');
 
         $accomplishmentsQuery = \App\Models\WFHAccomplishment::with('user.masterlist', 'department')
             ->whereDate('date', $wfhDate);
@@ -305,7 +350,7 @@ class AttendanceLogController extends Controller
 
         $departments = \App\Models\Department::orderBy('title')->pluck('title');
 
-        return view('attendance_logs.reports', compact('totalEmployees', 'presentToday', 'absentToday', 'attendanceByDepartment', 'wfhAccomplishments', 'wfhDate', 'wfhDepartment', 'departments'));
+        return view('attendance_logs.reports', compact('totalEmployees', 'presentToday', 'absentToday', 'attendanceByDepartment', 'wfhAccomplishments', 'wfhDate', 'wfhDepartment', 'departments', 'deptHeadDeptTitle'));
     }
     public function exportWFHPdf(Request $request)
         {
@@ -406,7 +451,9 @@ class AttendanceLogController extends Controller
 
             $records = array_values($grouped);
 
-            $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('attendance_logs.attendance_print_pdf', compact('records'));
+            $signatories = \App\Models\Signatory::with('employee', 'department')->get();
+
+            $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('attendance_logs.attendance_print_pdf', compact('records', 'signatories'));
             $pdf->setPaper('a4', 'portrait');
 
             return $pdf->stream('attendance_report.pdf');

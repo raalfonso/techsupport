@@ -17,6 +17,11 @@
         .badge-in  { color: #15803d; font-weight: bold; }
         .badge-out { color: #b91c1c; font-weight: bold; }
         .na { color: #9ca3af; }
+        .signatory-section { margin-top: 40px; }
+        .signatory-block { display: inline-block; min-width: 180px; margin-right: 40px; vertical-align: top; }
+        .signatory-name { font-size: 11px; font-weight: bold; text-transform: uppercase; padding-top: 4px; margin-top: 24px; }
+        .signatory-position { font-size: 10px; color: #374151; }
+        .signatory-dept { font-size: 10px; color: #6b7280; }
     </style>
 </head>
 <body>
@@ -56,5 +61,26 @@
             @endforelse
         </tbody>
     </table>
+
+    @if(isset($signatories) && $signatories->count())
+    <div class="signatory-section">
+        <table style="width: 100%; border-collapse: collapse;">
+            <tr>
+                @foreach($signatories as $sig)
+                <td style="width: {{ round(100 / $signatories->count()) }}%; vertical-align: top; padding-right: 20px;">
+                    <div style="margin-top: 30px;">
+                        <div style="padding-top: 4px;">
+                            <div class="signatory-name">{{ strtoupper($sig->employee->name ?? '') }}</div>
+                            <div class="signatory-position">{{ $sig->position }}</div>
+                            <div class="signatory-dept">{{ $sig->department->title ?? '' }}</div>
+                        </div>
+                    </div>
+                </td>
+                @endforeach
+            </tr>
+        </table>
+    </div>
+    @endif
+
 </body>
 </html>

@@ -54,6 +54,7 @@
 <body style="background-color: #e6edfc" class="flex flex-col min-h-screen pt-16">
     @php
         $isAdmin = auth()->user()->authAssignments()->where('item_name', 'Administrator')->exists();
+        $canViewNav = $isAdmin || auth()->user()->authAssignments()->whereIn('item_name', ['HR_admin', 'depthead'])->exists();
     @endphp
     
     <nav class="bg-white p-4 shadow-md top-0 z-50 min-w-full fixed max-h-16">
@@ -64,7 +65,7 @@
             </div>
 
             <div class="hidden md:flex items-center space-x-1">
-                @if($isAdmin)
+                @if($canViewNav)
                 <a href="{{ route('attendance.dashboard') }}" class="flex items-center space-x-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 px-3 py-2 rounded-lg transition font-medium">
                     <i class="material-icons text-lg">dashboard</i>
                     <span>Dashboard</span>
@@ -92,7 +93,7 @@
 
         <div id="mobile-menu" class="hidden md:hidden bg-white pt-2 pb-3 space-y-1 px-4 border-t border-gray-100">
             <p class="text-gray-600 px-3 py-2 text-sm font-medium">{{ auth()->user()->name }}</p>
-            @if($isAdmin)
+            @if($canViewNav)
             <a href="{{ route('attendance.dashboard') }}" class="flex items-center space-x-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 px-3 py-2 rounded-lg transition font-medium">
                 <i class="material-icons text-lg">dashboard</i>
                 <span>Dashboard</span>
@@ -257,9 +258,9 @@
                     <h2 class="text-xl font-bold text-gray-900">Recent Attendance History</h2>
                     <div class="flex gap-3">
                         @php
-                            $isAdmin = auth()->user()->authAssignments()->where('item_name', 'Administrator')->exists();
+                            $canViewNav = $canViewNav ?? (auth()->user()->authAssignments()->whereIn('item_name', ['Administrator', 'HR_admin', 'depthead'])->exists());
                         @endphp
-                        @if($isAdmin)
+                        @if($canViewNav)
                         <button onclick="exportToCSV()" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-blue-700 transition flex items-center gap-2">
                             <i class="fas fa-download"></i> Export CSV
                         </button>
@@ -270,7 +271,7 @@
                         @endif
                     </div>
                 </div>
-                 @if($isAdmin)
+                 @if($canViewNav)
                 
                 <form id="searchForm" action="{{ route('attendance.search') }}" method="GET" class="mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
                 @csrf
@@ -317,7 +318,7 @@
                             <tr class="border-b border-gray-200">
                                 <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Date</th>
                                 <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Time Logged</th>
-                                @if($isAdmin)
+                                @if($canViewNav)
                                 <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Employee Name</th>
                                 @endif
                                 <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Employee ID</th>
@@ -327,17 +328,13 @@
                         </thead>
                         <tbody>
                             @php
-                                if ($isAdmin) {
-                                    $logsQuery = isset($logs) ? $logs : \App\Models\AttendanceLog::with('user.masterlist.department')->latest()->limit(50)->get();
-                                } else {
-                                    $logsQuery = isset($logs) ? $logs : \App\Models\AttendanceLog::where('user_id', auth()->id())->with('user.masterlist.department')->latest()->limit(50)->get();
-                                }
+                                $logsQuery = $logs;
                             @endphp
                             @forelse($logsQuery as $log)
                                 <tr class="border-b border-gray-100 hover:bg-gray-50 transition">
                                     <td class="px-6 py-4 text-sm text-gray-900">{{ $log->date->format('M d, Y') }}</td>
                                     <td class="px-6 py-4 text-sm font-mono text-gray-700">{{ date('g:i A', strtotime($log->time)) }}</td>
-                                    @if($isAdmin)
+                                    @if($canViewNav)
                                     <td class="px-6 py-4 text-sm text-gray-700">{{ $log->user->name ?? 'N/A' }}</td>
                                     @endif
                                     <td class="px-6 py-4 text-sm text-gray-700">{{ $log->user->masterlist->employee_number ?? 'N/A' }}</td>
@@ -355,26 +352,24 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="{{ $isAdmin ? 6 : 5 }}" class="px-6 py-8 text-center text-gray-500 text-sm">No attendance records found</td>
+                                    <td colspan="{{ $canViewNav ? 6 : 5 }}" class="px-6 py-8 text-center text-gray-500 text-sm">No attendance records found</td>
                                 </tr>
                             @endforelse
                         </tbody>
                     </table>
                 </div>
+                @if($logs->hasPages())
+                <div class="mt-4">
+                    {{ $logs->appends(request()->query())->links() }}
+                </div>
+                @endif
             </div>
-
-            <!-- WFH Accomplishment History -->
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mt-6">
                 <h2 class="text-xl font-bold text-gray-900 mb-6">My WFH Accomplishment History</h2>
                 @php
-                    $myAccomplishments = \App\Models\WFHAccomplishment::where('employee_id', auth()->id())
-                        ->orderBy('date', 'desc')
-                        ->orderBy('created_at', 'desc')
-                        ->limit(30)
-                        ->get()
-                        ->groupBy(fn($a) => $a->date->format('Y-m-d'));
+                    $grouped = $accomplishments->getCollection()->groupBy(fn($a) => $a->date->format('Y-m-d'));
                 @endphp
-                @forelse($myAccomplishments as $date => $items)
+                @forelse($grouped as $date => $items)
                     <div class="mb-4 border border-gray-100 rounded-xl overflow-hidden">
                         <div class="bg-gray-50 px-4 py-2 flex items-center gap-2">
                             <i class="material-icons text-blue-500 text-sm">event</i>
@@ -393,6 +388,11 @@
                 @empty
                     <p class="text-center text-gray-500 text-sm py-8">No accomplishments recorded yet.</p>
                 @endforelse
+                @if($accomplishments->hasPages())
+                <div class="mt-4">
+                    {{ $accomplishments->appends(request()->query())->links() }}
+                </div>
+                @endif
             </div>
 
         </div>
@@ -416,11 +416,17 @@
             mode: "range",
             dateFormat: "Y-m-d",
             onChange: function(selectedDates) {
+                function formatDate(d) {
+                    const y = d.getFullYear();
+                    const m = String(d.getMonth() + 1).padStart(2, '0');
+                    const day = String(d.getDate()).padStart(2, '0');
+                    return `${y}-${m}-${day}`;
+                }
                 if (selectedDates.length === 2) {
-                    document.getElementById('start_date').value = selectedDates[0].toISOString().split('T')[0];
-                    document.getElementById('end_date').value = selectedDates[1].toISOString().split('T')[0];
+                    document.getElementById('start_date').value = formatDate(selectedDates[0]);
+                    document.getElementById('end_date').value = formatDate(selectedDates[1]);
                 } else if (selectedDates.length === 1) {
-                    document.getElementById('start_date').value = selectedDates[0].toISOString().split('T')[0];
+                    document.getElementById('start_date').value = formatDate(selectedDates[0]);
                     document.getElementById('end_date').value = '';
                 }
             }
@@ -559,8 +565,6 @@
             document.body.removeChild(link);
         }
     </script>
-</body>
-</html>
 
     <!-- WFH Accomplishment Modal (Clock Out) -->
     <div id="wfhModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
