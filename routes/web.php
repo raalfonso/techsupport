@@ -75,6 +75,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/attendance/departments', [AttendanceLogController::class, 'getDepartments'])->name('attendance.departments');
     Route::get('/attendance/present-today', [AttendanceLogController::class, 'presentToday'])->name('attendance.present-today');
     Route::get('/attendance/reports/export-pdf', [AttendanceLogController::class, 'exportWFHPdf'])->name('attendance.reports.export-pdf');
+    Route::get('/attendance/print-pdf', [AttendanceLogController::class, 'printAttendancePdf'])->name('attendance.print-pdf');
     Route::get('/attendance/reports', [AttendanceLogController::class, 'reports'])->name('attendance.reports');
     Route::post('/attendance/clock-in', [AttendanceLogController::class, 'clockIn'])->name('attendance.clock-in');
     Route::post('/attendance/clock-out', [AttendanceLogController::class, 'clockOut'])->name('attendance.clock-out');

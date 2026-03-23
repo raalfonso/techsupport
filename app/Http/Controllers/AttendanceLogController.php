@@ -350,6 +350,67 @@ class AttendanceLogController extends Controller
 
             return $pdf->stream("wfh_accomplishments_{$wfhDate}.pdf");
         }
+    public function printAttendancePdf(Request $request)
+        {
+            $isAdmin = auth()->user()->authAssignments()->where('item_name', 'Administrator')->exists();
+
+            $name           = $request->input('name');
+            $department     = $request->input('department');
+            $employmentType = $request->input('employment_type');
+            $startDate      = $request->input('start_date');
+            $endDate        = $request->input('end_date');
+
+            $query = AttendanceLog::with('user.masterlist.department')->latest();
+
+            if (!$isAdmin) {
+                $query->where('user_id', auth()->id());
+            }
+
+            if ($name) {
+                $query->whereHas('user', fn($q) => $q->where('name', 'like', "%$name%"));
+            }
+            if ($department) {
+                $query->whereHas('user.masterlist.department', fn($q) => $q->where('title', 'like', "%$department%"));
+            }
+            if ($employmentType) {
+                $query->whereHas('user.masterlist', fn($q) => $q->where('employment_type', $employmentType));
+            }
+            if ($startDate && $endDate) {
+                $query->whereBetween('date', [$startDate, $endDate]);
+            } elseif ($startDate) {
+                $query->whereDate('date', '>=', $startDate);
+            } elseif ($endDate) {
+                $query->whereDate('date', '<=', $endDate);
+            }
+
+            $rawLogs = $query->get();
+
+            // Group by user+date to pair Time In / Time Out
+            $grouped = [];
+            foreach ($rawLogs as $log) {
+                $key = $log->user_id . '_' . $log->date->format('Y-m-d');
+                if (!isset($grouped[$key])) {
+                    $grouped[$key] = [
+                        'date'          => $log->date->format('M d, Y'),
+                        'employee_name' => $log->user->name ?? 'N/A',
+                        'time_in'       => null,
+                        'time_out'      => null,
+                    ];
+                }
+                if ($log->mode === 'Attend') {
+                    $grouped[$key]['time_in'] = date('g:i A', strtotime($log->time));
+                } elseif ($log->mode === 'Leave') {
+                    $grouped[$key]['time_out'] = date('g:i A', strtotime($log->time));
+                }
+            }
+
+            $records = array_values($grouped);
+
+            $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('attendance_logs.attendance_print_pdf', compact('records'));
+            $pdf->setPaper('a4', 'portrait');
+
+            return $pdf->stream('attendance_report.pdf');
+        }
 
     public function storeAccomplishment()
     {

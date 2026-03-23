@@ -263,6 +263,9 @@
                         <button onclick="exportToCSV()" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-blue-700 transition flex items-center gap-2">
                             <i class="fas fa-download"></i> Export CSV
                         </button>
+                        <a href="{{ route('attendance.print-pdf', request()->query()) }}" target="_blank" class="bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-red-700 transition flex items-center gap-2">
+                            <i class="fas fa-file-pdf"></i> Print PDF
+                        </a>
                         <a href="{{ route('attendance.dashboard') }}" class="text-blue-600 text-sm font-semibold hover:text-blue-700 py-2">View Full History →</a>
                         @endif
                     </div>
