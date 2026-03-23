@@ -29,8 +29,18 @@ class AttendanceLogController extends Controller
 
     public function clockIn()
     {
+        // Prevent duplicate clock-in for the same day
+        $alreadyClockedIn = AttendanceLog::where('user_id', auth()->id())
+            ->whereDate('date', today())
+            ->where('mode', 'Attend')
+            ->exists();
+
+        if ($alreadyClockedIn) {
+            return redirect()->route('attendance.dashboard')->with('error', 'You have already clocked in today.');
+        }
+
         try {
-            $attendanceLog = AttendanceLog::create([
+            AttendanceLog::create([
                 'date' => today(),
                 'time' => now()->format('H:i:s'),
                 'user_id' => auth()->id(),
