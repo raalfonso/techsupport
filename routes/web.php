@@ -90,7 +90,7 @@ Route::middleware('auth')->group(function () {
    
     Route::resource('report', ReportController::class);
 
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard')->middleware('level:IT_user,Administrator');
     Route::get('/report/edit/{id}', [ReportController::class, 'edit'])->name('report.edit');
     Route::get('/report/resolve/{id}', [ReportController::class, 'resolve'])->name('report.resolve');
     Route::get('/report/escalate/{id}', [ReportController::class, 'escalate'])->name('report.escalate');

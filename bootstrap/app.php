@@ -15,6 +15,7 @@ return Application::configure(basePath: dirname(__DIR__))
        // Register route middleware here
         $middleware->alias([
             'employee.auth' => \App\Http\Middleware\Authenticate::class,
+            'level' => \App\Http\Middleware\CheckUserLevel::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
