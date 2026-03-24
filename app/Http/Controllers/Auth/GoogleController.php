@@ -23,7 +23,7 @@ class GoogleController extends Controller
             $googleUser = Socialite::driver('google')->user(); // remove stateless()
             
             // Enforce BCDA domain
-            if (!str_ends_with($googleUser->email, '@bcda.gov.ph')) {
+            if (!str_ends_with($googleUser->email, 'bcda.gov.ph')) {
                 return redirect()->route('login')->with('error', 'Only bcda.gov.ph Google accounts are allowed.');
             }
 
