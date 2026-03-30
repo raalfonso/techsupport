@@ -24,7 +24,7 @@ class AttendanceLogController extends Controller
             ->orderBy('created_at', 'desc');
         $accomplishments = $accomplishmentsQuery->paginate(10, ['*'], 'acc_page');
 
-        return view('attendance_logs.dashboard', compact('logs', 'accomplishments', 'isAdmin'));
+        return view('attendance_logs.dashboard', compact('logs', 'accomplishments', 'isAdmin', 'canViewAll'));
     }
 
     public function clockIn()
@@ -225,6 +225,7 @@ class AttendanceLogController extends Controller
             'logs' => $logs,
             'accomplishments' => $accomplishments,
             'isAdmin' => $isAdmin,
+            'canViewAll' => $canViewAll,
             'filters' => [
                 'name' => $name,
                 'department' => $department,
@@ -408,6 +409,7 @@ class AttendanceLogController extends Controller
     public function printAttendancePdf(Request $request)
         {
             $isAdmin = auth()->user()->authAssignments()->where('item_name', 'Administrator')->exists();
+            $canViewAll = $isAdmin || auth()->user()->authAssignments()->whereIn('item_name', ['HR_admin', 'depthead'])->exists();
 
             $name           = $request->input('name');
             $department     = $request->input('department');
@@ -417,7 +419,7 @@ class AttendanceLogController extends Controller
 
             $query = AttendanceLog::with('user.masterlist.department')->latest();
 
-            if (!$isAdmin) {
+            if (!$canViewAll) {
                 $query->where('user_id', auth()->id());
             }
 

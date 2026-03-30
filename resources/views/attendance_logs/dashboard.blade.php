@@ -200,7 +200,7 @@
                     <h2 class="text-xl font-bold text-gray-900 dark:text-white">Recent Attendance History</h2>
                     <div class="flex gap-3">
                         @php
-                            $canViewNav = $canViewNav ?? (auth()->user()->authAssignments()->whereIn('item_name', ['Administrator', 'HR_admin', 'depthead'])->exists());
+                            $canViewNav = $canViewAll ?? (auth()->user()->authAssignments()->whereIn('item_name', ['Administrator', 'HR_admin', 'depthead'])->exists());
                         @endphp
                         @if($canViewNav)
                         <button onclick="exportToCSV()" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-blue-700 transition flex items-center gap-2">
