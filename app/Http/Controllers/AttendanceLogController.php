@@ -508,4 +508,97 @@ class AttendanceLogController extends Controller
             return redirect()->route('attendance.dashboard')->with('error', 'Failed to save accomplishment: ' . $e->getMessage());
         }
     }
+
+    public function exportCSV(Request $request)
+    {
+        $isAdmin = auth()->user()->authAssignments()->where('item_name', 'Administrator')->exists();
+        $canViewAll = $isAdmin || auth()->user()->authAssignments()->whereIn('item_name', ['HR_admin', 'depthead'])->exists();
+
+        $name = $request->input('name');
+        $department = $request->input('department');
+        $employmentType = $request->input('employment_type');
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
+
+        $query = AttendanceLog::with('user.masterlist')->latest();
+
+        if (!$canViewAll) {
+            $query->where('user_id', auth()->id());
+        }
+
+        if ($name) {
+            $query->whereHas('user', function ($q) use ($name) {
+                $q->where('name', 'like', '%' . $name . '%');
+            });
+        }
+
+        if ($department) {
+            $query->whereHas('user.masterlist.department', function ($q) use ($department) {
+                $q->where('title', 'like', '%' . $department . '%');
+            });
+        }
+
+        if ($employmentType) {
+            $query->whereHas('user.masterlist', function ($q) use ($employmentType) {
+                $q->where('employment_type', $employmentType);
+            });
+        }
+
+        if ($startDate && $endDate) {
+            $query->whereBetween('date', [$startDate, $endDate]);
+        } elseif ($startDate) {
+            $query->whereDate('date', '>=', $startDate);
+        } elseif ($endDate) {
+            $query->whereDate('date', '<=', $endDate);
+        }
+
+        $logs = $query->get();
+        $user = auth()->user();
+
+        // Generate CSV
+        $filename = 'attendance_' . now()->format('Y-m-d') . '.csv';
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+        ];
+
+        $callback = function() use ($logs, $isAdmin, $canViewAll, $user) {
+            $file = fopen('php://output', 'w');
+            
+            // CSV Header
+            if ($canViewAll) {
+                fputcsv($file, ['Date', 'Time', 'Employee Name', 'Employee ID', 'Class', 'Mode', 'Type', 'Card Serial', 'Result', 'Property', 'External Device', 'Coordinate']);
+            } else {
+                fputcsv($file, ['Date', 'Time', 'User ID', 'Name', 'Employee ID', 'Class', 'Mode', 'Type', 'Card Serial', 'Result', 'Property', 'External Device', 'Coordinate']);
+            }
+
+            // CSV Data
+            foreach ($logs as $log) {
+                $date = $log->date->format('Y-m-d');
+                $time = $log->time;
+                $employeeId = $log->user->masterlist->employee_number ?? '';
+                $className = 'User';
+                $mode = $log->mode;
+                $type = $log->mode;
+                $cardSerial = '';
+                $result = 'success';
+                $property = '1000';
+                $externalDevice = 'ClockWize';
+                $coordinate = '0/0';
+
+                if ($canViewAll) {
+                    $employeeName = $log->user->name ?? 'N/A';
+                    fputcsv($file, [$date, $time, $employeeName, $employeeId, $className, $mode, $type, $cardSerial, $result, $property, $externalDevice, $coordinate]);
+                } else {
+                    $userId = $user->id;
+                    $name = $user->name;
+                    fputcsv($file, [$date, $time, $userId, $name, $employeeId, $className, $mode, $type, $cardSerial, $result, $property, $externalDevice, $coordinate]);
+                }
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
 }

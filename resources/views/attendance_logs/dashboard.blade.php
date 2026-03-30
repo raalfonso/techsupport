@@ -466,52 +466,25 @@
 
         function exportToCSV() {
             const isAdmin = @json($isAdmin);
-            let logsData;
+            const canViewNav = @json($canViewNav ?? false);
             
-            if (isAdmin) {
-                logsData = @json(\App\Models\AttendanceLog::with('user.masterlist')->latest()->get());
-            } else {
-                logsData = @json(isset($logs) ? $logs : \App\Models\AttendanceLog::where('user_id', auth()->id())->with('user.masterlist')->latest()->get());
-            }
+            // Build URL with current filters
+            const params = new URLSearchParams();
+            const name = document.getElementById('filterName')?.value;
+            const department = document.getElementById('filterDepartment')?.value;
+            const employmentType = document.querySelector('select[name="employment_type"]')?.value;
+            const startDate = document.getElementById('start_date')?.value;
+            const endDate = document.getElementById('end_date')?.value;
             
-            const user = @json(auth()->user());
+            if (name) params.append('name', name);
+            if (department) params.append('department', department);
+            if (employmentType) params.append('employment_type', employmentType);
+            if (startDate) params.append('start_date', startDate);
+            if (endDate) params.append('end_date', endDate);
+            params.append('export', 'csv');
             
-            let csv = isAdmin 
-                ? 'Date,Time,Employee Name,Employee ID,Class,Mode,Type,Card Serial,Result,Property,External Device,Coordinate\n'
-                : 'Date,Time,User ID,Name,Employee ID,Class,Mode,Type,Card Serial,Result,Property,External Device,Coordinate\n';
-            
-            logsData.forEach(log => {
-                const date = log.date.split('T')[0];
-                const time = log.time;
-                const employeeId = (log.user && log.user.masterlist) ? log.user.masterlist.employee_number : '';
-                const className = 'User';
-                const mode = log.mode;
-                const type = log.mode;
-                const cardSerial = '';
-                const result = 'success';
-                const property = '1000';
-                const externalDevice = 'ClockWize';
-                const coordinate = '0/0';
-                
-                if (isAdmin) {
-                    const employeeName = log.user ? log.user.name : 'N/A';
-                    csv += `"${date}","${time}","${employeeName}","${employeeId}","${className}","${mode}","${type}","${cardSerial}","${result}","${property}","${externalDevice}","${coordinate}"\n`;
-                } else {
-                    const userId = user.id;
-                    const name = user.name;
-                    csv += `"${date}","${time}","${userId}","${name}","${employeeId}","${className}","${mode}","${type}","${cardSerial}","${result}","${property}","${externalDevice}","${coordinate}"\n`;
-                }
-            });
-            
-            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement('a');
-            const url = URL.createObjectURL(blob);
-            link.setAttribute('href', url);
-            link.setAttribute('download', `attendance_${new Date().toISOString().split('T')[0]}.csv`);
-            link.style.visibility = 'hidden';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+            // Redirect to export endpoint
+            window.location.href = '{{ route("attendance.export-csv") }}?' + params.toString();
         }
     </script>
 

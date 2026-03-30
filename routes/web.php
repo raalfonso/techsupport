@@ -74,6 +74,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/employee-masterlist/import', [EmployeeMasterlistController::class, 'import'])->name('employee-masterlist.import');
     Route::get('/attendance', [AttendanceLogController::class, 'dashboard'])->name('attendance.dashboard');
     Route::get('/attendance/search', [AttendanceLogController::class, 'search'])->name('attendance.search');
+    Route::get('/attendance/export-csv', [AttendanceLogController::class, 'exportCSV'])->name('attendance.export-csv');
     Route::get('/attendance/employees', [AttendanceLogController::class, 'getEmployees'])->name('attendance.employees');
     Route::get('/attendance/departments', [AttendanceLogController::class, 'getDepartments'])->name('attendance.departments');
     Route::get('/attendance/present-today', [AttendanceLogController::class, 'presentToday'])->name('attendance.present-today');
