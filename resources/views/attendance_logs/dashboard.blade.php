@@ -217,6 +217,10 @@
                 
                 <form id="searchForm" action="{{ route('attendance.search') }}" method="GET" class="mb-6 p-4 bg-gray-50 dark:bg-slate-700 rounded-lg border border-gray-200 dark:border-slate-600">
                 @csrf
+                    <!-- Preserve accomplishment filters -->
+                    <input type="hidden" name="acc_start_date" value="{{ request('acc_start_date') }}">
+                    <input type="hidden" name="acc_end_date" value="{{ request('acc_end_date') }}">
+                    
                     <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
                         <div class="autocomplete-container">
                             <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Search by Name</label>
@@ -305,7 +309,40 @@
                 @endif
             </div>
             <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700 p-6 mt-6">
-                <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-6">My WFH Accomplishment History</h2>
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white">My WFH Accomplishment History</h2>
+                    <button onclick="printAccomplishments()" class="bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-red-700 transition flex items-center gap-2">
+                        <i class="fas fa-print"></i> Print Accomplishments
+                    </button>
+                </div>
+
+                <!-- Date Range Filter -->
+                <form action="{{ route('attendance.dashboard') }}" method="GET" class="mb-6 p-4 bg-gray-50 dark:bg-slate-700 rounded-lg border border-gray-200 dark:border-slate-600">
+                    <!-- Preserve attendance filters -->
+                    <input type="hidden" name="name" value="{{ $filters['name'] ?? '' }}">
+                    <input type="hidden" name="department" value="{{ $filters['department'] ?? '' }}">
+                    <input type="hidden" name="employment_type" value="{{ $filters['employment_type'] ?? '' }}">
+                    <input type="hidden" name="start_date" value="{{ $filters['start_date'] ?? '' }}">
+                    <input type="hidden" name="end_date" value="{{ $filters['end_date'] ?? '' }}">
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Accomplishment Date Range</label>
+                            <input type="text" id="accomplishmentDateRange" placeholder="Select date range..." class="w-full px-3 py-2 border border-gray-300 dark:border-slate-500 bg-white dark:bg-slate-600 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <input type="hidden" name="acc_start_date" id="acc_start_date" value="{{ request('acc_start_date') }}">
+                            <input type="hidden" name="acc_end_date" id="acc_end_date" value="{{ request('acc_end_date') }}">
+                        </div>
+                        <div class="flex items-end gap-2">
+                            <button type="submit" class="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 transition">
+                                <i class="fas fa-filter mr-2"></i>Filter
+                            </button>
+                            <a href="{{ route('attendance.dashboard') }}" class="flex-1 bg-gray-400 text-white px-4 py-2 rounded-lg font-semibold hover:bg-gray-500 transition text-center">
+                                <i class="fas fa-redo mr-2"></i>Reset
+                            </a>
+                        </div>
+                    </div>
+                </form>
+
                 @php
                     $grouped = $accomplishments->getCollection()->groupBy(fn($a) => $a->date->format('Y-m-d'));
                 @endphp
@@ -361,24 +398,65 @@
             document.getElementById('current-time').textContent = now.toLocaleTimeString('en-US', { hour12: true });
         }, 1000);
 
-        flatpickr("#dateRange", {
-            mode: "range",
-            dateFormat: "Y-m-d",
-            onChange: function(selectedDates) {
-                function formatDate(d) {
-                    const y = d.getFullYear();
-                    const m = String(d.getMonth() + 1).padStart(2, '0');
-                    const day = String(d.getDate()).padStart(2, '0');
-                    return `${y}-${m}-${day}`;
+        // Initialize Flatpickr after DOM is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            // Attendance date range picker
+            const startDateValue = document.getElementById('start_date')?.value;
+            const endDateValue = document.getElementById('end_date')?.value;
+            const defaultDates = [];
+            
+            if (startDateValue) defaultDates.push(startDateValue);
+            if (endDateValue) defaultDates.push(endDateValue);
+
+            flatpickr("#dateRange", {
+                mode: "range",
+                dateFormat: "Y-m-d",
+                defaultDate: defaultDates,
+                onChange: function(selectedDates) {
+                    function formatDate(d) {
+                        const y = d.getFullYear();
+                        const m = String(d.getMonth() + 1).padStart(2, '0');
+                        const day = String(d.getDate()).padStart(2, '0');
+                        return `${y}-${m}-${day}`;
+                    }
+                    if (selectedDates.length === 2) {
+                        document.getElementById('start_date').value = formatDate(selectedDates[0]);
+                        document.getElementById('end_date').value = formatDate(selectedDates[1]);
+                    } else if (selectedDates.length === 1) {
+                        document.getElementById('start_date').value = formatDate(selectedDates[0]);
+                        document.getElementById('end_date').value = '';
+                    }
                 }
-                if (selectedDates.length === 2) {
-                    document.getElementById('start_date').value = formatDate(selectedDates[0]);
-                    document.getElementById('end_date').value = formatDate(selectedDates[1]);
-                } else if (selectedDates.length === 1) {
-                    document.getElementById('start_date').value = formatDate(selectedDates[0]);
-                    document.getElementById('end_date').value = '';
+            });
+
+            // Accomplishment date range picker
+            const accStartDateValue = document.getElementById('acc_start_date')?.value;
+            const accEndDateValue = document.getElementById('acc_end_date')?.value;
+            const accDefaultDates = [];
+            
+            if (accStartDateValue) accDefaultDates.push(accStartDateValue);
+            if (accEndDateValue) accDefaultDates.push(accEndDateValue);
+
+            flatpickr("#accomplishmentDateRange", {
+                mode: "range",
+                dateFormat: "Y-m-d",
+                defaultDate: accDefaultDates,
+                onChange: function(selectedDates) {
+                    function formatDate(d) {
+                        const y = d.getFullYear();
+                        const m = String(d.getMonth() + 1).padStart(2, '0');
+                        const day = String(d.getDate()).padStart(2, '0');
+                        return `${y}-${m}-${day}`;
+                    }
+                    if (selectedDates.length === 2) {
+                        document.getElementById('acc_start_date').value = formatDate(selectedDates[0]);
+                        document.getElementById('acc_end_date').value = formatDate(selectedDates[1]);
+                    } else if (selectedDates.length === 1) {
+                        document.getElementById('acc_start_date').value = formatDate(selectedDates[0]);
+                        document.getElementById('acc_end_date').value = '';
+                    }
                 }
-            }
+            });
         });
 
         // Name autocomplete
@@ -485,6 +563,19 @@
             
             // Redirect to export endpoint
             window.location.href = '{{ route("attendance.export-csv") }}?' + params.toString();
+        }
+
+        function printAccomplishments() {
+            // Build URL with current filters
+            const params = new URLSearchParams();
+            const accStartDate = document.getElementById('acc_start_date')?.value;
+            const accEndDate = document.getElementById('acc_end_date')?.value;
+            
+            if (accStartDate) params.append('acc_start_date', accStartDate);
+            if (accEndDate) params.append('acc_end_date', accEndDate);
+            
+            // Open print PDF in new window
+            window.open('{{ route("attendance.print-accomplishments") }}?' + params.toString(), '_blank');
         }
     </script>
 

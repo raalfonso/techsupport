@@ -19,12 +19,34 @@ class AttendanceLogController extends Controller
         }
         $logs = $logsQuery->paginate(10, ['*'], 'logs_page');
 
+        // Accomplishments with date range filtering
         $accomplishmentsQuery = \App\Models\WFHAccomplishment::where('employee_id', auth()->id())
             ->orderBy('date', 'desc')
             ->orderBy('created_at', 'desc');
+
+        $accStartDate = request('acc_start_date');
+        $accEndDate = request('acc_end_date');
+
+        if ($accStartDate && $accEndDate) {
+            $accomplishmentsQuery->whereBetween('date', [$accStartDate, $accEndDate]);
+        } elseif ($accStartDate) {
+            $accomplishmentsQuery->whereDate('date', '>=', $accStartDate);
+        } elseif ($accEndDate) {
+            $accomplishmentsQuery->whereDate('date', '<=', $accEndDate);
+        }
+
         $accomplishments = $accomplishmentsQuery->paginate(10, ['*'], 'acc_page');
 
-        return view('attendance_logs.dashboard', compact('logs', 'accomplishments', 'isAdmin', 'canViewAll'));
+        // Pass filters to view
+        $filters = [
+            'name' => request('name'),
+            'department' => request('department'),
+            'employment_type' => request('employment_type'),
+            'start_date' => request('start_date'),
+            'end_date' => request('end_date')
+        ];
+
+        return view('attendance_logs.dashboard', compact('logs', 'accomplishments', 'isAdmin', 'canViewAll', 'filters'));
     }
 
     public function clockIn()
@@ -216,10 +238,23 @@ class AttendanceLogController extends Controller
 
         $logs = $query->paginate(10, ['*'], 'logs_page');
 
-        $accomplishments = \App\Models\WFHAccomplishment::where('employee_id', auth()->id())
+        // Accomplishments with date range filtering
+        $accomplishmentsQuery = \App\Models\WFHAccomplishment::where('employee_id', auth()->id())
             ->orderBy('date', 'desc')
-            ->orderBy('created_at', 'desc')
-            ->paginate(10, ['*'], 'acc_page');
+            ->orderBy('created_at', 'desc');
+
+        $accStartDate = $request->input('acc_start_date');
+        $accEndDate = $request->input('acc_end_date');
+
+        if ($accStartDate && $accEndDate) {
+            $accomplishmentsQuery->whereBetween('date', [$accStartDate, $accEndDate]);
+        } elseif ($accStartDate) {
+            $accomplishmentsQuery->whereDate('date', '>=', $accStartDate);
+        } elseif ($accEndDate) {
+            $accomplishmentsQuery->whereDate('date', '<=', $accEndDate);
+        }
+
+        $accomplishments = $accomplishmentsQuery->paginate(10, ['*'], 'acc_page');
 
         return view('attendance_logs.dashboard', [
             'logs' => $logs,
@@ -602,5 +637,48 @@ class AttendanceLogController extends Controller
         };
 
         return response()->stream($callback, 200, $headers);
+    }
+
+    public function printAccomplishments(Request $request)
+    {
+        $user = auth()->user();
+        $accStartDate = $request->input('acc_start_date');
+        $accEndDate = $request->input('acc_end_date');
+
+        $query = \App\Models\WFHAccomplishment::where('employee_id', $user->id)
+            ->with('user.masterlist')
+            ->orderBy('date', 'desc');
+
+        if ($accStartDate && $accEndDate) {
+            $query->whereBetween('date', [$accStartDate, $accEndDate]);
+        } elseif ($accStartDate) {
+            $query->whereDate('date', '>=', $accStartDate);
+        } elseif ($accEndDate) {
+            $query->whereDate('date', '<=', $accEndDate);
+        }
+
+        $accomplishments = $query->get();
+
+        // Group by date
+        $grouped = [];
+        foreach ($accomplishments as $acc) {
+            $dateKey = $acc->date->format('Y-m-d');
+            if (!isset($grouped[$dateKey])) {
+                $grouped[$dateKey] = [
+                    'date' => $acc->date->format('F d, Y'),
+                    'items' => []
+                ];
+            }
+            $grouped[$dateKey]['items'][] = $acc->accomplishment;
+        }
+
+        $employeeName = $user->name;
+        $employeeNumber = $user->masterlist->employee_number ?? 'N/A';
+        $department = $user->masterlist->department->title ?? 'N/A';
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('attendance_logs.accomplishments_print_pdf', compact('grouped', 'employeeName', 'employeeNumber', 'department', 'accStartDate', 'accEndDate'));
+        $pdf->setPaper('a4', 'portrait');
+
+        return $pdf->stream('accomplishments_' . $user->id . '_' . now()->format('Y-m-d') . '.pdf');
     }
 }
