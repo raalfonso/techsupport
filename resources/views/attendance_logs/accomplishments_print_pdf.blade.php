@@ -140,6 +140,10 @@
                 <td class="value">{{ $employeeName }}</td>
             </tr>
             <tr>
+                <td class="label">Position:</td>
+                <td class="value">{{ $position ?? 'N/A' }}</td>
+            </tr>
+            <tr>
                 <td class="label">Employee Number:</td>
                 <td class="value">{{ $employeeNumber }}</td>
             </tr>
@@ -169,6 +173,56 @@
             No accomplishments found for the selected period.
         </div>
     @endforelse
+
+    <!-- Signatories Section -->
+    <div style="margin-top: 60px;">
+        <table style="width: 100%; border-collapse: collapse;">
+            <tr>
+                <!-- Employee Signature (Left) -->
+                <td style="width: 50%; vertical-align: top; padding-right: 40px;">
+                    <div style="text-align: left;">
+                        <div style="margin-top: 40px; margin-bottom: 5px;">
+                            <div style="border-bottom: 2px solid #000; padding-bottom: 2px; display: inline-block; min-width: 200px; text-align: center;">
+                                <span style="font-size: 11px; font-weight: bold; text-transform: uppercase;">{{ strtoupper($employeeName) }}</span>
+                            </div>
+                        </div>
+                        <div style="font-size: 10px; color: #374151; margin-top: 2px;">{{ $position ?? 'Employee' }}</div>
+                        <div style="font-size: 10px; color: #6b7280;">{{ $department }}</div>
+                    </div>
+                </td>
+
+                <!-- Department Signatory (Right) -->
+                <td style="width: 50%; vertical-align: top; padding-left: 40px;">
+                    @if(isset($signatories) && $signatories->count() > 0)
+                        @php $signatory = $signatories->first(); @endphp
+                        <div style="text-align: left;">
+                            <div style="margin-top: 40px; margin-bottom: 5px;">
+                                <div style="border-bottom: 2px solid #000; padding-bottom: 2px; display: inline-block; min-width: 200px; text-align: center;">
+                                    <span style="font-size: 11px; font-weight: bold; text-transform: uppercase;">{{ strtoupper($signatory->employee->full_name ?? '') }}</span>
+                                </div>
+                            </div>
+                            <div style="display: inline-block; min-width: 200px; text-align: left;">
+                                <div style="font-size: 10px; color: #374151; margin-top: 2px; text-transform: uppercase;">{{ $signatory->position }}</div>
+                                <div style="font-size: 10px; color: #6b7280;">{{ $signatory->department->title ?? '' }}</div>
+                            </div>
+                        </div>
+                    @else
+                        <div style="text-align: right;">
+                            <div style="margin-top: 40px; margin-bottom: 5px;">
+                                <div style="border-bottom: 2px solid #000; padding-bottom: 2px; display: inline-block; min-width: 200px; text-align: center;">
+                                    <span style="font-size: 11px; font-weight: bold; text-transform: uppercase;">_____________________</span>
+                                </div>
+                            </div>
+                            <div style="display: inline-block; min-width: 200px; text-align: left;">
+                                <div style="font-size: 10px; color: #374151; margin-top: 2px; text-transform: uppercase;">Department Head</div>
+                                <div style="font-size: 10px; color: #6b7280;">{{ $department }}</div>
+                            </div>
+                        </div>
+                    @endif
+                </td>
+            </tr>
+        </table>
+    </div>
 
     <div class="footer">
         <p>© {{ now()->format('Y') }} ClockWize • Powered by the ICT Department – Bases Conversion and Development Authority</p>

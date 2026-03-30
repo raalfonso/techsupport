@@ -72,10 +72,19 @@
         </div>
     </main>
 
-    <footer class="bg-white dark:bg-slate-800 border-t border-gray-200 dark:border-slate-700 py-6 mt-auto">
-        <p class="text-center text-sm text-gray-600 dark:text-gray-400">
-            © 2026 ClockWize • Powered by the ICT Department – Bases Conversion and Development Authority
-        </p>
+     <footer class="bg-white dark:bg-slate-800 border-t border-gray-200 dark:border-slate-700 py-6 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col items-center justify-center space-y-2">
+                <div class="flex items-center space-x-2">
+                    <span class="text-sm text-gray-600 dark:text-gray-400">Powered by</span>
+                    <img src="{{ asset('images/ICTD_Logo.png') }}" alt="ICTD Logo" class="h-8 w-auto" />
+                    <!-- <span class="text-sm text-gray-600 dark:text-gray-400">ICT Department</span> -->
+                </div>
+                <p class="text-sm text-gray-600 dark:text-gray-400">
+                    © 2026 ClockWize • Bases Conversion and Development Authority (BCDA). All rights reserved.
+                </p>
+            </div>
+        </div>
     </footer>
 </body>
 </html>

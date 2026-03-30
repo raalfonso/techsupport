@@ -675,8 +675,17 @@ class AttendanceLogController extends Controller
         $employeeName = $user->name;
         $employeeNumber = $user->masterlist->employee_number ?? 'N/A';
         $department = $user->masterlist->department->title ?? 'N/A';
+        $departmentId = $user->masterlist->department_id ?? null;
+        $position = $user->masterlist->position ?? 'N/A';
 
-        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('attendance_logs.accomplishments_print_pdf', compact('grouped', 'employeeName', 'employeeNumber', 'department', 'accStartDate', 'accEndDate'));
+        // Get signatories for the user's department
+        $signatories = \App\Models\Signatory::with('employee', 'department')
+            ->when($departmentId, function ($q) use ($departmentId) {
+                $q->where('department_id', $departmentId);
+            })
+            ->get();
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('attendance_logs.accomplishments_print_pdf', compact('grouped', 'employeeName', 'employeeNumber', 'department', 'position', 'signatories', 'accStartDate', 'accEndDate'));
         $pdf->setPaper('a4', 'portrait');
 
         return $pdf->stream('accomplishments_' . $user->id . '_' . now()->format('Y-m-d') . '.pdf');

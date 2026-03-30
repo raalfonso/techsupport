@@ -1,5 +1,14 @@
 <x-layout>
-    <div class="mx-auto w-full p-6" x-data="{ showModal: false, editModal: false, showProjectModal: false, manageMembersModal: false, editItem: null, selectedProject: null, selectedProjectId: null }">
+    <div class="mx-auto w-full p-6" x-data="{ 
+        showModal: false, 
+        editModal: false, 
+        showProjectModal: false, 
+        manageMembersModal: false, 
+        editItem: null, 
+        selectedProject: null, 
+        selectedProjectId: null,
+        viewMode: 'table' 
+    }">
         <div class="mb-8">
             <div class="flex items-center justify-between">
                 <div>
@@ -7,6 +16,17 @@
                     <p class="text-gray-600 dark:text-gray-400 mt-1">Development monitoring and tracking</p>
                 </div>
                 <div class="flex items-center space-x-3">
+                    <!-- View Toggle -->
+                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 p-1 flex">
+                        <button @click="viewMode = 'table'" :class="viewMode === 'table' ? 'bg-blue-600 text-white' : 'text-gray-600 dark:text-gray-400'" class="px-4 py-2 rounded-lg transition-all duration-200 flex items-center space-x-2">
+                            <i class="fa-solid fa-table"></i>
+                            <span class="hidden md:inline">Table</span>
+                        </button>
+                        <button @click="viewMode = 'kanban'" :class="viewMode === 'kanban' ? 'bg-blue-600 text-white' : 'text-gray-600 dark:text-gray-400'" class="px-4 py-2 rounded-lg transition-all duration-200 flex items-center space-x-2">
+                            <i class="fa-solid fa-columns"></i>
+                            <span class="hidden md:inline">Kanban</span>
+                        </button>
+                    </div>
                     <button @click="showProjectModal = true" class="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white px-6 py-3 rounded-xl font-medium shadow-lg hover:shadow-xl transition-all duration-200 flex items-center space-x-2">
                         <i class="fa-solid fa-folder-plus"></i>
                         <span>New Project</span>
@@ -172,8 +192,194 @@
             </div>
         </div>
 
+        <!-- Kanban Board View -->
+        <div x-show="viewMode === 'kanban'" x-cloak class="mb-8">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 p-6 mb-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white">Kanban Board</h2>
+                    <div class="flex space-x-3">
+                        <select id="kanban-project-filter" onchange="filterKanban()" class="px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg text-sm">
+                            <option value="">All Projects</option>
+                            @foreach($projects as $project)
+                                <option value="{{ $project->id }}">{{ $project->name }}</option>
+                            @endforeach
+                        </select>
+                        <select id="kanban-priority-filter" onchange="filterKanban()" class="px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg text-sm">
+                            <option value="">All Priority</option>
+                            <option value="low">Low</option>
+                            <option value="medium">Medium</option>
+                            <option value="high">High</option>
+                            <option value="critical">Critical</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Open Column -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700">
+                    <div class="bg-blue-600 text-white px-4 py-3 rounded-t-2xl flex items-center justify-between">
+                        <div class="flex items-center space-x-2">
+                            <i class="fa-solid fa-circle-dot"></i>
+                            <h3 class="font-bold">Open</h3>
+                        </div>
+                        <span class="bg-blue-700 px-2 py-1 rounded-full text-xs">{{ $items->where('status', 'open')->count() }}</span>
+                    </div>
+                    <div class="p-4 space-y-3 max-h-[600px] overflow-y-auto kanban-column" data-status="open">
+                        @foreach($items->where('status', 'open') as $item)
+                            <div class="kanban-card bg-gray-50 dark:bg-gray-700 p-4 rounded-lg border border-gray-200 dark:border-gray-600 hover:shadow-lg transition-all cursor-pointer" 
+                                 data-project="{{ $item->project_id }}" 
+                                 data-priority="{{ $item->priority }}"
+                                 @click="editModal = true; editItem = {{ $item->toJson() }}">
+                                <div class="flex items-start justify-between mb-2">
+                                    <h4 class="font-semibold text-gray-900 dark:text-white text-sm">{{ Str::limit($item->title, 40) }}</h4>
+                                    <span class="px-2 py-1 text-xs rounded-full flex-shrink-0 ml-2
+                                        @if($item->priority == 'critical') bg-red-100 text-red-800
+                                        @elseif($item->priority == 'high') bg-orange-100 text-orange-800
+                                        @elseif($item->priority == 'medium') bg-yellow-100 text-yellow-800
+                                        @else bg-green-100 text-green-800 @endif">
+                                        {{ ucfirst($item->priority) }}
+                                    </span>
+                                </div>
+                                <p class="text-xs text-gray-600 dark:text-gray-400 mb-3">{{ Str::limit($item->description, 80) }}</p>
+                                <div class="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
+                                    <span class="flex items-center">
+                                        <i class="fa-solid fa-user mr-1"></i>
+                                        {{ $item->user->name ?? 'Unknown' }}
+                                    </span>
+                                    @if($item->reported_date)
+                                        <span>{{ $item->reported_date->format('M d') }}</span>
+                                    @endif
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+
+                <!-- In Progress Column -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700">
+                    <div class="bg-yellow-600 text-white px-4 py-3 rounded-t-2xl flex items-center justify-between">
+                        <div class="flex items-center space-x-2">
+                            <i class="fa-solid fa-spinner"></i>
+                            <h3 class="font-bold">In Progress</h3>
+                        </div>
+                        <span class="bg-yellow-700 px-2 py-1 rounded-full text-xs">{{ $items->where('status', 'in_progress')->count() }}</span>
+                    </div>
+                    <div class="p-4 space-y-3 max-h-[600px] overflow-y-auto kanban-column" data-status="in_progress">
+                        @foreach($items->where('status', 'in_progress') as $item)
+                            <div class="kanban-card bg-gray-50 dark:bg-gray-700 p-4 rounded-lg border border-gray-200 dark:border-gray-600 hover:shadow-lg transition-all cursor-pointer" 
+                                 data-project="{{ $item->project_id }}" 
+                                 data-priority="{{ $item->priority }}"
+                                 @click="editModal = true; editItem = {{ $item->toJson() }}">
+                                <div class="flex items-start justify-between mb-2">
+                                    <h4 class="font-semibold text-gray-900 dark:text-white text-sm">{{ Str::limit($item->title, 40) }}</h4>
+                                    <span class="px-2 py-1 text-xs rounded-full flex-shrink-0 ml-2
+                                        @if($item->priority == 'critical') bg-red-100 text-red-800
+                                        @elseif($item->priority == 'high') bg-orange-100 text-orange-800
+                                        @elseif($item->priority == 'medium') bg-yellow-100 text-yellow-800
+                                        @else bg-green-100 text-green-800 @endif">
+                                        {{ ucfirst($item->priority) }}
+                                    </span>
+                                </div>
+                                <p class="text-xs text-gray-600 dark:text-gray-400 mb-3">{{ Str::limit($item->description, 80) }}</p>
+                                <div class="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
+                                    <span class="flex items-center">
+                                        <i class="fa-solid fa-user mr-1"></i>
+                                        {{ $item->user->name ?? 'Unknown' }}
+                                    </span>
+                                    @if($item->start_date)
+                                        <span>{{ $item->start_date->format('M d') }}</span>
+                                    @endif
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+
+                <!-- Resolved Column -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700">
+                    <div class="bg-green-600 text-white px-4 py-3 rounded-t-2xl flex items-center justify-between">
+                        <div class="flex items-center space-x-2">
+                            <i class="fa-solid fa-check-circle"></i>
+                            <h3 class="font-bold">Resolved</h3>
+                        </div>
+                        <span class="bg-green-700 px-2 py-1 rounded-full text-xs">{{ $items->where('status', 'resolved')->count() }}</span>
+                    </div>
+                    <div class="p-4 space-y-3 max-h-[600px] overflow-y-auto kanban-column" data-status="resolved">
+                        @foreach($items->where('status', 'resolved') as $item)
+                            <div class="kanban-card bg-gray-50 dark:bg-gray-700 p-4 rounded-lg border border-gray-200 dark:border-gray-600 hover:shadow-lg transition-all cursor-pointer" 
+                                 data-project="{{ $item->project_id }}" 
+                                 data-priority="{{ $item->priority }}"
+                                 @click="editModal = true; editItem = {{ $item->toJson() }}">
+                                <div class="flex items-start justify-between mb-2">
+                                    <h4 class="font-semibold text-gray-900 dark:text-white text-sm">{{ Str::limit($item->title, 40) }}</h4>
+                                    <span class="px-2 py-1 text-xs rounded-full flex-shrink-0 ml-2
+                                        @if($item->priority == 'critical') bg-red-100 text-red-800
+                                        @elseif($item->priority == 'high') bg-orange-100 text-orange-800
+                                        @elseif($item->priority == 'medium') bg-yellow-100 text-yellow-800
+                                        @else bg-green-100 text-green-800 @endif">
+                                        {{ ucfirst($item->priority) }}
+                                    </span>
+                                </div>
+                                <p class="text-xs text-gray-600 dark:text-gray-400 mb-3">{{ Str::limit($item->description, 80) }}</p>
+                                <div class="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
+                                    <span class="flex items-center">
+                                        <i class="fa-solid fa-user mr-1"></i>
+                                        {{ $item->user->name ?? 'Unknown' }}
+                                    </span>
+                                    @if($item->end_date)
+                                        <span>{{ $item->end_date->format('M d') }}</span>
+                                    @endif
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+
+                <!-- Closed Column -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700">
+                    <div class="bg-gray-600 text-white px-4 py-3 rounded-t-2xl flex items-center justify-between">
+                        <div class="flex items-center space-x-2">
+                            <i class="fa-solid fa-times-circle"></i>
+                            <h3 class="font-bold">Closed</h3>
+                        </div>
+                        <span class="bg-gray-700 px-2 py-1 rounded-full text-xs">{{ $items->where('status', 'closed')->count() }}</span>
+                    </div>
+                    <div class="p-4 space-y-3 max-h-[600px] overflow-y-auto kanban-column" data-status="closed">
+                        @foreach($items->where('status', 'closed') as $item)
+                            <div class="kanban-card bg-gray-50 dark:bg-gray-700 p-4 rounded-lg border border-gray-200 dark:border-gray-600 hover:shadow-lg transition-all cursor-pointer" 
+                                 data-project="{{ $item->project_id }}" 
+                                 data-priority="{{ $item->priority }}"
+                                 @click="editModal = true; editItem = {{ $item->toJson() }}">
+                                <div class="flex items-start justify-between mb-2">
+                                    <h4 class="font-semibold text-gray-900 dark:text-white text-sm">{{ Str::limit($item->title, 40) }}</h4>
+                                    <span class="px-2 py-1 text-xs rounded-full flex-shrink-0 ml-2
+                                        @if($item->priority == 'critical') bg-red-100 text-red-800
+                                        @elseif($item->priority == 'high') bg-orange-100 text-orange-800
+                                        @elseif($item->priority == 'medium') bg-yellow-100 text-yellow-800
+                                        @else bg-green-100 text-green-800 @endif">
+                                        {{ ucfirst($item->priority) }}
+                                    </span>
+                                </div>
+                                <p class="text-xs text-gray-600 dark:text-gray-400 mb-3">{{ Str::limit($item->description, 80) }}</p>
+                                <div class="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
+                                    <span class="flex items-center">
+                                        <i class="fa-solid fa-user mr-1"></i>
+                                        {{ $item->user->name ?? 'Unknown' }}
+                                    </span>
+                                    @if($item->end_date)
+                                        <span>{{ $item->end_date->format('M d') }}</span>
+                                    @endif
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- DevWatch Items Table -->
-        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700">
+        <div x-show="viewMode === 'table'" x-cloak class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700">
             <div class="px-8 py-6 border-b border-gray-200 dark:border-gray-700">
                 <div class="flex items-center justify-between">
                     <h2 class="text-xl font-bold text-gray-900 dark:text-white">DevWatch Items</h2>
@@ -549,6 +755,26 @@ function filterItems() {
             row.style.display = '';
         } else {
             row.style.display = 'none';
+        }
+    });
+}
+</script>
+
+
+<script>
+function filterKanban() {
+    const projectFilter = document.getElementById('kanban-project-filter').value;
+    const priorityFilter = document.getElementById('kanban-priority-filter').value;
+    const cards = document.querySelectorAll('.kanban-card');
+
+    cards.forEach(card => {
+        const projectMatch = !projectFilter || card.dataset.project === projectFilter;
+        const priorityMatch = !priorityFilter || card.dataset.priority === priorityFilter;
+
+        if (projectMatch && priorityMatch) {
+            card.style.display = '';
+        } else {
+            card.style.display = 'none';
         }
     });
 }
