@@ -498,11 +498,25 @@ class AttendanceLogController extends Controller
 
             $records = array_values($grouped);
 
-            $signatories = \App\Models\Signatory::with('employee', 'department')
-                ->when($department, function ($q) use ($department) {
-                    $q->whereHas('department', fn($d) => $d->where('title', 'like', "%$department%"));
-                })
-                ->get();
+            // Get signatories based on department
+            $user = auth()->user();
+            
+            // For administrators, use department search filter if provided
+            // For regular users, use their own department_id
+            if ($isAdmin && $department) {
+                $signatories = \App\Models\Signatory::with('employee', 'department')
+                    ->whereHas('department', function ($q) use ($department) {
+                        $q->where('title', 'like', "%$department%");
+                    })
+                    ->get();
+            } else {
+                $userDepartmentId = $user->masterlist?->department_id;
+                $signatories = \App\Models\Signatory::with('employee', 'department')
+                    ->when($userDepartmentId, function ($q) use ($userDepartmentId) {
+                        $q->where('department_id', $userDepartmentId);
+                    })
+                    ->get();
+            }
 
             $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('attendance_logs.attendance_print_pdf', compact('records', 'signatories'));
             $pdf->setPaper('a4', 'portrait');

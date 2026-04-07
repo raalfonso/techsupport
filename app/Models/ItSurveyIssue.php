@@ -9,6 +9,7 @@ class ItSurveyIssue extends Model
     protected $fillable = [
         'title',
         'details',
+        'other_issues',
         'is_active',
     ];
 

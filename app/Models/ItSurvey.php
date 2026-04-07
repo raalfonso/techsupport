@@ -15,6 +15,7 @@ class ItSurvey extends Model
         'answer_question_4',
         'suggestion',
         'name',
+        'other_issues',
     ];
 
     public function issue()

@@ -20,6 +20,29 @@
     <link rel="icon" type="image/png" href="{{ asset('img/itd.png') }}">
     <script>
         if (localStorage.getItem('cw-theme') === 'dark') document.documentElement.classList.add('dark');
+        
+        // Auto-refresh after 10 minutes of inactivity
+        let inactivityTimer;
+        const INACTIVITY_TIMEOUT = 10 * 60 * 1000; // 10 minutes in milliseconds
+
+        function resetInactivityTimer() {
+            clearTimeout(inactivityTimer);
+            inactivityTimer = setTimeout(() => {
+                console.log('Refreshing page due to inactivity...');
+                window.location.reload();
+            }, INACTIVITY_TIMEOUT);
+        }
+
+        // Reset timer on user activity
+        document.addEventListener('DOMContentLoaded', function() {
+            // Start the timer
+            resetInactivityTimer();
+
+            // Reset timer on any user interaction
+            ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart', 'click'].forEach(event => {
+                document.addEventListener(event, resetInactivityTimer, true);
+            });
+        });
     </script>
     <style>
         .autocomplete-list {
@@ -79,7 +102,7 @@
                 </div>
                 <div class="flex items-center space-x-2 bg-white dark:bg-slate-800 px-4 py-2 rounded-full shadow-sm border border-gray-200 dark:border-slate-600">
                     <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                    <span class="text-sm text-gray-700 dark:text-gray-300">System Online • v1.2</span>
+                    <span class="text-sm text-gray-700 dark:text-gray-300">System Online • v1.3</span>
                 </div>
             </div>
 
@@ -128,8 +151,11 @@
                         End your work session. Ensure all logs and reports are updated before leaving.
                     </p>
                     @if($todayAttend && !$todayLeave)
-                        <button type="button" onclick="openWFHModal()" class="w-full py-2 px-4 rounded-lg font-semibold text-sm bg-blue-600 text-white hover:bg-blue-700 transition">
+                        <button type="button" onclick="openWFHModal()" class="w-full py-2 px-4 rounded-lg font-semibold text-sm bg-blue-600 text-white hover:bg-blue-700 transition mb-2">
                             Clock Out Now
+                        </button>
+                        <button type="button" onclick="openAccomplishmentModal()" class="w-full py-2 px-4 rounded-lg font-semibold text-sm bg-green-600 text-white hover:bg-green-700 transition">
+                            Add Accomplishment
                         </button>
                     @else
                         <button disabled class="w-full py-2 px-4 rounded-lg font-semibold text-sm bg-gray-100 dark:bg-slate-700 text-gray-400 dark:text-gray-500 cursor-not-allowed">
@@ -210,11 +236,15 @@
                             <i class="fas fa-file-pdf"></i> Print PDF
                         </a>
                         <a href="{{ route('attendance.dashboard') }}" class="text-blue-600 text-sm font-semibold hover:text-blue-700 py-2">View Full History →</a>
+                        @else
+                        <a href="{{ route('attendance.print-pdf', request()->query()) }}" target="_blank" class="bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-red-700 transition flex items-center gap-2">
+                            <i class="fas fa-file-pdf"></i> Print PDF
+                        </a>
                         @endif
                     </div>
                 </div>
                  @if($canViewNav)
-                
+                <!-- Admin/HR/Dept Head Search Form -->
                 <form id="searchForm" action="{{ route('attendance.search') }}" method="GET" class="mb-6 p-4 bg-gray-50 dark:bg-slate-700 rounded-lg border border-gray-200 dark:border-slate-600">
                 @csrf
                     <!-- Preserve accomplishment filters -->
@@ -250,6 +280,29 @@
                         <div class="flex items-end gap-2">
                             <button type="submit" class="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 transition">
                                 <i class="fas fa-search mr-2"></i>Search
+                            </button>
+                            <a href="{{ route('attendance.dashboard') }}" class="flex-1 bg-gray-400 text-white px-4 py-2 rounded-lg font-semibold hover:bg-gray-500 transition text-center">
+                                <i class="fas fa-redo mr-2"></i>Reset
+                            </a>
+                        </div>
+                    </div>
+                </form>
+                @else
+                <!-- Regular User Date Range Filter -->
+                <form id="userSearchForm" action="{{ route('attendance.search') }}" method="GET" class="mb-6 p-4 bg-gray-50 dark:bg-slate-700 rounded-lg border border-gray-200 dark:border-slate-600">
+                @csrf
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Start Date</label>
+                            <input type="date" name="start_date" value="{{ request('start_date') }}" class="w-full px-3 py-2 border border-gray-300 dark:border-slate-500 bg-white dark:bg-slate-600 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">End Date</label>
+                            <input type="date" name="end_date" value="{{ request('end_date') }}" class="w-full px-3 py-2 border border-gray-300 dark:border-slate-500 bg-white dark:bg-slate-600 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div class="flex items-end gap-2">
+                            <button type="submit" class="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 transition">
+                                <i class="fas fa-search mr-2"></i>Filter
                             </button>
                             <a href="{{ route('attendance.dashboard') }}" class="flex-1 bg-gray-400 text-white px-4 py-2 rounded-lg font-semibold hover:bg-gray-500 transition text-center">
                                 <i class="fas fa-redo mr-2"></i>Reset
@@ -587,8 +640,8 @@
     </script>
 
     <!-- WFH Accomplishment Modal (Clock Out) -->
-    <div id="wfhModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
-        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-lg p-8 max-w-2xl w-full mx-4">
+    <div id="wfhModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center overflow-y-auto py-8">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-lg p-8 max-w-2xl w-full mx-4 my-auto">
             <div class="flex items-center justify-between mb-6">
                 <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Work From Home Accomplishment</h2>
                 <button onclick="closeWFHModal()" class="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 text-2xl">
@@ -598,7 +651,7 @@
 
             <form id="wfhForm" action="{{ route('attendance.clock-out') }}" method="POST">
                 @csrf
-                <div class="space-y-4">
+                <div id="wfhScrollContainer" class="space-y-4 max-h-[60vh] overflow-y-auto pr-2">
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Accomplishment</label>
                         <textarea name="accomplishment" id="accomplishment" rows="6" placeholder="Describe your work accomplishments for today..." class="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"></textarea>
@@ -627,8 +680,8 @@
     </div>
 
     <!-- Add Accomplishment Modal (Anytime) -->
-    <div id="accomplishmentModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
-        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-lg p-8 max-w-2xl w-full mx-4">
+    <div id="accomplishmentModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center overflow-y-auto py-8">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-lg p-8 max-w-2xl w-full mx-4 my-auto">
             <div class="flex items-center justify-between mb-6">
                 <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Add Accomplishment</h2>
                 <button onclick="closeAccomplishmentModal()" class="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 text-2xl">
@@ -638,7 +691,7 @@
 
             <form id="accomplishmentForm" action="{{ route('accomplishment.store') }}" method="POST">
                 @csrf
-                <div class="space-y-4">
+                <div id="accomplishmentScrollContainer" class="space-y-4 max-h-[60vh] overflow-y-auto pr-2">
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Accomplishment</label>
                         <textarea name="accomplishment" id="accomplishmentText" rows="6" placeholder="Describe what you accomplished today..." class="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 resize-none" required></textarea>
@@ -697,52 +750,188 @@
         }
 
         function addAccomplishmentRow() {
-            accomplishmentCount++;
-            const container = document.getElementById('accomplishmentsContainer');
-            const newRow = document.createElement('div');
-            newRow.className = 'p-4 bg-gray-50 dark:bg-slate-700 rounded-lg border border-gray-200 dark:border-slate-600';
-            newRow.id = `accomplishment-${accomplishmentCount}`;
-            newRow.innerHTML = `
-                <div class="flex items-start justify-between mb-2">
-                    <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300">Accomplishment ${accomplishmentCount + 1}</label>
-                    <button type="button" onclick="removeAccomplishmentRow(${accomplishmentCount})" class="text-red-600 hover:text-red-700 text-sm font-semibold">
-                        <i class="fas fa-trash"></i> Remove
-                    </button>
-                </div>
-                <textarea name="accomplishments[]" rows="4" placeholder="Describe another accomplishment..." class="w-full px-3 py-2 border border-gray-300 dark:border-slate-500 bg-white dark:bg-slate-600 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none" required></textarea>
-            `;
-            container.appendChild(newRow);
+            // Get the current value from the main accomplishment field
+            const mainField = document.getElementById('accomplishment');
+            const currentValue = mainField.value.trim();
+            const scrollContainer = document.getElementById('wfhScrollContainer');
+            
+            // Only proceed if there's a value to move
+            if (currentValue) {
+                accomplishmentCount++;
+                const container = document.getElementById('accomplishmentsContainer');
+                const newRow = document.createElement('div');
+                newRow.className = 'mb-3 opacity-0 transition-all duration-300';
+                newRow.id = `accomplishment-${accomplishmentCount}`;
+                newRow.innerHTML = `
+                    <div class="relative group">
+                        <div class="absolute -left-3 top-3 w-1 h-full bg-gradient-to-b from-blue-500 to-blue-300 rounded-full opacity-50 group-hover:opacity-100 transition-opacity"></div>
+                        <div class="bg-white dark:bg-slate-600 rounded-xl border-2 border-gray-200 dark:border-slate-500 hover:border-blue-400 dark:hover:border-blue-500 transition-all duration-200 shadow-sm hover:shadow-md">
+                            <div class="flex items-center justify-between px-4 py-2 border-b border-gray-100 dark:border-slate-500">
+                                <span class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Additional Item</span>
+                                <button type="button" onclick="removeAccomplishmentRow(${accomplishmentCount})" class="text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors p-1 rounded hover:bg-red-50 dark:hover:bg-red-900/20">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                            <div class="p-3">
+                                <textarea name="accomplishments[]" rows="3" placeholder="Describe another accomplishment..." class="w-full px-3 py-2 border-0 bg-gray-50 dark:bg-slate-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white dark:focus:bg-slate-600 resize-none transition-all" required></textarea>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(newRow);
+                
+                // Set the value of the new field to the current value
+                const newTextarea = newRow.querySelector('textarea');
+                newTextarea.value = currentValue;
+                
+                // Animate in and scroll back to top
+                setTimeout(() => {
+                    newRow.classList.remove('opacity-0');
+                    newRow.classList.add('opacity-100');
+                    // Scroll back to top to focus on main field
+                    scrollContainer.scrollTop = 0;
+                }, 10);
+                
+                // Clear the main field and focus it
+                mainField.value = '';
+                mainField.focus();
+            } else {
+                // If main field is empty, just add a new empty field
+                accomplishmentCount++;
+                const container = document.getElementById('accomplishmentsContainer');
+                const newRow = document.createElement('div');
+                newRow.className = 'mb-3 opacity-0 transition-all duration-300';
+                newRow.id = `accomplishment-${accomplishmentCount}`;
+                newRow.innerHTML = `
+                    <div class="relative group">
+                        <div class="absolute -left-3 top-3 w-1 h-full bg-gradient-to-b from-blue-500 to-blue-300 rounded-full opacity-50 group-hover:opacity-100 transition-opacity"></div>
+                        <div class="bg-white dark:bg-slate-600 rounded-xl border-2 border-gray-200 dark:border-slate-500 hover:border-blue-400 dark:hover:border-blue-500 transition-all duration-200 shadow-sm hover:shadow-md">
+                            <div class="flex items-center justify-between px-4 py-2 border-b border-gray-100 dark:border-slate-500">
+                                <span class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Additional Item</span>
+                                <button type="button" onclick="removeAccomplishmentRow(${accomplishmentCount})" class="text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors p-1 rounded hover:bg-red-50 dark:hover:bg-red-900/20">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                            <div class="p-3">
+                                <textarea name="accomplishments[]" rows="3" placeholder="Describe another accomplishment..." class="w-full px-3 py-2 border-0 bg-gray-50 dark:bg-slate-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white dark:focus:bg-slate-600 resize-none transition-all" required></textarea>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(newRow);
+                
+                // Animate in and scroll back to top
+                setTimeout(() => {
+                    newRow.classList.remove('opacity-0');
+                    newRow.classList.add('opacity-100');
+                    // Scroll back to top
+                    scrollContainer.scrollTop = 0;
+                }, 10);
+            }
         }
 
         function removeAccomplishmentRow(id) {
             const row = document.getElementById(`accomplishment-${id}`);
             if (row) {
-                row.remove();
+                row.classList.add('opacity-0', 'scale-95');
+                setTimeout(() => row.remove(), 300);
             }
         }
 
         function addAccomplishmentRowStandalone() {
-            accomplishmentCountStandalone++;
-            const container = document.getElementById('accomplishmentsContainerStandalone');
-            const newRow = document.createElement('div');
-            newRow.className = 'p-4 bg-gray-50 dark:bg-slate-700 rounded-lg border border-gray-200 dark:border-slate-600';
-            newRow.id = `accomplishment-standalone-${accomplishmentCountStandalone}`;
-            newRow.innerHTML = `
-                <div class="flex items-start justify-between mb-2">
-                    <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300">Accomplishment ${accomplishmentCountStandalone + 1}</label>
-                    <button type="button" onclick="removeAccomplishmentRowStandalone(${accomplishmentCountStandalone})" class="text-red-600 hover:text-red-700 text-sm font-semibold">
-                        <i class="fas fa-trash"></i> Remove
-                    </button>
-                </div>
-                <textarea name="accomplishments[]" rows="4" placeholder="Describe another accomplishment..." class="w-full px-3 py-2 border border-gray-300 dark:border-slate-500 bg-white dark:bg-slate-600 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 resize-none" required></textarea>
-            `;
-            container.appendChild(newRow);
+            // Get the current value from the main accomplishment field
+            const mainField = document.getElementById('accomplishmentText');
+            const currentValue = mainField.value.trim();
+            const scrollContainer = document.getElementById('accomplishmentScrollContainer');
+            
+            // Only proceed if there's a value to move
+            if (currentValue) {
+                accomplishmentCountStandalone++;
+                const container = document.getElementById('accomplishmentsContainerStandalone');
+                const newRow = document.createElement('div');
+                newRow.className = 'mb-3 opacity-0 transition-all duration-300';
+                newRow.id = `accomplishment-standalone-${accomplishmentCountStandalone}`;
+                newRow.innerHTML = `
+                    <div class="relative group">
+                        <div class="absolute -left-3 top-3 w-1 h-full bg-gradient-to-b from-green-500 to-green-300 rounded-full opacity-50 group-hover:opacity-100 transition-opacity"></div>
+                        <div class="bg-white dark:bg-slate-600 rounded-xl border-2 border-gray-200 dark:border-slate-500 hover:border-green-400 dark:hover:border-green-500 transition-all duration-200 shadow-sm hover:shadow-md">
+                            <div class="flex items-center justify-between px-4 py-2 border-b border-gray-100 dark:border-slate-500">
+                                <span class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Additional Item</span>
+                                <button type="button" onclick="removeAccomplishmentRowStandalone(${accomplishmentCountStandalone})" class="text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors p-1 rounded hover:bg-red-50 dark:hover:bg-red-900/20">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                            <div class="p-3">
+                                <textarea name="accomplishments[]" rows="3" placeholder="Describe another accomplishment..." class="w-full px-3 py-2 border-0 bg-gray-50 dark:bg-slate-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:bg-white dark:focus:bg-slate-600 resize-none transition-all" required></textarea>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(newRow);
+                
+                // Set the value of the new field to the current value
+                const newTextarea = newRow.querySelector('textarea');
+                newTextarea.value = currentValue;
+                
+                // Animate in and scroll back to top
+                setTimeout(() => {
+                    newRow.classList.remove('opacity-0');
+                    newRow.classList.add('opacity-100');
+                    // Scroll back to top to focus on main field
+                    scrollContainer.scrollTop = 0;
+                }, 10);
+                
+                // Clear the main field and focus it
+                mainField.value = '';
+                mainField.focus();
+            } else {
+                // If main field is empty, just add a new empty field
+                accomplishmentCountStandalone++;
+                const container = document.getElementById('accomplishmentsContainerStandalone');
+                const newRow = document.createElement('div');
+                newRow.className = 'mb-3 opacity-0 transition-all duration-300';
+                newRow.id = `accomplishment-standalone-${accomplishmentCountStandalone}`;
+                newRow.innerHTML = `
+                    <div class="relative group">
+                        <div class="absolute -left-3 top-3 w-1 h-full bg-gradient-to-b from-green-500 to-green-300 rounded-full opacity-50 group-hover:opacity-100 transition-opacity"></div>
+                        <div class="bg-white dark:bg-slate-600 rounded-xl border-2 border-gray-200 dark:border-slate-500 hover:border-green-400 dark:hover:border-green-500 transition-all duration-200 shadow-sm hover:shadow-md">
+                            <div class="flex items-center justify-between px-4 py-2 border-b border-gray-100 dark:border-slate-500">
+                                <span class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Additional Item</span>
+                                <button type="button" onclick="removeAccomplishmentRowStandalone(${accomplishmentCountStandalone})" class="text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors p-1 rounded hover:bg-red-50 dark:hover:bg-red-900/20">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                            <div class="p-3">
+                                <textarea name="accomplishments[]" rows="3" placeholder="Describe another accomplishment..." class="w-full px-3 py-2 border-0 bg-gray-50 dark:bg-slate-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:bg-white dark:focus:bg-slate-600 resize-none transition-all" required></textarea>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(newRow);
+                
+                // Animate in and scroll back to top
+                setTimeout(() => {
+                    newRow.classList.remove('opacity-0');
+                    newRow.classList.add('opacity-100');
+                    // Scroll back to top
+                    scrollContainer.scrollTop = 0;
+                }, 10);
+            }
         }
 
         function removeAccomplishmentRowStandalone(id) {
             const row = document.getElementById(`accomplishment-standalone-${id}`);
             if (row) {
-                row.remove();
+                row.classList.add('opacity-0', 'scale-95');
+                setTimeout(() => row.remove(), 300);
             }
         }
 
@@ -761,3 +950,65 @@
     </script>
 </body>
 </html>
+
+
+<!-- Accomplishment Modal -->
+<div id="accomplishmentModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+    <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white dark:bg-slate-800">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-2xl font-bold text-gray-900 dark:text-white">Add Today's Accomplishment</h3>
+            <button onclick="closeAccomplishmentModal()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                <i class="fas fa-times text-2xl"></i>
+            </button>
+        </div>
+        
+        <form action="{{ route('accomplishment.store') }}" method="POST" class="mt-4">
+            @csrf
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Describe your accomplishments for today <span class="text-red-500">*</span>
+                </label>
+                <textarea 
+                    name="accomplishment" 
+                    rows="6" 
+                    required
+                    class="w-full border border-gray-300 dark:border-slate-600 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:text-white"
+                    placeholder="List your tasks, achievements, and completed work..."
+                ></textarea>
+            </div>
+
+            <div class="flex gap-3 justify-end">
+                <button 
+                    type="button" 
+                    onclick="closeAccomplishmentModal()" 
+                    class="bg-gray-300 hover:bg-gray-400 text-gray-700 font-bold py-2 px-6 rounded-lg transition"
+                >
+                    Cancel
+                </button>
+                <button 
+                    type="submit" 
+                    class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded-lg transition"
+                >
+                    Save Accomplishment
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function openAccomplishmentModal() {
+        document.getElementById('accomplishmentModal').classList.remove('hidden');
+    }
+
+    function closeAccomplishmentModal() {
+        document.getElementById('accomplishmentModal').classList.add('hidden');
+    }
+
+    // Close modal when clicking outside
+    document.getElementById('accomplishmentModal')?.addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeAccomplishmentModal();
+        }
+    });
+</script>

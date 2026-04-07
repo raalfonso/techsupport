@@ -142,6 +142,7 @@ class ItSurveyController extends Controller
             'answer_question_4' => 'nullable|string|max:255',
             'suggestion' => 'nullable|string',
             'name' => 'nullable|string|max:255',
+            'other_issues' => 'nullable|string|max:255',
         ]);
 
         ItSurvey::create($fields);

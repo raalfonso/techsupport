@@ -43,6 +43,11 @@
         </div>
 
         <div class="mb-6">
+            <label class="block text-md font-medium mb-2">Other Issues (Optional)</label>
+            <input type="text" name="other_issues" class="w-full border border-gray-300 rounded px-4 py-2 text-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Specify other issues if any" autocomplete="off">
+        </div>
+
+        <div class="mb-6">
             <label class="block text-md font-medium mb-2">Who provided you with the support service?</label>
             <div class="relative" id="employee-search-container">
                 <input 
