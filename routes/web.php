@@ -28,7 +28,9 @@ use App\Http\Controllers\{
     ProjectController,
     AttendanceLogController,
     EmployeeMasterlistController,
-    SignatoryController
+    SignatoryController,
+    ItSurveyController,
+    ItSurveyIssueController
 };
 
 /*
@@ -69,6 +71,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/projects/add-member', [ProjectController::class, 'addMember'])->name('projects.addMember');
     Route::resource('employee-masterlist', EmployeeMasterlistController::class);
     Route::resource('signatory', SignatoryController::class);
+    Route::resource('it-survey-issues', ItSurveyIssueController::class);
     Route::get('/signatory-employees/search', [SignatoryController::class, 'searchEmployees'])->name('signatory.employees.search');
     Route::get('/employee-masterlist/import/form', [EmployeeMasterlistController::class, 'importForm'])->name('employee-masterlist.import-form');
     Route::post('/employee-masterlist/import', [EmployeeMasterlistController::class, 'import'])->name('employee-masterlist.import');
@@ -165,6 +168,22 @@ Route::prefix('survey')->group(function () {
     Route::get('/qrcode/{departmentCode}', [QrCodeController::class, 'generate'])->name('qrcode');
     Route::view('/thankyou', 'survey.thankyou')->name('survey.thankyou');   
     Route::get('/reports/loghistory/{id}', [ReportController::class, 'logHistory'])->name('report.loghistory');
+});
+
+/*
+|--------------------------------------------------------------------------
+| IT Survey Routes
+|--------------------------------------------------------------------------
+*/
+Route::prefix('it-survey')->group(function () {
+    Route::middleware('auth')->group(function () {
+        Route::get('/dashboard', [ItSurveyController::class, 'index'])->name('it-survey.dashboard')->middleware('level:IT_user,Administrator');
+        Route::get('/export-results', [ItSurveyController::class, 'exportResults'])->name('it-survey.exportResults')->middleware('level:IT_user,Administrator');
+    });
+
+    Route::get('/form', [ItSurveyController::class, 'form'])->name('it-survey.form');
+    Route::post('/submit', [ItSurveyController::class, 'submit'])->name('it-survey.submit');
+    Route::get('/thank-you', [ItSurveyController::class, 'thankYou'])->name('it-survey.thank-you');
 });
 
 /*
