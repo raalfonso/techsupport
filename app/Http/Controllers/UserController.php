@@ -29,7 +29,7 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'level' => 'required|string|max:2',
-            'team' => 'required|string|max:50',
+            'team' => 'nullable|string|max:50',
             'password' => 'required|string|min:8|confirmed',
         ]);
 
@@ -37,7 +37,7 @@ class UserController extends Controller
             'name' => $validated['name'],
             'email' => $validated['email'],
             'level' => $validated['level'],
-            'team' => $validated['team'],
+            'team' => $request->input('team'),
             'password' => Hash::make($validated['password']),
         ]);
 
@@ -54,13 +54,17 @@ class UserController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users,email,'.$user->id,
+            'level' => 'required|string|max:2',
+            'team' => 'nullable|string|max:50',
             'password' => 'nullable|string|min:8|confirmed',
         ]);
 
         $user->name = $validated['name'];
         $user->email = $validated['email'];
+        $user->level = $validated['level'];
+        $user->team = $request->input('team');
         
-        if ($validated['password']) {
+        if (!empty($validated['password'])) {
             $user->password = Hash::make($validated['password']);
         }
 

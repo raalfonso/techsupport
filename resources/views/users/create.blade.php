@@ -47,6 +47,7 @@
                     <option value="Systems">Systems</option>
                     <option value="NIS">NIS</option>
                     <option value="Admin">Admin</option>
+                    <option value="N/A">N/A</option>
                 </select>
                 @error('issues_id')
                 <p class="error">{{ $message }}</p>

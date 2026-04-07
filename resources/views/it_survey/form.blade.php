@@ -43,7 +43,7 @@
         </div>
 
         <div class="mb-6">
-            <label class="block text-md font-medium mb-2">Employee Number (Optional)</label>
+            <label class="block text-md font-medium mb-2">Who provided you with the support service?</label>
             <div class="relative" id="employee-search-container">
                 <input 
                     type="text" 
