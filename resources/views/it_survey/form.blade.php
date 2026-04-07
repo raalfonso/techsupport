@@ -140,7 +140,7 @@
         </div>
 
         <div class="mb-6">
-            <label class="block text-md font-medium mb-2">4. Why did you rate as you did?</label>
+            <label class="block text-md font-medium mb-2">4. Why did you give this rating?</label>
             <textarea name="answer_question_4"  rows="4" class="w-full border border-gray-300 rounded px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-400" placeholder="Provide a reason for your rating." autocomplete="off"></textarea>
         </div>
 

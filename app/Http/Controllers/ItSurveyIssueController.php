@@ -9,7 +9,7 @@ class ItSurveyIssueController extends Controller
 {
     public function index()
     {
-        $issues = ItSurveyIssue::orderBy('created_at', 'desc')->paginate(10);
+        $issues = ItSurveyIssue::orderBy('id', 'asc')->paginate(10);
         return view('it_survey_issues.index', compact('issues'));
     }
 
