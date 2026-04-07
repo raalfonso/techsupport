@@ -9,12 +9,27 @@ use Illuminate\Support\Facades\Hash;
 class UserController extends Controller
 {
 
-    public function index()
+    public function index(Request $request)
     {
         if (!auth()->user()->authAssignments->contains('item_name', 'Administrator')) {
             abort(403, 'Unauthorized access.');
         }
-        $users = User::paginate(10);
+        
+        $query = User::with('authAssignments.authItem');
+        
+        // Search functionality
+        if ($request->has('search') && $request->search != '') {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'like', '%' . $search . '%')
+                  ->orWhere('email', 'like', '%' . $search . '%')
+                  ->orWhere('team', 'like', '%' . $search . '%')
+                  ->orWhere('level', 'like', '%' . $search . '%');
+            });
+        }
+        
+        $users = $query->paginate(10)->withQueryString();
+        
         return view('users.index', compact('users'));
     }
 

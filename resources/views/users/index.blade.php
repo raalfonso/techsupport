@@ -34,6 +34,29 @@
                         </div>
                     </div>
 
+                    <!-- Search Bar -->
+                    <div class="mb-6">
+                        <form method="GET" action="{{ route('users.index') }}" class="flex gap-2">
+                            <input 
+                                type="text" 
+                                name="search" 
+                                value="{{ request('search') }}"
+                                placeholder="Search by name, email, team, or level..." 
+                                class="flex-1 rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                            >
+                            <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-6 rounded-lg transition">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                </svg>
+                            </button>
+                            @if(request('search'))
+                            <a href="{{ route('users.index') }}" class="bg-gray-300 hover:bg-gray-400 text-gray-700 font-bold py-2 px-6 rounded-lg transition">
+                                Clear
+                            </a>
+                            @endif
+                        </form>
+                    </div>
+
                     <div class="overflow-x-auto rounded-lg shadow">
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead>
@@ -42,6 +65,7 @@
                                     <th class="px-6 py-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">Email</th>
                                     <th class="px-6 py-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">Team</th>
                                     <th class="px-6 py-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">Level</th>
+                                    <th class="px-6 py-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">Role Assigned</th>
                                     <th class="px-6 py-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
                                 </tr>
                             </thead>
@@ -50,8 +74,21 @@
                                 <tr class="hover:bg-gray-50 transition-colors duration-200">
                                     <td class="px-6 py-4 whitespace-nowrap text-gray-700">{{ $user->name }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-gray-700">{{ $user->email }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-gray-700">{{ $user->team }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-gray-700">{{ $user->team ?? 'N/A' }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-gray-700">{{ $user->level }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        @if($user->authAssignments->count() > 0)
+                                            <div class="flex flex-wrap gap-1">
+                                                @foreach($user->authAssignments as $assignment)
+                                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                                        {{ $assignment->item_name }}
+                                                    </span>
+                                                @endforeach
+                                            </div>
+                                        @else
+                                            <span class="text-gray-400 text-sm">No roles assigned</span>
+                                        @endif
+                                    </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                         <div class="flex items-center space-x-4">
                                             <a href="{{ route('users.edit', $user) }}" class="text-indigo-600 hover:text-indigo-900 flex items-center">
