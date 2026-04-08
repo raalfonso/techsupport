@@ -9,10 +9,33 @@ use Illuminate\Http\Request;
 
 class SignatoryController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $signatories = Signatory::with('employee.department', 'department')->latest()->paginate(15);
-        return view('signatory.index', compact('signatories'));
+        $query = Signatory::with('employee.department', 'department');
+
+        // Search functionality
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('position', 'like', "%{$search}%")
+                  ->orWhereHas('employee', function($eq) use ($search) {
+                      $eq->where('first_name', 'like', "%{$search}%")
+                         ->orWhere('last_name', 'like', "%{$search}%")
+                         ->orWhere('employee_number', 'like', "%{$search}%")
+                         ->orWhereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ["%{$search}%"]);
+                  });
+            });
+        }
+
+        // Filter by department
+        if ($request->filled('department')) {
+            $query->where('department_id', $request->department);
+        }
+
+        $signatories = $query->latest()->paginate(15)->appends($request->query());
+        $departments = Department::where('active', 1)->orderBy('title')->get();
+        
+        return view('signatory.index', compact('signatories', 'departments'));
     }
 
     public function create()

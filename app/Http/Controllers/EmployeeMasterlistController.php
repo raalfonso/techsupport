@@ -9,10 +9,44 @@ use Illuminate\Support\Facades\DB;
 
 class EmployeeMasterlistController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $employees = EmployeeMasterlist::with('department')->paginate(20);
-        return view('employee_masterlist.index', compact('employees'));
+        $query = EmployeeMasterlist::with('department');
+
+        // Search functionality
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('employee_number', 'like', "%{$search}%")
+                  ->orWhere('first_name', 'like', "%{$search}%")
+                  ->orWhere('last_name', 'like', "%{$search}%")
+                  ->orWhere('middle_name', 'like', "%{$search}%")
+                  ->orWhere('position', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%")
+                  ->orWhereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ["%{$search}%"])
+                  ->orWhereRaw("CONCAT(first_name, ' ', middle_name, ' ', last_name) LIKE ?", ["%{$search}%"]);
+            });
+        }
+
+        // Filter by department
+        if ($request->filled('department')) {
+            $query->where('department_id', $request->department);
+        }
+
+        // Filter by employment status
+        if ($request->filled('status')) {
+            $query->where('employment_status', $request->status);
+        }
+
+        // Filter by employment type
+        if ($request->filled('type')) {
+            $query->where('employment_type', $request->type);
+        }
+
+        $employees = $query->latest()->paginate(20)->appends($request->query());
+        $departments = Department::where('active', 1)->orderBy('title')->get();
+        
+        return view('employee_masterlist.index', compact('employees', 'departments'));
     }
 
     public function create()

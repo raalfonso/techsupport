@@ -34,17 +34,17 @@
 
         <div class="mb-6">
             <label class="block text-md font-medium mb-2">Select Issue <span class="text-red-500">*</span></label>
-            <select name="issues_id" class="w-full border border-gray-300 rounded px-4 py-2 text-md focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+            <select name="issues_id" id="issues-select" class="w-full border border-gray-300 rounded px-4 py-2 text-md focus:outline-none focus:ring-2 focus:ring-blue-500" required>
                 <option value="">-- Select an Issue --</option>
                 @foreach($issues as $issue)
-                    <option value="{{ $issue->id }}">{{ $issue->title }}</option>
+                    <option value="{{ $issue->id }}" data-title="{{ $issue->title }}">{{ $issue->title }}</option>
                 @endforeach
             </select>
         </div>
 
-        <div class="mb-6">
-            <label class="block text-md font-medium mb-2">Other Issues (Optional)</label>
-            <input type="text" name="other_issues" class="w-full border border-gray-300 rounded px-4 py-2 text-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Specify other issues if any" autocomplete="off">
+        <div class="mb-6 hidden" id="other-issues-container">
+            <label class="block text-md font-medium mb-2">Other Issues <span class="text-red-500">*</span></label>
+            <input type="text" name="other_issues" id="other-issues-input" class="w-full border border-gray-300 rounded px-4 py-2 text-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Please specify the issue" autocomplete="off">
         </div>
 
         <div class="mb-6">
@@ -75,9 +75,21 @@
             </div>
             <input type="hidden" name="employee_number" id="employee-number">
         </div>
-
         <div class="mb-6">
-            <label class="block text-md font-medium mb-2">1. How quickly did the support attend to you?</label>
+            <label class="block text-md font-medium mb-2">1. Was your issue or concern resolved?</label>
+            <div class="space-y-2">
+                <label class="flex items-center p-3 border rounded hover:bg-gray-50 cursor-pointer">
+                    <input type="radio" name="answer_question_2" value="Yes" class="mr-3">
+                    <span>Yes</span>
+                </label>
+                <label class="flex items-center p-3 border rounded hover:bg-gray-50 cursor-pointer">
+                    <input type="radio" name="answer_question_2" value="No" class="mr-3">
+                    <span>No</span>
+                </label>
+            </div>
+        </div>
+        <div class="mb-6">
+            <label class="block text-md font-medium mb-2">2. How quickly did the support attend to you?</label>
             <p class="text-sm text-gray-600 mb-3">Please rate, with 1 (Slow) being the lowest and 5 (Fast) as the highest.</p>
             <div class="space-y-2">
                 <label class="flex items-center p-3 border rounded hover:bg-gray-50 cursor-pointer">
@@ -103,19 +115,7 @@
             </div>
         </div>
 
-        <div class="mb-6">
-            <label class="block text-md font-medium mb-2">2. Was your issue or concern resolved?</label>
-            <div class="space-y-2">
-                <label class="flex items-center p-3 border rounded hover:bg-gray-50 cursor-pointer">
-                    <input type="radio" name="answer_question_2" value="Yes" class="mr-3">
-                    <span>Yes</span>
-                </label>
-                <label class="flex items-center p-3 border rounded hover:bg-gray-50 cursor-pointer">
-                    <input type="radio" name="answer_question_2" value="No" class="mr-3">
-                    <span>No</span>
-                </label>
-            </div>
-        </div>
+        
 
         <div class="mb-6">
             <label class="block text-md font-medium mb-2">3. How would you rate the support service provided?</label>
@@ -181,6 +181,25 @@
         const employeeNumber = document.getElementById('employee-number');
         const clearButton = document.getElementById('clear-selection');
         const employeeSearchContainer = document.getElementById('employee-search-container');
+        
+        // Handle Other Issues visibility
+        const issuesSelect = document.getElementById('issues-select');
+        const otherIssuesContainer = document.getElementById('other-issues-container');
+        const otherIssuesInput = document.getElementById('other-issues-input');
+        
+        issuesSelect.addEventListener('change', function() {
+            const selectedOption = this.options[this.selectedIndex];
+            const issueTitle = selectedOption.getAttribute('data-title');
+            
+            if (issueTitle && issueTitle.toLowerCase().includes('other')) {
+                otherIssuesContainer.classList.remove('hidden');
+                otherIssuesInput.setAttribute('required', 'required');
+            } else {
+                otherIssuesContainer.classList.add('hidden');
+                otherIssuesInput.removeAttribute('required');
+                otherIssuesInput.value = '';
+            }
+        });
         
         const employees = @json($employees);
         
