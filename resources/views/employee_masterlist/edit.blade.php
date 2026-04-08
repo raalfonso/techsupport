@@ -89,8 +89,9 @@
                             <option value="">Select Type</option>
                             <option value="Permanent" {{ old('employment_type', $employeeMasterlist->employment_type) === 'Permanent' ? 'selected' : '' }}>Permanent</option>
                             <option value="Contractual" {{ old('employment_type', $employeeMasterlist->employment_type) === 'Contractual' ? 'selected' : '' }}>Contractual</option>
-                            <option value="Contract of Service - Direct" {{ old('employment_type', $employeeMasterlist->employment_type) === 'Contract of Service - Direct' ? 'selected' : '' }}>Contract of Service - Direct</option>
-                            <option value="Contract of Service - Agency" {{ old('employment_type', $employeeMasterlist->employment_type) === 'Contract of Service - Agency' ? 'selected' : '' }}>Contract of Service - Agency</option>
+                            <option value="COS" {{ old('employment_type', $employeeMasterlist->employment_type) === 'COS' ? 'selected' : '' }}>COS</option>
+                            <option value="COS(DBP)" {{ old('employment_type', $employeeMasterlist->employment_type) === 'COS(DBP)' ? 'selected' : '' }}>COS(DBP)</option>
+                            <option value="COS(OMNI)" {{ old('employment_type', $employeeMasterlist->employment_type) === 'COS(OMNI)' ? 'selected' : '' }}>COS(OMNI)</option>
                         </select>
                         @error('employment_type') <span class="text-red-600 text-sm">{{ $message }}</span> @enderror
                     </div>
