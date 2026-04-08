@@ -76,7 +76,7 @@
             <input type="hidden" name="employee_number" id="employee-number">
         </div>
         <div class="mb-6">
-            <label class="block text-md font-medium mb-2">1. How quickly did the IT Support/Helpdesk respond to your request?</label>
+            <label class="block text-md font-medium mb-2">How quickly did the IT Support/Helpdesk respond to your request?</label>
             <p class="text-sm text-gray-600 mb-3">Please rate, with 1 (Slow) being the lowest and 5 (Fast) as the highest.</p>
             <div class="space-y-2">
                 <label class="flex items-center p-3 border rounded hover:bg-gray-50 cursor-pointer">
@@ -102,7 +102,7 @@
             </div>
         </div>
         <div class="mb-6">
-            <label class="block text-md font-medium mb-2">2. Was your issue or concern resolved?</label>
+            <label class="block text-md font-medium mb-2">Was your issue or concern resolved?</label>
             <div class="space-y-2">
                 <label class="flex items-center p-3 border rounded hover:bg-gray-50 cursor-pointer">
                     <input type="radio" name="answer_question_2" value="Yes, fully resolved" class="mr-3">
@@ -118,8 +118,8 @@
                 </label>
             </div>
         </div>
-        <div class="mb-6">
-            <label class="block text-md font-medium mb-2">3. How would you rate the time it took to resolve your issue?</label>
+        <div class="mb-6 time_resolved_section">
+            <label class="block text-md font-medium mb-2"> How would you rate the time it took to resolve your issue?</label>
             <div class="space-y-2">
                 <label class="flex items-center p-3 border rounded hover:bg-gray-50 cursor-pointer">
                     <input type="radio" name="answer_question_3" value="Very fast" class="mr-3">
@@ -147,7 +147,7 @@
         
 
         <div class="mb-6">
-            <label class="block text-md font-medium mb-2">4. How would you rate the support service provided?</label>
+            <label class="block text-md font-medium mb-2">How would you rate the support service provided?</label>
             <p class="text-sm text-gray-600 mb-3">Please rate the service, with 1 (Poor) being the lowest and 5 (Excellent) as the highest.</p>
             <div class="space-y-2">
                 <label class="flex items-center p-3 border rounded hover:bg-gray-50 cursor-pointer">
@@ -174,7 +174,7 @@
         </div>
 
         <div class="mb-6">
-            <label class="block text-md font-medium mb-2">5. Why did you give this rating?</label>
+            <label class="block text-md font-medium mb-2">Why did you give this rating?</label>
             <textarea name="answer_question_5"  rows="4" class="w-full border border-gray-300 rounded px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-400" placeholder="Provide a reason for your rating." autocomplete="off"></textarea>
         </div>
 
@@ -210,6 +210,7 @@
         const employeeNumber = document.getElementById('employee-number');
         const clearButton = document.getElementById('clear-selection');
         const employeeSearchContainer = document.getElementById('employee-search-container');
+        
         
         // Handle Other Issues visibility
         const issuesSelect = document.getElementById('issues-select');
@@ -320,6 +321,20 @@
                 timeout = setTimeout(later, wait);
             };
         }
+        const not_resolved_option = document.querySelector('input[name="answer_question_2"][value="Not resolved"]');
+        not_resolved_option.addEventListener('click', function() {
+            document.querySelector('.time_resolved_section').style.display = 'none';
+            
+        });
+        const fully_resolved_option = document.querySelector('input[name="answer_question_2"][value="Yes, fully resolved"]');
+        fully_resolved_option.addEventListener('click', function() {
+            document.querySelector('.time_resolved_section').style.display = 'block';
+        });
+
+        const partially_resolved_option = document.querySelector('input[name="answer_question_2"][value="Partially resolved"]');
+        partially_resolved_option.addEventListener('click', function() {
+            document.querySelector('.time_resolved_section').style.display = 'block';       
+        });
     });
 </script>
 
