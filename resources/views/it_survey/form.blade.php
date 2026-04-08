@@ -210,7 +210,7 @@
         const employeeNumber = document.getElementById('employee-number');
         const clearButton = document.getElementById('clear-selection');
         const employeeSearchContainer = document.getElementById('employee-search-container');
-        
+        document.querySelector('.time_resolved_section').style.display = 'none'; 
         
         // Handle Other Issues visibility
         const issuesSelect = document.getElementById('issues-select');
