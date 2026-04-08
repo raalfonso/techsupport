@@ -140,6 +140,7 @@ class ItSurveyController extends Controller
             'answer_question_2' => 'nullable|string|max:255',
             'answer_question_3' => 'nullable|string|max:255',
             'answer_question_4' => 'nullable|string|max:255',
+            'answer_question_5' => 'nullable|string|max:255',
             'suggestion' => 'nullable|string',
             'name' => 'nullable|string|max:255',
             'other_issues' => 'nullable|string|max:255',

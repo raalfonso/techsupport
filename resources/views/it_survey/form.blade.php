@@ -76,20 +76,7 @@
             <input type="hidden" name="employee_number" id="employee-number">
         </div>
         <div class="mb-6">
-            <label class="block text-md font-medium mb-2">1. Was your issue or concern resolved?</label>
-            <div class="space-y-2">
-                <label class="flex items-center p-3 border rounded hover:bg-gray-50 cursor-pointer">
-                    <input type="radio" name="answer_question_2" value="Yes" class="mr-3">
-                    <span>Yes</span>
-                </label>
-                <label class="flex items-center p-3 border rounded hover:bg-gray-50 cursor-pointer">
-                    <input type="radio" name="answer_question_2" value="No" class="mr-3">
-                    <span>No</span>
-                </label>
-            </div>
-        </div>
-        <div class="mb-6">
-            <label class="block text-md font-medium mb-2">2. How quickly did the support attend to you?</label>
+            <label class="block text-md font-medium mb-2">1. How quickly did the IT Support/Helpdesk respond to your request?</label>
             <p class="text-sm text-gray-600 mb-3">Please rate, with 1 (Slow) being the lowest and 5 (Fast) as the highest.</p>
             <div class="space-y-2">
                 <label class="flex items-center p-3 border rounded hover:bg-gray-50 cursor-pointer">
@@ -114,39 +101,81 @@
                 </label>
             </div>
         </div>
+        <div class="mb-6">
+            <label class="block text-md font-medium mb-2">2. Was your issue or concern resolved?</label>
+            <div class="space-y-2">
+                <label class="flex items-center p-3 border rounded hover:bg-gray-50 cursor-pointer">
+                    <input type="radio" name="answer_question_2" value="Yes, fully resolved" class="mr-3">
+                    <span>Yes, fully resolved</span>
+                </label>
+                <label class="flex items-center p-3 border rounded hover:bg-gray-50 cursor-pointer">
+                    <input type="radio" name="answer_question_2" value="Partially resolved" class="mr-3">
+                    <span>Partially resolved</span>
+                </label>
+                <label class="flex items-center p-3 border rounded hover:bg-gray-50 cursor-pointer">
+                    <input type="radio" name="answer_question_2" value="Not resolved" class="mr-3">
+                    <span>Not resolved</span>
+                </label>
+            </div>
+        </div>
+        <div class="mb-6">
+            <label class="block text-md font-medium mb-2">3. How would you rate the time it took to resolve your issue?</label>
+            <div class="space-y-2">
+                <label class="flex items-center p-3 border rounded hover:bg-gray-50 cursor-pointer">
+                    <input type="radio" name="answer_question_3" value="Very fast" class="mr-3">
+                    <span>Very fast</span>
+                </label>
+                <label class="flex items-center p-3 border rounded hover:bg-gray-50 cursor-pointer">
+                    <input type="radio" name="answer_question_3" value="Fast" class="mr-3">
+                    <span>Fast</span>
+                </label>
+                <label class="flex items-center p-3 border rounded hover:bg-gray-50 cursor-pointer">
+                    <input type="radio" name="answer_question_3" value="Acceptable" class="mr-3">
+                    <span>Acceptable</span>
+                </label>
+                <label class="flex items-center p-3 border rounded hover:bg-gray-50 cursor-pointer">
+                    <input type="radio" name="answer_question_3" value="Slow" class="mr-3">
+                    <span>Slow</span>
+                </label>
+                <label class="flex items-center p-3 border rounded hover:bg-gray-50 cursor-pointer">
+                    <input type="radio" name="answer_question_3" value="Very slow" class="mr-3">
+                    <span>Very slow</span>
+                </label>
+            </div>
+        </div>
 
         
 
         <div class="mb-6">
-            <label class="block text-md font-medium mb-2">3. How would you rate the support service provided?</label>
+            <label class="block text-md font-medium mb-2">4. How would you rate the support service provided?</label>
             <p class="text-sm text-gray-600 mb-3">Please rate the service, with 1 (Poor) being the lowest and 5 (Excellent) as the highest.</p>
             <div class="space-y-2">
                 <label class="flex items-center p-3 border rounded hover:bg-gray-50 cursor-pointer">
-                    <input type="radio" name="answer_question_3" value="5" class="mr-3">
+                    <input type="radio" name="answer_question_4" value="5" class="mr-3">
                     <span>5. Excellent</span>
                 </label>
                 <label class="flex items-center p-3 border rounded hover:bg-gray-50 cursor-pointer">
-                    <input type="radio" name="answer_question_3" value="4" class="mr-3">
+                    <input type="radio" name="answer_question_4" value="4" class="mr-3">
                     <span>4. Very Satisfactory</span>
                 </label>
                 <label class="flex items-center p-3 border rounded hover:bg-gray-50 cursor-pointer">
-                    <input type="radio" name="answer_question_3" value="3" class="mr-3">
+                    <input type="radio" name="answer_question_4" value="3" class="mr-3">
                     <span>3. Satisfactory</span>
                 </label>
                 <label class="flex items-center p-3 border rounded hover:bg-gray-50 cursor-pointer">
-                    <input type="radio" name="answer_question_3" value="2" class="mr-3">
+                    <input type="radio" name="answer_question_4" value="2" class="mr-3">
                     <span>2. Unsatisfactory</span>
                 </label>
                 <label class="flex items-center p-3 border rounded hover:bg-gray-50 cursor-pointer">
-                    <input type="radio" name="answer_question_3" value="1" class="mr-3">
+                    <input type="radio" name="answer_question_4" value="1" class="mr-3">
                     <span>1. Poor</span>
                 </label>
             </div>
         </div>
 
         <div class="mb-6">
-            <label class="block text-md font-medium mb-2">4. Why did you give this rating?</label>
-            <textarea name="answer_question_4"  rows="4" class="w-full border border-gray-300 rounded px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-400" placeholder="Provide a reason for your rating." autocomplete="off"></textarea>
+            <label class="block text-md font-medium mb-2">5. Why did you give this rating?</label>
+            <textarea name="answer_question_5"  rows="4" class="w-full border border-gray-300 rounded px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-400" placeholder="Provide a reason for your rating." autocomplete="off"></textarea>
         </div>
 
         <div class="mb-6">

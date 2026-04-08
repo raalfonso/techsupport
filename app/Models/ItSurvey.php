@@ -13,6 +13,7 @@ class ItSurvey extends Model
         'answer_question_2',
         'answer_question_3',
         'answer_question_4',
+        'answer_question_5',
         'suggestion',
         'name',
         'other_issues',
