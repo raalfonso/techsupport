@@ -85,8 +85,10 @@
                             <option value="">All Types</option>
                             <option value="Permanent" {{ request('type') === 'Permanent' ? 'selected' : '' }}>Permanent</option>
                             <option value="Contractual" {{ request('type') === 'Contractual' ? 'selected' : '' }}>Contractual</option>
-                            <option value="Casual" {{ request('type') === 'Casual' ? 'selected' : '' }}>Casual</option>
-                            <option value="Job Order" {{ request('type') === 'Job Order' ? 'selected' : '' }}>Job Order</option>
+                            <option value="COS" {{ request('type') === 'COS' ? 'selected' : '' }}>COS</option>
+                            <option value="COS(DBP)" {{ request('type') === 'COS(DBP)' ? 'selected' : '' }}>COS(DBP)</option>
+                            <option value="COS(OMNI)" {{ request('type') === 'COS(OMNI)' ? 'selected' : '' }}>COS(OMNI)</option>
+                            
                         </select>
                     </div>
                 </div>
