@@ -11,7 +11,7 @@ class StoreMainRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +22,16 @@ class StoreMainRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'title' => 'required|string|max:255',
+            'type' => 'required|in:Request,Report',
+            'details' => 'required|string',
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'type.in' => 'The type must be either Request or Report.',
         ];
     }
 }

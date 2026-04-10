@@ -186,6 +186,7 @@
           @foreach([
             ['title' => 'Issue Tracker', 'desc' => 'Check the status of your request or repair ticket.', 'url' => 'https://www.bcda.gov.ph','icon' => 'fa-solid fa-location-dot','button' => 'Track Issue', 'main' =>'0' ],
             ['title' => 'Video conferencing / Support', 'desc' => 'Technical and configurational support from IT Support', 'url' => 'https://hris.bcda.gov.ph','icon' => 'fa-solid fa-video','button' => 'Submit Request', 'main' =>'1'],
+             ['title' => 'Video conferencing Issues', 'desc' => 'Technical and configurational support from IT Support', 'url' => 'https://hris.bcda.gov.ph','icon' => 'fa-solid fa-video','button' => 'Submit Request', 'main' =>'5'],
             ['title' => 'Acumatica ERP and HRIS', 'desc' => 'Support for Acumatica or HRIS-related issues.', 'url' => 'https://bcda.cloudtwogo.com/Frames/Login.aspx?ReturnUrl=%2f','icon' => 'fa-solid fa-users','button' => 'Report Issue', 'main' =>'2'],
             ['title' => 'Hardware Issue', 'desc' => 'Support for system malfunction, connectivity issues, and printer errors', 'url' => 'https://bcda.cloudtwogo.com/Frames/Login.aspx?ReturnUrl=%2f','icon' => 'fa-solid fa-desktop', 'button' => 'Report Issue', 'main' =>'4'],
             ['title' => 'Cybersecurity Issue', 'desc' => 'Support for malware, phishing, and other cybersecurity issues', 'url' => 'https://bcda.cloudtwogo.com/Frames/Login.aspx?ReturnUrl=%2f','icon' => 'fa-solid fa-shield-halved','button' => 'Report Issue', 'main' =>'3'],

@@ -13,15 +13,60 @@ class IssuesController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $issues = Issues::orderBy('id','asc')->paginate(5);
+        $query = Issues::query();
+
+        // Search functionality
+        if ($request->has('search') && $request->search) {
+            $search = $request->search;
+            $query->where('title', 'like', "%{$search}%")
+                  ->orWhere('resolution_timeline', 'like', "%{$search}%")
+                  ->orWhereHas('category', function ($q) use ($search) {
+                      $q->where('title', 'like', "%{$search}%");
+                  })
+                  ->orWhereHas('mains', function ($q) use ($search) {
+                      $q->where('title', 'like', "%{$search}%");
+                  });
+        }
+
+        // Filter by category
+        if ($request->has('category') && $request->category) {
+            $query->where('category_id', $request->category);
+        }
+
+        // Filter by main
+        if ($request->has('main') && $request->main) {
+            $query->where('mains_id', $request->main);
+        }
+
+        // Sort
+        $sort = $request->get('sort', 'latest');
+        switch ($sort) {
+            case 'oldest':
+                $query->oldest();
+                break;
+            case 'title_asc':
+                $query->orderBy('title', 'asc');
+                break;
+            case 'title_desc':
+                $query->orderBy('title', 'desc');
+                break;
+            case 'latest':
+            default:
+                $query->latest();
+                break;
+        }
+
+        $issues = $query->paginate(10);
         $categories = Category::all();
         $mains = Main::all();
-        // $issues = Issues::orderBy('name','asc')->get();
-        
 
-        return view('issues.index',['issues' => $issues,'categories' => $categories,'mains' => $mains,]);
+        return view('issues.index', [
+            'issues' => $issues,
+            'categories' => $categories,
+            'mains' => $mains,
+        ]);
     }
 
     /**
@@ -38,7 +83,7 @@ class IssuesController extends Controller
     public function store(Request $request)
     {
         $fields = $request->validate([
-            'title' => ['required', 'max:50'],
+            'title' => ['required', 'max:255'],
             'category_id' => ['required'], 
             'mains_id'  => ['required'],
             'resolution_timeline'  => ['required'],
@@ -47,7 +92,7 @@ class IssuesController extends Controller
         // create issues 
         Issues::create($fields);
 
-        return redirect()->route('issues.index');
+        return redirect()->route('issues.index')->with('success', 'Issue created successfully!');
     }
 
     /**
@@ -61,17 +106,31 @@ class IssuesController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Issues $issues)
+    public function edit($issue)
     {
-        //
+        $categories = Category::all();
+        $issues = Issues::find($issue);
+        $mains = Main::all();
+        return view('issues.edit', compact('issues', 'categories', 'mains'));
+        
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateIssuesRequest $request, Issues $issues)
+    public function update(Request $request, $issues)
     {
-        //
+        $fields = $request->validate([
+            'title' => ['required', 'max:255'],
+            'category_id' => ['required'], 
+            'mains_id'  => ['required'],
+            'resolution_timeline'  => ['required'],
+        ]);
+        // print_r($issues);
+        $issues_update = Issues::find($issues);
+        $issues_update->update($fields);
+
+        return redirect()->route('issues.index')->with('success', 'Issue updated successfully!');
     }
 
     /**
@@ -79,6 +138,7 @@ class IssuesController extends Controller
      */
     public function destroy(Issues $issues)
     {
-        //
+        $issues->delete();
+        return redirect()->route('issues.index')->with('success', 'Issue deleted successfully!');
     }
 }

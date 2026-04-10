@@ -14,4 +14,6 @@ class Category extends Model
         'title',
         'timeline',
     ];
+
+    public $timestamps = true;
 }

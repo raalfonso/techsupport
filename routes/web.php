@@ -89,7 +89,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/attendance/clock-out', [AttendanceLogController::class, 'clockOut'])->name('attendance.clock-out');
     Route::post('/accomplishment/store', [AttendanceLogController::class, 'storeAccomplishment'])->name('accomplishment.store');
     Route::resource('attendance-logs', AttendanceLogController::class);
-    Route::resource('main', ReportController::class);
+    Route::resource('main', MainController::class);
     Route::get('/report/export', [ReportController::class, 'export'])->name('report.export');
     Route::post('/report/emergency', [ReportController::class, 'emergency'])->name('report.emergency');
    

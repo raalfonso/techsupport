@@ -13,7 +13,39 @@ class MainController extends Controller
      */
     public function index()
     {
-        //
+        $query = Main::query();
+
+        // Search by title
+        if (request('search')) {
+            $query->where('title', 'like', '%' . request('search') . '%')
+                  ->orWhere('details', 'like', '%' . request('search') . '%');
+        }
+
+        // Filter by type
+        if (request('type')) {
+            $query->where('type', request('type'));
+        }
+
+        // Sort
+        $sort = request('sort', 'latest');
+        switch ($sort) {
+            case 'oldest':
+                $query->oldest();
+                break;
+            case 'title_asc':
+                $query->orderBy('title', 'asc');
+                break;
+            case 'title_desc':
+                $query->orderBy('title', 'desc');
+                break;
+            case 'latest':
+            default:
+                $query->latest();
+                break;
+        }
+
+        $mains = $query->paginate(10);
+        return view('main.index', compact('mains'));
     }
 
     /**
@@ -21,7 +53,7 @@ class MainController extends Controller
      */
     public function create()
     {
-        //
+        return view('main.create');
     }
 
     /**
@@ -29,7 +61,8 @@ class MainController extends Controller
      */
     public function store(StoreMainRequest $request)
     {
-        //
+        Main::create($request->validated());
+        return redirect()->route('main.index')->with('success', 'Main content created successfully!');
     }
 
     /**
@@ -37,7 +70,7 @@ class MainController extends Controller
      */
     public function show(Main $main)
     {
-        //
+        return view('main.show', compact('main'));
     }
 
     /**
@@ -45,7 +78,7 @@ class MainController extends Controller
      */
     public function edit(Main $main)
     {
-        //
+        return view('main.edit', compact('main'));
     }
 
     /**
@@ -53,7 +86,8 @@ class MainController extends Controller
      */
     public function update(UpdateMainRequest $request, Main $main)
     {
-        //
+        $main->update($request->validated());
+        return redirect()->route('main.index')->with('success', 'Main content updated successfully!');
     }
 
     /**
@@ -61,6 +95,7 @@ class MainController extends Controller
      */
     public function destroy(Main $main)
     {
-        //
+        $main->delete();
+        return redirect()->route('main.index')->with('success', 'Main content deleted successfully!');
     }
 }

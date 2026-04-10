@@ -11,11 +11,38 @@ class CategoryController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $category = Category::orderBy('id','asc')->paginate(5);
+        $query = Category::query();
 
-        return view('category.index',['categories' => $category]);
+        // Search functionality
+        if ($request->has('search') && $request->search) {
+            $search = $request->search;
+            $query->where('title', 'like', "%{$search}%")
+                  ->orWhere('timeline', 'like', "%{$search}%");
+        }
+
+        // Sort
+        $sort = $request->get('sort', 'latest');
+        switch ($sort) {
+            case 'oldest':
+                $query->oldest();
+                break;
+            case 'title_asc':
+                $query->orderBy('title', 'asc');
+                break;
+            case 'title_desc':
+                $query->orderBy('title', 'desc');
+                break;
+            case 'latest':
+            default:
+                $query->latest();
+                break;
+        }
+
+        $categories = $query->paginate(10);
+
+        return view('category.index', compact('categories'));
     }
 
     /**
@@ -32,15 +59,14 @@ class CategoryController extends Controller
     public function store(Request $request)
     {
         $fields = $request->validate([
-            'title' => ['required','max:50'],
-            'timeline' => ['required'],
+            'title' => ['required', 'max:255'],
+            'timeline' => ['required', 'max:255'],
         ]);
 
         // create category 
         Category::create($fields);
 
-         //Redirect
-       return redirect()->route('category.index');
+        return redirect()->route('category.index')->with('success', 'Category created successfully!');
     }
 
     /**
@@ -56,7 +82,7 @@ class CategoryController extends Controller
      */
     public function edit(Category $category)
     {
-        //
+        return view('category.edit', compact('category'));
     }
 
     /**
@@ -64,20 +90,23 @@ class CategoryController extends Controller
      */
     public function update(Request $request, Category $category)
     {
-        //
+        $fields = $request->validate([
+            'title' => ['required', 'max:255'],
+            'timeline' => ['required', 'max:255'],
+        ]);
+
+        $category->update($fields);
+
+        return redirect()->route('category.index')->with('success', 'Category updated successfully!');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy($id)
+    public function destroy(Category $category)
     {
-        $category = Category::destroy($id);
+        $category->delete();
 
-        if ($category) {
-            return redirect()->route('category.index')->with('success', 'category deleted successfully.');
-        } else {
-            return redirect()->route('category.index')->with('error', 'category not found.');
-        }
+        return redirect()->route('category.index')->with('success', 'Category deleted successfully!');
     }
 }
