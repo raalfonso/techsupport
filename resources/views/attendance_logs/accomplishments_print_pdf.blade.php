@@ -158,6 +158,17 @@
         <div class="date-section">
             <div class="date-header">
                 {{ $data['date'] }}
+                @if($data['time_in'] || $data['time_out'])
+                    <span style="float: right; font-size: 10px;">
+                        Time In: {{ $data['time_in'] ? \Carbon\Carbon::parse($data['time_in'])->format('h:i A') : 'N/A' }} | 
+                        Time Out: 
+                        @if($data['time_out'])
+                            {{ \Carbon\Carbon::parse($data['time_out'])->format('h:i A') }}
+                        @else
+                            <span style="color: #dc2626; font-weight: bold;">NO TIME OUT</span>
+                        @endif
+                    </span>
+                @endif
             </div>
             <ul class="accomplishment-list">
                 @foreach($data['items'] as $accomplishment)

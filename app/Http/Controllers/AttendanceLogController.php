@@ -673,6 +673,38 @@ class AttendanceLogController extends Controller
 
         $accomplishments = $query->get();
 
+        // Get attendance logs for time in/out
+        $attendanceQuery = \App\Models\AttendanceLog::where('user_id', $user->id)
+            ->orderBy('date', 'desc')
+            ->orderBy('time', 'asc');
+
+        if ($accStartDate && $accEndDate) {
+            $attendanceQuery->whereBetween('date', [$accStartDate, $accEndDate]);
+        } elseif ($accStartDate) {
+            $attendanceQuery->whereDate('date', '>=', $accStartDate);
+        } elseif ($accEndDate) {
+            $attendanceQuery->whereDate('date', '<=', $accEndDate);
+        }
+
+        $attendanceLogs = $attendanceQuery->get();
+
+        // Group attendance by date
+        $attendanceByDate = [];
+        foreach ($attendanceLogs as $log) {
+            $dateKey = $log->date->format('Y-m-d');
+            if (!isset($attendanceByDate[$dateKey])) {
+                $attendanceByDate[$dateKey] = [
+                    'time_in' => null,
+                    'time_out' => null
+                ];
+            }
+            // First entry is time in, last entry is time out
+            if ($attendanceByDate[$dateKey]['time_in'] === null) {
+                $attendanceByDate[$dateKey]['time_in'] = $log->time;
+            }
+            $attendanceByDate[$dateKey]['time_out'] = $log->time;
+        }
+
         // Group by date
         $grouped = [];
         foreach ($accomplishments as $acc) {
@@ -680,7 +712,9 @@ class AttendanceLogController extends Controller
             if (!isset($grouped[$dateKey])) {
                 $grouped[$dateKey] = [
                     'date' => $acc->date->format('F d, Y'),
-                    'items' => []
+                    'items' => [],
+                    'time_in' => $attendanceByDate[$dateKey]['time_in'] ?? null,
+                    'time_out' => $attendanceByDate[$dateKey]['time_out'] ?? null
                 ];
             }
             $grouped[$dateKey]['items'][] = $acc->accomplishment;

@@ -648,7 +648,13 @@
                     <i class="fas fa-times"></i>
                 </button>
             </div>
-
+             <!-- Warning Note -->
+            <div class="mb-6 p-4 bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-lg">
+                <p class="text-orange-600 dark:text-orange-400 font-semibold text-sm flex items-start gap-2">
+                    <i class="fas fa-exclamation-circle mt-0.5 flex-shrink-0"></i>
+                    <span>Please check your accomplishment entry, as it will no longer be editable upon saving. Note that edit functionality will be available in an upcoming version.</span>
+                </p>
+            </div>
             <form id="wfhForm" action="{{ route('attendance.clock-out') }}" method="POST">
                 @csrf
                 <div id="wfhScrollContainer" class="space-y-4 max-h-[60vh] overflow-y-auto pr-2">
@@ -689,6 +695,14 @@
                 </button>
             </div>
 
+            <!-- Warning Note -->
+            <div class="mb-6 p-4 bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-lg">
+                <p class="text-orange-600 dark:text-orange-400 font-semibold text-sm flex items-start gap-2">
+                    <i class="fas fa-exclamation-circle mt-0.5 flex-shrink-0"></i>
+                    <span>Please check your accomplishment entry, as it will no longer be editable upon saving. Note that edit functionality will be available in an upcoming version.</span>
+                </p>
+            </div>
+            
             <form id="accomplishmentForm" action="{{ route('accomplishment.store') }}" method="POST">
                 @csrf
                 <div id="accomplishmentScrollContainer" class="space-y-4 max-h-[60vh] overflow-y-auto pr-2">
