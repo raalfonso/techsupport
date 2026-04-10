@@ -694,7 +694,7 @@
                 <div id="accomplishmentScrollContainer" class="space-y-4 max-h-[60vh] overflow-y-auto pr-2">
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Accomplishment</label>
-                        <textarea name="accomplishment" id="accomplishmentText" rows="6" placeholder="Describe what you accomplished today..." class="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 resize-none" required></textarea>
+                        <textarea name="accomplishment" id="accomplishmentText" rows="6" placeholder="Describe what you accomplished today..." class="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 resize-none"></textarea>
                         <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Please provide details of your work accomplishment.</p>
                     </div>
 
@@ -775,7 +775,7 @@
                                 </button>
                             </div>
                             <div class="p-3">
-                                <textarea name="accomplishments[]" rows="3" placeholder="Describe another accomplishment..." class="w-full px-3 py-2 border-0 bg-gray-50 dark:bg-slate-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white dark:focus:bg-slate-600 resize-none transition-all" required></textarea>
+                                <textarea name="accomplishments[]" rows="3" placeholder="Describe another accomplishment..." class="w-full px-3 py-2 border-0 bg-gray-50 dark:bg-slate-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white dark:focus:bg-slate-600 resize-none transition-all" ></textarea>
                             </div>
                         </div>
                     </div>
@@ -817,7 +817,7 @@
                                 </button>
                             </div>
                             <div class="p-3">
-                                <textarea name="accomplishments[]" rows="3" placeholder="Describe another accomplishment..." class="w-full px-3 py-2 border-0 bg-gray-50 dark:bg-slate-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white dark:focus:bg-slate-600 resize-none transition-all" required></textarea>
+                                <textarea name="accomplishments[]" rows="3" placeholder="Describe another accomplishment..." class="w-full px-3 py-2 border-0 bg-gray-50 dark:bg-slate-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white dark:focus:bg-slate-600 resize-none transition-all" ></textarea>
                             </div>
                         </div>
                     </div>
@@ -868,7 +868,7 @@
                                 </button>
                             </div>
                             <div class="p-3">
-                                <textarea name="accomplishments[]" rows="3" placeholder="Describe another accomplishment..." class="w-full px-3 py-2 border-0 bg-gray-50 dark:bg-slate-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:bg-white dark:focus:bg-slate-600 resize-none transition-all" required></textarea>
+                                <textarea name="accomplishments[]" rows="3" placeholder="Describe another accomplishment..." class="w-full px-3 py-2 border-0 bg-gray-50 dark:bg-slate-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:bg-white dark:focus:bg-slate-600 resize-none transition-all" ></textarea>
                             </div>
                         </div>
                     </div>
@@ -910,7 +910,7 @@
                                 </button>
                             </div>
                             <div class="p-3">
-                                <textarea name="accomplishments[]" rows="3" placeholder="Describe another accomplishment..." class="w-full px-3 py-2 border-0 bg-gray-50 dark:bg-slate-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:bg-white dark:focus:bg-slate-600 resize-none transition-all" required></textarea>
+                                <textarea name="accomplishments[]" rows="3" placeholder="Describe another accomplishment..." class="w-full px-3 py-2 border-0 bg-gray-50 dark:bg-slate-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:bg-white dark:focus:bg-slate-600 resize-none transition-all" ></textarea>
                             </div>
                         </div>
                     </div>
@@ -971,7 +971,7 @@
                 <textarea 
                     name="accomplishment" 
                     rows="6" 
-                    required
+                    
                     class="w-full border border-gray-300 dark:border-slate-600 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:text-white"
                     placeholder="List your tasks, achievements, and completed work..."
                 ></textarea>
