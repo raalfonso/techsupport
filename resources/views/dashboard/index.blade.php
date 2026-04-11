@@ -157,9 +157,10 @@
         
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://code.highcharts.com/highcharts-more.js"></script>
-<script src="https://code.highcharts.com/modules/solid-gauge.js"></script>
-<script src="https://code.highcharts.com/modules/heatmap.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/highcharts@11.4.3/highcharts.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/highcharts@11.4.3/highcharts-more.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/highcharts@11.4.3/modules/solid-gauge.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/highcharts@11.4.3/modules/heatmap.min.js"></script>
 <script>
  $(document).ready(function() {
    

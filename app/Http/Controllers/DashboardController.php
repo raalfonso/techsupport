@@ -138,8 +138,10 @@ class DashboardController extends Controller
 
         $recurringIssues = \DB::table('issues')
         ->leftJoin('reports', 'reports.issues_id', '=', 'issues.id')
+        ->leftJoin('mains', 'mains.id', '=', 'issues.mains_id')
         ->select('issues.title', \DB::raw('COUNT(reports.id) as data'))
         ->where('reports.status','!=','Void')
+        ->where('mains.type', '=', 'Report')
         ->whereBetween('reports.request_datetime', [
             Carbon::now()->startOfWeek(),
             Carbon::now()->endOfWeek()
