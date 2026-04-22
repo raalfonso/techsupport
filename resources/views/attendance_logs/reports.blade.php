@@ -197,8 +197,25 @@
                     <i class="fas fa-times text-2xl"></i>
                 </button>
             </div>
-            <div class="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
-                <table class="w-full">
+            
+            <!-- Search Bar -->
+            <div class="p-4 border-b border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-700">
+                <div class="flex gap-3">
+                    <div class="flex-1">
+                        <input type="text" id="presentSearchName" placeholder="Search by name..." 
+                            class="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-600 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                            onkeyup="filterPresentTable()">
+                    </div>
+                    <div class="flex-1">
+                        <input type="text" id="presentSearchDept" placeholder="Search by department..." 
+                            class="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-600 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                            onkeyup="filterPresentTable()">
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-6 overflow-y-auto max-h-[calc(90vh-200px)]">
+                <table class="w-full" id="presentTable">
                     <thead class="bg-gray-50 dark:bg-slate-700 sticky top-0">
                         <tr>
                             <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase">Employee Name</th>
@@ -209,19 +226,24 @@
                     </thead>
                     <tbody class="divide-y divide-gray-100 dark:divide-slate-700">
                         @forelse($presentEmployees as $employee)
-                            <tr class="hover:bg-gray-50 dark:hover:bg-slate-700">
+                            <tr class="hover:bg-gray-50 dark:hover:bg-slate-700 present-row" 
+                                data-name="{{ strtolower($employee['name']) }}" 
+                                data-dept="{{ strtolower($employee['department']) }}">
                                 <td class="px-4 py-3 text-sm text-gray-900 dark:text-white">{{ $employee['name'] }}</td>
                                 <td class="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">{{ $employee['employee_number'] }}</td>
                                 <td class="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">{{ $employee['department'] }}</td>
                                 <td class="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">{{ date('g:i A', strtotime($employee['time'])) }}</td>
                             </tr>
                         @empty
-                            <tr>
+                            <tr id="presentNoData">
                                 <td colspan="4" class="px-4 py-8 text-center text-gray-500 dark:text-gray-400">No employees present today</td>
                             </tr>
                         @endforelse
                     </tbody>
                 </table>
+                <div id="presentNoResults" class="hidden px-4 py-8 text-center text-gray-500 dark:text-gray-400">
+                    No matching employees found
+                </div>
             </div>
         </div>
     </div>
@@ -238,8 +260,25 @@
                     <i class="fas fa-times text-2xl"></i>
                 </button>
             </div>
-            <div class="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
-                <table class="w-full">
+            
+            <!-- Search Bar -->
+            <div class="p-4 border-b border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-700">
+                <div class="flex gap-3">
+                    <div class="flex-1">
+                        <input type="text" id="absentSearchName" placeholder="Search by name..." 
+                            class="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-600 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                            onkeyup="filterAbsentTable()">
+                    </div>
+                    <div class="flex-1">
+                        <input type="text" id="absentSearchDept" placeholder="Search by department..." 
+                            class="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-600 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                            onkeyup="filterAbsentTable()">
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-6 overflow-y-auto max-h-[calc(90vh-200px)]">
+                <table class="w-full" id="absentTable">
                     <thead class="bg-gray-50 dark:bg-slate-700 sticky top-0">
                         <tr>
                             <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase">Employee Name</th>
@@ -250,19 +289,24 @@
                     </thead>
                     <tbody class="divide-y divide-gray-100 dark:divide-slate-700">
                         @forelse($absentEmployees as $employee)
-                            <tr class="hover:bg-gray-50 dark:hover:bg-slate-700">
+                            <tr class="hover:bg-gray-50 dark:hover:bg-slate-700 absent-row" 
+                                data-name="{{ strtolower($employee['name']) }}" 
+                                data-dept="{{ strtolower($employee['department']) }}">
                                 <td class="px-4 py-3 text-sm text-gray-900 dark:text-white">{{ $employee['name'] }}</td>
                                 <td class="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">{{ $employee['employee_number'] }}</td>
                                 <td class="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">{{ $employee['department'] }}</td>
                                 <td class="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">{{ $employee['position'] }}</td>
                             </tr>
                         @empty
-                            <tr>
+                            <tr id="absentNoData">
                                 <td colspan="4" class="px-4 py-8 text-center text-gray-500 dark:text-gray-400">All employees are present today</td>
                             </tr>
                         @endforelse
                     </tbody>
                 </table>
+                <div id="absentNoResults" class="hidden px-4 py-8 text-center text-gray-500 dark:text-gray-400">
+                    No matching employees found
+                </div>
             </div>
         </div>
     </div>
@@ -271,6 +315,10 @@
         function openPresentModal() {
             document.getElementById('presentModal').classList.remove('hidden');
             document.body.style.overflow = 'hidden';
+            // Clear search inputs
+            document.getElementById('presentSearchName').value = '';
+            document.getElementById('presentSearchDept').value = '';
+            filterPresentTable();
         }
 
         function closePresentModal() {
@@ -281,11 +329,75 @@
         function openAbsentModal() {
             document.getElementById('absentModal').classList.remove('hidden');
             document.body.style.overflow = 'hidden';
+            // Clear search inputs
+            document.getElementById('absentSearchName').value = '';
+            document.getElementById('absentSearchDept').value = '';
+            filterAbsentTable();
         }
 
         function closeAbsentModal() {
             document.getElementById('absentModal').classList.add('hidden');
             document.body.style.overflow = 'auto';
+        }
+
+        function filterPresentTable() {
+            const nameSearch = document.getElementById('presentSearchName').value.toLowerCase();
+            const deptSearch = document.getElementById('presentSearchDept').value.toLowerCase();
+            const rows = document.querySelectorAll('.present-row');
+            const noResults = document.getElementById('presentNoResults');
+            let visibleCount = 0;
+
+            rows.forEach(row => {
+                const name = row.getAttribute('data-name');
+                const dept = row.getAttribute('data-dept');
+                
+                const nameMatch = name.includes(nameSearch);
+                const deptMatch = dept.includes(deptSearch);
+                
+                if (nameMatch && deptMatch) {
+                    row.style.display = '';
+                    visibleCount++;
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+
+            // Show/hide no results message
+            if (visibleCount === 0 && rows.length > 0) {
+                noResults.classList.remove('hidden');
+            } else {
+                noResults.classList.add('hidden');
+            }
+        }
+
+        function filterAbsentTable() {
+            const nameSearch = document.getElementById('absentSearchName').value.toLowerCase();
+            const deptSearch = document.getElementById('absentSearchDept').value.toLowerCase();
+            const rows = document.querySelectorAll('.absent-row');
+            const noResults = document.getElementById('absentNoResults');
+            let visibleCount = 0;
+
+            rows.forEach(row => {
+                const name = row.getAttribute('data-name');
+                const dept = row.getAttribute('data-dept');
+                
+                const nameMatch = name.includes(nameSearch);
+                const deptMatch = dept.includes(deptSearch);
+                
+                if (nameMatch && deptMatch) {
+                    row.style.display = '';
+                    visibleCount++;
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+
+            // Show/hide no results message
+            if (visibleCount === 0 && rows.length > 0) {
+                noResults.classList.remove('hidden');
+            } else {
+                noResults.classList.add('hidden');
+            }
         }
 
         // Close modals when clicking outside
