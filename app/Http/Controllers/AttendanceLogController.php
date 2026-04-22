@@ -345,24 +345,43 @@ class AttendanceLogController extends Controller
             ? \App\Models\Department::find($deptHeadDeptId)?->title
             : null;
 
-        // Stats — scoped to dept for depthead
-        $totalEmployeesQuery = User::query();
-        $presentTodayQuery = AttendanceLog::where('mode', 'Attend')->whereDate('date', today());
-        $attendanceByDeptQuery = AttendanceLog::where('mode', 'Attend')->whereDate('date', today())->with('user.masterlist.department');
-
+        // Stats — based on employee_masterlist (Active employees only with matching user accounts via email)
+        $totalEmployeesQuery = \App\Models\EmployeeMasterlist::where('employment_status', 'Active')
+            ->whereHas('user'); // Only count employees with linked user accounts via email
+        
         if ($deptHeadDeptId) {
-            $totalEmployeesQuery->whereHas('masterlist', fn($q) => $q->where('department_id', $deptHeadDeptId));
-            $presentTodayQuery->whereHas('user.masterlist', fn($q) => $q->where('department_id', $deptHeadDeptId));
-            $attendanceByDeptQuery->whereHas('user.masterlist', fn($q) => $q->where('department_id', $deptHeadDeptId));
+            $totalEmployeesQuery->where('department_id', $deptHeadDeptId);
         }
 
         $totalEmployees = $totalEmployeesQuery->count();
-        $presentToday   = $presentTodayQuery->distinct('user_id')->count();
-        $absentToday    = $totalEmployees - $presentToday;
+
+        // Present today - employees who clocked in
+        $presentTodayQuery = AttendanceLog::where('mode', 'Attend')
+            ->whereDate('date', today())
+            ->with('user.masterlist');
+
+        if ($deptHeadDeptId) {
+            $presentTodayQuery->whereHas('user.masterlist', fn($q) => $q->where('department_id', $deptHeadDeptId)->where('employment_status', 'Active'));
+        } else {
+            $presentTodayQuery->whereHas('user.masterlist', fn($q) => $q->where('employment_status', 'Active'));
+        }
+
+        $presentToday = $presentTodayQuery->distinct('user_id')->count();
+        $absentToday = $totalEmployees - $presentToday;
+
+        // Attendance by department
+        $attendanceByDeptQuery = AttendanceLog::where('mode', 'Attend')
+            ->whereDate('date', today())
+            ->with('user.masterlist.department')
+            ->whereHas('user.masterlist', fn($q) => $q->where('employment_status', 'Active'));
+
+        if ($deptHeadDeptId) {
+            $attendanceByDeptQuery->whereHas('user.masterlist', fn($q) => $q->where('department_id', $deptHeadDeptId));
+        }
 
         $attendanceByDepartment = $attendanceByDeptQuery->get()
             ->groupBy('user.masterlist.department.title')
-            ->map(fn($logs) => $logs->count());
+            ->map(fn($logs) => $logs->unique('user_id')->count());
 
         // WFH filters — depthead locked to their dept
         $wfhDate       = $request->input('wfh_date', today()->toDateString());
@@ -396,8 +415,170 @@ class AttendanceLogController extends Controller
 
         $departments = \App\Models\Department::orderBy('title')->pluck('title');
 
-        return view('attendance_logs.reports', compact('totalEmployees', 'presentToday', 'absentToday', 'attendanceByDepartment', 'wfhAccomplishments', 'wfhDate', 'wfhDepartment', 'departments', 'deptHeadDeptTitle'));
+        // Get present employees list (Active employees only)
+        $presentEmployeesQuery = AttendanceLog::where('mode', 'Attend')
+            ->whereDate('date', today())
+            ->with('user.masterlist.department')
+            ->whereHas('user.masterlist', fn($q) => $q->where('employment_status', 'Active'))
+            ->distinct('user_id');
+
+        if ($deptHeadDeptId) {
+            $presentEmployeesQuery->whereHas('user.masterlist', fn($q) => $q->where('department_id', $deptHeadDeptId));
+        }
+
+        $presentEmployees = $presentEmployeesQuery->get()->map(function($log) {
+            return [
+                'name' => $log->user->name ?? 'N/A',
+                'employee_number' => $log->user->masterlist->employee_number ?? 'N/A',
+                'department' => $log->user->masterlist->department->title ?? 'Unassigned',
+                'time' => $log->time
+            ];
+        });
+
+        // Get absent employees list (Active employees without time-in today)
+        $allEmployeesQuery = \App\Models\EmployeeMasterlist::where('employment_status', 'Active')
+            ->with(['department', 'user'])
+            ->whereHas('user'); // Only get employees with linked user accounts via email
+
+        if ($deptHeadDeptId) {
+            $allEmployeesQuery->where('department_id', $deptHeadDeptId);
+        }
+
+        $allEmployees = $allEmployeesQuery->get();
+        
+        // Get user IDs of present employees
+        $presentUserIds = AttendanceLog::where('mode', 'Attend')
+            ->whereDate('date', today())
+            ->whereHas('user.masterlist', fn($q) => $q->where('employment_status', 'Active'))
+            ->pluck('user_id')
+            ->unique();
+
+        // Filter absent employees - those who have user accounts but didn't clock in
+        $absentEmployees = $allEmployees->filter(function($employee) use ($presentUserIds) {
+            return $employee->user && !$presentUserIds->contains($employee->user->id);
+        })->map(function($employee) {
+            return [
+                'name' => $employee->full_name,
+                'employee_number' => $employee->employee_number,
+                'department' => $employee->department->title ?? 'Unassigned',
+                'position' => $employee->position
+            ];
+        })->values();
+
+       
+
+        return view('attendance_logs.reports', compact('totalEmployees', 'presentToday', 'absentToday','absentEmployees', 'attendanceByDepartment', 'wfhAccomplishments', 'wfhDate', 'wfhDepartment', 'departments', 'deptHeadDeptTitle', 'presentEmployees', 'absentEmployees'));
     }
+
+    public function statistics(Request $request)
+    {
+        $user = auth()->user();
+        $isAdmin = $user->authAssignments()->where('item_name', 'Administrator')->exists();
+        $isHRAdmin = $user->authAssignments()->where('item_name', 'HR_admin')->exists();
+        $isDeptHead = $user->authAssignments()->where('item_name', 'depthead')->exists();
+
+        if (!$isAdmin && !$isHRAdmin && !$isDeptHead) {
+            return redirect()->route('attendance.dashboard')->with('error', 'Unauthorized access');
+        }
+
+        // Date range filters
+        $startDate = $request->input('start_date', now()->startOfMonth()->toDateString());
+        $endDate = $request->input('end_date', now()->toDateString());
+
+        // For depthead, scope to their department
+        $deptHeadDeptId = ($isDeptHead && !$isAdmin && !$isHRAdmin)
+            ? $user->masterlist?->department_id
+            : null;
+
+        // Total employees
+        $totalEmployeesQuery = \App\Models\EmployeeMasterlist::where('employment_status', 'Active');
+        if ($deptHeadDeptId) {
+            $totalEmployeesQuery->where('department_id', $deptHeadDeptId);
+        }
+        $totalEmployees = $totalEmployeesQuery->count();
+
+        // Attendance statistics for date range
+        $attendanceQuery = AttendanceLog::whereBetween('date', [$startDate, $endDate]);
+        if ($deptHeadDeptId) {
+            $attendanceQuery->whereHas('user.masterlist', fn($q) => $q->where('department_id', $deptHeadDeptId));
+        }
+
+        $totalAttendance = $attendanceQuery->where('mode', 'Attend')->distinct('user_id', 'date')->count();
+        $totalLeave = $attendanceQuery->where('mode', 'Leave')->distinct('user_id', 'date')->count();
+
+        // Average attendance per day
+        $daysInRange = \Carbon\Carbon::parse($startDate)->diffInDays(\Carbon\Carbon::parse($endDate)) + 1;
+        $avgAttendancePerDay = $daysInRange > 0 ? round($totalAttendance / $daysInRange, 2) : 0;
+
+        // Attendance by department
+        $attendanceByDept = AttendanceLog::whereBetween('date', [$startDate, $endDate])
+            ->where('mode', 'Attend')
+            ->with('user.masterlist.department')
+            ->get()
+            ->groupBy('user.masterlist.department.title')
+            ->map(fn($logs) => $logs->unique(fn($log) => $log->user_id . '_' . $log->date->format('Y-m-d'))->count())
+            ->sortDesc();
+
+        // Attendance by employment type
+        $attendanceByType = AttendanceLog::whereBetween('date', [$startDate, $endDate])
+            ->where('mode', 'Attend')
+            ->with('user.masterlist')
+            ->get()
+            ->groupBy('user.masterlist.employment_type')
+            ->map(fn($logs) => $logs->unique(fn($log) => $log->user_id . '_' . $log->date->format('Y-m-d'))->count())
+            ->sortDesc();
+
+        // Daily attendance trend
+        $dailyAttendance = AttendanceLog::whereBetween('date', [$startDate, $endDate])
+            ->where('mode', 'Attend')
+            ->selectRaw('DATE(date) as attendance_date, COUNT(DISTINCT user_id) as count')
+            ->groupBy('attendance_date')
+            ->orderBy('attendance_date')
+            ->get()
+            ->pluck('count', 'attendance_date');
+
+        // Top 10 most punctual employees (earliest clock-in)
+        $punctualEmployees = AttendanceLog::whereBetween('date', [$startDate, $endDate])
+            ->where('mode', 'Attend')
+            ->with('user.masterlist')
+            ->selectRaw('user_id, AVG(TIME_TO_SEC(time)) as avg_time')
+            ->groupBy('user_id')
+            ->orderBy('avg_time', 'asc')
+            ->limit(10)
+            ->get()
+            ->map(function($log) {
+                return [
+                    'name' => $log->user->name ?? 'N/A',
+                    'avg_time' => gmdate('H:i:s', $log->avg_time)
+                ];
+            });
+
+        // Late arrivals (after 9:00 AM)
+        $lateArrivals = AttendanceLog::whereBetween('date', [$startDate, $endDate])
+            ->where('mode', 'Attend')
+            ->whereTime('time', '>', '09:00:00')
+            ->distinct('user_id', 'date')
+            ->count();
+
+        $departments = \App\Models\Department::where('active', 1)->orderBy('title')->get();
+
+        return view('attendance_logs.statistics.index', compact(
+            'totalEmployees',
+            'totalAttendance',
+            'totalLeave',
+            'avgAttendancePerDay',
+            'attendanceByDept',
+            'attendanceByType',
+            'dailyAttendance',
+            'punctualEmployees',
+            'lateArrivals',
+            'startDate',
+            'endDate',
+            'departments',
+            'daysInRange'
+        ));
+    }
+
     public function exportWFHPdf(Request $request)
         {
             $isAdmin = auth()->user()->authAssignments()->where('item_name', 'Administrator')->exists();

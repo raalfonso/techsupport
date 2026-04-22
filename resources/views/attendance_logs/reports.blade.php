@@ -38,7 +38,7 @@
                     <p class="text-4xl font-bold text-gray-900 dark:text-white">{{ $totalEmployees }}</p>
                 </div>
 
-                <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700 p-6">
+                <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700 p-6 cursor-pointer hover:shadow-lg transition-shadow" onclick="openPresentModal()">
                     <div class="flex items-center justify-between mb-4">
                         <div class="w-12 h-12 bg-green-100 dark:bg-green-900 rounded-xl flex items-center justify-center">
                             <i class="fas fa-check-circle text-green-600 dark:text-green-400 text-xl"></i>
@@ -47,9 +47,10 @@
                     </div>
                     <p class="text-4xl font-bold text-green-600 dark:text-green-400">{{ $presentToday }}</p>
                     <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ $totalEmployees ? round(($presentToday / $totalEmployees) * 100, 1) : 0 }}% attendance rate</p>
+                    <p class="text-xs text-blue-600 dark:text-blue-400 mt-2 font-semibold">Click to view list</p>
                 </div>
 
-                <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700 p-6">
+                <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700 p-6 cursor-pointer hover:shadow-lg transition-shadow" onclick="openAbsentModal()">
                     <div class="flex items-center justify-between mb-4">
                         <div class="w-12 h-12 bg-red-100 dark:bg-red-900 rounded-xl flex items-center justify-center">
                             <i class="fas fa-times-circle text-red-600 dark:text-red-400 text-xl"></i>
@@ -58,6 +59,7 @@
                     </div>
                     <p class="text-4xl font-bold text-red-600 dark:text-red-400">{{ $absentToday }}</p>
                     <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ $totalEmployees ? round(($absentToday / $totalEmployees) * 100, 1) : 0 }}% absence rate</p>
+                    <p class="text-xs text-blue-600 dark:text-blue-400 mt-2 font-semibold">Click to view list</p>
                 </div>
             </div>
 
@@ -182,5 +184,126 @@
             </div>
         </div>
     </footer>
+
+    <!-- Present Employees Modal -->
+    <div id="presentModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
+            <div class="p-6 border-b border-gray-200 dark:border-slate-700 flex justify-between items-center">
+                <h2 class="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                    <i class="fas fa-check-circle text-green-600"></i>
+                    Present Today ({{ $presentToday }})
+                </h2>
+                <button onclick="closePresentModal()" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                    <i class="fas fa-times text-2xl"></i>
+                </button>
+            </div>
+            <div class="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
+                <table class="w-full">
+                    <thead class="bg-gray-50 dark:bg-slate-700 sticky top-0">
+                        <tr>
+                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase">Employee Name</th>
+                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase">Employee #</th>
+                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase">Department</th>
+                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase">Time In</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100 dark:divide-slate-700">
+                        @forelse($presentEmployees as $employee)
+                            <tr class="hover:bg-gray-50 dark:hover:bg-slate-700">
+                                <td class="px-4 py-3 text-sm text-gray-900 dark:text-white">{{ $employee['name'] }}</td>
+                                <td class="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">{{ $employee['employee_number'] }}</td>
+                                <td class="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">{{ $employee['department'] }}</td>
+                                <td class="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">{{ date('g:i A', strtotime($employee['time'])) }}</td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="4" class="px-4 py-8 text-center text-gray-500 dark:text-gray-400">No employees present today</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Absent Employees Modal -->
+    <div id="absentModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
+            <div class="p-6 border-b border-gray-200 dark:border-slate-700 flex justify-between items-center">
+                <h2 class="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                    <i class="fas fa-times-circle text-red-600"></i>
+                    Absent Today ({{ $absentToday }})
+                </h2>
+                <button onclick="closeAbsentModal()" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                    <i class="fas fa-times text-2xl"></i>
+                </button>
+            </div>
+            <div class="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
+                <table class="w-full">
+                    <thead class="bg-gray-50 dark:bg-slate-700 sticky top-0">
+                        <tr>
+                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase">Employee Name</th>
+                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase">Employee #</th>
+                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase">Department</th>
+                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase">Position</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100 dark:divide-slate-700">
+                        @forelse($absentEmployees as $employee)
+                            <tr class="hover:bg-gray-50 dark:hover:bg-slate-700">
+                                <td class="px-4 py-3 text-sm text-gray-900 dark:text-white">{{ $employee['name'] }}</td>
+                                <td class="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">{{ $employee['employee_number'] }}</td>
+                                <td class="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">{{ $employee['department'] }}</td>
+                                <td class="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">{{ $employee['position'] }}</td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="4" class="px-4 py-8 text-center text-gray-500 dark:text-gray-400">All employees are present today</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openPresentModal() {
+            document.getElementById('presentModal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closePresentModal() {
+            document.getElementById('presentModal').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+
+        function openAbsentModal() {
+            document.getElementById('absentModal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeAbsentModal() {
+            document.getElementById('absentModal').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+
+        // Close modals when clicking outside
+        document.getElementById('presentModal')?.addEventListener('click', function(e) {
+            if (e.target === this) closePresentModal();
+        });
+
+        document.getElementById('absentModal')?.addEventListener('click', function(e) {
+            if (e.target === this) closeAbsentModal();
+        });
+
+        // Close modals with Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closePresentModal();
+                closeAbsentModal();
+            }
+        });
+    </script>
 </body>
 </html>

@@ -75,6 +75,16 @@ Route::middleware('auth')->group(function () {
     Route::get('/signatory-employees/search', [SignatoryController::class, 'searchEmployees'])->name('signatory.employees.search');
     Route::get('/employee-masterlist/import/form', [EmployeeMasterlistController::class, 'importForm'])->name('employee-masterlist.import-form');
     Route::post('/employee-masterlist/import', [EmployeeMasterlistController::class, 'import'])->name('employee-masterlist.import');
+    
+    // Employee List Routes (Read-only for attendance module)
+    Route::get('/employee-list', [\App\Http\Controllers\EmployeeController::class, 'index'])->name('employee-list.index');
+    Route::get('/employee-list/create', [\App\Http\Controllers\EmployeeController::class, 'create'])->name('employee-list.create');
+    Route::post('/employee-list', [\App\Http\Controllers\EmployeeController::class, 'store'])->name('employee-list.store');
+    Route::get('/employee-list/{employee}', [\App\Http\Controllers\EmployeeController::class, 'show'])->name('employee-list.show');
+    Route::get('/employee-list/{employee}/edit', [\App\Http\Controllers\EmployeeController::class, 'edit'])->name('employee-list.edit');
+    Route::put('/employee-list/{employee}', [\App\Http\Controllers\EmployeeController::class, 'update'])->name('employee-list.update');
+    Route::delete('/employee-list/{employee}', [\App\Http\Controllers\EmployeeController::class, 'destroy'])->name('employee-list.destroy');
+    
     Route::get('/attendance', [AttendanceLogController::class, 'dashboard'])->name('attendance.dashboard');
     Route::get('/attendance/search', [AttendanceLogController::class, 'search'])->name('attendance.search');
     Route::get('/attendance/export-csv', [AttendanceLogController::class, 'exportCSV'])->name('attendance.export-csv');
@@ -85,6 +95,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/attendance/reports/export-pdf', [AttendanceLogController::class, 'exportWFHPdf'])->name('attendance.reports.export-pdf');
     Route::get('/attendance/print-pdf', [AttendanceLogController::class, 'printAttendancePdf'])->name('attendance.print-pdf');
     Route::get('/attendance/reports', [AttendanceLogController::class, 'reports'])->name('attendance.reports');
+    Route::get('/attendance/statistics', [AttendanceLogController::class, 'statistics'])->name('attendance.statistics');
     Route::post('/attendance/clock-in', [AttendanceLogController::class, 'clockIn'])->name('attendance.clock-in');
     Route::post('/attendance/clock-out', [AttendanceLogController::class, 'clockOut'])->name('attendance.clock-out');
     Route::post('/accomplishment/store', [AttendanceLogController::class, 'storeAccomplishment'])->name('accomplishment.store');

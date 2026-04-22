@@ -29,6 +29,11 @@ class EmployeeMasterlist extends Model
         return $this->belongsTo(Department::class, 'department_id');
     }
 
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'email', 'email');
+    }
+
     public function getFullNameAttribute()
     {
         return trim("{$this->first_name} {$this->middle_name} {$this->last_name}");
