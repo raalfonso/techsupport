@@ -18,6 +18,7 @@
     
     {{-- Favicon --}}
     <link rel="icon" type="image/png" href="{{ asset('img/itd_logo.png') }}">
+    
 </head>
 
 {{-- Added pt-16 to the body to account for the fixed navbar height --}}
@@ -120,6 +121,7 @@
             </div>
         </div>
     </section>
+    
 
     <section id="top" class="bg-blue-700 text-white py-20">
       <div class="max-w-6xl mx-auto px-6 text-center transition-all duration-700 opacity-0 translate-y-4" data-scroll>

@@ -18,6 +18,7 @@ class EmployeeMasterlist extends Model
         'employment_status',
         'employment_type',
         'email',
+        'remarks',
     ];
 
     protected $casts = [

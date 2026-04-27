@@ -467,7 +467,7 @@ class AttendanceLogController extends Controller
 
        
 
-        return view('attendance_logs.reports', compact('totalEmployees', 'presentToday', 'absentToday','absentEmployees', 'attendanceByDepartment', 'wfhAccomplishments', 'wfhDate', 'wfhDepartment', 'departments', 'deptHeadDeptTitle', 'presentEmployees', 'absentEmployees'));
+        return view('attendance_logs.reports', compact('totalEmployees', 'presentToday', 'absentToday','absentEmployees', 'attendanceByDepartment', 'wfhAccomplishments', 'wfhDate', 'wfhDepartment', 'departments', 'deptHeadDeptTitle', 'presentEmployees'));
     }
 
     public function statistics(Request $request)

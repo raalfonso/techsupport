@@ -97,6 +97,12 @@
                     </div>
                 </div>
 
+                <div class="mb-6">
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Remarks</label>
+                    <textarea name="remarks" rows="4" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Enter any additional remarks or notes...">{{ old('remarks', $employeeMasterlist->remarks) }}</textarea>
+                    @error('remarks') <span class="text-red-600 text-sm">{{ $message }}</span> @enderror
+                </div>
+
                 <div class="flex gap-3">
                     <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700 transition">
                         Update Employee

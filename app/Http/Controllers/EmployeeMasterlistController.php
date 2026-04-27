@@ -69,6 +69,7 @@ class EmployeeMasterlistController extends Controller
             'employment_status' => 'required|string',
             'employment_type' => 'required|string',
             'email' => 'required|email|unique:employee_masterlists',
+            'remarks' => 'nullable|string',
         ]);
 
         EmployeeMasterlist::create($validated);
@@ -100,6 +101,7 @@ class EmployeeMasterlistController extends Controller
             'employment_status' => 'required|string',
             'employment_type' => 'required|string',
             'email' => 'required|email|unique:employee_masterlists,email,' . $employeeMasterlist->id,
+            'remarks' => 'nullable|string',
         ]);
 
         $employeeMasterlist->update($validated);
