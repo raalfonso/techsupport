@@ -196,6 +196,55 @@
                                             <p class="text-sm text-gray-700"><span class="font-medium">Remarks:</span> {{ $task->remarks }}</p>
                                         </div>
                                     @endif
+                                    
+                                    @if($task->taskAssigns->count() > 0)
+                                        <div class="mt-6 pt-6 border-t border-gray-200">
+                                            <h4 class="text-sm font-medium text-gray-700 mb-4 flex items-center gap-2">
+                                                <i class="fas fa-users text-gray-400"></i>
+                                                Assigned Personnel ({{ $task->taskAssigns->count() }})
+                                            </h4>
+                                            <div class="space-y-3">
+                                                @foreach($task->taskAssigns as $assignment)
+                                                    <div class="bg-gray-50 rounded-lg p-4">
+                                                        <div class="flex items-center justify-between mb-2">
+                                                            <div class="flex items-center gap-3 flex-1">
+                                                                <div class="w-10 h-10 bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center text-white text-sm font-bold">
+                                                                    {{ strtoupper(substr($assignment->assignedPersonnel->name, 0, 1)) }}
+                                                                </div>
+                                                                <div>
+                                                                    <p class="text-sm font-medium text-gray-900">
+                                                                        {{ $assignment->assignedPersonnel->name }}
+                                                                        @if(auth()->id() === $assignment->assigned_personnel_id)
+                                                                            <span class="text-green-600">(You)</span>
+                                                                        @endif
+                                                                    </p>
+                                                                    <p class="text-xs text-gray-500">{{ $assignment->assignedPersonnel->email }}</p>
+                                                                </div>
+                                                            </div>
+                                                            @if(auth()->id() === $assignment->assigned_personnel_id)
+                                                                <select onchange="promptRemarksForAssignment({{ $assignment->id }}, this.value, '{{ $assignment->status }}')" 
+                                                                    data-original-status="{{ $assignment->status }}"
+                                                                    class="px-3 py-1 rounded-md text-xs font-medium cursor-pointer transition-all {{ $assignment->status === 'Done' ? 'bg-green-50 text-green-700 hover:bg-green-100' : ($assignment->status === 'In Process' ? 'bg-yellow-50 text-yellow-700 hover:bg-yellow-100' : 'bg-gray-50 text-gray-600 hover:bg-gray-100') }}">
+                                                                    <option value="Pending" {{ $assignment->status === 'Pending' ? 'selected' : '' }}>Pending</option>
+                                                                    <option value="In Process" {{ $assignment->status === 'In Process' ? 'selected' : '' }}>In Process</option>
+                                                                    <option value="Done" {{ $assignment->status === 'Done' ? 'selected' : '' }}>Done</option>
+                                                                </select>
+                                                            @else
+                                                                <span class="px-3 py-1 rounded-md text-xs font-medium {{ $assignment->status === 'Done' ? 'bg-green-50 text-green-700' : ($assignment->status === 'In Process' ? 'bg-yellow-50 text-yellow-700' : 'bg-gray-50 text-gray-600') }}">
+                                                                    {{ $assignment->status }}
+                                                                </span>
+                                                            @endif
+                                                        </div>
+                                                        @if($assignment->remarks)
+                                                            <div class="mt-3 bg-blue-50 border-l-2 border-blue-400 rounded-r-lg p-3">
+                                                                <p class="text-xs text-gray-700"><span class="font-medium">Remarks:</span> {{ $assignment->remarks }}</p>
+                                                            </div>
+                                                        @endif
+                                                    </div>
+                                                @endforeach
+                                            </div>
+                                        </div>
+                                    @endif
                                 </div>
                             </div>
                         </div>
@@ -226,6 +275,34 @@
                         Cancel
                     </button>
                     <button onclick="submitRemarks()" 
+                        class="flex-1 px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition">
+                        Submit
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Assignment Remarks Modal -->
+    <div id="assignmentRemarksModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 no-print">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full transform transition-all">
+            <div class="p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-xl font-medium text-gray-900">Add Remarks (Optional)</h3>
+                    <button onclick="closeAssignmentRemarksModal()" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+                <p class="text-sm text-gray-600 mb-4">You can optionally add remarks for this status change:</p>
+                <textarea id="assignmentRemarksInput" rows="4" 
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent resize-none"
+                    placeholder="Enter your remarks here (optional)..."></textarea>
+                <div class="flex gap-3 mt-6">
+                    <button onclick="submitAssignmentRemarksSkip()" 
+                        class="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition">
+                        Skip
+                    </button>
+                    <button onclick="submitAssignmentRemarks()" 
                         class="flex-1 px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition">
                         Submit
                     </button>
@@ -380,10 +457,127 @@
 
             document.addEventListener('keydown', function(e) {
                 if (e.key === 'Escape') {
-                    closeRemarksModal();
+                    if (!document.getElementById('remarksModal').classList.contains('hidden')) {
+                        closeRemarksModal();
+                    }
+                    if (!document.getElementById('assignmentRemarksModal').classList.contains('hidden')) {
+                        closeAssignmentRemarksModal();
+                    }
                 }
             });
         });
+
+        // Assignment remarks modal functions
+        let currentAssignmentAction = null;
+
+        function promptRemarksForAssignment(assignmentId, newStatus, oldStatus) {
+            const selectElement = event.target;
+            
+            if (newStatus === oldStatus) {
+                return;
+            }
+
+            currentAssignmentAction = {
+                id: assignmentId,
+                status: newStatus,
+                oldStatus: oldStatus,
+                selectElement: selectElement
+            };
+
+            document.getElementById('assignmentRemarksModal').classList.remove('hidden');
+            document.getElementById('assignmentRemarksInput').value = '';
+            document.getElementById('assignmentRemarksInput').focus();
+        }
+
+        function closeAssignmentRemarksModal() {
+            if (currentAssignmentAction && currentAssignmentAction.selectElement) {
+                currentAssignmentAction.selectElement.value = currentAssignmentAction.oldStatus;
+            }
+            
+            document.getElementById('assignmentRemarksModal').classList.add('hidden');
+            document.getElementById('assignmentRemarksInput').value = '';
+            currentAssignmentAction = null;
+        }
+
+        function submitAssignmentRemarks() {
+            const remarks = document.getElementById('assignmentRemarksInput').value.trim();
+            
+            if (!currentAssignmentAction) {
+                return;
+            }
+
+            document.getElementById('assignmentRemarksModal').classList.add('hidden');
+            updateAssignmentStatus(currentAssignmentAction.id, currentAssignmentAction.status, remarks, currentAssignmentAction.selectElement);
+            currentAssignmentAction = null;
+        }
+
+        function submitAssignmentRemarksSkip() {
+            if (!currentAssignmentAction) {
+                return;
+            }
+
+            document.getElementById('assignmentRemarksModal').classList.add('hidden');
+            updateAssignmentStatus(currentAssignmentAction.id, currentAssignmentAction.status, '', currentAssignmentAction.selectElement);
+            currentAssignmentAction = null;
+        }
+
+        function updateAssignmentStatus(assignmentId, status, remarks, selectElement) {
+            const originalValue = selectElement ? (selectElement.dataset.originalStatus || selectElement.value) : null;
+            
+            if (selectElement) {
+                selectElement.disabled = true;
+                selectElement.style.opacity = '0.6';
+            }
+            
+            $.ajax({
+                url: `/task-assigns/${assignmentId}/status`,
+                method: 'POST',
+                data: { 
+                    status: status,
+                    remarks: remarks || null
+                },
+                success: function(response) {
+                    if (response.success) {
+                        if (selectElement) {
+                            selectElement.dataset.originalStatus = status;
+                            
+                            // Update colors based on status
+                            selectElement.className = selectElement.className.replace(/bg-\w+-50 text-\w+-\d+ hover:bg-\w+-\d+/g, '');
+                            if (status === 'Done') {
+                                selectElement.className += ' bg-green-50 text-green-700 hover:bg-green-100';
+                            } else if (status === 'In Process') {
+                                selectElement.className += ' bg-yellow-50 text-yellow-700 hover:bg-yellow-100';
+                            } else {
+                                selectElement.className += ' bg-gray-50 text-gray-600 hover:bg-gray-100';
+                            }
+                        }
+                        
+                        setTimeout(() => {
+                            location.reload();
+                        }, 500);
+                    } else {
+                        alert(response.message || 'Failed to update assignment status');
+                        if (selectElement && originalValue) {
+                            selectElement.value = originalValue;
+                        }
+                    }
+                },
+                error: function(xhr) {
+                    console.error('Error updating assignment status', xhr);
+                    const message = xhr.responseJSON?.message || 'Failed to update assignment status';
+                    alert(message);
+                    if (selectElement && originalValue) {
+                        selectElement.value = originalValue;
+                    }
+                },
+                complete: function() {
+                    if (selectElement) {
+                        selectElement.disabled = false;
+                        selectElement.style.opacity = '1';
+                    }
+                }
+            });
+        }
 
         function updateAgendaStatus(agendaId, status, remarks, selectElement) {
             const originalValue = selectElement.dataset.originalStatus || selectElement.value;

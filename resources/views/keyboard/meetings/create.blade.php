@@ -9,6 +9,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
     @vite(['resources/js/app.js', 'resources/css/app.css'])
     <link rel="icon" type="image/png" href="{{ asset('img/itd.png') }}">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <script>
         if (localStorage.getItem('cw-theme') === 'dark') document.documentElement.classList.add('dark');
     </script>
@@ -141,8 +142,45 @@
                                                 class="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-600 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
                                         </div>
                                         <div>
-                                            <input type="text" :name="'tasks[' + index + '][assigned_personnel]'" x-model="task.assigned_personnel" placeholder="Assigned personnel (optional)" 
+                                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Assign to Users</label>
+                                            <div class="relative">
+                                                <input type="text" :id="'userSearch-' + index" autocomplete="off"
+                                                    @input="searchUsers(index, $event.target.value)"
+                                                    @focus="task.showResults = true"
+                                                    class="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-600 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                                                    placeholder="Search users by name or email...">
+                                                <div x-show="task.showResults && task.searchResults.length > 0" 
+                                                    @click.away="task.showResults = false"
+                                                    class="absolute z-10 w-full mt-1 bg-white dark:bg-slate-700 border border-gray-300 dark:border-slate-600 rounded-lg shadow-lg max-h-48 overflow-y-auto">
+                                                    <template x-for="user in task.searchResults" :key="user.id">
+                                                        <div @click="addUserToTask(index, user)" 
+                                                            class="p-3 hover:bg-gray-100 dark:hover:bg-slate-600 cursor-pointer border-b border-gray-200 dark:border-slate-600 last:border-b-0">
+                                                            <div class="font-medium text-sm text-gray-900 dark:text-white" x-text="user.name"></div>
+                                                            <div class="text-xs text-gray-500 dark:text-gray-400" x-text="user.email + (user.team ? ' • ' + user.team : '')"></div>
+                                                        </div>
+                                                    </template>
+                                                </div>
+                                            </div>
+                                            <div class="mt-2 flex flex-wrap gap-2">
+                                                <template x-for="(userId, userIndex) in task.assigned_users" :key="userId">
+                                                    <div class="inline-flex items-center gap-2 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-3 py-1.5 rounded-lg text-sm">
+                                                        <div>
+                                                            <div class="font-medium" x-text="getUserName(userId)"></div>
+                                                            <div class="text-xs opacity-75" x-text="getUserEmail(userId)"></div>
+                                                        </div>
+                                                        <button type="button" @click="removeUserFromTask(index, userIndex)" class="text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-200">
+                                                            <i class="fas fa-times"></i>
+                                                        </button>
+                                                        <input type="hidden" :name="'tasks[' + index + '][assigned_users][]'" :value="userId">
+                                                    </div>
+                                                </template>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Assigned Personnel (Text)</label>
+                                            <input type="text" :name="'tasks[' + index + '][assigned_personnel]'" x-model="task.assigned_personnel" placeholder="Assigned personnel text (optional)" 
                                                 class="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-600 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">This is a text field for display purposes</p>
                                         </div>
                                     </div>
                                 </div>
@@ -168,6 +206,9 @@
             return {
                 agendas: [],
                 tasks: [],
+                userCache: {},
+                searchTimeout: null,
+                
                 addAgenda() {
                     this.agendas.push({ title: '', details: '', assigned_personnel: '' });
                 },
@@ -175,10 +216,69 @@
                     this.agendas.splice(index, 1);
                 },
                 addTask() {
-                    this.tasks.push({ title: '', details: '', assigned_personnel: '' });
+                    this.tasks.push({ 
+                        title: '', 
+                        details: '', 
+                        assigned_personnel: '',
+                        assigned_users: [],
+                        searchResults: [],
+                        showResults: false
+                    });
                 },
                 removeTask(index) {
                     this.tasks.splice(index, 1);
+                },
+                searchUsers(taskIndex, query) {
+                    clearTimeout(this.searchTimeout);
+                    
+                    if (query.length < 2) {
+                        this.tasks[taskIndex].searchResults = [];
+                        this.tasks[taskIndex].showResults = false;
+                        return;
+                    }
+
+                    this.searchTimeout = setTimeout(() => {
+                        fetch(`/users-search?q=${encodeURIComponent(query)}`, {
+                            headers: {
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                            }
+                        })
+                        .then(response => response.json())
+                        .then(users => {
+                            // Cache users
+                            users.forEach(user => {
+                                this.userCache[user.id] = user;
+                            });
+                            
+                            // Filter out already selected users
+                            const selectedIds = this.tasks[taskIndex].assigned_users;
+                            this.tasks[taskIndex].searchResults = users.filter(user => !selectedIds.includes(user.id));
+                            this.tasks[taskIndex].showResults = true;
+                        })
+                        .catch(error => {
+                            console.error('Error searching users:', error);
+                        });
+                    }, 300);
+                },
+                addUserToTask(taskIndex, user) {
+                    if (!this.tasks[taskIndex].assigned_users.includes(user.id)) {
+                        this.tasks[taskIndex].assigned_users.push(user.id);
+                        this.userCache[user.id] = user;
+                    }
+                    
+                    // Clear search
+                    document.getElementById('userSearch-' + taskIndex).value = '';
+                    this.tasks[taskIndex].searchResults = [];
+                    this.tasks[taskIndex].showResults = false;
+                },
+                removeUserFromTask(taskIndex, userIndex) {
+                    this.tasks[taskIndex].assigned_users.splice(userIndex, 1);
+                },
+                getUserName(userId) {
+                    return this.userCache[userId]?.name || 'Unknown User';
+                },
+                getUserEmail(userId) {
+                    return this.userCache[userId]?.email || '';
                 }
             }
         }

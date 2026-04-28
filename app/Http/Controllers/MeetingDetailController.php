@@ -44,6 +44,8 @@ class MeetingDetailController extends Controller
             'tasks.*.details' => 'nullable|string',
             'tasks.*.assigned_personnel' => 'nullable|string',
             'tasks.*.remarks' => 'nullable|string',
+            'tasks.*.assigned_users' => 'nullable|array',
+            'tasks.*.assigned_users.*' => 'exists:users,id',
         ]);
 
         $meeting = MeetingDetail::create([
@@ -70,13 +72,23 @@ class MeetingDetailController extends Controller
         // Create tasks
         if (isset($validated['tasks'])) {
             foreach ($validated['tasks'] as $taskData) {
-                $meeting->tasks()->create([
+                $task = $meeting->tasks()->create([
                     'title' => $taskData['title'],
                     'details' => $taskData['details'] ?? null,
                     'assigned_personnel' => $taskData['assigned_personnel'] ?? null,
                     'remarks' => $taskData['remarks'] ?? null,
                     'status' => 'Pending',
                 ]);
+
+                // Create task assignments for selected users
+                if (!empty($taskData['assigned_users'])) {
+                    foreach ($taskData['assigned_users'] as $userId) {
+                        $task->taskAssigns()->create([
+                            'assigned_personnel_id' => $userId,
+                            'status' => 'Pending',
+                        ]);
+                    }
+                }
             }
         }
 
@@ -130,7 +142,12 @@ class MeetingDetailController extends Controller
 
     public function present(MeetingDetail $meetingDetail)
     {
-        $meetingDetail->load(['type', 'agendas.updatedByUser', 'tasks.updatedByUser']);
+        $meetingDetail->load([
+            'type', 
+            'agendas.updatedByUser', 
+            'tasks.updatedByUser',
+            'tasks.taskAssigns.assignedPersonnel'
+        ]);
         return view('keyboard.meetings.present', compact('meetingDetail'));
     }
 
