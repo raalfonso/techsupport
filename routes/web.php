@@ -30,7 +30,8 @@ use App\Http\Controllers\{
     EmployeeMasterlistController,
     SignatoryController,
     ItSurveyController,
-    ItSurveyIssueController
+    ItSurveyIssueController,
+    TaskAssignController
 };
 
 /*
@@ -124,6 +125,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/profile/change-password', [ProfileController::class, 'changePassword'])->name('profile.change-password');
     
     Route::resource('users', UserController::class);
+    Route::get('/users-search', [UserController::class, 'search'])->name('users.search');
 
     // Key Board Routes (Meeting Notes)
     Route::get('/keyboard', [App\Http\Controllers\KeyBoardController::class, 'index'])->name('keyboard.index');
@@ -144,6 +146,10 @@ Route::middleware('auth')->group(function () {
     Route::post('/meetings/{meetingDetail}/tasks', [App\Http\Controllers\MeetingDetailController::class, 'storeTask'])->name('meetings.tasks.store');
     Route::put('/tasks/{task}', [App\Http\Controllers\MeetingDetailController::class, 'updateTask'])->name('tasks.update');
     Route::delete('/tasks/{task}', [App\Http\Controllers\MeetingDetailController::class, 'destroyTask'])->name('tasks.destroy');
+    
+    // Task Assignment Routes
+    Route::resource('task-assigns', App\Http\Controllers\TaskAssignController::class);
+    Route::post('/task-assigns/{taskAssign}/status', [App\Http\Controllers\TaskAssignController::class, 'updateStatus'])->name('task-assigns.status');
   
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 

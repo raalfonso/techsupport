@@ -12,7 +12,12 @@ class KeyBoardController extends Controller
 {
     public function index()
     {
-        $meetings = MeetingDetail::with(['type', 'agendas.updatedByUser', 'tasks.updatedByUser'])
+        $meetings = MeetingDetail::with([
+            'type', 
+            'agendas.updatedByUser', 
+            'tasks.updatedByUser',
+            'tasks.taskAssigns.assignedPersonnel'
+        ])
             ->orderBy('date', 'desc')
             ->get();
 

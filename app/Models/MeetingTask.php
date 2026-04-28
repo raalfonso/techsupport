@@ -25,4 +25,9 @@ class MeetingTask extends Model
     {
         return $this->belongsTo(User::class, 'updated_by');
     }
+
+    public function taskAssigns()
+    {
+        return $this->hasMany(TaskAssign::class, 'meeting_task_id');
+    }
 }

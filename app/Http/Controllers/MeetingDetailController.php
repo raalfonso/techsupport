@@ -6,6 +6,7 @@ use App\Models\MeetingDetail;
 use App\Models\MeetingType;
 use App\Models\Agenda;
 use App\Models\MeetingTask;
+use App\Models\TaskAssign;
 use Illuminate\Http\Request;
 
 class MeetingDetailController extends Controller
@@ -177,11 +178,29 @@ class MeetingDetailController extends Controller
             'details' => 'nullable|string',
             'assigned_personnel' => 'nullable|string',
             'remarks' => 'nullable|string',
+            'assigned_users' => 'nullable|array',
+            'assigned_users.*' => 'exists:users,id',
         ]);
 
-        $meetingDetail->tasks()->create(array_merge($validated, ['status' => 'Pending']));
+        $task = $meetingDetail->tasks()->create([
+            'title' => $validated['title'],
+            'details' => $validated['details'] ?? null,
+            'assigned_personnel' => $validated['assigned_personnel'] ?? null,
+            'remarks' => $validated['remarks'] ?? null,
+            'status' => 'Pending',
+        ]);
 
-        return back()->with('success', 'Task added successfully');
+        // Create task assignments for selected users
+        if (!empty($validated['assigned_users'])) {
+            foreach ($validated['assigned_users'] as $userId) {
+                $task->taskAssigns()->create([
+                    'assigned_personnel_id' => $userId,
+                    'status' => 'Pending',
+                ]);
+            }
+        }
+
+        return response()->json(['success' => true, 'message' => 'Task added successfully']);
     }
 
     public function updateTask(Request $request, MeetingTask $task)

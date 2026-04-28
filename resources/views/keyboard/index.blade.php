@@ -174,8 +174,13 @@
                             <div class="space-y-3">
                                 @forelse($meeting->agendas as $agenda)
                                     <div class="bg-gradient-to-r from-gray-50 to-blue-50 dark:from-slate-700 dark:to-slate-600 p-4 rounded-xl border-l-4 border-blue-500 hover:shadow-md transition-all duration-200 transform hover:-translate-y-1">
-                                        <div class="flex justify-between items-start mb-2">
+                                        <div class="flex justify-between items-start mb-2 gap-2">
                                             <p class="font-semibold text-sm text-gray-900 dark:text-white flex-1">{{ $agenda->title }}</p>
+                                            <button onclick="openCreateTaskFromAgenda({{ $meeting->id }}, '{{ addslashes($agenda->title) }}', '{{ addslashes($agenda->details ?? '') }}')" 
+                                                class="text-green-600 hover:text-green-700 dark:text-green-400 dark:hover:text-green-300 transition-colors" 
+                                                title="Create Task from Agenda">
+                                                <i class="fas fa-plus-circle"></i>
+                                            </button>
                                             <select onchange="promptRemarksForAgenda({{ $agenda->id }}, this.value, '{{ $agenda->status }}')" 
                                                 data-original-status="{{ $agenda->status }}"
                                                 class="text-xs px-3 py-1.5 rounded-lg border-0 font-medium transition-all duration-200 cursor-pointer {{ $agenda->status === 'Done' ? 'bg-green-100 text-green-800 hover:bg-green-200' : ($agenda->status === 'In Process' ? 'bg-yellow-100 text-yellow-800 hover:bg-yellow-200' : 'bg-gray-100 text-gray-800 hover:bg-gray-200') }}">
@@ -249,9 +254,58 @@
                                             </div>
                                         @endif
                                         @if($task->assigned_personnel)
-                                            <div class="flex items-center gap-2 text-xs bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-300 px-3 py-1.5 rounded-lg w-fit">
+                                            <div class="flex items-center gap-2 text-xs bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-300 px-3 py-1.5 rounded-lg w-fit mb-2">
                                                 <i class="fas fa-user text-green-500"></i>
                                                 <span class="font-medium">{{ $task->assigned_personnel }}</span>
+                                            </div>
+                                        @endif
+                                        
+                                        @if($task->taskAssigns->count() > 0)
+                                            <div class="mt-3 pt-3 border-t border-gray-200 dark:border-slate-600">
+                                                <p class="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-1">
+                                                    <i class="fas fa-users text-green-500"></i>
+                                                    Assigned Personnel ({{ $task->taskAssigns->count() }})
+                                                </p>
+                                                <div class="space-y-2">
+                                                    @foreach($task->taskAssigns as $assignment)
+                                                        <div class="bg-white dark:bg-slate-800 px-3 py-2 rounded-lg">
+                                                            <div class="flex items-center justify-between mb-2">
+                                                                <div class="flex items-center gap-2 flex-1">
+                                                                    <div class="w-8 h-8 bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center text-white text-xs font-bold">
+                                                                        {{ strtoupper(substr($assignment->assignedPersonnel->name, 0, 1)) }}
+                                                                    </div>
+                                                                    <div>
+                                                                        <p class="text-xs font-medium text-gray-900 dark:text-white">
+                                                                            {{ $assignment->assignedPersonnel->name }}
+                                                                            @if(auth()->id() === $assignment->assigned_personnel_id)
+                                                                                <span class="text-green-600 dark:text-green-400">(You)</span>
+                                                                            @endif
+                                                                        </p>
+                                                                        <p class="text-xs text-gray-500 dark:text-gray-400">{{ $assignment->assignedPersonnel->email }}</p>
+                                                                    </div>
+                                                                </div>
+                                                                @if(auth()->id() === $assignment->assigned_personnel_id)
+                                                                    <select onchange="promptRemarksForAssignment({{ $assignment->id }}, this.value, '{{ $assignment->status }}')" 
+                                                                        data-original-status="{{ $assignment->status }}"
+                                                                        class="text-xs px-2 py-1 rounded border-0 font-medium cursor-pointer {{ $assignment->status === 'Done' ? 'bg-green-100 text-green-800' : ($assignment->status === 'In Process' ? 'bg-yellow-100 text-yellow-800' : 'bg-gray-100 text-gray-800') }}">
+                                                                        <option value="Pending" {{ $assignment->status === 'Pending' ? 'selected' : '' }}>Pending</option>
+                                                                        <option value="In Process" {{ $assignment->status === 'In Process' ? 'selected' : '' }}>In Process</option>
+                                                                        <option value="Done" {{ $assignment->status === 'Done' ? 'selected' : '' }}>Done</option>
+                                                                    </select>
+                                                                @else
+                                                                    <span class="text-xs px-2 py-1 rounded font-medium {{ $assignment->status === 'Done' ? 'bg-green-100 text-green-800' : ($assignment->status === 'In Process' ? 'bg-yellow-100 text-yellow-800' : 'bg-gray-100 text-gray-800') }}">
+                                                                        {{ $assignment->status }}
+                                                                    </span>
+                                                                @endif
+                                                            </div>
+                                                            @if($assignment->remarks)
+                                                                <div class="bg-blue-50 dark:bg-blue-900/20 border-l-2 border-blue-400 px-2 py-1.5 rounded mt-2">
+                                                                    <p class="text-xs text-blue-800 dark:text-blue-300"><span class="font-semibold">Remarks:</span> {{ $assignment->remarks }}</p>
+                                                                </div>
+                                                            @endif
+                                                        </div>
+                                                    @endforeach
+                                                </div>
                                             </div>
                                         @endif
                                     </div>
@@ -309,6 +363,107 @@
                     </button>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- Assignment Remarks Modal -->
+    <div id="assignmentRemarksModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl max-w-md w-full transform transition-all">
+            <div class="p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-xl font-bold text-gray-900 dark:text-white">Add Remarks (Optional)</h3>
+                    <button onclick="closeAssignmentRemarksModal()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+                <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">You can optionally add remarks for this status change:</p>
+                <textarea id="assignmentRemarksInput" rows="4" 
+                    class="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-slate-700 dark:text-white resize-none"
+                    placeholder="Enter your remarks here (optional)..."></textarea>
+                <div class="flex gap-3 mt-6">
+                    <button onclick="submitAssignmentRemarksSkip()" 
+                        class="flex-1 px-4 py-2 bg-gray-200 dark:bg-slate-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-slate-600 transition">
+                        Skip
+                    </button>
+                    <button onclick="submitAssignmentRemarks()" 
+                        class="flex-1 px-4 py-2 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-lg hover:from-green-700 hover:to-green-800 transition">
+                        Submit
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Task from Agenda Modal -->
+    <div id="createTaskModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl max-w-lg w-full transform transition-all max-h-[90vh] overflow-y-auto">
+            <form id="createTaskForm" method="POST">
+                @csrf
+                <div class="p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-xl font-bold text-gray-900 dark:text-white">Create Task from Agenda</h3>
+                        <button type="button" onclick="closeCreateTaskModal()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                            <i class="fas fa-times text-xl"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Task Title</label>
+                            <input type="text" id="taskTitle" name="title" required
+                                class="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-slate-700 dark:text-white"
+                                placeholder="Enter task title">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Task Details</label>
+                            <textarea id="taskDetails" name="details" rows="3"
+                                class="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-slate-700 dark:text-white resize-none"
+                                placeholder="Enter task details (optional)"></textarea>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Assign to Users</label>
+                            <div class="relative">
+                                <input type="text" id="userSearchInput" autocomplete="off"
+                                    class="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-slate-700 dark:text-white"
+                                    placeholder="Search users by name or email...">
+                                <div id="userSearchResults" class="hidden absolute z-10 w-full mt-1 bg-white dark:bg-slate-700 border border-gray-300 dark:border-slate-600 rounded-lg shadow-lg max-h-48 overflow-y-auto"></div>
+                            </div>
+                            <div id="selectedUsers" class="mt-3 flex flex-wrap gap-2"></div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Assigned Personnel (Text)</label>
+                            <input type="text" name="assigned_personnel"
+                                class="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-slate-700 dark:text-white"
+                                placeholder="Enter assigned personnel text (optional)">
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">This is a text field for display purposes</p>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Status</label>
+                            <select name="status"
+                                class="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-slate-700 dark:text-white">
+                                <option value="Pending">Pending</option>
+                                <option value="In Process">In Process</option>
+                                <option value="Done">Done</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-3 mt-6">
+                        <button type="button" onclick="closeCreateTaskModal()" 
+                            class="flex-1 px-4 py-2 bg-gray-200 dark:bg-slate-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-slate-600 transition">
+                            Cancel
+                        </button>
+                        <button type="submit" 
+                            class="flex-1 px-4 py-2 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-lg hover:from-green-700 hover:to-green-800 transition">
+                            <i class="fas fa-plus mr-2"></i>Create Task
+                        </button>
+                    </div>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -429,7 +584,12 @@
             // Close modal on Escape key
             document.addEventListener('keydown', function(e) {
                 if (e.key === 'Escape') {
-                    closeRemarksModal();
+                    if (!document.getElementById('remarksModal').classList.contains('hidden')) {
+                        closeRemarksModal();
+                    }
+                    if (!document.getElementById('assignmentRemarksModal').classList.contains('hidden')) {
+                        closeAssignmentRemarksModal();
+                    }
                 }
             });
         });
@@ -547,6 +707,306 @@
                     card.style.opacity = '1';
                     card.style.transform = 'translateY(0)';
                 }, index * 100);
+            });
+        });
+
+        // Create Task from Agenda functions
+        let selectedUserIds = [];
+
+        function openCreateTaskFromAgenda(meetingId, agendaTitle, agendaDetails) {
+            document.getElementById('createTaskModal').classList.remove('hidden');
+            document.getElementById('taskTitle').value = agendaTitle;
+            document.getElementById('taskDetails').value = agendaDetails;
+            
+            // Reset selected users
+            selectedUserIds = [];
+            document.getElementById('selectedUsers').innerHTML = '';
+            document.getElementById('userSearchInput').value = '';
+            
+            // Set form action
+            document.getElementById('createTaskForm').action = `/meetings/${meetingId}/tasks`;
+            
+            document.getElementById('taskTitle').focus();
+        }
+
+        function closeCreateTaskModal() {
+            document.getElementById('createTaskModal').classList.add('hidden');
+            document.getElementById('createTaskForm').reset();
+            selectedUserIds = [];
+            document.getElementById('selectedUsers').innerHTML = '';
+            document.getElementById('userSearchResults').classList.add('hidden');
+        }
+
+        // User search functionality
+        let searchTimeout;
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('userSearchInput');
+            const searchResults = document.getElementById('userSearchResults');
+
+            searchInput.addEventListener('input', function() {
+                clearTimeout(searchTimeout);
+                const query = this.value.trim();
+
+                if (query.length < 2) {
+                    searchResults.classList.add('hidden');
+                    return;
+                }
+
+                searchTimeout = setTimeout(() => {
+                    fetch(`/users-search?q=${encodeURIComponent(query)}`)
+                        .then(response => response.json())
+                        .then(users => {
+                            if (users.length === 0) {
+                                searchResults.innerHTML = '<div class="p-3 text-sm text-gray-500 dark:text-gray-400">No users found</div>';
+                                searchResults.classList.remove('hidden');
+                                return;
+                            }
+
+                            searchResults.innerHTML = users.map(user => `
+                                <div class="p-3 hover:bg-gray-100 dark:hover:bg-slate-600 cursor-pointer border-b border-gray-200 dark:border-slate-600 last:border-b-0 user-result" 
+                                    data-user-id="${user.id}" 
+                                    data-user-name="${user.name}"
+                                    data-user-email="${user.email}">
+                                    <div class="font-medium text-sm text-gray-900 dark:text-white">${user.name}</div>
+                                    <div class="text-xs text-gray-500 dark:text-gray-400">${user.email}${user.team ? ' • ' + user.team : ''}</div>
+                                </div>
+                            `).join('');
+                            searchResults.classList.remove('hidden');
+
+                            // Add click handlers
+                            document.querySelectorAll('.user-result').forEach(el => {
+                                el.addEventListener('click', function() {
+                                    const userId = parseInt(this.dataset.userId);
+                                    const userName = this.dataset.userName;
+                                    const userEmail = this.dataset.userEmail;
+                                    
+                                    if (!selectedUserIds.includes(userId)) {
+                                        addSelectedUser(userId, userName, userEmail);
+                                    }
+                                    
+                                    searchInput.value = '';
+                                    searchResults.classList.add('hidden');
+                                });
+                            });
+                        })
+                        .catch(error => {
+                            console.error('Error searching users:', error);
+                        });
+                }, 300);
+            });
+
+            // Close search results when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
+                    searchResults.classList.add('hidden');
+                }
+            });
+        });
+
+        function addSelectedUser(userId, userName, userEmail) {
+            selectedUserIds.push(userId);
+            
+            const badge = document.createElement('div');
+            badge.className = 'inline-flex items-center gap-2 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-3 py-1.5 rounded-lg text-sm';
+            badge.innerHTML = `
+                <div>
+                    <div class="font-medium">${userName}</div>
+                    <div class="text-xs opacity-75">${userEmail}</div>
+                </div>
+                <button type="button" onclick="removeSelectedUser(${userId}, this)" class="text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-200">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+            
+            document.getElementById('selectedUsers').appendChild(badge);
+        }
+
+        function removeSelectedUser(userId, buttonElement) {
+            selectedUserIds = selectedUserIds.filter(id => id !== userId);
+            buttonElement.closest('.inline-flex').remove();
+        }
+
+        // Assignment remarks modal functions
+        let currentAssignmentAction = null;
+
+        function promptRemarksForAssignment(assignmentId, newStatus, oldStatus) {
+            const selectElement = event.target;
+            
+            // If status hasn't changed, do nothing
+            if (newStatus === oldStatus) {
+                return;
+            }
+
+            // Store action details
+            currentAssignmentAction = {
+                id: assignmentId,
+                status: newStatus,
+                oldStatus: oldStatus,
+                selectElement: selectElement
+            };
+
+            // Show modal
+            document.getElementById('assignmentRemarksModal').classList.remove('hidden');
+            document.getElementById('assignmentRemarksInput').value = '';
+            document.getElementById('assignmentRemarksInput').focus();
+        }
+
+        function closeAssignmentRemarksModal() {
+            // Reset select to original value
+            if (currentAssignmentAction && currentAssignmentAction.selectElement) {
+                currentAssignmentAction.selectElement.value = currentAssignmentAction.oldStatus;
+            }
+            
+            document.getElementById('assignmentRemarksModal').classList.add('hidden');
+            document.getElementById('assignmentRemarksInput').value = '';
+            currentAssignmentAction = null;
+        }
+
+        function submitAssignmentRemarks() {
+            const remarks = document.getElementById('assignmentRemarksInput').value.trim();
+            
+            if (!currentAssignmentAction) {
+                return;
+            }
+
+            // Close modal
+            document.getElementById('assignmentRemarksModal').classList.add('hidden');
+
+            // Update status with remarks
+            updateAssignmentStatus(currentAssignmentAction.id, currentAssignmentAction.status, remarks, currentAssignmentAction.selectElement);
+
+            currentAssignmentAction = null;
+        }
+
+        function submitAssignmentRemarksSkip() {
+            if (!currentAssignmentAction) {
+                return;
+            }
+
+            // Close modal
+            document.getElementById('assignmentRemarksModal').classList.add('hidden');
+
+            // Update status without remarks
+            updateAssignmentStatus(currentAssignmentAction.id, currentAssignmentAction.status, '', currentAssignmentAction.selectElement);
+
+            currentAssignmentAction = null;
+        }
+
+        // Update assignment status
+        function updateAssignmentStatus(assignmentId, status, remarks, selectElement) {
+            const originalValue = selectElement ? (selectElement.dataset.originalStatus || selectElement.value) : null;
+            
+            // Add loading state
+            if (selectElement) {
+                selectElement.disabled = true;
+                selectElement.style.opacity = '0.6';
+            }
+            
+            fetch(`/task-assigns/${assignmentId}/status`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                },
+                body: JSON.stringify({ 
+                    status: status,
+                    remarks: remarks || null
+                })
+            })
+            .then(response => {
+                if (response.status === 403) {
+                    return response.json().then(data => {
+                        throw new Error(data.message || 'You are not authorized to update this assignment status.');
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    console.log('Assignment status updated successfully');
+                    if (selectElement) {
+                        selectElement.dataset.originalStatus = status;
+                        
+                        // Update colors based on status
+                        selectElement.className = selectElement.className.replace(/bg-\w+-100 text-\w+-800/g, '');
+                        if (status === 'Done') {
+                            selectElement.className += ' bg-green-100 text-green-800';
+                        } else if (status === 'In Process') {
+                            selectElement.className += ' bg-yellow-100 text-yellow-800';
+                        } else {
+                            selectElement.className += ' bg-gray-100 text-gray-800';
+                        }
+                    }
+                    
+                    // Reload to show remarks
+                    setTimeout(() => {
+                        location.reload();
+                    }, 500);
+                } else {
+                    alert('Failed to update assignment status');
+                    if (selectElement && originalValue) {
+                        selectElement.value = originalValue;
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert(error.message || 'Failed to update assignment status');
+                if (selectElement && originalValue) {
+                    selectElement.value = originalValue;
+                }
+            })
+            .finally(() => {
+                if (selectElement) {
+                    selectElement.disabled = false;
+                    selectElement.style.opacity = '1';
+                }
+            });
+        }
+
+        // Handle form submission
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('createTaskForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const formData = new FormData(this);
+                
+                // Add selected user IDs to form data
+                selectedUserIds.forEach(userId => {
+                    formData.append('assigned_users[]', userId);
+                });
+                
+                const actionUrl = this.action;
+                
+                fetch(actionUrl, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        closeCreateTaskModal();
+                        location.reload();
+                    } else {
+                        alert('Failed to create task');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Failed to create task');
+                });
+            });
+
+            // Close modal on Escape key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    if (!document.getElementById('createTaskModal').classList.contains('hidden')) {
+                        closeCreateTaskModal();
+                    }
+                }
             });
         });
     </script>
