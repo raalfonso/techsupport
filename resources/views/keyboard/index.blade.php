@@ -24,9 +24,55 @@
         <div class="max-w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <!-- Header Section -->
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-                <div>
-                    <h1 class="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Key-Board</h1>
-                    <p class="text-gray-600 dark:text-gray-400 mt-2 text-lg">Meeting Notes & Task Management</p>
+                <div class="flex items-center gap-4">
+                    <!-- Enhanced Logo with Icon -->
+                    <div class="flex items-center gap-3">
+                        <!-- Keyboard Key Icon with Checklist -->
+                        <div class="relative">
+                            <svg width="56" height="56" viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <!-- Rounded Square Keyboard Key Background -->
+                                <rect x="2" y="2" width="52" height="52" rx="12" fill="#0D9488" stroke="#115E59" stroke-width="2"/>
+                                <rect x="4" y="4" width="48" height="48" rx="10" fill="url(#keyGradient)"/>
+                                
+                                <!-- Checklist Lines and Checkboxes -->
+                                <!-- Line 1 with checkbox -->
+                                <circle cx="14" cy="16" r="2.5" fill="white" opacity="0.9"/>
+                                <line x1="20" y1="16" x2="42" y2="16" stroke="white" stroke-width="2" stroke-linecap="round" opacity="0.9"/>
+                                
+                                <!-- Line 2 with checkbox -->
+                                <circle cx="14" cy="24" r="2.5" fill="white" opacity="0.9"/>
+                                <line x1="20" y1="24" x2="42" y2="24" stroke="white" stroke-width="2" stroke-linecap="round" opacity="0.9"/>
+                                
+                                <!-- Line 3 with checkbox and clock icon (agenda item) -->
+                                <circle cx="14" cy="32" r="2.5" fill="white" opacity="0.9"/>
+                                <line x1="20" y1="32" x2="38" y2="32" stroke="white" stroke-width="2" stroke-linecap="round" opacity="0.9"/>
+                                <!-- Small clock icon -->
+                                <circle cx="42" cy="32" r="3" fill="white" opacity="0.9"/>
+                                <line x1="42" y1="32" x2="42" y2="30" stroke="#0D9488" stroke-width="1" stroke-linecap="round"/>
+                                <line x1="42" y1="32" x2="43.5" y2="32" stroke="#0D9488" stroke-width="1" stroke-linecap="round"/>
+                                
+                                <!-- Line 4 with checkbox -->
+                                <circle cx="14" cy="40" r="2.5" fill="white" opacity="0.9"/>
+                                <line x1="20" y1="40" x2="42" y2="40" stroke="white" stroke-width="2" stroke-linecap="round" opacity="0.9"/>
+                                
+                                <!-- Gradient Definition -->
+                                <defs>
+                                    <linearGradient id="keyGradient" x1="4" y1="4" x2="52" y2="52" gradientUnits="userSpaceOnUse">
+                                        <stop offset="0%" stop-color="#14B8A6"/>
+                                        <stop offset="100%" stop-color="#0D9488"/>
+                                    </linearGradient>
+                                </defs>
+                            </svg>
+                        </div>
+                        
+                        <!-- Logo Text -->
+                        <div>
+                            <h1 class="text-4xl font-bold text-gray-900 dark:text-white">
+                                <span class="font-normal text-teal-600 dark:text-teal-400">Key-</span><span class="font-bold text-blue-900 dark:text-blue-300">Board</span>
+                            </h1>
+                            <p class="text-gray-600 dark:text-gray-400 mt-1 text-sm">Meeting Notes & Task Management</p>
+                        </div>
+                    </div>
                 </div>
                 <a href="{{ route('meetings.create') }}" class="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-8 py-3 rounded-xl font-semibold hover:from-blue-700 hover:to-blue-800 transition-all duration-300 flex items-center gap-2 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
                     <i class="fas fa-plus"></i> New Meeting
