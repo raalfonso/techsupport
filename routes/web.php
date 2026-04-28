@@ -124,6 +124,26 @@ Route::middleware('auth')->group(function () {
     Route::post('/profile/change-password', [ProfileController::class, 'changePassword'])->name('profile.change-password');
     
     Route::resource('users', UserController::class);
+
+    // Key Board Routes (Meeting Notes)
+    Route::get('/keyboard', [App\Http\Controllers\KeyBoardController::class, 'index'])->name('keyboard.index');
+    Route::get('/keyboard/calendar', [App\Http\Controllers\KeyBoardController::class, 'calendar'])->name('keyboard.calendar');
+    Route::get('/keyboard/archive', [App\Http\Controllers\KeyBoardController::class, 'archive'])->name('keyboard.archive');
+    Route::get('/keyboard/settings', [App\Http\Controllers\KeyBoardController::class, 'settings'])->name('keyboard.settings');
+    Route::post('/keyboard/types', [App\Http\Controllers\KeyBoardController::class, 'storeType'])->name('keyboard.types.store');
+    Route::put('/keyboard/types/{type}', [App\Http\Controllers\KeyBoardController::class, 'updateType'])->name('keyboard.types.update');
+    Route::delete('/keyboard/types/{type}', [App\Http\Controllers\KeyBoardController::class, 'destroyType'])->name('keyboard.types.destroy');
+    Route::post('/keyboard/agendas/{agenda}/status', [App\Http\Controllers\KeyBoardController::class, 'updateAgendaStatus']);
+    Route::post('/keyboard/tasks/{task}/status', [App\Http\Controllers\KeyBoardController::class, 'updateTaskStatus']);
+    Route::get('/meetings/{meetingDetail}/follow-up', [App\Http\Controllers\MeetingDetailController::class, 'createFollowUp'])->name('meetings.follow-up');
+    Route::get('/meetings/{meetingDetail}/present', [App\Http\Controllers\MeetingDetailController::class, 'present'])->name('meetings.present');
+    Route::resource('meetings', App\Http\Controllers\MeetingDetailController::class);
+    Route::post('/meetings/{meetingDetail}/agendas', [App\Http\Controllers\MeetingDetailController::class, 'storeAgenda'])->name('meetings.agendas.store');
+    Route::put('/agendas/{agenda}', [App\Http\Controllers\MeetingDetailController::class, 'updateAgenda'])->name('agendas.update');
+    Route::delete('/agendas/{agenda}', [App\Http\Controllers\MeetingDetailController::class, 'destroyAgenda'])->name('agendas.destroy');
+    Route::post('/meetings/{meetingDetail}/tasks', [App\Http\Controllers\MeetingDetailController::class, 'storeTask'])->name('meetings.tasks.store');
+    Route::put('/tasks/{task}', [App\Http\Controllers\MeetingDetailController::class, 'updateTask'])->name('tasks.update');
+    Route::delete('/tasks/{task}', [App\Http\Controllers\MeetingDetailController::class, 'destroyTask'])->name('tasks.destroy');
   
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
