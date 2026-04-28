@@ -34,7 +34,29 @@ class TaskAssignController extends Controller
 
         $validated['status'] = $validated['status'] ?? 'Pending';
 
+        // Check if user is already assigned to this task
+        $existingAssignment = TaskAssign::where('meeting_task_id', $validated['meeting_task_id'])
+            ->where('assigned_personnel_id', $validated['assigned_personnel_id'])
+            ->first();
+
+        if ($existingAssignment) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'User is already assigned to this task'
+                ], 422);
+            }
+            return redirect()->back()->with('error', 'User is already assigned to this task');
+        }
+
         TaskAssign::create($validated);
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Task assigned successfully'
+            ]);
+        }
 
         return redirect()->back()->with('success', 'Task assigned successfully');
     }

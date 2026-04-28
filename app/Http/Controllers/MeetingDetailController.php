@@ -104,7 +104,7 @@ class MeetingDetailController extends Controller
     public function edit(MeetingDetail $meetingDetail)
     {
         $meetingTypes = MeetingType::where('is_active', true)->get();
-        $meetingDetail->load(['agendas', 'tasks']);
+        $meetingDetail->load(['agendas', 'tasks.taskAssigns.assignedPersonnel']);
         return view('keyboard.meetings.edit', compact('meetingDetail', 'meetingTypes'));
     }
 

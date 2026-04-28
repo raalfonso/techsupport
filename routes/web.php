@@ -139,7 +139,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/keyboard/tasks/{task}/status', [App\Http\Controllers\KeyBoardController::class, 'updateTaskStatus']);
     Route::get('/meetings/{meetingDetail}/follow-up', [App\Http\Controllers\MeetingDetailController::class, 'createFollowUp'])->name('meetings.follow-up');
     Route::get('/meetings/{meetingDetail}/present', [App\Http\Controllers\MeetingDetailController::class, 'present'])->name('meetings.present');
-    Route::resource('meetings', App\Http\Controllers\MeetingDetailController::class);
+    Route::resource('meetings', App\Http\Controllers\MeetingDetailController::class)->parameters(['meetings' => 'meetingDetail']);
     Route::post('/meetings/{meetingDetail}/agendas', [App\Http\Controllers\MeetingDetailController::class, 'storeAgenda'])->name('meetings.agendas.store');
     Route::put('/agendas/{agenda}', [App\Http\Controllers\MeetingDetailController::class, 'updateAgenda'])->name('agendas.update');
     Route::delete('/agendas/{agenda}', [App\Http\Controllers\MeetingDetailController::class, 'destroyAgenda'])->name('agendas.destroy');

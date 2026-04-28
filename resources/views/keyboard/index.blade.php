@@ -276,11 +276,16 @@
                             <div class="space-y-3">
                                 @forelse($meeting->tasks as $task)
                                     <div class="bg-gradient-to-r from-gray-50 to-green-50 dark:from-slate-700 dark:to-slate-600 p-4 rounded-xl border-l-4 border-green-500 hover:shadow-md transition-all duration-200 transform hover:-translate-y-1">
-                                        <div class="flex justify-between items-start mb-2">
+                                        <div class="flex justify-between items-start mb-2 gap-2">
                                             <p class="font-semibold text-sm text-gray-900 dark:text-white flex-1">{{ $task->title }}</p>
+                                            <button type="button" onclick="openAssignPersonnelModal({{ $task->id }}, '{{ addslashes($task->title) }}')" 
+                                                class="bg-green-600 hover:bg-green-700 text-white px-2 py-1 rounded text-xs font-medium transition flex items-center gap-1 flex-shrink-0"
+                                                title="Assign Personnel">
+                                                <i class="fas fa-user-plus"></i>
+                                            </button>
                                             <select onchange="promptRemarksForTask({{ $task->id }}, this.value, '{{ $task->status }}')" 
                                                 data-original-status="{{ $task->status }}"
-                                                class="text-xs px-3 py-1.5 rounded-lg border-0 font-medium transition-all duration-200 cursor-pointer {{ $task->status === 'Done' ? 'bg-green-100 text-green-800 hover:bg-green-200' : ($task->status === 'In Process' ? 'bg-yellow-100 text-yellow-800 hover:bg-yellow-200' : 'bg-gray-100 text-gray-800 hover:bg-gray-200') }}">
+                                                class="text-xs px-3 py-1.5 rounded-lg border-0 font-medium transition-all duration-200 cursor-pointer flex-shrink-0 {{ $task->status === 'Done' ? 'bg-green-100 text-green-800 hover:bg-green-200' : ($task->status === 'In Process' ? 'bg-yellow-100 text-yellow-800 hover:bg-yellow-200' : 'bg-gray-100 text-gray-800 hover:bg-gray-200') }}">
                                                 <option value="Pending" {{ $task->status === 'Pending' ? 'selected' : '' }}>Pending</option>
                                                 <option value="In Process" {{ $task->status === 'In Process' ? 'selected' : '' }}>In Process</option>
                                                 <option value="Done" {{ $task->status === 'Done' ? 'selected' : '' }}>Done</option>
@@ -434,6 +439,47 @@
                     <button onclick="submitAssignmentRemarks()" 
                         class="flex-1 px-4 py-2 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-lg hover:from-green-700 hover:to-green-800 transition">
                         Submit
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Assign Personnel Modal -->
+    <div id="assignPersonnelModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl max-w-lg w-full transform transition-all max-h-[90vh] overflow-y-auto">
+            <div class="p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <h3 class="text-xl font-bold text-gray-900 dark:text-white">Assign Personnel</h3>
+                        <p class="text-sm text-gray-600 dark:text-gray-400" id="modalTaskTitle"></p>
+                    </div>
+                    <button type="button" onclick="closeAssignPersonnelModalIndex()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+                
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Search Users</label>
+                        <div class="relative">
+                            <input type="text" id="modalUserSearchInput" autocomplete="off"
+                                class="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-slate-700 dark:text-white"
+                                placeholder="Search users by name or email...">
+                            <div id="modalUserSearchResults" class="hidden absolute z-10 w-full mt-1 bg-white dark:bg-slate-700 border border-gray-300 dark:border-slate-600 rounded-lg shadow-lg max-h-48 overflow-y-auto"></div>
+                        </div>
+                    </div>
+                    <div id="modalSelectedUsers" class="flex flex-wrap gap-2"></div>
+                </div>
+
+                <div class="flex gap-3 mt-6">
+                    <button type="button" onclick="closeAssignPersonnelModalIndex()" 
+                        class="flex-1 px-4 py-2 bg-gray-200 dark:bg-slate-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-slate-600 transition">
+                        Cancel
+                    </button>
+                    <button type="button" onclick="submitAssignPersonnelIndex()" 
+                        class="flex-1 px-4 py-2 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-lg hover:from-green-700 hover:to-green-800 transition">
+                        <i class="fas fa-user-plus mr-2"></i>Assign Personnel
                     </button>
                 </div>
             </div>
@@ -1055,6 +1101,162 @@
                 }
             });
         });
+
+        // Assign Personnel Modal Functions for Index Page
+        let currentTaskIdIndex = null;
+        let selectedUserIdsIndex = [];
+        let searchTimeoutIndex = null;
+
+        function openAssignPersonnelModal(taskId, taskTitle) {
+            currentTaskIdIndex = taskId;
+            selectedUserIdsIndex = [];
+            document.getElementById('assignPersonnelModal').classList.remove('hidden');
+            document.getElementById('modalTaskTitle').textContent = taskTitle;
+            document.getElementById('modalUserSearchInput').value = '';
+            document.getElementById('modalSelectedUsers').innerHTML = '';
+            document.getElementById('modalUserSearchResults').classList.add('hidden');
+            document.getElementById('modalUserSearchInput').focus();
+        }
+
+        function closeAssignPersonnelModalIndex() {
+            document.getElementById('assignPersonnelModal').classList.add('hidden');
+            currentTaskIdIndex = null;
+            selectedUserIdsIndex = [];
+        }
+
+        // User search for assign modal
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('modalUserSearchInput');
+            const searchResults = document.getElementById('modalUserSearchResults');
+
+            if (searchInput) {
+                searchInput.addEventListener('input', function() {
+                    clearTimeout(searchTimeoutIndex);
+                    const query = this.value.trim();
+
+                    if (query.length < 2) {
+                        searchResults.classList.add('hidden');
+                        return;
+                    }
+
+                    searchTimeoutIndex = setTimeout(() => {
+                        fetch(`/users-search?q=${encodeURIComponent(query)}`, {
+                            headers: {
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                            }
+                        })
+                        .then(response => response.json())
+                        .then(users => {
+                            if (users.length === 0) {
+                                searchResults.innerHTML = '<div class="p-3 text-sm text-gray-500 dark:text-gray-400">No users found</div>';
+                                searchResults.classList.remove('hidden');
+                                return;
+                            }
+
+                            const filteredUsers = users.filter(user => !selectedUserIdsIndex.includes(user.id));
+
+                            if (filteredUsers.length === 0) {
+                                searchResults.innerHTML = '<div class="p-3 text-sm text-gray-500 dark:text-gray-400">All matching users already selected</div>';
+                                searchResults.classList.remove('hidden');
+                                return;
+                            }
+
+                            searchResults.innerHTML = filteredUsers.map(user => `
+                                <div class="p-3 hover:bg-gray-100 dark:hover:bg-slate-600 cursor-pointer border-b border-gray-200 dark:border-slate-600 last:border-b-0 user-result-modal" 
+                                    data-user-id="${user.id}" 
+                                    data-user-name="${user.name}"
+                                    data-user-email="${user.email}">
+                                    <div class="font-medium text-sm text-gray-900 dark:text-white">${user.name}</div>
+                                    <div class="text-xs text-gray-500 dark:text-gray-400">${user.email}${user.team ? ' • ' + user.team : ''}</div>
+                                </div>
+                            `).join('');
+                            searchResults.classList.remove('hidden');
+
+                            document.querySelectorAll('.user-result-modal').forEach(el => {
+                                el.addEventListener('click', function() {
+                                    const userId = parseInt(this.dataset.userId);
+                                    const userName = this.dataset.userName;
+                                    const userEmail = this.dataset.userEmail;
+                                    
+                                    if (!selectedUserIdsIndex.includes(userId)) {
+                                        addSelectedUserModal(userId, userName, userEmail);
+                                    }
+                                    
+                                    searchInput.value = '';
+                                    searchResults.classList.add('hidden');
+                                });
+                            });
+                        })
+                        .catch(error => {
+                            console.error('Error searching users:', error);
+                        });
+                    }, 300);
+                });
+            }
+        });
+
+        function addSelectedUserModal(userId, userName, userEmail) {
+            selectedUserIdsIndex.push(userId);
+            
+            const badge = document.createElement('div');
+            badge.className = 'inline-flex items-center gap-2 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-3 py-1.5 rounded-lg text-sm';
+            badge.innerHTML = `
+                <div>
+                    <div class="font-medium">${userName}</div>
+                    <div class="text-xs opacity-75">${userEmail}</div>
+                </div>
+                <button type="button" onclick="removeSelectedUserModal(${userId}, this)" class="text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-200">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+            
+            document.getElementById('modalSelectedUsers').appendChild(badge);
+        }
+
+        function removeSelectedUserModal(userId, buttonElement) {
+            selectedUserIdsIndex = selectedUserIdsIndex.filter(id => id !== userId);
+            buttonElement.closest('.inline-flex').remove();
+        }
+
+        function submitAssignPersonnelIndex() {
+            if (!currentTaskIdIndex || selectedUserIdsIndex.length === 0) {
+                alert('Please select at least one user to assign');
+                return;
+            }
+
+            const promises = selectedUserIdsIndex.map(userId => {
+                return fetch('/task-assigns', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    },
+                    body: JSON.stringify({
+                        meeting_task_id: currentTaskIdIndex,
+                        assigned_personnel_id: userId,
+                        status: 'Pending'
+                    })
+                }).then(response => {
+                    if (!response.ok) {
+                        return response.json().then(err => {
+                            throw new Error(err.message || 'Failed to assign user');
+                        });
+                    }
+                    return response.json();
+                });
+            });
+
+            Promise.all(promises)
+                .then(results => {
+                    closeAssignPersonnelModalIndex();
+                    location.reload();
+                })
+                .catch(error => {
+                    console.error('Error assigning personnel:', error);
+                    alert(error.message || 'Failed to assign personnel');
+                });
+        }
     </script>
 </body>
 </html>
