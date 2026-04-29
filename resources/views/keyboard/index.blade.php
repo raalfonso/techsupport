@@ -219,17 +219,78 @@
                             </div>
                         </div>
 
+                        <!-- Highlights Section (Agendas with remarks from previous meetings) -->
+                        @php
+                            $highlightedAgendas = $meeting->agendas->filter(function($agenda) {
+                                return !empty($agenda->remarks) && !$agenda->updated_by;
+                            });
+                        @endphp
+                        @if($highlightedAgendas->count() > 0)
+                            <div class="p-6 border-b border-gray-200 dark:border-slate-700 bg-amber-50/30 dark:bg-amber-900/10">
+                                <h4 class="font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                                    <div class="bg-amber-100 dark:bg-amber-900 p-2 rounded-lg">
+                                        <i class="fas fa-star text-amber-600 dark:text-amber-400"></i>
+                                    </div>
+                                    <span>Highlights</span>
+                                    <span class="ml-auto text-xs bg-amber-100 dark:bg-amber-900 text-amber-600 dark:text-amber-400 px-2 py-1 rounded-full">{{ $highlightedAgendas->count() }}</span>
+                                </h4>
+                                <div class="space-y-3">
+                                    @foreach($highlightedAgendas as $agenda)
+                                        <div class="bg-gradient-to-r from-amber-50 to-yellow-50 dark:from-amber-900/20 dark:to-yellow-900/20 p-4 rounded-xl border-l-4 border-amber-500 hover:shadow-md transition-all duration-200">
+                                            <div class="flex justify-between items-start mb-2 gap-2">
+                                                <div class="flex items-start gap-3 flex-1">
+                                                    <div class="flex-shrink-0 mt-1">
+                                                        <i class="fas fa-star text-amber-500"></i>
+                                                    </div>
+                                                    <p class="font-semibold text-sm text-gray-900 dark:text-white flex-1">{{ $agenda->title }}</p>
+                                                </div>
+                                                <button onclick="openCreateTaskFromAgenda({{ $meeting->id }}, '{{ addslashes($agenda->title) }}', '{{ addslashes($agenda->details ?? '') }}')" 
+                                                    class="text-green-600 hover:text-green-700 dark:text-green-400 dark:hover:text-green-300 transition-colors flex-shrink-0" 
+                                                    title="Create Task from Agenda">
+                                                    <i class="fas fa-plus-circle"></i>
+                                                </button>
+                                                <select onchange="promptRemarksForAgenda({{ $agenda->id }}, this.value, '{{ $agenda->status }}')" 
+                                                    data-original-status="{{ $agenda->status }}"
+                                                    class="text-xs px-3 py-1.5 rounded-lg border-0 font-medium transition-all duration-200 cursor-pointer flex-shrink-0 {{ $agenda->status === 'Done' ? 'bg-green-100 text-green-800 hover:bg-green-200' : ($agenda->status === 'In Process' ? 'bg-yellow-100 text-yellow-800 hover:bg-yellow-200' : 'bg-gray-100 text-gray-800 hover:bg-gray-200') }}">
+                                                    <option value="Pending" {{ $agenda->status === 'Pending' ? 'selected' : '' }}>Pending</option>
+                                                    <option value="In Process" {{ $agenda->status === 'In Process' ? 'selected' : '' }}>In Process</option>
+                                                    <option value="Done" {{ $agenda->status === 'Done' ? 'selected' : '' }}>Done</option>
+                                                </select>
+                                            </div>
+                                            <div class="ml-8">
+                                                <p class="text-xs text-amber-800 dark:text-amber-300 leading-relaxed">{{ $agenda->remarks }}</p>
+                                                @if($agenda->details)
+                                                    <p class="text-xs text-gray-600 dark:text-gray-400 mt-2 leading-relaxed">{{ $agenda->details }}</p>
+                                                @endif
+                                                @if($agenda->assigned_personnel)
+                                                    <div class="flex items-center gap-2 text-xs bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-300 px-3 py-1.5 rounded-lg w-fit mt-2">
+                                                        <i class="fas fa-user text-amber-500"></i>
+                                                        <span class="font-medium">{{ $agenda->assigned_personnel }}</span>
+                                                    </div>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                        @endif
+
                         <!-- Agendas Section -->
                         <div class="p-6 border-b border-gray-200 dark:border-slate-700">
+                            @php
+                                $regularAgendas = $meeting->agendas->filter(function($agenda) {
+                                    return empty($agenda->remarks) || $agenda->updated_by;
+                                });
+                            @endphp
                             <h4 class="font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
                                 <div class="bg-blue-100 dark:bg-blue-900 p-2 rounded-lg">
                                     <i class="fas fa-list-check text-blue-600 dark:text-blue-400"></i>
                                 </div>
                                 <span>Agendas</span>
-                                <span class="ml-auto text-xs bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400 px-2 py-1 rounded-full">{{ $meeting->agendas->count() }}</span>
+                                <span class="ml-auto text-xs bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400 px-2 py-1 rounded-full">{{ $regularAgendas->count() }}</span>
                             </h4>
                             <div class="space-y-3">
-                                @forelse($meeting->agendas as $agenda)
+                                @forelse($regularAgendas as $agenda)
                                     <div class="bg-gradient-to-r from-gray-50 to-blue-50 dark:from-slate-700 dark:to-slate-600 p-4 rounded-xl border-l-4 border-blue-500 hover:shadow-md transition-all duration-200 transform hover:-translate-y-1">
                                         <div class="flex justify-between items-start mb-2 gap-2">
                                             <p class="font-semibold text-sm text-gray-900 dark:text-white flex-1">{{ $agenda->title }}</p>
@@ -249,14 +310,12 @@
                                         @if($agenda->details)
                                             <p class="text-xs text-gray-600 dark:text-gray-400 mb-2 leading-relaxed">{{ $agenda->details }}</p>
                                         @endif
-                                        @if($agenda->remarks)
+                                        @if($agenda->remarks && $agenda->updatedByUser)
                                             <div class="bg-amber-50 dark:bg-amber-900/20 border-l-2 border-amber-400 px-3 py-2 rounded mb-2">
                                                 <p class="text-xs text-amber-800 dark:text-amber-300"><span class="font-semibold">Remarks:</span> {{ $agenda->remarks }}</p>
-                                                @if($agenda->updatedByUser)
-                                                    <p class="text-xs text-amber-700 dark:text-amber-400 mt-1">
-                                                        <i class="fas fa-user-edit"></i> Updated by: <span class="font-medium">{{ $agenda->updatedByUser->name }}</span>
-                                                    </p>
-                                                @endif
+                                                <p class="text-xs text-amber-700 dark:text-amber-400 mt-1">
+                                                    <i class="fas fa-user-edit"></i> Updated by: <span class="font-medium">{{ $agenda->updatedByUser->name }}</span>
+                                                </p>
                                             </div>
                                         @endif
                                         @if($agenda->assigned_personnel)

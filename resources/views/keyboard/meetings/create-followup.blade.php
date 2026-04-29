@@ -180,8 +180,9 @@
                                                     class="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-600 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">{{ $agenda->details }}</textarea>
                                             </div>
                                             <div>
-                                                <input type="text" name="agendas[{{ $index }}][assigned_personnel]" value="{{ $agenda->assigned_personnel }}" placeholder="Assigned personnel (optional)" 
-                                                    class="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-600 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                                <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Highlights (from previous meeting)</label>
+                                                <textarea name="agendas[{{ $index }}][remarks]" placeholder="Add highlights or key points from previous discussion..." rows="2" 
+                                                    class="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-600 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">{{ $agenda->remarks }}</textarea>
                                             </div>
                                         </div>
                                     </div>
@@ -207,8 +208,9 @@
                                                     class="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-600 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">{{ $task->details }}</textarea>
                                             </div>
                                             <div>
-                                                <input type="text" name="agendas[{{ $agendaIndex }}][assigned_personnel]" value="{{ $task->assigned_personnel }}" placeholder="Assigned personnel (optional)" 
-                                                    class="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-600 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                                <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Highlights (from previous meeting)</label>
+                                                <textarea name="agendas[{{ $agendaIndex }}][remarks]" placeholder="Add highlights or key points from previous discussion..." rows="2" 
+                                                    class="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-600 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">{{ $task->remarks }}</textarea>
                                             </div>
                                         </div>
                                     </div>
@@ -231,10 +233,6 @@
                                             <div>
                                                 <textarea :name="'agendas[' + ({{ $incompleteAgendas->count() + $incompleteTasks->count() }} + index) + '][details]'" x-model="agenda.details" placeholder="Details (optional)" rows="2" 
                                                     class="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-600 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
-                                            </div>
-                                            <div>
-                                                <input type="text" :name="'agendas[' + ({{ $incompleteAgendas->count() + $incompleteTasks->count() }} + index) + '][assigned_personnel]'" x-model="agenda.assigned_personnel" placeholder="Assigned personnel (optional)" 
-                                                    class="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-600 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
                                             </div>
                                         </div>
                                     </div>
@@ -331,7 +329,7 @@
             return {
                 agendas: [],
                 addAgenda() {
-                    this.agendas.push({ title: '', details: '', assigned_personnel: '' });
+                    this.agendas.push({ title: '', details: '' });
                 },
                 removeAgenda(index) {
                     this.agendas.splice(index, 1);

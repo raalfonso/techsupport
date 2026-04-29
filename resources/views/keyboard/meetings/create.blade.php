@@ -139,12 +139,8 @@
 
                     <!-- Agendas -->
                     <div class="mb-8">
-                        <div class="flex justify-between items-center mb-4">
+                        <div class="mb-4">
                             <h2 class="text-xl font-bold text-gray-900 dark:text-white">Agendas</h2>
-                            <button type="button" @click="addAgenda()" 
-                                class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-blue-700 transition">
-                                <i class="fas fa-plus mr-2"></i> Add Agenda
-                            </button>
                         </div>
 
                         <div class="space-y-4">
@@ -165,24 +161,23 @@
                                             <textarea :name="'agendas[' + index + '][details]'" x-model="agenda.details" placeholder="Details (optional)" rows="2" 
                                                 class="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-600 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
                                         </div>
-                                        <div>
-                                            <input type="text" :name="'agendas[' + index + '][assigned_personnel]'" x-model="agenda.assigned_personnel" placeholder="Assigned personnel (optional)" 
-                                                class="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-600 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                        </div>
                                     </div>
                                 </div>
                             </template>
+                        </div>
+
+                        <div class="mt-4">
+                            <button type="button" @click="addAgenda()" 
+                                class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-blue-700 transition">
+                                <i class="fas fa-plus mr-2"></i> Add Agenda
+                            </button>
                         </div>
                     </div>
 
                     <!-- Tasks -->
                     <div class="mb-8">
-                        <div class="flex justify-between items-center mb-4">
+                        <div class="mb-4">
                             <h2 class="text-xl font-bold text-gray-900 dark:text-white">Tasks</h2>
-                            <button type="button" @click="addTask()" 
-                                class="bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-green-700 transition">
-                                <i class="fas fa-plus mr-2"></i> Add Task
-                            </button>
                         </div>
 
                         <div class="space-y-4">
@@ -238,15 +233,17 @@
                                                 </template>
                                             </div>
                                         </div>
-                                        <div>
-                                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Assigned Personnel (Text)</label>
-                                            <input type="text" :name="'tasks[' + index + '][assigned_personnel]'" x-model="task.assigned_personnel" placeholder="Assigned personnel text (optional)" 
-                                                class="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-600 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">This is a text field for display purposes</p>
-                                        </div>
+
                                     </div>
                                 </div>
                             </template>
+                        </div>
+
+                        <div class="mt-4">
+                            <button type="button" @click="addTask()" 
+                                class="bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-green-700 transition">
+                                <i class="fas fa-plus mr-2"></i> Add Task
+                            </button>
                         </div>
                     </div>
 
@@ -276,7 +273,7 @@
                 attendeeSearchTimeout: null,
                 
                 addAgenda() {
-                    this.agendas.push({ title: '', details: '', assigned_personnel: '' });
+                    this.agendas.push({ title: '', details: '' });
                 },
                 removeAgenda(index) {
                     this.agendas.splice(index, 1);
@@ -285,7 +282,6 @@
                     this.tasks.push({ 
                         title: '', 
                         details: '', 
-                        assigned_personnel: '',
                         assigned_users: [],
                         searchResults: [],
                         showResults: false
