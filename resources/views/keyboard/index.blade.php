@@ -204,6 +204,17 @@
                                             {{ $meeting->type->title }}
                                         </div>
                                     @endif
+                                    <div class="flex items-center gap-2 mt-2">
+                                        @if($meeting->is_public)
+                                            <span class="inline-flex items-center gap-1 bg-green-500/20 backdrop-blur-sm px-3 py-1 rounded-full text-xs">
+                                                <i class="fas fa-globe"></i> Public
+                                            </span>
+                                        @else
+                                            <span class="inline-flex items-center gap-1 bg-orange-500/20 backdrop-blur-sm px-3 py-1 rounded-full text-xs">
+                                                <i class="fas fa-lock"></i> Private
+                                            </span>
+                                        @endif
+                                    </div>
                                 </div>
                             </div>
                         </div>

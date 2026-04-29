@@ -9,6 +9,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
     @vite(['resources/js/app.js', 'resources/css/app.css'])
     <link rel="icon" type="image/png" href="{{ asset('img/itd.png') }}">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <script>
         if (localStorage.getItem('cw-theme') === 'dark') document.documentElement.classList.add('dark');
     </script>
@@ -83,6 +84,67 @@
                                         @endforeach
                                     </select>
                                 </div>
+
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Meeting Visibility</label>
+                                    <div class="flex items-center gap-3 mt-3">
+                                        <label class="relative inline-flex items-center cursor-pointer">
+                                            <input type="checkbox" name="is_public" value="1" class="sr-only peer" {{ old('is_public', $meetingDetail->is_public) ? 'checked' : '' }}>
+                                            <div class="w-14 h-7 bg-gray-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-600 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                                            <span class="ms-3 text-sm font-medium text-gray-700 dark:text-gray-300">
+                                                <span class="peer-checked:hidden">Private Meeting</span>
+                                                <span class="hidden peer-checked:inline">Public Meeting</span>
+                                            </span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Attendees Section (Copied from original meeting) -->
+                            <div class="mb-6" x-data="attendeeManager()">
+                                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                                    Meeting Attendees
+                                    <span class="text-xs font-normal text-blue-600 dark:text-blue-400">(Copied from original meeting)</span>
+                                </label>
+                                <div class="relative">
+                                    <input type="text" id="attendeeSearch" autocomplete="off"
+                                        @input="searchAttendees($event.target.value)"
+                                        @focus="showAttendeeResults = true"
+                                        class="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                        placeholder="Search attendees by name or email...">
+                                    <div x-show="showAttendeeResults && attendeeSearchResults.length > 0" 
+                                        @click.away="showAttendeeResults = false"
+                                        class="absolute z-10 w-full mt-1 bg-white dark:bg-slate-700 border border-gray-300 dark:border-slate-600 rounded-lg shadow-lg max-h-48 overflow-y-auto">
+                                        <template x-for="user in attendeeSearchResults" :key="user.id">
+                                            <div @click="addAttendee(user)" 
+                                                class="p-3 hover:bg-gray-100 dark:hover:bg-slate-600 cursor-pointer border-b border-gray-200 dark:border-slate-600 last:border-b-0">
+                                                <div class="font-medium text-sm text-gray-900 dark:text-white" x-text="user.name"></div>
+                                                <div class="text-xs text-gray-500 dark:text-gray-400" x-text="user.email + (user.team ? ' • ' + user.team : '')"></div>
+                                            </div>
+                                        </template>
+                                    </div>
+                                </div>
+                                <div class="mt-3 flex flex-wrap gap-2">
+                                    <template x-for="(attendeeId, index) in attendees" :key="attendeeId">
+                                        <div class="inline-flex items-center gap-2 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-3 py-2 rounded-lg text-sm">
+                                            <div class="w-8 h-8 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center text-white text-xs font-bold"
+                                                x-text="getAttendeeName(attendeeId).charAt(0).toUpperCase()">
+                                            </div>
+                                            <div>
+                                                <div class="font-medium" x-text="getAttendeeName(attendeeId)"></div>
+                                                <div class="text-xs opacity-75" x-text="getAttendeeEmail(attendeeId)"></div>
+                                            </div>
+                                            <button type="button" @click="removeAttendee(index)" class="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200 ml-2">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                            <input type="hidden" name="attendees[]" :value="attendeeId">
+                                        </div>
+                                    </template>
+                                </div>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                                    <i class="fas fa-info-circle mr-1"></i>
+                                    Attendees from the original meeting are pre-selected. You can add or remove attendees.
+                                </p>
                             </div>
                         </div>
 
@@ -195,6 +257,76 @@
     </main>
 
     <script>
+        function attendeeManager() {
+            return {
+                attendees: @json($meetingDetail->attendees->pluck('attendee_id')->toArray()),
+                attendeeSearchResults: [],
+                showAttendeeResults: false,
+                userCache: @json($meetingDetail->attendees->pluck('attendee')->keyBy('id')->toArray()),
+                attendeeSearchTimeout: null,
+                
+                init() {
+                    console.log('Initialized with attendees from original meeting:', this.attendees);
+                },
+                
+                searchAttendees(query) {
+                    clearTimeout(this.attendeeSearchTimeout);
+                    
+                    if (query.length < 2) {
+                        this.attendeeSearchResults = [];
+                        this.showAttendeeResults = false;
+                        return;
+                    }
+
+                    this.attendeeSearchTimeout = setTimeout(() => {
+                        fetch(`/users-search?q=${encodeURIComponent(query)}`, {
+                            headers: {
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                            }
+                        })
+                        .then(response => response.json())
+                        .then(users => {
+                            // Cache users
+                            users.forEach(user => {
+                                this.userCache[user.id] = user;
+                            });
+                            
+                            // Filter out already selected attendees
+                            this.attendeeSearchResults = users.filter(user => !this.attendees.includes(user.id));
+                            this.showAttendeeResults = true;
+                        })
+                        .catch(error => {
+                            console.error('Error searching attendees:', error);
+                        });
+                    }, 300);
+                },
+                
+                addAttendee(user) {
+                    if (!this.attendees.includes(user.id)) {
+                        this.attendees.push(user.id);
+                        this.userCache[user.id] = user;
+                    }
+                    
+                    // Clear search
+                    document.getElementById('attendeeSearch').value = '';
+                    this.attendeeSearchResults = [];
+                    this.showAttendeeResults = false;
+                },
+                
+                removeAttendee(index) {
+                    this.attendees.splice(index, 1);
+                },
+                
+                getAttendeeName(userId) {
+                    return this.userCache[userId]?.name || 'Unknown User';
+                },
+                
+                getAttendeeEmail(userId) {
+                    return this.userCache[userId]?.email || '';
+                }
+            }
+        }
+
         function followUpForm() {
             return {
                 agendas: [],

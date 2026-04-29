@@ -12,6 +12,7 @@ class MeetingDetail extends Model
         'time',
         'venue',
         'type_id',
+        'is_public',
     ];
 
     protected $casts = [
@@ -31,5 +32,10 @@ class MeetingDetail extends Model
     public function tasks()
     {
         return $this->hasMany(MeetingTask::class, 'meeting_details_id');
+    }
+
+    public function attendees()
+    {
+        return $this->hasMany(MeetingAttendee::class, 'meeting_detail_id');
     }
 }

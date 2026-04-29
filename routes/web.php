@@ -31,7 +31,8 @@ use App\Http\Controllers\{
     SignatoryController,
     ItSurveyController,
     ItSurveyIssueController,
-    TaskAssignController
+    TaskAssignController,
+    MeetingAttendeeController
 };
 
 /*
@@ -150,6 +151,9 @@ Route::middleware('auth')->group(function () {
     // Task Assignment Routes
     Route::resource('task-assigns', App\Http\Controllers\TaskAssignController::class);
     Route::post('/task-assigns/{taskAssign}/status', [App\Http\Controllers\TaskAssignController::class, 'updateStatus'])->name('task-assigns.status');
+    
+    // Meeting Attendee Routes
+    Route::resource('meeting-attendees', App\Http\Controllers\MeetingAttendeeController::class);
   
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 

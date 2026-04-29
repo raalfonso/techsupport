@@ -12,12 +12,26 @@ class KeyBoardController extends Controller
 {
     public function index()
     {
+        $currentUserId = auth()->id();
+        
         $meetings = MeetingDetail::with([
             'type', 
             'agendas.updatedByUser', 
             'tasks.updatedByUser',
-            'tasks.taskAssigns.assignedPersonnel'
+            'tasks.taskAssigns.assignedPersonnel',
+            'attendees'
         ])
+            ->where(function($query) use ($currentUserId) {
+                // Show public meetings to everyone
+                $query->where('is_public', true)
+                    // OR show private meetings where user is an attendee
+                    ->orWhere(function($subQuery) use ($currentUserId) {
+                        $subQuery->where('is_public', false)
+                            ->whereHas('attendees', function($attendeeQuery) use ($currentUserId) {
+                                $attendeeQuery->where('attendee_id', $currentUserId);
+                            });
+                    });
+            })
             ->orderBy('date', 'desc')
             ->get();
 
@@ -28,7 +42,20 @@ class KeyBoardController extends Controller
 
     public function calendar()
     {
-        $meetings = MeetingDetail::with(['type', 'agendas', 'tasks'])
+        $currentUserId = auth()->id();
+        
+        $meetings = MeetingDetail::with(['type', 'agendas', 'tasks', 'attendees'])
+            ->where(function($query) use ($currentUserId) {
+                // Show public meetings to everyone
+                $query->where('is_public', true)
+                    // OR show private meetings where user is an attendee
+                    ->orWhere(function($subQuery) use ($currentUserId) {
+                        $subQuery->where('is_public', false)
+                            ->whereHas('attendees', function($attendeeQuery) use ($currentUserId) {
+                                $attendeeQuery->where('attendee_id', $currentUserId);
+                            });
+                    });
+            })
             ->orderBy('date', 'asc')
             ->get();
 
@@ -37,8 +64,21 @@ class KeyBoardController extends Controller
 
     public function archive()
     {
-        $meetings = MeetingDetail::with(['type', 'agendas', 'tasks'])
+        $currentUserId = auth()->id();
+        
+        $meetings = MeetingDetail::with(['type', 'agendas', 'tasks', 'attendees'])
             ->where('date', '<', now())
+            ->where(function($query) use ($currentUserId) {
+                // Show public meetings to everyone
+                $query->where('is_public', true)
+                    // OR show private meetings where user is an attendee
+                    ->orWhere(function($subQuery) use ($currentUserId) {
+                        $subQuery->where('is_public', false)
+                            ->whereHas('attendees', function($attendeeQuery) use ($currentUserId) {
+                                $attendeeQuery->where('attendee_id', $currentUserId);
+                            });
+                    });
+            })
             ->orderBy('date', 'desc')
             ->paginate(20);
 

@@ -34,6 +34,9 @@ class MeetingDetailController extends Controller
             'time' => 'required|string',
             'venue' => 'nullable|string',
             'type_id' => 'nullable|exists:meeting_types,id',
+            'is_public' => 'nullable|boolean',
+            'attendees' => 'nullable|array',
+            'attendees.*' => 'exists:users,id',
             'agendas' => 'nullable|array',
             'agendas.*.title' => 'required|string',
             'agendas.*.details' => 'nullable|string',
@@ -54,7 +57,17 @@ class MeetingDetailController extends Controller
             'time' => $validated['time'],
             'venue' => $validated['venue'] ?? null,
             'type_id' => $validated['type_id'] ?? null,
+            'is_public' => $request->has('is_public') ? true : false,
         ]);
+
+        // Create attendees
+        if (isset($validated['attendees'])) {
+            foreach ($validated['attendees'] as $attendeeId) {
+                $meeting->attendees()->create([
+                    'attendee_id' => $attendeeId,
+                ]);
+            }
+        }
 
         // Create agendas
         if (isset($validated['agendas'])) {
@@ -97,51 +110,107 @@ class MeetingDetailController extends Controller
 
     public function show(MeetingDetail $meetingDetail)
     {
+        // Check if user has access to this meeting
+        if (!$meetingDetail->is_public && !$meetingDetail->attendees()->where('attendee_id', auth()->id())->exists()) {
+            abort(403, 'You do not have permission to view this meeting.');
+        }
+        
         $meetingDetail->load(['type', 'agendas', 'tasks']);
         return view('keyboard.meetings.show', compact('meetingDetail'));
     }
 
     public function edit(MeetingDetail $meetingDetail)
     {
+        // Check if user has access to this meeting
+        if (!$meetingDetail->is_public && !$meetingDetail->attendees()->where('attendee_id', auth()->id())->exists()) {
+            abort(403, 'You do not have permission to edit this meeting.');
+        }
+        
         $meetingTypes = MeetingType::where('is_active', true)->get();
-        $meetingDetail->load(['agendas', 'tasks.taskAssigns.assignedPersonnel']);
+        $meetingDetail->load(['agendas', 'tasks.taskAssigns.assignedPersonnel', 'attendees.attendee']);
         return view('keyboard.meetings.edit', compact('meetingDetail', 'meetingTypes'));
     }
 
     public function update(Request $request, MeetingDetail $meetingDetail)
     {
+        // Check if user has access to this meeting
+        if (!$meetingDetail->is_public && !$meetingDetail->attendees()->where('attendee_id', auth()->id())->exists()) {
+            abort(403, 'You do not have permission to update this meeting.');
+        }
+        
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'date' => 'required|date',
             'time' => 'required|string',
             'venue' => 'nullable|string',
             'type_id' => 'nullable|exists:meeting_types,id',
+            'is_public' => 'nullable|boolean',
+            'attendees' => 'nullable|array',
+            'attendees.*' => 'exists:users,id',
         ]);
 
-        $meetingDetail->update($validated);
+        $meetingDetail->update([
+            'title' => $validated['title'],
+            'date' => $validated['date'],
+            'time' => $validated['time'],
+            'venue' => $validated['venue'] ?? null,
+            'type_id' => $validated['type_id'] ?? null,
+            'is_public' => $request->has('is_public') ? true : false,
+        ]);
+
+        // Update attendees - remove old ones and add new ones
+        if (isset($validated['attendees'])) {
+            // Delete existing attendees
+            $meetingDetail->attendees()->delete();
+            
+            // Create new attendees
+            foreach ($validated['attendees'] as $attendeeId) {
+                $meetingDetail->attendees()->create([
+                    'attendee_id' => $attendeeId,
+                ]);
+            }
+        }
 
         return redirect()->route('keyboard.index')->with('success', 'Meeting updated successfully');
     }
 
     public function destroy(MeetingDetail $meetingDetail)
     {
+        // Check if user has access to this meeting
+        if (!$meetingDetail->is_public && !$meetingDetail->attendees()->where('attendee_id', auth()->id())->exists()) {
+            abort(403, 'You do not have permission to delete this meeting.');
+        }
+        
         $meetingDetail->delete();
         return redirect()->route('keyboard.index')->with('success', 'Meeting deleted successfully');
     }
 
     public function createFollowUp(MeetingDetail $meetingDetail)
     {
+        // Check if user has access to this meeting
+        if (!$meetingDetail->is_public && !$meetingDetail->attendees()->where('attendee_id', auth()->id())->exists()) {
+            abort(403, 'You do not have permission to create a follow-up for this meeting.');
+        }
+        
         $meetingTypes = MeetingType::where('is_active', true)->get();
         
         // Get incomplete tasks and agendas
         $incompleteTasks = $meetingDetail->tasks()->whereIn('status', ['Pending', 'In Process'])->get();
         $incompleteAgendas = $meetingDetail->agendas()->whereIn('status', ['Pending', 'In Process'])->get();
         
+        // Load attendees
+        $meetingDetail->load('attendees.attendee');
+        
         return view('keyboard.meetings.create-followup', compact('meetingDetail', 'meetingTypes', 'incompleteTasks', 'incompleteAgendas'));
     }
 
     public function present(MeetingDetail $meetingDetail)
     {
+        // Check if user has access to this meeting
+        if (!$meetingDetail->is_public && !$meetingDetail->attendees()->where('attendee_id', auth()->id())->exists()) {
+            abort(403, 'You do not have permission to present this meeting.');
+        }
+        
         $meetingDetail->load([
             'type', 
             'agendas.updatedByUser', 
