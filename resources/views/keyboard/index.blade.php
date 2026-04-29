@@ -175,13 +175,13 @@
                                         <a href="{{ route('meetings.edit', $meeting) }}" class="text-white hover:text-blue-200 transform hover:scale-110 transition-transform">
                                             <i class="fas fa-edit"></i>
                                         </a>
-                                        <form action="{{ route('meetings.destroy', $meeting) }}" method="POST" class="inline" onsubmit="return confirm('Delete this meeting?')">
+                                        <!-- <form action="{{ route('meetings.destroy', $meeting) }}" method="POST" class="inline" onsubmit="return confirm('Delete this meeting?')">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="text-white hover:text-red-200 transform hover:scale-110 transition-transform">
                                                 <i class="fas fa-trash"></i>
                                             </button>
-                                        </form>
+                                        </form> -->
                                     </div>
                                 </div>
                                 <div class="space-y-2 text-sm">
