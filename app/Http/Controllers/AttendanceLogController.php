@@ -379,9 +379,34 @@ class AttendanceLogController extends Controller
             $attendanceByDeptQuery->whereHas('user.masterlist', fn($q) => $q->where('department_id', $deptHeadDeptId));
         }
 
-        $attendanceByDepartment = $attendanceByDeptQuery->get()
+        $presentByDepartment = $attendanceByDeptQuery->get()
             ->groupBy('user.masterlist.department.title')
             ->map(fn($logs) => $logs->unique('user_id')->count());
+
+        // Get total employees per department
+        $totalByDeptQuery = \App\Models\EmployeeMasterlist::where('employment_status', 'Active')
+            ->with('department')
+            ->whereHas('user');
+
+        if ($deptHeadDeptId) {
+            $totalByDeptQuery->where('department_id', $deptHeadDeptId);
+        }
+
+        $totalByDepartment = $totalByDeptQuery->get()
+            ->groupBy('department.title')
+            ->map(fn($employees) => $employees->count());
+
+        // Calculate attendance by department with percentage
+        $attendanceByDepartment = [];
+        foreach ($presentByDepartment as $dept => $presentCount) {
+            $totalCount = $totalByDepartment[$dept] ?? 0;
+            $percentage = $totalCount > 0 ? round(($presentCount / $totalCount) * 100, 1) : 0;
+            $attendanceByDepartment[$dept] = [
+                'present' => $presentCount,
+                'total' => $totalCount,
+                'percentage' => $percentage
+            ];
+        }
 
         // WFH filters — depthead locked to their dept
         $wfhDate       = $request->input('wfh_date', today()->toDateString());
@@ -704,6 +729,100 @@ class AttendanceLogController extends Controller
 
             return $pdf->stream('attendance_report.pdf');
         }
+
+    public function printPresentTodayPdf()
+    {
+        $user = auth()->user();
+        $isAdmin = $user->authAssignments()->where('item_name', 'Administrator')->exists();
+        $isHRAdmin = $user->authAssignments()->where('item_name', 'HR_admin')->exists();
+        $isDeptHead = $user->authAssignments()->where('item_name', 'depthead')->exists();
+
+        if (!$isAdmin && !$isHRAdmin && !$isDeptHead) {
+            return redirect()->route('attendance.dashboard')->with('error', 'Unauthorized access');
+        }
+
+        // For depthead, scope to their department
+        $deptHeadDeptId = ($isDeptHead && !$isAdmin && !$isHRAdmin)
+            ? $user->masterlist?->department_id
+            : null;
+
+        // Get present employees list (Active employees only)
+        $presentEmployeesQuery = AttendanceLog::where('mode', 'Attend')
+            ->whereDate('date', today())
+            ->with('user.masterlist.department')
+            ->whereHas('user.masterlist', fn($q) => $q->where('employment_status', 'Active'))
+            ->distinct('user_id');
+
+        if ($deptHeadDeptId) {
+            $presentEmployeesQuery->whereHas('user.masterlist', fn($q) => $q->where('department_id', $deptHeadDeptId));
+        }
+
+        $presentEmployees = $presentEmployeesQuery->get()->map(function($log) {
+            return [
+                'name' => $log->user->name ?? 'N/A',
+                'employee_number' => $log->user->masterlist->employee_number ?? 'N/A',
+                'department' => $log->user->masterlist->department->title ?? 'Unassigned',
+                'time' => $log->time
+            ];
+        });
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('attendance_logs.present_today_pdf', compact('presentEmployees'));
+        $pdf->setPaper('a4', 'portrait');
+
+        return $pdf->stream('present_today_' . today()->format('Y-m-d') . '.pdf');
+    }
+
+    public function printAbsentTodayPdf()
+    {
+        $user = auth()->user();
+        $isAdmin = $user->authAssignments()->where('item_name', 'Administrator')->exists();
+        $isHRAdmin = $user->authAssignments()->where('item_name', 'HR_admin')->exists();
+        $isDeptHead = $user->authAssignments()->where('item_name', 'depthead')->exists();
+
+        if (!$isAdmin && !$isHRAdmin && !$isDeptHead) {
+            return redirect()->route('attendance.dashboard')->with('error', 'Unauthorized access');
+        }
+
+        // For depthead, scope to their department
+        $deptHeadDeptId = ($isDeptHead && !$isAdmin && !$isHRAdmin)
+            ? $user->masterlist?->department_id
+            : null;
+
+        // Total employees
+        $totalEmployeesQuery = \App\Models\EmployeeMasterlist::where('employment_status', 'Active')
+            ->with(['department', 'user'])
+            ->whereHas('user');
+
+        if ($deptHeadDeptId) {
+            $totalEmployeesQuery->where('department_id', $deptHeadDeptId);
+        }
+
+        $allEmployees = $totalEmployeesQuery->get();
+        
+        // Get user IDs of present employees
+        $presentUserIds = AttendanceLog::where('mode', 'Attend')
+            ->whereDate('date', today())
+            ->whereHas('user.masterlist', fn($q) => $q->where('employment_status', 'Active'))
+            ->pluck('user_id')
+            ->unique();
+
+        // Filter absent employees - those who have user accounts but didn't clock in
+        $absentEmployees = $allEmployees->filter(function($employee) use ($presentUserIds) {
+            return $employee->user && !$presentUserIds->contains($employee->user->id);
+        })->map(function($employee) {
+            return [
+                'name' => $employee->full_name,
+                'employee_number' => $employee->employee_number,
+                'department' => $employee->department->title ?? 'Unassigned',
+                'position' => $employee->position
+            ];
+        })->values();
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('attendance_logs.absent_today_pdf', compact('absentEmployees'));
+        $pdf->setPaper('a4', 'portrait');
+
+        return $pdf->stream('absent_today_' . today()->format('Y-m-d') . '.pdf');
+    }
 
     public function storeAccomplishment()
     {

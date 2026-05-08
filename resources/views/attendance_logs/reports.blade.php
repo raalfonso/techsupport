@@ -73,25 +73,27 @@
                             <tr class="border-b border-gray-200 dark:border-slate-600">
                                 <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase">Department</th>
                                 <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase">Present</th>
+                                <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase">Total</th>
                                 <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase">Percentage</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @forelse($attendanceByDepartment as $department => $count)
+                            @forelse($attendanceByDepartment as $department => $data)
                                 <tr class="border-b border-gray-100 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-700 transition">
                                     <td class="px-6 py-4 text-sm text-gray-900 dark:text-white font-medium">{{ $department ?? 'Unassigned' }}</td>
-                                    <td class="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{{ $count }}</td>
+                                    <td class="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{{ $data['present'] }}</td>
+                                    <td class="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{{ $data['total'] }}</td>
                                     <td class="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">
                                         <div class="flex items-center gap-2">
                                             <div class="w-24 bg-gray-200 dark:bg-slate-600 rounded-full h-2">
-                                                <div class="bg-blue-600 h-2 rounded-full" style="width: {{ $presentToday ? ($count / $presentToday) * 100 : 0 }}%"></div>
+                                                <div class="bg-blue-600 h-2 rounded-full" style="width: {{ $data['percentage'] }}%"></div>
                                             </div>
-                                            <span>{{ $presentToday ? round(($count / $presentToday) * 100, 1) : 0 }}%</span>
+                                            <span>{{ $data['percentage'] }}%</span>
                                         </div>
                                     </td>
                                 </tr>
                             @empty
-                                <tr><td colspan="3" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400 text-sm">No attendance data available</td></tr>
+                                <tr><td colspan="4" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400 text-sm">No attendance data available</td></tr>
                             @endforelse
                         </tbody>
                     </table>
@@ -193,9 +195,14 @@
                     <i class="fas fa-check-circle text-green-600"></i>
                     Present Today ({{ $presentToday }})
                 </h2>
-                <button onclick="closePresentModal()" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
-                    <i class="fas fa-times text-2xl"></i>
-                </button>
+                <div class="flex items-center gap-3">
+                    <a href="{{ route('attendance.present-today.print-pdf') }}" target="_blank" class="bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-green-700 transition flex items-center gap-2">
+                        <i class="fas fa-file-pdf"></i> Print PDF
+                    </a>
+                    <button onclick="closePresentModal()" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                        <i class="fas fa-times text-2xl"></i>
+                    </button>
+                </div>
             </div>
             
             <!-- Search Bar -->
@@ -256,9 +263,14 @@
                     <i class="fas fa-times-circle text-red-600"></i>
                     Absent Today ({{ $absentToday }})
                 </h2>
-                <button onclick="closeAbsentModal()" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
-                    <i class="fas fa-times text-2xl"></i>
-                </button>
+                <div class="flex items-center gap-3">
+                    <a href="{{ route('attendance.absent-today.print-pdf') }}" target="_blank" class="bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-red-700 transition flex items-center gap-2">
+                        <i class="fas fa-file-pdf"></i> Print PDF
+                    </a>
+                    <button onclick="closeAbsentModal()" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                        <i class="fas fa-times text-2xl"></i>
+                    </button>
+                </div>
             </div>
             
             <!-- Search Bar -->
