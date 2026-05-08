@@ -803,6 +803,73 @@
             document.getElementById('addTaskForm').reset();
         }
 
+        // Handle Add Agenda Form Submission
+        document.addEventListener('DOMContentLoaded', function() {
+            const addAgendaForm = document.getElementById('addAgendaForm');
+            if (addAgendaForm) {
+                addAgendaForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    const meetingId = document.getElementById('agendaMeetingId').value;
+                    const formData = new FormData(this);
+                    
+                    fetch(`/meetings/${meetingId}/agendas`, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                            'Accept': 'application/json'
+                        },
+                        body: formData
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            closeAddAgendaModal();
+                            location.reload();
+                        } else {
+                            alert(data.message || 'Failed to add agenda');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Failed to add agenda');
+                    });
+                });
+            }
+
+            const addTaskForm = document.getElementById('addTaskForm');
+            if (addTaskForm) {
+                addTaskForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    const meetingId = document.getElementById('taskMeetingId').value;
+                    const formData = new FormData(this);
+                    
+                    fetch(`/meetings/${meetingId}/tasks`, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                            'Accept': 'application/json'
+                        },
+                        body: formData
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            closeAddTaskModal();
+                            location.reload();
+                        } else {
+                            alert(data.message || 'Failed to add task');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Failed to add task');
+                    });
+                });
+            }
+        });
+
         // Close modals when clicking outside
         document.addEventListener('click', function(event) {
             const addAgendaModal = document.getElementById('addAgendaModal');
