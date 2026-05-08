@@ -288,6 +288,11 @@
                                 </div>
                                 <span>Agendas</span>
                                 <span class="ml-auto text-xs bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400 px-2 py-1 rounded-full">{{ $regularAgendas->count() }}</span>
+                                <button onclick="openAddAgendaModal({{ $meeting->id }}, '{{ addslashes($meeting->title) }}')" 
+                                    class="ml-2 bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-lg text-xs font-medium transition flex items-center gap-1"
+                                    title="Add New Agenda">
+                                    <i class="fas fa-plus"></i> Add
+                                </button>
                             </h4>
                             <div class="space-y-3">
                                 @forelse($regularAgendas as $agenda)
@@ -342,6 +347,11 @@
                                 </div>
                                 <span>Tasks</span>
                                 <span class="ml-auto text-xs bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-400 px-2 py-1 rounded-full">{{ $meeting->tasks->count() }}</span>
+                                <button onclick="openAddTaskModal({{ $meeting->id }}, '{{ addslashes($meeting->title) }}')" 
+                                    class="ml-2 bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded-lg text-xs font-medium transition flex items-center gap-1"
+                                    title="Add New Task">
+                                    <i class="fas fa-plus"></i> Add
+                                </button>
                             </h4>
                             <div class="space-y-3">
                                 @forelse($meeting->tasks as $task)
@@ -643,10 +653,174 @@
         </div>
     </footer>
 
+    <!-- Add Agenda Modal -->
+    <div id="addAgendaModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl max-w-lg w-full transform transition-all max-h-[90vh] overflow-y-auto">
+            <form id="addAgendaForm" method="POST">
+                @csrf
+                <div class="p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <h3 class="text-xl font-bold text-gray-900 dark:text-white">Add New Agenda</h3>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">Meeting: <span id="agendaMeetingTitle"></span></p>
+                        </div>
+                        <button type="button" onclick="closeAddAgendaModal()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                            <i class="fas fa-times text-xl"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <input type="hidden" id="agendaMeetingId" name="meeting_id">
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Agenda Title *</label>
+                            <input type="text" name="title" required
+                                class="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                placeholder="Enter agenda title">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Details</label>
+                            <textarea name="details" rows="4"
+                                class="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                placeholder="Enter agenda details..."></textarea>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Assigned Personnel</label>
+                            <input type="text" name="assigned_personnel"
+                                class="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                placeholder="Enter assigned personnel name">
+                        </div>
+                    </div>
+
+                    <div class="flex gap-3 mt-6">
+                        <button type="button" onclick="closeAddAgendaModal()" 
+                            class="flex-1 px-4 py-2 bg-gray-200 dark:bg-slate-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-slate-600 transition">
+                            Cancel
+                        </button>
+                        <button type="submit" 
+                            class="flex-1 px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition">
+                            <i class="fas fa-plus mr-2"></i>Add Agenda
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Task Modal -->
+    <div id="addTaskModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl max-w-lg w-full transform transition-all max-h-[90vh] overflow-y-auto">
+            <form id="addTaskForm" method="POST">
+                @csrf
+                <div class="p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <h3 class="text-xl font-bold text-gray-900 dark:text-white">Add New Task</h3>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">Meeting: <span id="taskMeetingTitle"></span></p>
+                        </div>
+                        <button type="button" onclick="closeAddTaskModal()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                            <i class="fas fa-times text-xl"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <input type="hidden" id="taskMeetingId" name="meeting_id">
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Task Title *</label>
+                            <input type="text" name="title" required
+                                class="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                                placeholder="Enter task title">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Details</label>
+                            <textarea name="details" rows="4"
+                                class="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                                placeholder="Enter task details..."></textarea>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Status</label>
+                            <select name="status"
+                                class="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+                                <option value="Pending">Pending</option>
+                                <option value="In Process">In Process</option>
+                                <option value="Done">Done</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-3 mt-6">
+                        <button type="button" onclick="closeAddTaskModal()" 
+                            class="flex-1 px-4 py-2 bg-gray-200 dark:bg-slate-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-slate-600 transition">
+                            Cancel
+                        </button>
+                        <button type="submit" 
+                            class="flex-1 px-4 py-2 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-lg hover:from-green-700 hover:to-green-800 transition">
+                            <i class="fas fa-plus mr-2"></i>Add Task
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script>
         $.ajaxSetup({
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
+
+        // Add Agenda Modal Functions
+        function openAddAgendaModal(meetingId, meetingTitle) {
+            document.getElementById('addAgendaModal').classList.remove('hidden');
+            document.getElementById('agendaMeetingId').value = meetingId;
+            document.getElementById('agendaMeetingTitle').textContent = meetingTitle;
+            document.getElementById('addAgendaForm').action = `/meetings/${meetingId}/agendas`;
+            document.getElementById('addAgendaForm').reset();
+        }
+
+        function closeAddAgendaModal() {
+            document.getElementById('addAgendaModal').classList.add('hidden');
+            document.getElementById('addAgendaForm').reset();
+        }
+
+        // Add Task Modal Functions
+        function openAddTaskModal(meetingId, meetingTitle) {
+            document.getElementById('addTaskModal').classList.remove('hidden');
+            document.getElementById('taskMeetingId').value = meetingId;
+            document.getElementById('taskMeetingTitle').textContent = meetingTitle;
+            document.getElementById('addTaskForm').action = `/meetings/${meetingId}/tasks`;
+            document.getElementById('addTaskForm').reset();
+        }
+
+        function closeAddTaskModal() {
+            document.getElementById('addTaskModal').classList.add('hidden');
+            document.getElementById('addTaskForm').reset();
+        }
+
+        // Close modals when clicking outside
+        document.addEventListener('click', function(event) {
+            const addAgendaModal = document.getElementById('addAgendaModal');
+            const addTaskModal = document.getElementById('addTaskModal');
+            
+            if (addAgendaModal && event.target === addAgendaModal) {
+                closeAddAgendaModal();
+            }
+            if (addTaskModal && event.target === addTaskModal) {
+                closeAddTaskModal();
+            }
+        });
+
+        // Close modals with Escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeAddAgendaModal();
+                closeAddTaskModal();
             }
         });
 
