@@ -112,7 +112,7 @@
         
         <div class="report-info">
             <div>
-                <strong>Date:</strong> {{ now()->format('M d, Y') }}
+                <strong>Report Date:</strong> {{ \Carbon\Carbon::parse($date ?? today())->format('M d, Y') }}
             </div>
             <div>
                 <strong>Time Generated:</strong> {{ now()->format('g:i A') }}
@@ -123,7 +123,7 @@
         </div>
         
         <div class="summary">
-            <strong>Summary:</strong> This report shows all employees who clocked in today as of {{ now()->format('g:i A') }}.
+            <strong>Summary:</strong> This report shows all employees who clocked in on {{ \Carbon\Carbon::parse($date ?? today())->format('M d, Y') }}.
         </div>
         
         <table>

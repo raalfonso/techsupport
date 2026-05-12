@@ -337,6 +337,9 @@ class AttendanceLogController extends Controller
             return redirect()->route('attendance.dashboard')->with('error', 'Unauthorized access');
         }
 
+        // Get attendance date filter (default to today)
+        $attendanceDate = $request->input('attendance_date', today()->toDateString());
+
         // For depthead, scope everything to their department
         $deptHeadDeptId = ($isDeptHead && !$isAdmin && !$isHRAdmin)
             ? $user->masterlist?->department_id
@@ -355,9 +358,9 @@ class AttendanceLogController extends Controller
 
         $totalEmployees = $totalEmployeesQuery->count();
 
-        // Present today - employees who clocked in
+        // Present for selected date - employees who clocked in
         $presentTodayQuery = AttendanceLog::where('mode', 'Attend')
-            ->whereDate('date', today())
+            ->whereDate('date', $attendanceDate)
             ->with('user.masterlist');
 
         if ($deptHeadDeptId) {
@@ -369,9 +372,9 @@ class AttendanceLogController extends Controller
         $presentToday = $presentTodayQuery->distinct('user_id')->count();
         $absentToday = $totalEmployees - $presentToday;
 
-        // Attendance by department
+        // Attendance by department for selected date
         $attendanceByDeptQuery = AttendanceLog::where('mode', 'Attend')
-            ->whereDate('date', today())
+            ->whereDate('date', $attendanceDate)
             ->with('user.masterlist.department')
             ->whereHas('user.masterlist', fn($q) => $q->where('employment_status', 'Active'));
 
@@ -440,9 +443,9 @@ class AttendanceLogController extends Controller
 
         $departments = \App\Models\Department::orderBy('title')->pluck('title');
 
-        // Get present employees list (Active employees only)
+        // Get present employees list for selected date (Active employees only)
         $presentEmployeesQuery = AttendanceLog::where('mode', 'Attend')
-            ->whereDate('date', today())
+            ->whereDate('date', $attendanceDate)
             ->with('user.masterlist.department')
             ->whereHas('user.masterlist', fn($q) => $q->where('employment_status', 'Active'))
             ->distinct('user_id');
@@ -460,7 +463,7 @@ class AttendanceLogController extends Controller
             ];
         });
 
-        // Get absent employees list (Active employees without time-in today)
+        // Get absent employees list for selected date (Active employees without time-in)
         $allEmployeesQuery = \App\Models\EmployeeMasterlist::where('employment_status', 'Active')
             ->with(['department', 'user'])
             ->whereHas('user'); // Only get employees with linked user accounts via email
@@ -471,14 +474,14 @@ class AttendanceLogController extends Controller
 
         $allEmployees = $allEmployeesQuery->get();
         
-        // Get user IDs of present employees
+        // Get user IDs of present employees for selected date
         $presentUserIds = AttendanceLog::where('mode', 'Attend')
-            ->whereDate('date', today())
+            ->whereDate('date', $attendanceDate)
             ->whereHas('user.masterlist', fn($q) => $q->where('employment_status', 'Active'))
             ->pluck('user_id')
             ->unique();
 
-        // Filter absent employees - those who have user accounts but didn't clock in
+        // Filter absent employees - those who have user accounts but didn't clock in on selected date
         $absentEmployees = $allEmployees->filter(function($employee) use ($presentUserIds) {
             return $employee->user && !$presentUserIds->contains($employee->user->id);
         })->map(function($employee) {
@@ -492,7 +495,7 @@ class AttendanceLogController extends Controller
 
        
 
-        return view('attendance_logs.reports', compact('totalEmployees', 'presentToday', 'absentToday','absentEmployees', 'attendanceByDepartment', 'wfhAccomplishments', 'wfhDate', 'wfhDepartment', 'departments', 'deptHeadDeptTitle', 'presentEmployees'));
+        return view('attendance_logs.reports', compact('totalEmployees', 'presentToday', 'absentToday','absentEmployees', 'attendanceByDepartment', 'wfhAccomplishments', 'wfhDate', 'wfhDepartment', 'departments', 'deptHeadDeptTitle', 'presentEmployees', 'attendanceDate'));
     }
 
     public function statistics(Request $request)
@@ -730,7 +733,7 @@ class AttendanceLogController extends Controller
             return $pdf->stream('attendance_report.pdf');
         }
 
-    public function printPresentTodayPdf()
+    public function printPresentTodayPdf(Request $request)
     {
         $user = auth()->user();
         $isAdmin = $user->authAssignments()->where('item_name', 'Administrator')->exists();
@@ -741,14 +744,17 @@ class AttendanceLogController extends Controller
             return redirect()->route('attendance.dashboard')->with('error', 'Unauthorized access');
         }
 
+        // Get date from request or default to today
+        $date = $request->input('date', today()->toDateString());
+
         // For depthead, scope to their department
         $deptHeadDeptId = ($isDeptHead && !$isAdmin && !$isHRAdmin)
             ? $user->masterlist?->department_id
             : null;
 
-        // Get present employees list (Active employees only)
+        // Get present employees list (Active employees only) for the selected date
         $presentEmployeesQuery = AttendanceLog::where('mode', 'Attend')
-            ->whereDate('date', today())
+            ->whereDate('date', $date)
             ->with('user.masterlist.department')
             ->whereHas('user.masterlist', fn($q) => $q->where('employment_status', 'Active'))
             ->distinct('user_id');
@@ -766,13 +772,13 @@ class AttendanceLogController extends Controller
             ];
         });
 
-        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('attendance_logs.present_today_pdf', compact('presentEmployees'));
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('attendance_logs.present_today_pdf', compact('presentEmployees', 'date'));
         $pdf->setPaper('a4', 'portrait');
 
-        return $pdf->stream('present_today_' . today()->format('Y-m-d') . '.pdf');
+        return $pdf->stream('present_' . $date . '.pdf');
     }
 
-    public function printAbsentTodayPdf()
+    public function printAbsentTodayPdf(Request $request)
     {
         $user = auth()->user();
         $isAdmin = $user->authAssignments()->where('item_name', 'Administrator')->exists();
@@ -782,6 +788,9 @@ class AttendanceLogController extends Controller
         if (!$isAdmin && !$isHRAdmin && !$isDeptHead) {
             return redirect()->route('attendance.dashboard')->with('error', 'Unauthorized access');
         }
+
+        // Get date from request or default to today
+        $date = $request->input('date', today()->toDateString());
 
         // For depthead, scope to their department
         $deptHeadDeptId = ($isDeptHead && !$isAdmin && !$isHRAdmin)
@@ -799,14 +808,14 @@ class AttendanceLogController extends Controller
 
         $allEmployees = $totalEmployeesQuery->get();
         
-        // Get user IDs of present employees
+        // Get user IDs of present employees for the selected date
         $presentUserIds = AttendanceLog::where('mode', 'Attend')
-            ->whereDate('date', today())
+            ->whereDate('date', $date)
             ->whereHas('user.masterlist', fn($q) => $q->where('employment_status', 'Active'))
             ->pluck('user_id')
             ->unique();
 
-        // Filter absent employees - those who have user accounts but didn't clock in
+        // Filter absent employees - those who have user accounts but didn't clock in on selected date
         $absentEmployees = $allEmployees->filter(function($employee) use ($presentUserIds) {
             return $employee->user && !$presentUserIds->contains($employee->user->id);
         })->map(function($employee) {
@@ -818,10 +827,10 @@ class AttendanceLogController extends Controller
             ];
         })->values();
 
-        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('attendance_logs.absent_today_pdf', compact('absentEmployees'));
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('attendance_logs.absent_today_pdf', compact('absentEmployees', 'date'));
         $pdf->setPaper('a4', 'portrait');
 
-        return $pdf->stream('absent_today_' . today()->format('Y-m-d') . '.pdf');
+        return $pdf->stream('absent_' . $date . '.pdf');
     }
 
     public function storeAccomplishment()
