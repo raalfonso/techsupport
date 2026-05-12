@@ -8,6 +8,7 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     @vite(['resources/js/app.js', 'resources/css/app.css'])
     <link rel="icon" type="image/png" href="{{ asset('img/itd.png') }}">
     <script>
@@ -91,6 +92,15 @@
             @if(!isset($deptHeadDeptTitle) || !$deptHeadDeptTitle)
             <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700 p-6 mb-8">
                 <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-6">Attendance by Department</h2>
+                
+                {{-- Bar Chart --}}
+                <div class="mb-8">
+                    <div class="bg-gray-50 dark:bg-slate-700 rounded-lg p-6">
+                        <canvas id="attendanceChart" style="max-height: 400px;"></canvas>
+                    </div>
+                </div>
+
+                {{-- Table --}}
                 <div class="overflow-x-auto">
                     <table class="w-full">
                         <thead>
@@ -452,6 +462,128 @@
                 closeAbsentModal();
             }
         });
+
+        // Attendance Chart
+        @if(!isset($deptHeadDeptTitle) || !$deptHeadDeptTitle)
+        document.addEventListener('DOMContentLoaded', function() {
+            const ctx = document.getElementById('attendanceChart');
+            if (ctx) {
+                const attendanceData = @json($attendanceByDepartment);
+                
+                const departments = Object.keys(attendanceData);
+                const presentData = departments.map(dept => attendanceData[dept].present);
+                const totalData = departments.map(dept => attendanceData[dept].total);
+                const absentData = departments.map(dept => attendanceData[dept].total - attendanceData[dept].present);
+
+                // Check if dark mode is enabled
+                const isDarkMode = document.documentElement.classList.contains('dark');
+                const textColor = isDarkMode ? '#e5e7eb' : '#374151';
+                const gridColor = isDarkMode ? '#374151' : '#e5e7eb';
+
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: departments,
+                        datasets: [
+                            {
+                                label: 'Present',
+                                data: presentData,
+                                backgroundColor: 'rgba(34, 197, 94, 0.8)',
+                                borderColor: 'rgba(34, 197, 94, 1)',
+                                borderWidth: 1
+                            },
+                            {
+                                label: 'Absent',
+                                data: absentData,
+                                backgroundColor: 'rgba(239, 68, 68, 0.8)',
+                                borderColor: 'rgba(239, 68, 68, 1)',
+                                borderWidth: 1
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                                labels: {
+                                    color: textColor,
+                                    font: {
+                                        size: 12,
+                                        weight: 'bold'
+                                    },
+                                    padding: 15
+                                }
+                            },
+                            title: {
+                                display: true,
+                                text: 'Attendance Overview by Department - {{ \Carbon\Carbon::parse($attendanceDate ?? today())->format('M d, Y') }}',
+                                color: textColor,
+                                font: {
+                                    size: 16,
+                                    weight: 'bold'
+                                },
+                                padding: {
+                                    top: 10,
+                                    bottom: 20
+                                }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    afterLabel: function(context) {
+                                        const deptIndex = context.dataIndex;
+                                        const dept = departments[deptIndex];
+                                        const total = attendanceData[dept].total;
+                                        const percentage = attendanceData[dept].percentage;
+                                        return `Total: ${total} | Attendance: ${percentage}%`;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                stacked: true,
+                                ticks: {
+                                    color: textColor,
+                                    font: {
+                                        size: 11
+                                    }
+                                },
+                                grid: {
+                                    color: gridColor,
+                                    display: false
+                                }
+                            },
+                            y: {
+                                stacked: true,
+                                beginAtZero: true,
+                                ticks: {
+                                    color: textColor,
+                                    font: {
+                                        size: 11
+                                    },
+                                    stepSize: 1
+                                },
+                                grid: {
+                                    color: gridColor
+                                },
+                                title: {
+                                    display: true,
+                                    text: 'Number of Employees',
+                                    color: textColor,
+                                    font: {
+                                        size: 12,
+                                        weight: 'bold'
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        });
+        @endif
     </script>
 </body>
 </html>
