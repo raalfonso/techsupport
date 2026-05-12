@@ -21,8 +21,11 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'email_verified_at',
+        'remember_token',
         'level',
         'team',
+        'avatar',
     ];
 
     /**
@@ -46,5 +49,30 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function authAssignments()
+    {
+        return $this->hasMany(AuthAssignment::class);
+    }
+
+    public function authItems()
+    {
+        return $this->hasManyThrough(AuthItem::class, AuthAssignment::class, 'user_id', 'name', 'id', 'item_name');
+    }
+
+    public function surveyEmployee()
+    {
+        return $this->hasOne(SurveyEmployees::class, 'email', 'email');
+    }
+
+     public function attendanceLogs()
+    {
+        return $this->hasMany(AttendanceLog::class);
+    }
+
+    public function masterlist()
+    {
+        return $this->hasOne(EmployeeMasterlist::class, 'email', 'email');
     }
 }

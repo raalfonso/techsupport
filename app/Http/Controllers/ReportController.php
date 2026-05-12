@@ -9,9 +9,13 @@ use App\Models\Department;
 use App\Models\Issues;
 use App\Models\User;
 use App\Models\Clients;
+use App\Models\SurveyEmployees;
+use App\Models\History;
 use App\Exports\ReportsExport;
-use Maatwebsite\Excel\Facades\Excel;
+use App\Loghistory;
 use Carbon\Carbon;
+use Maatwebsite\Excel\Facades\Excel;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 
@@ -21,34 +25,64 @@ class ReportController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
        
-        $reports = Report::whereIn('status', ['Pending', 'Ongoing'])
+        // Get actual counts from database for stats
+        $pendingCount = Report::where('status', 'Pending')->count();
+        $ongoingCount = Report::where('status', 'Ongoing')->count();
+        $validationCount = Report::where('status', 'For validation')->count();
+        
+        $reports = Report::whereIn('status', ['Pending', 'Ongoing', 'For validation'])
         ->orderBy('id', 'asc')
         ->paginate(5);
 
-        $countReport = Report::whereIn('status', ['Pending', 'Ongoing'])->count();
+        $countReport = Report::whereIn('status', ['Pending', 'Ongoing', 'For validation'])->count();
 
         $user_level = auth()->user()->level;
         $user_team = auth()->user()->team;
         $user_id = auth()->user()->id;
        
-        if ($user_level == 1) {
-            $resolved = Report::whereIn('status', ['Done'])
-            ->orderBy('id', 'asc')
-            ->paginate(5);
-           
-        }
-        else {
-        
-            $resolved = Report::whereIn('status', ['Done'])
-            ->orderBy('id', 'asc')
-            ->paginate(5);
+        // Build query for resolved reports with filters
+        $resolvedQuery = Report::whereIn('status', ['Done'])
+            ->orderBy('id', 'desc');
+            
+        // Apply filters
+        if ($request->filled('date_from')) {
+            $resolvedQuery->whereDate('resolve_datetime', '>=', $request->date_from);
         }
         
-        $clients = Clients::orderBy('name','asc')->get();
-
+        if ($request->filled('date_to')) {
+            $resolvedQuery->whereDate('resolve_datetime', '<=', $request->date_to);
+        }
+        
+        if ($request->filled('department_id')) {
+            $resolvedQuery->where('department_id', '=', $request->department_id);
+        }
+        
+        if ($request->filled('category_id')) {
+            $resolvedQuery->whereHas('Issues', function($q) use ($request) {
+                $q->where('category_id', '=', $request->category_id);
+            });
+        }
+        
+        if ($request->filled('user_id')) {
+            $resolvedQuery->whereHas('resolve', function($q) use ($request) {
+                $q->where('user_id', '=', $request->user_id);
+            });
+        }
+        
+        $resolved = $resolvedQuery->paginate(5)->withQueryString();
+        
+        $employees = SurveyEmployees::select('id', 'name','department_id')
+        ->get()
+        ->map(function($employee) {
+            return [
+                'id' => $employee->id,
+                'name' => $employee->name,
+                'department_id' => $employee->department_id,
+            ];
+        });
      
 
 
@@ -67,15 +101,18 @@ class ReportController extends Controller
             'users' => $users,
             'resolved'  => $resolved,
             'countReport' => $countReport,
-            'clients' => $clients,
+            'employees' =>  $employees,
+            'pendingCount' => $pendingCount,
+            'ongoingCount' => $ongoingCount,
+            'validationCount' => $validationCount,
         ]);
     }
 
     public function getReports()
     {
-        $reports = Report::whereIn('status', ['Pending', 'Ongoing'])
+        $reports = Report::whereIn('status', ['Pending', 'Ongoing', 'For Validation'])
         ->orderBy('id', 'asc')
-        ->paginate(5);
+        ->paginate(15);
         $categories = Category::orderBy('title', 'asc')->get();
         $departments = Department::orderBy('title', 'asc')->get();
         $issues = Issues::all();
@@ -89,8 +126,19 @@ class ReportController extends Controller
         ]);
     }
 
+    public function publicReports()
+    {
+        $reports = Report::whereIn('status', ['Pending', 'Ongoing', 'For Validation'])
+        ->orderBy('id', 'desc')
+        ->paginate(20);
+        
+        return view('report.public',[
+            'reports' => $reports,
+        ]);
+    }
+
     public function getTotalReports(){
-        $countReport = Report::whereIn('status', ['Pending', 'Ongoing'])->count();
+        $countReport = Report::whereIn('status', ['Pending', 'Ongoing', 'For validation'])->count();
 
         return $countReport;
     }
@@ -108,8 +156,11 @@ class ReportController extends Controller
      */
     public function store(Request $request)
     {
+
+        //  dd($request->all());
+        // exit;
         $fields = $request->validate([
-            'client_id' => 'required',
+            'survey_employees_id' => 'required',
             'department_id' => 'required',
             'issues_id' => 'required',
             'request_datetime' => 'required',
@@ -118,12 +169,57 @@ class ReportController extends Controller
         // Convert request_datetime to proper format
         $fields['request_datetime'] = Carbon::parse($fields['request_datetime'])->format('Y-m-d H:i:s');
 
-        // dd($fields);
+       
     
         Report::create($fields);
      
-        //Redirect
-      return redirect()->route('report.index');
+        return redirect()->route('report.index', ['success' => 'New request created successfully!']);
+    }
+
+    public function emergency(Request $request)
+    {
+        $fields = $request->validate([
+            'survey_employees_id' => 'required',
+            'department_id' => 'required',
+            'issues_id' => 'required',
+            'location' => 'string',
+        ]);
+
+        $fields['request_datetime'] = now();
+        $fields['response_datetime'] = now();
+        $fields['validation_date_time'] = now();
+        $fields['response_by'] = Auth::id();
+
+        $fields['status'] = 'Ongoing';
+        
+        $report = Report::create($fields);
+
+        return view('report.qr', [
+            'report_id' => $report->id,
+            'qr_url' => route('report.complete', $report->id),
+            'qrCode' => QrCode::size(200)->generate(route('report.complete', $report->id))
+        ]);
+    }
+
+    public function complete($id)
+    {
+        $report = Report::findOrFail($id);
+        
+        if ($report->status === 'Ongoing') {
+            $report->status = "Done";
+            $report->feedback = "No";
+            $report->remarks = "Emergency Report Completed via QR Code";
+            $report->resolve_datetime = now();
+            $report->save();
+
+            $user['report_id'] = $report->id; 
+            $user['user_id'] = $report->response_by;
+            \App\Models\Resolve::create($user);
+            
+            return view('report.completed', ['report_id' => $report->id]);
+        }
+        
+        return view('report.completed', ['report_id' => $report->id, 'error' => 'Report already completed']);
     }
 
     /**
@@ -139,29 +235,41 @@ class ReportController extends Controller
      */
     public function edit(Request $request, $id)
     {
-        //  dd($request->notes);
-        if($request->iam_check == 'on'){
+        
+       
+        if($request->iam_check){
             $report = Report::findOrFail($id);
             $report->response_by = $userId = Auth::id();
-            $report->status = "Ongoing";
+
+            if($report->issues->mains->type == 'request'){
+                $report->status = "Ongoing";
+            }
+            else{
+                $report->status = "For validation";
+            }
             $report->notes = $request->notes;
             $report->response_datetime = Carbon::parse($request->response_datetime)->format('Y-m-d H:i:s');
             // $report->response_datetime = Carbon::now();
             $report->save();
+            $report->logResponse();
+            
+            
         }
         else{
             $report = Report::findOrFail($id);
        
             $report->response_by = $request->user_id;
-            $report->status = "Ongoing";
-            $report->notes = $request->notes;
+            
+            $report->status = "For validation";
+            $report->notes = $request->notes; 
             // $report->response_datetime = Carbon::now();
             $report->response_datetime = Carbon::parse($request->response_datetime)->format('Y-m-d H:i:s');
             $report->save();
+            $report->logResponse();
         }
         
 
-        return redirect()->route('report.index');
+        return redirect()->route('report.index')->with('success', 'Response sent successfully!');
     }
 
     public function resolve(Request $request, $id)
@@ -193,8 +301,9 @@ class ReportController extends Controller
         $report->procedure = $request->procedure;
         $report->resolve_datetime = Carbon::parse($request->resolve_datetime)->format('Y-m-d H:i:s');
         $report->save();
+        $report->logResolve();
 
-        return redirect()->route('report.index');
+        return redirect()->route('report.index')->with('success', 'Issue resolved successfully!');
     }
 
     public function escalate(Request $request, $id)
@@ -220,7 +329,7 @@ class ReportController extends Controller
         $duplicateReport->created_at = now();
         $duplicateReport->updated_at = now();
         $duplicateReport->save();
-        return redirect()->route('report.index');
+        return redirect()->route('report.index')->with('success', 'Issue escalated successfully!');
     }
 
     public function endorse(Request $request, $id)
@@ -237,7 +346,76 @@ class ReportController extends Controller
         // $report->resolve_datetime = Carbon::now();
         $report->resolve_datetime = Carbon::parse($request->resolve_datetime)->format('Y-m-d H:i:s');
         $report->save();
-        return redirect()->route('report.index');
+        return redirect()->route('report.index')->with('success', 'Issue endorsed successfully!');
+    }
+
+    public function confirmValidate(Request $request)
+    {
+        $fields = $request->validate([
+            'report_id' => 'required|integer',
+            'validation_datetime' => 'required|date',
+        ]);
+
+        $report = Report::findOrFail($fields['report_id']);
+        $report->validation_date_time = Carbon::parse($fields['validation_datetime'])->format('Y-m-d H:i:s');
+        $report->status = "Ongoing";
+        $report->save();
+        $report->logValidate();
+
+        return redirect()->route('report.index')->with('success', 'Report validated successfully!');
+    }
+
+    public function changeIssue(Request $request)
+    {
+        $fields = $request->validate([
+            'report_id' => 'required|integer',
+            'validation_datetime' => 'nullable|date',
+            'issues_id' => 'required|integer',
+        ]);
+
+        $report = Report::findOrFail($fields['report_id']);
+        
+        if (isset($fields['validation_datetime'])) {
+            $report->validation_date_time = Carbon::parse($fields['validation_datetime'])->format('Y-m-d H:i:s');
+        } else {
+            $report->validation_date_time = now();
+        }
+        
+        $report->issues_id = $fields['issues_id'];
+        $report->status = "Ongoing";
+        $report->save();
+        $report->logValidate();
+
+        return redirect()->route('report.index')->with('success', 'Issue changed successfully!');
+    }
+
+    public function validateReport(Request $request)
+    {
+        $fields = $request->validate([
+            'id-issues' => 'required|integer',
+            'validation_datetime' => 'nullable|date',
+            'validation_status' => 'required|string',
+            'issues_id' => 'required_if:validation_status,unresolved|nullable|integer',
+        ]);
+
+        $report = Report::findOrFail($fields['id-issues']);
+        
+        if (isset($fields['validation_datetime'])) {
+            $report->validation_date_time = Carbon::parse($fields['validation_datetime'])->format('Y-m-d H:i:s');
+        } else {
+            $report->validation_date_time = now();
+        }
+        
+        $report->status = "Ongoing";
+
+        if ($fields['validation_status'] === 'unresolved' && isset($fields['issues_id'])) {
+            $report->issues_id = $fields['issues_id'];
+        }
+
+        $report->save();
+        $report->logValidate();
+
+        return redirect()->route('report.index')->with('success', 'Report validated successfully!');
     }
 
     /**
@@ -256,8 +434,22 @@ class ReportController extends Controller
         //
     }
 
-    public function export()
+    public function export(Request $request)
     {
-        return Excel::download(new ReportsExport, 'reports.xlsx');
+        return Excel::download(new ReportsExport($request->all()), 'reports.xlsx');
+    }
+
+    public function logHistory($id)
+    {
+        $loghistories = History::where('report_id', $id)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        foreach ($loghistories as $log) {
+            $log->perform_at = $log->created_at->format('M d, Y h:i A');
+            $log->perform_by = $log->user->name ?? 'Unknown';
+        }   
+
+        return response()->json($loghistories);
     }
 }

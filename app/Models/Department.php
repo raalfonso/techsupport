@@ -13,5 +13,11 @@ class Department extends Model
     protected $fillable = [
         'title',
         'acronym',
+        'active',
     ];
+
+    public function employees()
+    {
+        return $this->hasMany(EmployeeMasterlist::class);
+    }
 }

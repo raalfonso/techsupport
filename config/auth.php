@@ -41,6 +41,12 @@ return [
             'provider' => 'users',
         ],
 
+        'userSurvey' => [
+        'driver' => 'session',
+        'provider' => 'userSurvey',
+    ],
+
+
         'client' => [
             'driver' => 'session',
             'provider' => 'clients', // Guard for clients
@@ -73,6 +79,11 @@ return [
         'clients' => [
         'driver' => 'eloquent',
         'model' => env('AUTH_MODEL', App\Models\Client::class),
+        ],
+    
+        'userSurvey' => [
+        'driver' => 'eloquent',
+        'model' => App\Models\UserSurvey::class,
         ],
     ],
 

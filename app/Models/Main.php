@@ -12,6 +12,17 @@ class Main extends Model
 
     protected $fillable = [
         'title',
-
+        'type',
+        'details',
     ];
+
+    public $timestamps = true;
+
+    public static function getTypes()
+    {
+        return [
+            'Request' => 'Request',
+            'Report' => 'Report',
+        ];
+    }
 }

@@ -39,23 +39,23 @@ class FeedbackController extends Controller
             'reason'   => 'max:255',
             'suggestion'  => 'max:255',
         ]);
-        // echo $request->
+  
        
 
         $feedback = Feedback::create($fields);
  
         
         if ($feedback) {
-            Report::where('ticket_number', $feedback->report->ticket_number)->update(['feedback' => 'Yes']);
+            Report::where('ticket_number', '=', $feedback->report->ticket_number)->update(['feedback' => 'Yes']);
            
         } 
 
-        $reports = Report::where('client_id',$feedback->report->client->id)->get();
+        $reports = Report::where('client_id', '=', $feedback->report->client->id)->get();
         $feedbacks = "False";
         $id = '';
             
        
-        $client = \App\Models\Clients::where('id', $feedback->report->client->id)->first();
+        $client = \App\Models\Clients::where('id', '=', $feedback->report->client->id)->first();
         foreach($reports as $report){
             if ($report->feedback == "No") {
                 $feedbacks = "True";
@@ -63,7 +63,7 @@ class FeedbackController extends Controller
             }
           
         }
-        return view('home.index',['client' => $client,'reports' => $reports,'feedback' => $feedbacks,'id'=>$id,]);
+        return redirect()->route('home.employeeReport');
     }
     
 

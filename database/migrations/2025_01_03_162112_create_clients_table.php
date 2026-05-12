@@ -9,34 +9,27 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up(): void
-    {
-        Schema::create('clients', function (Blueprint $table) {
-            $table->id(); // Primary key (auto-increment)
-            $table->string('name'); // Column for client name
-            $table->string('email_address')->unique(); // Unique email address
-            $table->boolean('active')->default(true); // Active status, default to true
-            $table->timestamps(); // Adds created_at and updated_at columns
-        });
+    // public function up(): void
+    // {
+    //     Schema::create('clients', function (Blueprint $table) {
+    //         $table->id(); // Primary key (auto-increment)
+    //         $table->string('name'); // Column for client name
+    //         $table->string('email_address')->unique(); // Unique email address
+    //         $table->boolean('active')->default(true); // Active status, default to true
+    //         $table->timestamps(); // Adds created_at and updated_at columns
+    //     });
 
-        Schema::table('reports', function (Blueprint $table) {
-            $table->foreign('client_id') // Define the foreign key
-                  ->references('id') 
-                  ->on('clients')
-                  ->onDelete('cascade');
-            
-        });
-
+        
       
         
-    }
+    // }
     
 
-    /**
-     * Reverse the migrations.
-     */
-    public function down(): void
-    {
-        Schema::dropIfExists('clients');
-    }
+    // /**
+    //  * Reverse the migrations.
+    //  */
+    // public function down(): void
+    // {
+    //     Schema::dropIfExists('clients');
+    // }
 };

@@ -11,13 +11,14 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/highcharts@11.4.3/highcharts.min.js"></script>
     
     {{-- Vite for compiling your Tailwind CSS and JS --}}
     @vite(['resources/js/app.js', 'resources/css/app.css']) 
     
     {{-- Favicon --}}
-    <link rel="icon" type="image/png" href="{{ asset('img/itd.png') }}">
+    <link rel="icon" type="image/png" href="{{ asset('img/itd_logo.png') }}">
+    
 </head>
 
 {{-- Added pt-16 to the body to account for the fixed navbar height --}}
@@ -32,17 +33,26 @@
             {{-- Logo or Brand Name --}}
             <div class="text-lg font-bold text-gray-800 flex items-center">
                 {{-- Logo image --}}
-               <img src="{{ asset('img/itd_logo.png') }}" alt="ITD Logo" class="h-24 w-auto p-0 rounded">
-                BCDA IT DIVISION {{-- Changed from MyBrand to match context --}}
+               <img src="{{ asset('images/bcda-digitalhub.png') }}"
+                alt="ITD Logo"
+                class="h-40 w-auto p-0 drop-shadow-lg">
+                {{-- BCDA IT DIVISION Changed from MyBrand to match context --}}
             </div>
-
+            
             {{-- Desktop Navigation --}}
-            <div class="hidden md:flex space-x-4 float-right">
+            <div class="hidden md:flex space-x-4 float-right items-center">
                 {{-- Navigation links --}}
                 <a href="#home-section" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">Home</a>
                 <a href="#about" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">About</a>
                 <a href="#projects" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">Project</a>
-                <a href="#contact" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">Report</a> {{-- Assuming 'Report' links to 'Contact' or another relevant section --}}
+                <a href="#contact" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">Report</a>
+                @auth
+                    <a href="{{ route('attendance.dashboard') }}" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">Attendance</a>
+                    <span class="text-gray-800 px-3 py-2 text-sm font-semibold">{{ auth()->user()->name }}</span>
+                    @if (auth()->user()->authAssignments->whereIn('item_name', ['Administrator', 'IT_User'])->isNotEmpty())
+                        <a href="{{ route('dashboard') }}" class="bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-800">SolveIT</a>
+                    @endif
+                @endauth
             </div>
 
             {{-- Mobile Menu Button (Hamburger) --}}
@@ -56,13 +66,23 @@
         </div>
 
         {{-- Mobile Navigation (Hidden by default) --}}
-        <div id="mobile-menu" class="hidden md:hidden bg-white pt-2 pb-3 space-y-1 sm:px-3">
+        <div id="mobile-menu" class="mt-5 hidden md:hidden bg-white pt-2 pb-3 space-y-1 sm:px-3">
             {{-- Container for mobile menu links --}}
-            <div class="container mx-auto"> 
+            <br><br><br>
+            <br>
+            <div class="container mx-auto mt-5"> 
                 <a href="#home-section" class="block text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-base font-medium">Home</a>
                 <a href="#about" class="block text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-base font-medium">About</a>
                 <a href="#projects" class="block text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-base font-medium">Project</a>
                 <a href="#contact" class="block text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-base font-medium">Report</a>
+                
+                 @auth
+                    <a href="{{ route('attendance.dashboard') }}" class="block text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-base font-medium">Attendance</a>
+                    @if (auth()->user()->authAssignments->whereIn('item_name', ['Administrator', 'IT_User'])->isNotEmpty())
+                        <a href="{{ route('dashboard') }}"  class="block text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-base font-medium">SolveIT</a>
+                    @endif
+                @endauth                                  
+                </div>
             </div>
         </div>
     </nav>
@@ -77,7 +97,11 @@
                     </div>
 
                     <h1 class="text-gray-900 text-4xl sm:text-5xl font-semibold pt-5 lg:pt-0">
-                        The IT Solution Starts Here.
+                        @auth
+                            Welcome back, {{ auth()->user()->name }}!
+                        @else
+                            The IT Solution Starts Here.
+                        @endauth
                     </h1>
 
                     <h3 class="text-black/70 text-lg pt-5 lg:pt-0">
@@ -97,11 +121,12 @@
             </div>
         </div>
     </section>
+    
 
     <section id="top" class="bg-blue-700 text-white py-20">
       <div class="max-w-6xl mx-auto px-6 text-center transition-all duration-700 opacity-0 translate-y-4" data-scroll>
-        <h1 class="text-4xl md:text-5xl font-bold mb-4">Welcome to the IT Division</h1>
-        <p class="text-lg md:text-xl mb-6">Empowering innovation, security, and digital transformation across the organization.</p>
+        <h1 class="text-4xl md:text-5xl font-bold mb-4">BCDA IT MISSION</h1>
+        <p class="text-lg md:text-xl mb-6">To empower BCDA by responding to its enterprise-wide IS requirements by using appropriate technologies.</p>
         <a href="#services" class="inline-block bg-white text-blue-700 px-6 py-3 rounded-full font-semibold shadow transition hover:bg-blue-100">Explore Services</a>
       </div>
     </section>
@@ -110,7 +135,7 @@
       <div class="max-w-5xl mx-auto px-6 text-center transition-all duration-700 opacity-0 translate-y-4 mt-5" data-scroll>
         <h2 class="text-3xl font-bold mb-6">About the IT Division</h2>
         <p class="text-gray-700 text-lg leading-relaxed">
-          The BCDA IT Department provides strategic IT leadership, technical expertise, and operational services to ensure secure, reliable, and efficient technology systems throughout the organization. We support innovation, system modernization, and collaborative digital solutions.
+          The BCDA IT Division provides strategic IT leadership, technical expertise, and operational services to ensure secure, reliable, and efficient technology systems throughout the organization. We support innovation, system modernization, and collaborative digital solutions.
         </p>
       </div>
     </section>
@@ -141,10 +166,11 @@
             ['title' => 'BCDA Website', 'desc' => 'Showcasing infrastructure projects, economic zone development, and public-private partnerships in the Philippines.', 'url' => 'https://www.bcda.gov.ph'],
             ['title' => 'Human Resource Information System', 'desc' => 'A system that manages employee data, payroll, recruitment, and HR processes in one digital platform.', 'url' => 'https://hris.bcda.gov.ph'],
             ['title' => 'Acumatica ERP', 'desc' => 'Cloud-based ERP platform for managing finance, inventory, sales, and operations in one integrated system.', 'url' => 'https://bcda.cloudtwogo.com/Frames/Login.aspx?ReturnUrl=%2f'],
-            ['title' => 'Property Asset Management System', 'desc' => 'Tracking and managing IT assets, including hardware, software licenses, and inventory.', 'url' => 'https://pams.bcda.gov.ph'],
-            ['title' => 'BCDA Careers Portal', 'desc' => 'Job posting site that integrates HRIS and applicant tracking.', 'url' => '#careers'],
-            ['title' => 'Records Digitization', 'desc' => 'Scanning, indexing, and management of agency records in digital format.', 'url' => '#digitization']
-          ] as $project)
+            ['title' => 'BCDA QR Maker', 'desc' => 'BCDA’s smart way to share information—one scan away.', 'url' => route('vcard')],
+            ['title' => 'Key-Board', 'desc' => 'a centralized system for managing meeting notes, agendas, and tasks.', 'url' => route('keyboard.index')],
+            ['title' => 'BCDA Survey Hub', 'desc' => 'Your gateway to sharing insights, giving feedback, and shaping the future of BCDA through quick and secure surveys.', 'url' => route('survey.checkLogin')],
+            ['title' => 'ITD Assets Maintenance', 'desc' => 'An IT asset management hub for tracking hardware, software licenses, and maintenance schedules to ensure timely updates and repairs', 'url' => 'https://www.appsheet.com/start/98c13452-6136-41b8-bd56-72559f573536'],
+            ] as $project)
             <a href="{{ $project['url'] }}" target="_blank" rel="noopener noreferrer" class="block bg-gray-100 p-6 rounded-lg shadow-md hover:shadow-lg transition duration-300 transform hover:scale-105">
               <h3 class="text-lg font-semibold text-blue-800 mb-2">{{ $project['title'] }}</h3>
               <p class="text-gray-700 text-sm text-justify">{{ $project['desc'] }}</p>
@@ -154,14 +180,15 @@
       </div>
     </section>
 
-    <section id="contact" class="py-10 bg-gray-50">
+    <section id="contact" class="py-16 bg-gradient-to-b from-white to-blue-50">
       <div class="max-w-6xl mx-auto px-6 transition-all duration-700 opacity-0 translate-y-4 mt-5" data-scroll>
         <h2 class="text-3xl font-bold text-left mb-5">How can we help you today?</h2>
         <h3 class="text-xl font-normal text-left mb-12">Pick one from the topics below and we’ll find the best solution for you.</h3>
         <div class="grid gap-8 md:grid-cols-3">
           @foreach([
             ['title' => 'Issue Tracker', 'desc' => 'Check the status of your request or repair ticket.', 'url' => 'https://www.bcda.gov.ph','icon' => 'fa-solid fa-location-dot','button' => 'Track Issue', 'main' =>'0' ],
-            ['title' => 'Video conferencing / Support', 'desc' => 'Technical and configurational support from IT Support', 'url' => 'https://hris.bcda.gov.ph','icon' => 'fa-solid fa-video','button' => 'Submit Request', 'main' =>'1'],
+            ['title' => 'Video Conferencing / Support', 'desc' => 'Technical and configurational support from IT Support', 'url' => 'https://hris.bcda.gov.ph','icon' => 'fa-solid fa-video','button' => 'Submit Request', 'main' =>'1'],
+             ['title' => 'Video Conferencing Issues', 'desc' => 'Troubleshooting for connectivity, hardware, and software performance', 'url' => 'https://hris.bcda.gov.ph','icon' => 'fa-solid fa-triangle-exclamation','button' => 'Report Issue', 'main' =>'5'],
             ['title' => 'Acumatica ERP and HRIS', 'desc' => 'Support for Acumatica or HRIS-related issues.', 'url' => 'https://bcda.cloudtwogo.com/Frames/Login.aspx?ReturnUrl=%2f','icon' => 'fa-solid fa-users','button' => 'Report Issue', 'main' =>'2'],
             ['title' => 'Hardware Issue', 'desc' => 'Support for system malfunction, connectivity issues, and printer errors', 'url' => 'https://bcda.cloudtwogo.com/Frames/Login.aspx?ReturnUrl=%2f','icon' => 'fa-solid fa-desktop', 'button' => 'Report Issue', 'main' =>'4'],
             ['title' => 'Cybersecurity Issue', 'desc' => 'Support for malware, phishing, and other cybersecurity issues', 'url' => 'https://bcda.cloudtwogo.com/Frames/Login.aspx?ReturnUrl=%2f','icon' => 'fa-solid fa-shield-halved','button' => 'Report Issue', 'main' =>'3'],
@@ -169,25 +196,35 @@
             ['title' => 'AOdocs Issues', 'desc' => 'Support for document access, workflow malfunction, and permissions errors.', 'url' => '#careers' ,'icon' => 'fa-solid fa-file-alt','button' => 'Report Issue', 'main' =>'2'],
             ['title' => 'Software Issues', 'desc' => 'Support for software crashes, installation errors, and performance issues.', 'url' => '#digitization' ,'icon' => 'fa-solid fa-location-dot','button' => 'Report Issue', 'main' =>'4'],
             ['title' => 'Google Workspace Issues', 'desc' => 'Support for email, drive, docs, sheets, meet, and document sharing issues.', 'url' => '#digitization' ,'icon' => 'fa-solid fa-envelope','button' => 'Report Issue', 'main' =>'2'],
+            ['title' => 'Print Toner/Supplies', 'desc' => 'Request for printer toner, ink cartridges, and other printing supplies.', 'url' => '#digitization' ,'icon' => 'fa-solid fa-print','button' => 'Request Supplies', 'main' =>'6'],
             ['title' => 'Other Issues', 'desc' => 'For any other IT-related issues not covered above.', 'url' => '#digitization' ,'icon' => 'fa-solid fa-question','button' => 'Report Issue', 'main' =>'99']
           ] as $project)
             {{-- Use data attributes for modal functionality --}}
             <a href="#"
-              data-modal-target="crud-modal"
-              data-modal-toggle="crud-modal"
+              @guest onclick="event.preventDefault(); window.location.href='{{ route('google.login') }}';" @endguest
+              @auth data-modal-target="crud-modal"
+              data-modal-toggle="crud-modal" @endauth
               data-project-title="{{ $project['title'] }}"
               data-project-button="{{ $project['button'] }}"
               data-project-main="{{ $project['main'] }}"
-              class="bg-white p-4 rounded-lg shadow hover:shadow-lg transition">
-              <div class="flex justify-left items-center text-center mb-3">
-                <i class="{{ $project['icon'] }} text-blue-700 text-2xl"></i>
-                <h2 class="text-lg font-semibold text-blue-800 ml-2">
-                  {{ $project['title'] }}
-                </h2>
+              class="group bg-white p-6 rounded-2xl shadow-md hover:shadow-2xl transition-all duration-300 border border-gray-100 hover:border-blue-200 hover:-translate-y-1">
+              <div class="flex items-start space-x-4 mb-4">
+                <div class="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-700 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                  <i class="{{ $project['icon'] }} text-white text-2xl"></i>
+                </div>
+                <div class="flex-1">
+                  <h3 class="text-lg font-bold text-gray-900 group-hover:text-blue-700 transition-colors duration-300 mb-2">
+                    {{ $project['title'] }}
+                  </h3>
+                  <p class="text-sm text-gray-600 leading-relaxed">
+                    {{ $project['desc'] }}
+                  </p>
+                </div>
               </div>
-              <p class="text-sm text-justify">
-                {{ $project['desc'] }}
-              </p>
+              <div class="flex items-center justify-end text-blue-600 font-medium text-sm group-hover:text-blue-700">
+                <span>{{ $project['button'] }}</span>
+                <i class="fas fa-arrow-right ml-2 group-hover:translate-x-1 transition-transform duration-300"></i>
+              </div>
             </a>
           @endforeach
         </div>
@@ -195,7 +232,8 @@
     </section>
 
     {{-- this is for modal request --}}
-    <!-- Main modal -->
+    
+     <!-- Main modal -->
       <div id="crud-modal" tabindex="-1" aria-hidden="true" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full ">
           <div class="relative p-4 w-full max-w-md max-h-full">
               <!-- Modal content -->
@@ -218,7 +256,7 @@
                     <div class="grid gap-4 mb-4 grid-cols-2">
                       <div class="col-span-2">
                         <label for="email" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Email</label>
-                        <input type="text" name="email" id="email" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Enter your email address" required>
+                        <input type="text" name="email" id="email" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Enter your email address" value="{{ auth()->user()->email }}" required>
 
                       
                       </div>
@@ -233,16 +271,10 @@
               </div>
           </div>
       </div> 
-
     <footer class="bg-blue-800 text-white py-8">
-      <div class="max-w-6xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center text-sm">
-        <p class="mb-4 md:mb-0">&copy; {{ date('Y') }} IT Department - Bases Conversion and Development Authority</p>
-        <div class="flex gap-4">
-          <a href="#about" class="hover:underline">About</a>
-          <a href="#services" class="hover:underline">Services</a>
-          <a href="#projects" class="hover:underline">Projects</a>
-          <a href="#contact" class="hover:underline">Contact</a>
-        </div>
+      <div class="max-w-6xl mx-auto px-6 text-center">
+        <p class="text-sm">&copy; {{ date('Y') }} IT Division - Bases Conversion and Development Authority</p>
+        <p class="text-xs mt-2 text-blue-200">Developed by ICTD-ITD 2025</p>
       </div>
     </footer>
 

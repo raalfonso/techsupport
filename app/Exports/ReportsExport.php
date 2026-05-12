@@ -11,6 +11,14 @@ use Carbon\Carbon;
 class ReportsExport implements FromCollection, WithHeadings, WithStyles, WithMapping
 {
     private int $rowNumber = 1;
+    private $filters;
+    private $responseRatings = [];
+    private $resolveRatings = [];
+
+    public function __construct($filters = [])
+    {
+        $this->filters = $filters;
+    }
 
     private function calculateResponseTime($response){
       $diffInMinutes = \Carbon\Carbon::parse($response->request_datetime)->diffInMinutes(\Carbon\Carbon::parse($response->response_datetime));
@@ -51,7 +59,53 @@ class ReportsExport implements FromCollection, WithHeadings, WithStyles, WithMap
     
     public function collection()
     {
-        return Report::whereIn('status', ['Done'])->get();
+        $query = Report::whereIn('status', ['Done']);
+        
+        // Apply filters
+        if (!empty($this->filters['date_from'])) {
+            $query->whereDate('resolve_datetime', '>=', $this->filters['date_from']);
+        }
+        
+        if (!empty($this->filters['date_to'])) {
+            $query->whereDate('resolve_datetime', '<=', $this->filters['date_to']);
+        }
+        
+        if (!empty($this->filters['department_id'])) {
+            $query->where('department_id', '=', $this->filters['department_id']);
+        }
+        
+        if (!empty($this->filters['category_id'])) {
+            $query->whereHas('Issues', function($q) {
+                $q->where('category_id', '=', $this->filters['category_id']);
+            });
+        }
+        
+        if (!empty($this->filters['user_id'])) {
+            $query->whereHas('resolve', function($q) {
+                $q->where('user_id', '=', $this->filters['user_id']);
+            });
+        }
+        
+        $reports = $query->get();
+        
+        // Calculate ratings for all reports first
+        foreach ($reports as $report) {
+            $this->responseRatings[] = $this->computingResponseTime($this->calculateResponse($report));
+            $this->resolveRatings[] = $this->computingResolvedTime($this->calculateResolve($report), $report->issues->resolution_timeline);
+        }
+        
+        // Add average row
+        if (!$reports->isEmpty()) {
+            $avgResponse = round(array_sum($this->responseRatings) / count($this->responseRatings), 2);
+            $avgResolve = round(array_sum($this->resolveRatings) / count($this->resolveRatings), 2);
+            
+            $reports->push((object)[
+                'avg_response' => $avgResponse,
+                'avg_resolve' => $avgResolve
+            ]);
+        }
+        
+        return $reports;
     }
 
     private function computingResponseTime($actualResponsedTime){
@@ -88,19 +142,36 @@ class ReportsExport implements FromCollection, WithHeadings, WithStyles, WithMap
     
     public function map($report): array
     {
+        // Handle average row
+        if (isset($report->avg_response)) {
+            return [
+                '',
+                '',
+                '',
+                '',
+                '',
+                '',
+                '',
+                'AVERAGE:',
+                $report->avg_response,
+                $report->avg_resolve,
+            ];
+        }
         
+        $responseRating = $this->computingResponseTime($this->calculateResponse($report));
+        $resolveRating = $this->computingResolvedTime($this->calculateResolve($report),$report->issues->resolution_timeline);
 
         return [
-            $this->rowNumber++, // Row number (starts at 1)
+            $this->rowNumber++,
             Carbon::parse($report->response_datetime)->format('F j, Y h:i A'),
-            $report->client->name, // you can also use $report->client->name if you have a client relation
+            $report->client->name,
             $report->department?->title ?? 'N/A',
             $report->issues->title,
             $this->calculateResponseTime($report),
             $this->calculateResolveTime($report),
             $report->resolve->user->name,
-            $this->computingResponseTime($this->calculateResponse($report)),
-            $this->computingResolvedTime($this->calculateResolve($report),$report->issues->resolution_timeline),
+            $responseRating,
+            $resolveRating,
         ];
     }
     public function headings(): array

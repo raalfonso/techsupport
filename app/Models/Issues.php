@@ -10,6 +10,10 @@ class Issues extends Model
     /** @use HasFactory<\Database\Factories\IssuesFactory> */
     use HasFactory;
 
+    protected $table = 'issues';
+    protected $primaryKey = 'id';
+    public $incrementing = true;
+    protected $keyType = 'int';
    
     protected $fillable = [
         'title',
@@ -20,6 +24,8 @@ class Issues extends Model
 
     ];
 
+    public $timestamps = true;
+
     public function category()
     {
         return $this->belongsTo(Category::class);
@@ -29,7 +35,4 @@ class Issues extends Model
     {
         return $this->belongsTo(Main::class);
     }
-
-
-
 }
