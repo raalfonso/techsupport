@@ -32,7 +32,9 @@ use App\Http\Controllers\{
     ItSurveyController,
     ItSurveyIssueController,
     TaskAssignController,
-    MeetingAttendeeController
+    MeetingAttendeeController,
+    RequestPersonnelController,
+    ResourceController
 };
 
 /*
@@ -69,6 +71,12 @@ Route::middleware('auth')->group(function () {
     Route::resource('category', CategoryController::class);
     Route::resource('department', DepartmentController::class);
     Route::resource('devwatch', DevWatchController::class);
+    Route::resource('request-personnel', RequestPersonnelController::class);
+    Route::get('/request-personnel-approval', [RequestPersonnelController::class, 'approval'])->name('request-personnel.approval');
+    Route::get('/request-personnel-approval/{requestPersonnel}', [RequestPersonnelController::class, 'approvalShow'])->name('request-personnel.approval-show');
+    Route::post('/request-personnel/{requestPersonnel}/update-status', [RequestPersonnelController::class, 'updateStatus'])->name('request-personnel.update-status');
+    Route::post('/request-personnel/{requestPersonnel}/assign-staff', [RequestPersonnelController::class, 'assignStaff'])->name('request-personnel.assign-staff');
+    Route::resource('resources', ResourceController::class);
     Route::post('/projects', [ProjectController::class, 'store'])->name('projects.store');
     Route::post('/projects/add-member', [ProjectController::class, 'addMember'])->name('projects.addMember');
     Route::resource('employee-masterlist', EmployeeMasterlistController::class);
