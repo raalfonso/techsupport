@@ -263,7 +263,7 @@
                             </span>
                         </td>
                         <td class="px-4 py-3 text-sm">
-                            @if($survey->answer_question_2 == 'Yes')
+                            @if($survey->answer_question_3)
                                 <span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs font-semibold">Yes</span>
                             @else
                                 <span class="px-2 py-1 bg-red-100 text-red-800 rounded-full text-xs font-semibold">No</span>
