@@ -30,6 +30,7 @@ class Report extends Model
         'resolve_datetime',
         'notes',
         'remarks',
+        'screenshot',
     ];
 
     protected static function boot()

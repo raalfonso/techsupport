@@ -17,6 +17,7 @@ use Carbon\Carbon;
 use Maatwebsite\Excel\Facades\Excel;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
 
 
@@ -451,5 +452,39 @@ class ReportController extends Controller
         }   
 
         return response()->json($loghistories);
+    }
+
+
+    public function uploadImage(Request $request)
+    {
+        $request->validate([
+            'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
+
+        if ($request->hasFile('image')) {
+            $file = $request->file('image');
+            
+            // This will stream the upload straight to your Google Drive
+            $path = Storage::disk('google')->putFile('uploaded_images', $file);
+
+            return response()->json([
+                'message' => 'Image uploaded successfully!',
+                'path' => $path // Google Drive treats this path as a unique ID
+            ]);
+        }
+    }
+
+    public function showImage($filename)
+    {
+        // Check if file exists on Google Drive
+        if (Storage::disk('google')->exists('uploaded_images/' . $filename)) {
+            
+            $file = Storage::disk('google')->get('uploaded_images/' . $filename);
+            $type = Storage::disk('google')->mimeType('uploaded_images/' . $filename);
+
+            return response($file, 200)->header('Content-Type', $type);
+        }
+
+        abort(404);
     }
 }

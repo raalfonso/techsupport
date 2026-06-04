@@ -12,7 +12,7 @@ use App\Models\User;
 use App\Models\Clients;
 use App\Models\SurveyEmployees;
 use Carbon\Carbon;
-
+use Illuminate\Support\Facades\Storage;
 class HomeController extends Controller
 {
     public function index(){
@@ -173,13 +173,26 @@ class HomeController extends Controller
             'survey_employees_id' => 'required',
             'department_id' => 'required',
             'issues_id' => 'required',
-            'location'  => 'required',
+            'screenshot' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'remarks' => 'nullable|string|max:255',
         ]);
+
 
       
         
         $fields['request_datetime'] = now();
-  
+
+        if ($request->hasFile('screenshot')) {
+            $file = $request->file('screenshot');
+            
+            // This pushes the file directly to your configured 'google' disk 
+            // into a folder named 'digitalhub_screenshot'
+            $googlePath = Storage::disk('google')->putFile('digitalhub_screenshot', $file);
+            
+            // Assign the unique Google Drive file ID path to your fields array
+            $fields['screenshot'] = $googlePath;
+        }
+
         $reports = Report::create($fields);
         
         //Redirect

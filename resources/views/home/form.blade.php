@@ -76,7 +76,7 @@
             <p class="text-gray-600">Fill out the form below to request assistance from our IT support team.</p>
           </div>
           <meta name="csrf-token" content="{{ csrf_token() }}">
-            <form action="{{ route('home.data') }}" method="post" class="space" x-data="{ loading: false }" @submit="loading = true">
+            <form action="{{ route('home.data') }}" method="post" enctype="multipart/form-data" class="space" x-data="{ loading: false }" @submit="loading = true">
                     @csrf
                     <div class="grid grid-cols-1 gap-6">
                         <div class="space-y-2">
@@ -151,6 +151,16 @@
                             @enderror
                         </div>
                     </div>
+
+                      <div class="space-y-2 mt-5">
+                        <label for="screenshot" class="block text-sm font-semibold text-gray-700 flex items-center space-x-2">
+                            <i class="fas fa-comment text-blue-600"></i>
+                            <span>Screenshot <span class="text-gray-500 text-xs">(Optional)</span></span>
+                        </label>
+                        {{-- upload screenshot here --}}
+                        <input type="file" name="screenshot" accept="image/*" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200">
+                    </div>
+
     
                     <div class="space-y-2 mt-5">
                         <label for="remarks" class="block text-sm font-semibold text-gray-700 flex items-center space-x-2">
