@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
 use App\Models\Resolve;
 use Illuminate\Http\Request;
 use App\Models\Report;
@@ -400,6 +401,118 @@ class SurveyController extends Controller
         ] );
     
     }
+    public function filter(Request $request)
+    {
+        $validated = $request->validate([
+            'start_date' => ['required', 'date'],
+            'end_date' => ['required', 'date', 'after_or_equal:start_date'],
+        ]);
+
+        $startDate = Carbon::parse($validated['start_date'])->startOfDay();
+        $endDate = Carbon::parse($validated['end_date'])->endOfDay();
+        $user = auth()->user();
+        $isUser = $user->role === 'user';
+
+        $baseQuery = SurveyReport::query()->whereBetween('created_at', [$startDate, $endDate]);
+
+        if ($isUser) {
+            $baseQuery->where('department_id', $user->department_id);
+        }
+
+        $total = (clone $baseQuery)->count();
+
+        $superLikeAccuracy = (clone $baseQuery)->where('accuracy_of_service', 2)->count();
+        $superLikeResponse = (clone $baseQuery)->where('response_time', 2)->count();
+        $likeAccuracy = (clone $baseQuery)->where('accuracy_of_service', 1)->count();
+        $likeResponse = (clone $baseQuery)->where('response_time', 1)->count();
+        $dislikeAccuracy = (clone $baseQuery)->where('accuracy_of_service', 0)->count();
+        $dislikeResponse = (clone $baseQuery)->where('response_time', 0)->count();
+
+        $percentageSuperLike = $total > 0
+            ? round(((($superLikeAccuracy / $total) * 0.5) + (($superLikeResponse / $total) * 0.5)) * 100, 2)
+            : 0;
+        $percentageLike = $total > 0
+            ? round(((($likeAccuracy / $total) * 0.5) + (($likeResponse / $total) * 0.5)) * 100, 2)
+            : 0;
+        $percentageDislike = $total > 0
+            ? round(((($dislikeAccuracy / $total) * 0.5) + (($dislikeResponse / $total) * 0.5)) * 100, 2)
+            : 0;
+
+        $entities = $isUser
+            ? SurveyEmployees::where('department_id', $user->department_id)->orderBy('name', 'asc')->get()
+            : Department::where('active', '1')->orderBy('title', 'asc')->get();
+
+        $groupColumn = $isUser ? 'survey_employees_id' : 'department_id';
+        $labelColumn = $isUser ? 'name' : 'acronym';
+
+        $superLikeMap = (clone $baseQuery)
+            ->where('accuracy_of_service', 2)
+            ->selectRaw("{$groupColumn}, COUNT(*) as total_responses")
+            ->groupBy($groupColumn)
+            ->pluck('total_responses', $groupColumn);
+
+        $likeMap = (clone $baseQuery)
+            ->where('accuracy_of_service', 1)
+            ->selectRaw("{$groupColumn}, COUNT(*) as total_responses")
+            ->groupBy($groupColumn)
+            ->pluck('total_responses', $groupColumn);
+
+        $dislikeMap = (clone $baseQuery)
+            ->where('accuracy_of_service', 0)
+            ->selectRaw("{$groupColumn}, COUNT(*) as total_responses")
+            ->groupBy($groupColumn)
+            ->pluck('total_responses', $groupColumn);
+
+        $superLikeMapR = (clone $baseQuery)
+            ->where('response_time', 2)
+            ->selectRaw("{$groupColumn}, COUNT(*) as total_responses")
+            ->groupBy($groupColumn)
+            ->pluck('total_responses', $groupColumn);
+
+        $likeMapR = (clone $baseQuery)
+            ->where('response_time', 1)
+            ->selectRaw("{$groupColumn}, COUNT(*) as total_responses")
+            ->groupBy($groupColumn)
+            ->pluck('total_responses', $groupColumn);
+
+        $dislikeMapR = (clone $baseQuery)
+            ->where('response_time', 0)
+            ->selectRaw("{$groupColumn}, COUNT(*) as total_responses")
+            ->groupBy($groupColumn)
+            ->pluck('total_responses', $groupColumn);
+
+        $superData = [];
+        $superDataR = [];
+
+        foreach ($entities as $entity) {
+            $entityId = $entity->id;
+            $entityLabel = $entity->{$labelColumn};
+
+            $superData[] = [
+                'employee_name' => $entityLabel,
+                'super_like' => (int) ($superLikeMap[$entityId] ?? 0),
+                'like' => (int) ($likeMap[$entityId] ?? 0),
+                'dislike' => (int) ($dislikeMap[$entityId] ?? 0),
+            ];
+
+            $superDataR[] = [
+                'employee_name' => $entityLabel,
+                'super_like' => (int) ($superLikeMapR[$entityId] ?? 0),
+                'like' => (int) ($likeMapR[$entityId] ?? 0),
+                'dislike' => (int) ($dislikeMapR[$entityId] ?? 0),
+            ];
+        }
+
+        return response()->json([
+            'total' => $total,
+            'percentageSuperLike' => $percentageSuperLike,
+            'percentageLike' => $percentageLike,
+            'percentageDislike' => $percentageDislike,
+            'superData' => $superData,
+            'superDataR' => $superDataR,
+        ]);
+    }
+    
 
 public function checkLogin()
 {
@@ -569,7 +682,7 @@ public function checkLogin()
 
     public function management()
     {
-        $users = \App\Models\User::all();
+        $users = \App\Models\UserSurvey::paginate(10);
         return view('survey.management', compact('users'));
     }
 

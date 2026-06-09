@@ -172,7 +172,7 @@
         </div>
 
         {{-- Mobile Navigation (Hidden by default) --}}
-        <div id="mobile-menu" class="mt-20hidden md:hidden bg-white pt-2 pb-3 space-y-1 sm:px-3">
+        <div id="mobile-menu" class="mt-20 hidden md:hidden bg-white pt-2 pb-3 space-y-1 sm:px-3">
             {{-- Container for mobile menu links --}}
             <br><br><br>
             <br><br><br><br><br>
@@ -901,7 +901,7 @@
                     $('.dislike-survey').html(response.percentageDislike);
 
 
-                    console.log(response.superData);
+                    //console.log(response.superData);
                     // re-render the charts with new data
 
                     //////////////////////////////////////////////////////////////////////
