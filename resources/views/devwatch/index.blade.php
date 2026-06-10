@@ -42,49 +42,122 @@
         </div>
 
         <!-- Dashboard Stats -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 p-6">
-                <div class="flex items-center">
-                    <div class="p-3 rounded-full bg-blue-100 dark:bg-blue-900">
-                        <i class="fa-solid fa-folder text-blue-600 dark:text-blue-400 text-xl"></i>
+        @php
+            $totalProjects = $projects->count();
+            $totalItems = $items->total();
+            $requestedProjects = $projects->where('status', 'Requested')->count();
+            $pendingProjects = $projects->where('status', 'Pending')->count();
+            $evaluationProjects = $projects->where('status', 'For Evaluation')->count();
+            $deliveryProjects = $projects->where('status', 'Development')->count() + $projects->where('status', 'Testing')->count() + $projects->where('status', 'User Acceptance Training')->count();
+            $deployedProjects = $projects->where('status', 'Deployed')->count();
+            $blockedProjects = $projects->where('status', 'On Hold')->count() + $projects->where('status', 'For Enhancement')->count();
+            $activeProjectCount = $pendingProjects + $evaluationProjects + $deliveryProjects;
+            $projectCompletionRate = $totalProjects > 0 ? round(($deployedProjects / $totalProjects) * 100) : 0;
+
+            $projectStatusStyles = [
+                'Requested' => 'bg-sky-100 text-sky-800 dark:bg-sky-950/60 dark:text-sky-300',
+                'Pending' => 'bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300',
+                'For Evaluation' => 'bg-violet-100 text-violet-800 dark:bg-violet-950/60 dark:text-violet-300',
+                'Data Gathering' => 'bg-cyan-100 text-cyan-800 dark:bg-cyan-950/60 dark:text-cyan-300',
+                'On Hold' => 'bg-rose-100 text-rose-800 dark:bg-rose-950/60 dark:text-rose-300',
+                'Development' => 'bg-orange-100 text-orange-800 dark:bg-orange-950/60 dark:text-orange-300',
+                'Testing' => 'bg-indigo-100 text-indigo-800 dark:bg-indigo-950/60 dark:text-indigo-300',
+                'User Acceptance Training' => 'bg-fuchsia-100 text-fuchsia-800 dark:bg-fuchsia-950/60 dark:text-fuchsia-300',
+                'Deployed' => 'bg-green-100 text-green-800 dark:bg-green-950/60 dark:text-green-300',
+                'For Enhancement' => 'bg-lime-100 text-lime-800 dark:bg-lime-950/60 dark:text-lime-300',
+            ];
+        @endphp
+
+        <div class="mb-8 rounded-3xl border border-gray-200/70 dark:border-gray-700 bg-white/80 dark:bg-gray-800/80 shadow-2xl backdrop-blur">
+            <div class="flex flex-col gap-4 border-b border-gray-200/70 dark:border-gray-700 px-6 py-5 md:flex-row md:items-end md:justify-between">
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-[0.25em] text-blue-600 dark:text-blue-400">Dashboard Snapshot</p>
+                    <h2 class="mt-1 text-2xl font-bold text-gray-900 dark:text-white">Project status at a glance</h2>
+                    <p class="mt-1 max-w-2xl text-sm text-gray-600 dark:text-gray-400">A quick read on where projects sit in the workflow and which stages need attention right now.</p>
+                </div>
+                <div class="flex flex-wrap gap-2 text-xs font-medium">
+                    <span class="rounded-full bg-sky-50 px-3 py-1.5 text-sky-700 dark:bg-sky-950/60 dark:text-sky-300">Requested {{ $requestedProjects }}</span>
+                    <span class="rounded-full bg-amber-50 px-3 py-1.5 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300">Active {{ $activeProjectCount }}</span>
+                    <span class="rounded-full bg-green-50 px-3 py-1.5 text-green-700 dark:bg-green-950/60 dark:text-green-300">Deployed {{ $deployedProjects }}</span>
+                    <span class="rounded-full bg-rose-50 px-3 py-1.5 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300">Blocked {{ $blockedProjects }}</span>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 gap-4 p-6 sm:grid-cols-2 xl:grid-cols-4">
+                <div class="group relative overflow-hidden rounded-3xl border border-blue-100 bg-gradient-to-br from-blue-50 via-white to-cyan-50 p-5 shadow-sm transition-transform duration-200 hover:-translate-y-1 dark:border-blue-900/60 dark:from-blue-950/70 dark:via-gray-800 dark:to-cyan-950/40">
+                    <div class="absolute right-0 top-0 h-24 w-24 -translate-y-1/2 translate-x-1/2 rounded-full bg-blue-500/10 blur-2xl"></div>
+                    <div class="flex items-start justify-between gap-4">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Total Projects</p>
+                            <p class="mt-2 text-4xl font-black tracking-tight text-gray-900 dark:text-white">{{ $totalProjects }}</p>
+                            <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">All projects currently in the dashboard</p>
+                        </div>
+                        <div class="rounded-2xl bg-blue-600 p-3 text-white shadow-lg shadow-blue-600/20">
+                            <i class="fa-solid fa-folder text-xl"></i>
+                        </div>
                     </div>
-                    <div class="ml-4">
-                        <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Total Projects</p>
-                        <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ $projects->count() }}</p>
+                </div>
+
+                <div class="group relative overflow-hidden rounded-3xl border border-sky-100 bg-gradient-to-br from-sky-50 via-white to-cyan-50 p-5 shadow-sm transition-transform duration-200 hover:-translate-y-1 dark:border-sky-900/60 dark:from-sky-950/70 dark:via-gray-800 dark:to-cyan-950/40">
+                    <div class="absolute right-0 top-0 h-24 w-24 -translate-y-1/2 translate-x-1/2 rounded-full bg-sky-500/10 blur-2xl"></div>
+                    <div class="flex items-start justify-between gap-4">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Requested</p>
+                            <p class="mt-2 text-4xl font-black tracking-tight text-gray-900 dark:text-white">{{ $requestedProjects }}</p>
+                            <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">Waiting in the intake queue</p>
+                        </div>
+                        <div class="rounded-2xl bg-sky-600 p-3 text-white shadow-lg shadow-sky-600/20">
+                            <i class="fa-solid fa-inbox text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="group relative overflow-hidden rounded-3xl border border-amber-100 bg-gradient-to-br from-amber-50 via-white to-orange-50 p-5 shadow-sm transition-transform duration-200 hover:-translate-y-1 dark:border-amber-900/60 dark:from-amber-950/70 dark:via-gray-800 dark:to-orange-950/40">
+                    <div class="absolute right-0 top-0 h-24 w-24 -translate-y-1/2 translate-x-1/2 rounded-full bg-amber-500/10 blur-2xl"></div>
+                    <div class="flex items-start justify-between gap-4">
+                        <div class="flex-1">
+                            <p class="text-sm font-medium text-gray-600 dark:text-gray-400">In Progress</p>
+                            <p class="mt-2 text-4xl font-black tracking-tight text-gray-900 dark:text-white">{{ $activeProjectCount }}</p>
+                            <div class="mt-4 h-2 overflow-hidden rounded-full bg-amber-100 dark:bg-amber-900/50">
+                                <div class="h-full rounded-full bg-gradient-to-r from-amber-500 to-orange-500" style="width: {{ $totalProjects > 0 ? min(100, round(($activeProjectCount / $totalProjects) * 100)) : 0 }}%"></div>
+                            </div>
+                            <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">Pending, evaluation, and delivery stages combined</p>
+                        </div>
+                        <div class="rounded-2xl bg-amber-500 p-3 text-white shadow-lg shadow-amber-500/20">
+                            <i class="fa-solid fa-clock text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="group relative overflow-hidden rounded-3xl border border-emerald-100 bg-gradient-to-br from-emerald-50 via-white to-teal-50 p-5 shadow-sm transition-transform duration-200 hover:-translate-y-1 dark:border-emerald-900/60 dark:from-emerald-950/70 dark:via-gray-800 dark:to-teal-950/40">
+                    <div class="absolute right-0 top-0 h-24 w-24 -translate-y-1/2 translate-x-1/2 rounded-full bg-emerald-500/10 blur-2xl"></div>
+                    <div class="flex items-start justify-between gap-4">
+                        <div class="flex-1">
+                            <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Deployed</p>
+                            <p class="mt-2 text-4xl font-black tracking-tight text-gray-900 dark:text-white">{{ $deployedProjects }}</p>
+                            <div class="mt-4 h-2 overflow-hidden rounded-full bg-emerald-100 dark:bg-emerald-900/50">
+                                <div class="h-full rounded-full bg-gradient-to-r from-emerald-500 to-teal-500" style="width: {{ $projectCompletionRate }}%"></div>
+                            </div>
+                            <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">Delivered projects out of the total pipeline</p>
+                        </div>
+                        <div class="rounded-2xl bg-emerald-500 p-3 text-white shadow-lg shadow-emerald-500/20">
+                            <i class="fa-solid fa-rocket text-xl"></i>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 p-6">
-                <div class="flex items-center">
-                    <div class="p-3 rounded-full bg-green-100 dark:bg-green-900">
-                        <i class="fa-solid fa-code text-green-600 dark:text-green-400 text-xl"></i>
-                    </div>
-                    <div class="ml-4">
-                        <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Total Items</p>
-                        <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ $items->total() }}</p>
-                    </div>
-                </div>
-            </div>
-            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 p-6">
-                <div class="flex items-center">
-                    <div class="p-3 rounded-full bg-yellow-100 dark:bg-yellow-900">
-                        <i class="fa-solid fa-clock text-yellow-600 dark:text-yellow-400 text-xl"></i>
-                    </div>
-                    <div class="ml-4">
-                        <p class="text-sm font-medium text-gray-600 dark:text-gray-400">In Progress</p>
-                        <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ $items->where('status', 'in_progress')->count() }}</p>
-                    </div>
-                </div>
-            </div>
-            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 p-6">
-                <div class="flex items-center">
-                    <div class="p-3 rounded-full bg-red-100 dark:bg-red-900">
-                        <i class="fa-solid fa-exclamation-triangle text-red-600 dark:text-red-400 text-xl"></i>
-                    </div>
-                    <div class="ml-4">
-                        <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Critical Items</p>
-                        <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ $items->where('priority', 'critical')->count() }}</p>
-                    </div>
+
+            <div class="border-t border-gray-200/70 dark:border-gray-700 px-6 py-5">
+                <div class="flex flex-wrap items-center gap-2 text-xs font-medium">
+                    @foreach(['Requested', 'Pending', 'For Evaluation', 'Data Gathering', 'On Hold', 'Development', 'Testing', 'User Acceptance Training', 'Deployed', 'For Enhancement'] as $statusLabel)
+                        @php
+                            $statusCount = $projects->where('status', $statusLabel)->count();
+                            $statusClass = $projectStatusStyles[$statusLabel] ?? 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200';
+                        @endphp
+                        <span class="inline-flex items-center gap-2 rounded-full px-3 py-1.5 {{ $statusClass }}">
+                            <span class="h-1.5 w-1.5 rounded-full bg-current opacity-70"></span>
+                            {{ $statusLabel }} {{ $statusCount }}
+                        </span>
+                    @endforeach
                 </div>
             </div>
         </div>
@@ -97,10 +170,16 @@
                     <div class="flex space-x-3">
                         <select id="project-status-filter" onchange="filterProjects()" class="px-3 py-2 border border-gray-300 rounded-lg text-sm">
                             <option value="">All Status</option>
-                            <option value="active">Active</option>
-                            <option value="completed">Completed</option>
-                            <option value="on_hold">On Hold</option>
-                            <option value="inactive">Inactive</option>
+                            <option value="Requested">Requested</option>
+                            <option value="Pending">Pending</option>
+                            <option value="For Evaluation">For Evaluation</option>
+                            <option value="Data Gathering">Data Gathering</option>
+                            <option value="On Hold">On Hold</option>
+                            <option value="Development">Development</option>
+                            <option value="Testing">Testing</option>
+                            <option value="User Acceptance Training">User Acceptance Training</option>
+                            <option value="Deployed">Deployed</option>
+                            <option value="For Enhancement">For Enhancement</option>
                         </select>
                         <input type="text" id="project-search" onkeyup="filterProjects()" placeholder="Search projects..." class="px-3 py-2 border border-gray-300 rounded-lg text-sm">
                     </div>
@@ -128,12 +207,11 @@
                                         <div class="text-sm text-gray-500 dark:text-gray-400">{{ Str::limit($project->description, 50) }}</div>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
-                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                                            @if($project->status == 'active') bg-green-100 text-green-800
-                                            @elseif($project->status == 'completed') bg-blue-100 text-blue-800
-                                            @elseif($project->status == 'on_hold') bg-yellow-100 text-yellow-800
-                                            @else bg-gray-100 text-gray-800 @endif">
-                                            {{ ucfirst(str_replace('_', ' ', $project->status)) }}
+                                        @php
+                                            $projectStatusClass = $projectStatusStyles[$project->status] ?? 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200';
+                                        @endphp
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $projectStatusClass }}">
+                                            {{ $project->status }}
                                         </span>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
