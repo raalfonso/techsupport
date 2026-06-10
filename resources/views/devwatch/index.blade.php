@@ -2,8 +2,10 @@
     <div class="mx-auto w-full p-6" x-data="{ 
         showModal: false, 
         editModal: false, 
+        showEditProjectModal: false,
         showProjectModal: false, 
         manageMembersModal: false, 
+        editProject: null,
         editItem: null, 
         selectedProject: null, 
         selectedProjectId: null,
@@ -176,6 +178,10 @@
                                             <button @click="showModal = true; selectedProjectId = {{ $project->id }}" class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded-lg text-xs">
                                                 <i class="fa-solid fa-plus mr-1"></i>
                                                 Add Item
+                                            </button>
+                                            <button @click="showEditProjectModal = true; selectedProject = {{ $project->toJson() }}" class="bg-gray-600 hover:bg-gray-700 text-white px-3 py-1 rounded-lg text-xs">
+                                                <i class="fa-solid fa-pen-to-square mr-1"></i>
+                                                Edit    
                                             </button>
                                         </div>
                                     </td>
@@ -579,6 +585,51 @@
             </div>
         </div>
 
+        <!-- Edit Modal Projects -->
+        <div x-show="showEditProjectModal" x-cloak class="fixed inset-0 bg-gray-900 bg-opacity-60 flex justify-center items-center z-50">
+            <div class="bg-white w-11/12 md:w-1/2 max-w-lg max-h-[90vh] p-0 rounded-2xl shadow-2xl flex flex-col">
+                <div class="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-4 rounded-t-2xl">
+                    <h2 class="text-xl font-bold text-white">Edit Project</h2>
+                </div>
+                    <form :action="selectedProject ? '/projects/' + selectedProject.id : ''" method="POST" class="flex-1 overflow-hidden">
+                    @csrf
+                    @method('PUT')
+                    <div class="p-6 max-h-full" style="scrollbar-width: thin;">
+                        <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Project Name</label>
+                            <input type="text" name="name" :value="selectedProject?.name" class="w-full px-3 py-2 border border-gray-300 rounded-lg" required>
+                        
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                            <textarea name="description" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg" x-text="selectedProject?.description"></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                            <select name="status" class="w-full px-3 py-2 border border-gray-300 rounded-lg" x-bind:value="selectedProject?.status" required>
+                                <option value="Requested">Requested</option>
+                                <option value="Pending">Pending</option>
+                                <option value="For Evaluation">For Evaluation</option>
+                                <option value="Data Gathering">Data Gathering</option>
+                                <option value="On Hold">On Hold</option>
+                                <option value="Development">Development</option>
+                                <option value="Testing">Testing</option>
+                                <option value="User Acceptance Training">User Acceptance Training</option>
+                                <option value="Deployed">Deployed</option>
+                                <option value="For Enhancement">For Enhancement</option>
+                            </select>
+                        </div>
+                        <div class="flex justify-end space-x-3 pt-4 border-t border-gray-200 mt-4 bg-white sticky bottom-0">
+                            <button type="button" @click="showEditProjectModal = false" class="px-4 py-2 text-gray-600 bg-gray-100 rounded-lg">Cancel</button>
+                            <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-lg">Update</button>
+                        </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
         <!-- Edit Modal -->
         <div x-show="editModal" x-cloak class="fixed inset-0 bg-gray-900 bg-opacity-60 flex justify-center items-center z-50">
             <div class="bg-white w-11/12 md:w-1/2 max-w-lg max-h-[90vh] p-0 rounded-2xl shadow-2xl flex flex-col">
@@ -696,7 +747,7 @@
                     <div class="space-y-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Project Name</label>
-                            <input type="text" name="name" class="w-full px-3 py-2 border border-gray-300 rounded-lg" required>
+                            <input type="text" name="name" class="w-full px-3 py-2 border border-gray-300 rounded-lg" autocomplete="off" required>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
@@ -705,10 +756,16 @@
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
                             <select name="status" class="w-full px-3 py-2 border border-gray-300 rounded-lg" required>
-                                <option value="active" selected>Active</option>
-                                <option value="inactive">Inactive</option>
-                                <option value="completed">Completed</option>
-                                <option value="on_hold">On Hold</option>
+                                <option value="Requested" selected>Requested</option>
+                                <option value="Pending">Pending</option>
+                                <option value="For Evaluation">For Evaluation</option>
+                                <option value="Data Gathering">Data Gathering</option>
+                                <option value="On Hold">On Hold</option>
+                                <option value="Development">Development</option>
+                                <option value="Testing">Testing</option>
+                                <option value="User Acceptance Training">User Acceptance Training</option>
+                                <option value="Deployed">Deployed</option>
+                                <option value="For Enhancement">For Enhancement</option>
                             </select>
                         </div>
                         <div class="flex justify-end space-x-3 pt-4">

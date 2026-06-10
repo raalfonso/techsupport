@@ -78,6 +78,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/request-personnel/{requestPersonnel}/assign-staff', [RequestPersonnelController::class, 'assignStaff'])->name('request-personnel.assign-staff');
     Route::resource('resources', ResourceController::class);
     Route::post('/projects', [ProjectController::class, 'store'])->name('projects.store');
+    Route::put('/projects/{project}', [ProjectController::class, 'update'])->name('projects.update');
     Route::post('/projects/add-member', [ProjectController::class, 'addMember'])->name('projects.addMember');
     Route::resource('employee-masterlist', EmployeeMasterlistController::class);
     Route::resource('signatory', SignatoryController::class);

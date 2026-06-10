@@ -8,12 +8,29 @@ use Illuminate\Http\Request;
 
 class ProjectController extends Controller
 {
+    public function update(Request $request, Project $project)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'status' => 'required|in:Requested,Pending,For Evaluation,Data Gathering,On Hold,Development,Testing,User Acceptance Training,Deployed,For Enhancement'
+        ]);
+
+        $project->update([
+            'name' => $request->name,
+            'description' => $request->description,
+            'status' => $request->status,
+        ]);
+
+        return redirect()->route('devwatch.index')->with('success', 'Project updated successfully!');
+    }
+
     public function store(Request $request)
     {
         $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'status' => 'required|in:active,inactive,completed,on_hold'
+            'status' => 'required|in:Requested,Pending,For Evaluation,Data Gathering,On Hold,Development,Testing,User Acceptance Training,Deployed,For Enhancement'
         ]);
 
         Project::create([
