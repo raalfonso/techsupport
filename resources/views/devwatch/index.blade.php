@@ -75,12 +75,6 @@
                     <h2 class="mt-1 text-2xl font-bold text-gray-900 dark:text-white">Project status at a glance</h2>
                     <p class="mt-1 max-w-2xl text-sm text-gray-600 dark:text-gray-400">A quick read on where projects sit in the workflow and which stages need attention right now.</p>
                 </div>
-                <div class="flex flex-wrap gap-2 text-xs font-medium">
-                    <span class="rounded-full bg-sky-50 px-3 py-1.5 text-sky-700 dark:bg-sky-950/60 dark:text-sky-300">Requested {{ $requestedProjects }}</span>
-                    <span class="rounded-full bg-amber-50 px-3 py-1.5 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300">Active {{ $activeProjectCount }}</span>
-                    <span class="rounded-full bg-green-50 px-3 py-1.5 text-green-700 dark:bg-green-950/60 dark:text-green-300">Deployed {{ $deployedProjects }}</span>
-                    <span class="rounded-full bg-rose-50 px-3 py-1.5 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300">Blocked {{ $blockedProjects }}</span>
-                </div>
             </div>
             <div class="grid grid-cols-1 gap-4 p-6 sm:grid-cols-2 xl:grid-cols-4">
                 <div class="group relative overflow-hidden rounded-3xl border border-blue-100 bg-gradient-to-br from-blue-50 via-white to-cyan-50 p-5 shadow-sm transition-transform duration-200 hover:-translate-y-1 dark:border-blue-900/60 dark:from-blue-950/70 dark:via-gray-800 dark:to-cyan-950/40">
