@@ -11,7 +11,7 @@ class DevWatchController extends Controller
 {
     public function index()
     {
-        $items = DevWatch::with('user')->orderBy('created_at', 'desc')->paginate(10);
+        $items = DevWatch::with('user')->orderBy('created_at', 'desc')->get();
         $projects = Project::with(['user', 'members.user'])->orderBy('created_at', 'desc')->get();
         $users = User::all();
         return view('devwatch.index', compact('items', 'projects', 'users'));

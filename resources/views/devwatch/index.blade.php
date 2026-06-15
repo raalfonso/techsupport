@@ -44,7 +44,7 @@
         <!-- Dashboard Stats -->
         @php
             $totalProjects = $projects->count();
-            $totalItems = $items->total();
+            // $totalItems = $items->total();
             $requestedProjects = $projects->where('status', 'Requested')->count();
             $pendingProjects = $projects->where('status', 'Pending')->count();
             $evaluationProjects = $projects->where('status', 'For Evaluation')->count();
@@ -564,7 +564,7 @@
                         </table>
                     </div>
                     <div class="mt-6">
-                        {{ $items->links() }}
+                        {{-- {{ $items->links() }} --}}
                     </div>
                 @else
                     <div class="text-center py-12">
