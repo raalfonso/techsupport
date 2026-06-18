@@ -79,7 +79,7 @@
             </label>
             <div class="flex gap-3 justify-between">
                 @foreach ([
-                    '2' => '<i class="fa-solid fa-thumbs-up mr-2 text-green-600"></i>Super Like <i class="fa-solid fa-thumbs-up fa-flip-horizontal mr-2 text-green-600"></i>',
+                    '2' => '<i class="fa-solid fa-thumbs-up mr-2 text-green-600"></i>Super Like <i class="fa-solid fa-thumbs-up fa-flip-horizontal ml-2 mr-2 text-green-600"></i>',
                     '1' => '<i class="fa-regular fa-thumbs-up mr-2 text-blue-600"></i>Like',
                     '0' => '<i class="fa-regular fa-thumbs-down mr-2 text-red-600"></i>Dislike'
                 ] as $value => $label)
@@ -104,7 +104,7 @@
             </label>
              <div class="flex gap-3 justify-between">
                 @foreach ([
-                    '2' => '<i class="fa-solid fa-thumbs-up mr-2 text-green-600"></i>Super Like <i class="fa-solid fa-thumbs-up fa-flip-horizontal mr-2 text-green-600"></i>',
+                    '2' => '<i class="fa-solid fa-thumbs-up mr-2 text-green-600"></i>Super Like <i class="fa-solid fa-thumbs-up fa-flip-horizontal ml-2 mr-2 text-green-600"></i>',
                     '1' => '<i class="fa-regular fa-thumbs-up mr-2 text-blue-600"></i>Like',
                     '0' => '<i class="fa-regular fa-thumbs-down mr-2 text-red-600"></i>Dislike'
                 ] as $value => $label)
