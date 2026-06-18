@@ -42,11 +42,12 @@ class SurveyEmployeeController extends Controller
             'name' => ['required','string','max:255'],
             'email' => ['required','email', Rule::unique('survey_employees','email')->ignore($id)],
             'department_id' => ['sometimes','exists:departments,id'],
+            'status' => ['sometimes', Rule::in(['active','inactive'])],
             // add other fields you expect to update
         ]);
 
         // remove id from the update payload
-        $updateData = $request->only(['name','email','department_id']);
+        $updateData = $request->only(['name','email','department_id','status']);
 
         // Option A: simple query update (bypasses $fillable)
         SurveyEmployees::where('id', '=', $id)->update($updateData);

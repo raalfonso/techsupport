@@ -205,7 +205,7 @@ class SurveyController extends Controller
 
        
         }else{
-            $employeesQuery = SurveyEmployees::where('department_id', auth()->user()->department_id);
+            $employeesQuery = SurveyEmployees::where('department_id', auth()->user()->department_id)->where('status', 'active');
             
             if (request('search')) {
                 $search = request('search');
@@ -314,6 +314,7 @@ class SurveyController extends Controller
 
         //this is for graph
             $employeess = SurveyEmployees::where('department_id', auth()->user()->department_id)
+                ->where('status', 'active')
                 ->orderBy('name', 'asc')
                 ->get()->toArray();
             $superLikeAccuracy = SurveyReport::selectRaw('COUNT(accuracy_of_service) as total_responses, survey_employees_id')
@@ -440,7 +441,9 @@ class SurveyController extends Controller
             : 0;
 
         $entities = $isUser
-            ? SurveyEmployees::where('department_id', $user->department_id)->orderBy('name', 'asc')->get()
+            ? SurveyEmployees::where('department_id', $user->department_id)
+            ->where('status', 'active')
+            ->orderBy('name', 'asc')->get()
             : Department::where('active', '1')->orderBy('title', 'asc')->get();
 
         $groupColumn = $isUser ? 'survey_employees_id' : 'department_id';
@@ -591,6 +594,7 @@ public function checkLogin()
         $departmentCode = $request->query('dept');
 
        $employees = SurveyEmployees::where(['department_id' => $departmentCode])
+       ->where('status', 'active')
         ->get()
         ->map(function($employee) {
             return [
