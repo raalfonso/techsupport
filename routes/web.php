@@ -209,6 +209,9 @@ Route::prefix('survey')->group(function () {
         Route::get('/changePasswordForm', [SurveyController::class, 'changePasswordForm'])->name('survey.changePasswordForm');
         Route::post('/employee/edit', [SurveyEmployeeController::class, 'edit'])->name('survey.employee.edit');
         Route::get('/export-results', [SurveyController::class, 'exportResults'])->name('survey.exportResults');
+        Route::get('/search-survey', [SurveyController::class, 'searchSurvey'])->name('survey.searchResults');
+        Route::get('/export-pdf', [SurveyController::class, 'exportResultsPDF'])->name('survey.exportResultsPDF');
+        
     });
 
     Route::get('/register', [SurveyController::class, 'register'])->name('survey.register');

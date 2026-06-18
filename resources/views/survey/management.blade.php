@@ -206,6 +206,7 @@
                             <tr>
                                 <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Name</th>
                                 <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Email</th>
+                                <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Department</th>
                                 <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Status</th>
                                 <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Role</th>
                                 <th class="px-6 py-4 text-right text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Actions</th>
@@ -226,6 +227,7 @@
                                         </div>
                                     </td>
                                     <td class="px-6 py-4 text-sm text-slate-600">{{ $user->email }}</td>
+                                    <td class="px-6 py-4 text-sm text-slate-600">{{ $user->department->title ?? 'N/A' }}</td>
                                     <td class="px-6 py-4">
                                         @php
                                             $status = strtolower($user->status ?? 'inactive');

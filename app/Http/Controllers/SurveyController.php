@@ -12,6 +12,7 @@ use App\Models\Issues;
 use App\Models\UserSurvey;
 use App\Models\SurveyEmployees;
 use App\Models\SurveyReport;
+use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\Clients;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
@@ -890,7 +891,7 @@ public function checkLogin()
             }
         } else {
             if(auth()->user()->role == 'superadmin'){
-          $reports = SurveyReport::all();
+            $reports = SurveyReport::all();
             //   this is for the superlike 
             $superLikeAccuracy = SurveyReport::selectRaw('COUNT(accuracy_of_service) as total_responses')
                 ->where('accuracy_of_service', 2)
@@ -976,98 +977,6 @@ public function checkLogin()
             ]);
 
 
-       }else if(auth()->user()->role == 'user'){
-          $reports = SurveyReport::where('department_id', auth()->user()->department_id)->get();
-
-            //   this is for the superlike 
-            $superLikeAccuracy = SurveyReport::selectRaw('COUNT(accuracy_of_service) as total_responses')
-                ->where('accuracy_of_service', 2)
-                ->where('department_id', auth()->user()->department_id)
-                ->get();
-
-            $likeAccuracy = SurveyReport::selectRaw('COUNT(accuracy_of_service) as total_responses')
-                ->where('accuracy_of_service', 1)
-                ->where('department_id', auth()->user()->department_id)
-                ->get();
-
-            $dislikeAccuracy = SurveyReport::selectRaw('COUNT(accuracy_of_service) as total_responses')
-                ->where('accuracy_of_service', 0)
-                ->where('department_id', auth()->user()->department_id)
-                ->get();
-
-            $total = $superLikeAccuracy->first()->total_responses + $likeAccuracy->first()->total_responses + $dislikeAccuracy->first()->total_responses;   
-
-            $consolidation = [
-                'super_like' => $superLikeAccuracy->first()->total_responses ?? 0,
-                'like' => $likeAccuracy->first()->total_responses ?? 0,
-                'dislike' => $dislikeAccuracy->first()->total_responses ?? 0,
-                'total' => $total,
-            ];
-
-            // this is for the response time
-            $superLikeResponseTime = SurveyReport::selectRaw('COUNT(response_time) as total_responses')
-                ->where('response_time', 2)
-                ->where('department_id', auth()->user()->department_id)
-                ->get();
-            $likeResponseTime = SurveyReport::selectRaw('COUNT(response_time) as total_responses')
-                ->where('response_time', 1)
-                ->where('department_id', auth()->user()->department_id)
-                ->get();
-            $dislikeResponseTime = SurveyReport::selectRaw('COUNT(response_time) as total_responses')
-                ->where('response_time', 0)     
-                ->where('department_id', auth()->user()->department_id)
-                ->get();
-        
-            $totalResponseTime = $superLikeResponseTime->first()->total_responses + $likeResponseTime->first()->total_responses + $dislikeResponseTime->first()->total_responses;
-            
-            $consolidationResponse = [
-                'super_like' => $superLikeResponseTime->first()->total_responses ?? 0,
-                'like' => $likeResponseTime->first()->total_responses ?? 0,
-                'dislike' => $dislikeResponseTime->first()->total_responses ?? 0,
-                'total' => $totalResponseTime,
-            ];
-
-            $performance = [
-                'super_like_total' => $consolidation['super_like'] + $consolidationResponse['super_like'],
-                'like_total' => $consolidation['like'] + $consolidationResponse['like'],
-                'dislike_total' => $consolidation['dislike'] + $consolidationResponse['dislike'],
-                'grand_total' => $consolidation['total'] + $consolidationResponse['total'],
-            ];
-
-            // print_r($consolidationResponse);
-
-            // percentage calculations 
-            $consolidationPercentage = [
-                'super_like' => $consolidation['super_like'] > 0 ? round(($consolidation['super_like'] / $consolidation['total']) * 100, 2) : 0,
-                'like' => $consolidation['like'] > 0 ? round(($consolidation['like'] / $consolidation['total']) * 100, 2) : 0,
-                'dislike' => $consolidation['dislike'] > 0 ? round(($consolidation['dislike'] / $consolidation['total']) * 100, 2) : 0,
-                
-            ];
-
-            $responsePercentage = [
-                'super_like' => $consolidationResponse['super_like'] > 0 ? round(($consolidationResponse['super_like'] / $consolidationResponse['total']) * 100, 2) : 0,
-                'like' => $consolidationResponse['like'] > 0 ? round(($consolidationResponse['like'] / $consolidationResponse['total']) * 100, 2) : 0,
-                'dislike' => $consolidationResponse['dislike'] > 0 ? round(($consolidationResponse['dislike'] / $consolidationResponse['total']) * 100, 2) : 0,
-            ];
-
-            $performancePercentage = [
-                'super_like_average' => $responsePercentage['super_like'] != 0 ? round(($consolidationPercentage['super_like'] + $responsePercentage['super_like'])/2, 2) : 0,
-                'like_average' => $responsePercentage['like'] != 0 ? round(($consolidationPercentage['like'] + $responsePercentage['like'])/2, 2) : 0,
-                'dislike_average' => $responsePercentage['dislike'] != 0 ? round(($consolidationPercentage['dislike'] + $responsePercentage['dislike'])/2, 2) : 0,
-            ];
-
-            // this will return to pdf template 
-            return view('survey.export', [
-                'reports' => $reports,
-                'consolidation' => $consolidation,
-                'consolidationResponse' => $consolidationResponse,
-                'performance' => $performance,
-                'consolidationPercentage' => $consolidationPercentage,
-                'responsePercentage' => $responsePercentage,
-                'performancePercentage' => $performancePercentage,
-                'startDate' => $startDate,
-                'endDate' => $endDate,
-            ]);
        }else{
           return redirect()->back()->with('error', 'Unauthorized access.');
        }
@@ -1075,8 +984,142 @@ public function checkLogin()
       
 
 
-    //     echo "<pre>";
-    //    print_r($superLikeAccuracy);
-    //      echo "</pre>";
+  
     }
+
+    public function exportResultsPDF(Request $request)
+    {
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
+
+        if ($startDate && $endDate) {
+
+            if(auth()->user()->role == 'superadmin') {
+                $reports = SurveyReport::whereBetween('created_at', [$startDate, $endDate])->get();
+            } else{
+                $reports = SurveyReport::where('department_id', auth()->user()->department_id)
+                    ->whereBetween('created_at', [$startDate, $endDate])
+                    ->get();
+            }
+            // $reports = SurveyReport::whereBetween('created_at', [$startDate, $endDate])->get();
+
+            // Generate PDF using the view and data
+            // $pdf = PDF::loadView('survey.export-result', ['reports' => $reports, 'startDate' => $startDate, 'endDate' => $endDate]);
+
+            // Return the generated PDF for download
+            // return $pdf->download('survey_report.pdf');
+
+            return view('survey.export-result', [
+                'reports' => $reports,
+                'startDate' => $startDate,
+                'endDate' => $endDate,
+            ]);
+        } else {
+            return redirect()->back()->with('error', 'Please provide both start and end dates.');
+        }
+    }
+
+    public function searchSurvey(Request $request)
+    {
+        $validated = $request->validate([
+            'start_date' => ['required', 'date'],
+            'end_date' => ['required', 'date', 'after_or_equal:start_date'],
+        ]);
+
+        $startDate = Carbon::parse($validated['start_date'])->startOfDay();
+        $endDate = Carbon::parse($validated['end_date'])->endOfDay();
+
+        if(auth()->user()->role == 'superadmin'){
+             $results = SurveyReport::whereBetween('created_at', [$startDate, $endDate])
+            ->get();
+        }else if(auth()->user()->role == 'user'){
+
+             $results = SurveyReport::where('department_id', auth()->user()->department_id)
+                    ->whereBetween('created_at', [$startDate, $endDate])
+                    ->get();
+        }
+        else
+            {
+                $results = SurveyReport::whereBetween('created_at', [$startDate, $endDate])
+            ->get();
+            }
+
+        foreach($results as $result){
+            $data[] = "<tr class='hover:bg-gray-50 transition duration-150'>
+                <td class='py-4 px-6 text-sm text-gray-600'>".$result->created_at->format('F j, Y')."</td>
+                <td class='py-4 px-6 text-sm text-gray-600 font-medium'>".$result->surveyEmployee->name."</td>
+                <td class='py-4 px-6'>".$this->getAccuracyLabel($result->accuracy_of_service)."</td>
+                <td class='py-4 px-6'>".$this->getResponseTimeLabel($result->response_time)."</td>
+                <td class='py-4 px-6 text-sm text-gray-600'>".e($result->comments)."</td>
+                <td class='py-4 px-6 text-sm text-gray-600'>".e($result->client_name)."</td>
+            </tr>";
+        }
+                     
+    
+            
+        return response()->json([
+        'success' => true,
+        'query' => $validated,
+        'data' => $data ?? [],
+        'pagination' => ''
+        ]);
+    }
+
+    public function getAccuracyLabel($accuracy)
+    {
+        switch ($accuracy) {
+            case 2:
+                return '<span class="text-green-600 font-semibold"><span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                                    <svg class="w-4 h-4 mr-1.5" fill="currentColor" viewBox="0 0 20 20">
+                                      <path d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"/>
+                                    </svg>
+                                    Super Like
+                                  </span></span>';
+            case 1:
+                return '<span class="text-blue-600 font-semibold"><span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                                    <svg class="w-4 h-4 mr-1.5" fill="currentColor" viewBox="0 0 20 20">
+                                      <path d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"/>
+                                    </svg>
+                                    Like
+                                  </span></span>';
+            case 0:
+                return '<span class="text-red-600 font-semibold"><span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
+                                    <svg class="w-4 h-4 mr-1.5" fill="currentColor" viewBox="0 0 20 20">
+                                      <path d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.7₀7-9.293a1 1  0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"/>
+                                    </svg>
+                                    Dislike 
+                                  </span></span>';
+            default:            
+                return '<span class="text-gray-600 font-semibold">Unknown</span>';
+        }
+    }
+
+    public function getResponseTimeLabel($responseTime)
+    {
+        switch ($responseTime) {
+            case 2:
+                return '<span class="text-green-600 font-semibold"><span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                                    <svg class="w-4 h-4 mr-1.5" fill="currentColor" viewBox="0 0 20 20">
+                                      <path d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"/>
+                                    </svg>
+                                    Super Like
+                                  </span></span>';
+            case 1:
+                return '<span class="text-blue-600 font-semibold"><span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                                    <svg class="w-4 h-4 mr-1.5" fill="currentColor" viewBox="0 0 20 20">
+                                      <path d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"/>
+                                    </svg>
+                                    Like
+                                  </span></span>';
+            case 0:
+                return '<span class="text-red-600 font-semibold"><span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
+                                    <svg class="w-4 h-4 mr-1.5" fill="currentColor" viewBox="0 0 20 20">
+                                      <path d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.7₀7-9.293a1 1  0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"/>
+                                    </svg>
+                                    Dislike 
+                                  </span></span>';
+            default:            
+                return '<span class="text-gray-600 font-semibold">Unknown</span>';
+        }
+    }   
 }

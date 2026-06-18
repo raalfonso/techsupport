@@ -327,13 +327,25 @@
         </div>
 
     </section>
-
+    
     <section id="about" class="py-16" style="background-color: #e6edfc">
       <div class="container mx-auto lg:max-w-screen-xl md:max-w-screen-md px-4 transition-all duration-700 opacity-0 translate-y-4" data-scroll>
         <h1 class="text-4xl font-bold mb-8 text-gray-800">Survey Results</h1>
+        
+        <div class="flex justify-end mb-4">
+            <button id="export-result-survey"
+                class="export-result-survey inline-flex items-center px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg shadow hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>                        
+                Export
+            </button>
+        </div>
+
+
 
         <div class="bg-white rounded-xl shadow-lg overflow-hidden">
-          <div class="overflow-x-auto">
+          <div class="overflow-x-auto survey-table">
             <table class="min-w-full divide-y divide-gray-200">
                 <thead>
                   <tr class="bg-gray-50">
@@ -345,7 +357,7 @@
                     <th class="py-4 px-6 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Client Name</th>
                   </tr>
                 </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
+                <tbody class="bg-white divide-y divide-gray-200 survey-table-body">
                   @foreach($surveys as $survey)
                       <tr class="hover:bg-gray-50 transition duration-150">
                           <td class="py-4 px-6 text-sm text-gray-600">{{ $survey->created_at->format('F j, Y') }}</td>
@@ -407,7 +419,7 @@
           </div>
         </div>
 
-        <div class="mt-6">
+        <div class="mt-6 pagination-links">
             {{ $surveys->links('pagination::tailwind') }}
         </div>
       </div>
@@ -884,6 +896,15 @@
         }
 
         else {
+
+            Swal.fire({
+                title: 'Loading...',
+                text: 'Please wait while data is being processed.',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
             
             $.ajax({
                 url: '{{ route("survey.dashboard.filter") }}',
@@ -1020,6 +1041,26 @@
                 }
             });
 
+            $.ajax({
+                url: '{{ route("survey.searchResults") }}',
+                method: 'GET',
+                data: {
+                    start_date: startDate,
+                    end_date: endDate
+                },
+                success: function(response) {
+                    // Handle successful response as table data
+                    $('.survey-table-body').html(response.data);
+                    $('.pagination-links').hide(); // Hide pagination links when filtering
+
+                      // Close loading
+                        Swal.close();
+                },
+                error: function(xhr, status, error) {
+                    // Handle error
+                    console.error('Error exporting results:', error);
+                }
+            });
 
             
         }
@@ -1028,6 +1069,8 @@
 
         
     }
+
+    
 
     $('#export-result-btn').click(function() {
         const startDate = document.getElementById('start_date').value;
@@ -1051,6 +1094,32 @@
                 url += `?start_date=${startDate}&end_date=${endDate}`;
             }
            window.open(url, "_blank");
+        }
+    });
+
+    $('#export-result-survey').click(function() {
+        const startDate = document.getElementById('start_date').value;
+        const endDate = document.getElementById('end_date').value;
+
+        if (startDate > endDate) {
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'error', 
+                title: 'Start date cannot be later than end date',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true
+            });
+            return;
+        }
+        else{
+            let urlpdf = '{{ route("survey.exportResultsPDF") }}';
+            if (startDate && endDate) {
+                urlpdf += `?start_date=${startDate}&end_date=${endDate}`;
+            }
+           window.open(urlpdf, "_blank");
+        
         }
     });
 
