@@ -1088,6 +1088,18 @@
             });
             return;
         }
+        else if (!startDate || !endDate) {
+            Swal.fire({
+                toast: true,
+                position: 'top-end', 
+                icon: 'warning',
+                title: 'Please select both start and end dates',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true
+            });
+            return;
+        }
         else{
             let url = '{{ route("survey.exportResults") }}';
             if (startDate && endDate) {
@@ -1107,6 +1119,18 @@
                 position: 'top-end',
                 icon: 'error', 
                 title: 'Start date cannot be later than end date',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true
+            });
+            return;
+        }
+        else if (!startDate || !endDate) {
+            Swal.fire({
+                toast: true,
+                position: 'top-end', 
+                icon: 'warning',
+                title: 'Please select both start and end dates',
                 showConfirmButton: false,
                 timer: 3000,
                 timerProgressBar: true
