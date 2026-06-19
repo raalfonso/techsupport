@@ -203,6 +203,18 @@ class SurveyController extends Controller
                     ];
                 }
 
+            return view('survey.dashboard-admin', [
+                'employees' => $employees,
+                'surveys' => $survey,
+                'total' => $total,
+                'percentageSuperLike' => $percentageSuperLike,
+                'percentageLike' => $percentageLike,
+                'percentageDislike' => $percentageDislike,
+                'superData' => $superData,
+                'superDataR' => $superDataR,
+                'departments' => Department::where('active','1')->orderBy('title', 'asc')->get(),
+            ] );
+
        
         }else{
             $employeesQuery = SurveyEmployees::where('department_id', auth()->user()->department_id)->where('status', 'active');
@@ -414,11 +426,14 @@ class SurveyController extends Controller
         $endDate = Carbon::parse($validated['end_date'])->endOfDay();
         $user = auth()->user();
         $isUser = $user->role === 'user';
+        $departmentId = $request->input('department_id');
 
         $baseQuery = SurveyReport::query()->whereBetween('created_at', [$startDate, $endDate]);
 
         if ($isUser) {
             $baseQuery->where('department_id', $user->department_id);
+        } elseif ($departmentId) {
+            $baseQuery->where('department_id', $departmentId);
         }
 
         $total = (clone $baseQuery)->count();
@@ -440,14 +455,19 @@ class SurveyController extends Controller
             ? round(((($dislikeAccuracy / $total) * 0.5) + (($dislikeResponse / $total) * 0.5)) * 100, 2)
             : 0;
 
-        $entities = $isUser
-            ? SurveyEmployees::where('department_id', $user->department_id)
-            ->where('status', 'active')
-            ->orderBy('name', 'asc')->get()
-            : Department::where('active', '1')->orderBy('title', 'asc')->get();
+        $filterDeptId = $isUser ? $user->department_id : $departmentId;
 
-        $groupColumn = $isUser ? 'survey_employees_id' : 'department_id';
-        $labelColumn = $isUser ? 'name' : 'acronym';
+        if ($isUser || $filterDeptId) {
+            $entities = SurveyEmployees::where('department_id', $filterDeptId)
+                ->where('status', 'active')
+                ->orderBy('name', 'asc')->get();
+            $groupColumn = 'survey_employees_id';
+            $labelColumn = 'name';
+        } else {
+            $entities = Department::where('active', '1')->orderBy('title', 'asc')->get();
+            $groupColumn = 'department_id';
+            $labelColumn = 'acronym';
+        }
 
         $superLikeMap = (clone $baseQuery)
             ->where('accuracy_of_service', 2)
@@ -509,12 +529,101 @@ class SurveyController extends Controller
 
         return response()->json([
             'total' => $total,
-            'percentageSuperLike' => $percentageSuperLike,
-            'percentageLike' => $percentageLike,
-            'percentageDislike' => $percentageDislike,
+            'percentageSuperLike' => $percentageSuperLike.'%',
+            'percentageLike' => $percentageLike.'%',
+            'percentageDislike' => $percentageDislike.'%',
             'superData' => $superData,
             'superDataR' => $superDataR,
+            'comments' => $this->getCommentsHtml($baseQuery),
+            'commentsCount' => (clone $baseQuery)->whereNotNull('comments')->where('comments', '!=', '')->count()
         ]);
+    }
+    
+    private function getCommentsHtml($query)
+    {
+        $comments = (clone $query)->whereNotNull('comments')
+            ->where('comments', '!=', '')
+            ->orderBy('created_at', 'desc')
+            ->limit(6)
+            ->get();
+
+        $html = '';
+        
+        if ($comments->isEmpty()) {
+            $html = '<div class="text-center py-12">
+                <div class="inline-flex items-center justify-center w-16 h-16 bg-gray-100 rounded-full mb-4">
+                    <i class="material-icons text-gray-400 text-3xl">chat_bubble_outline</i>
+                </div>
+                <p class="text-gray-500 text-sm">No comments available for selected filters</p>
+            </div>';
+        } else {
+            foreach ($comments as $comment) {
+                $initial = substr($comment->client_name ?? 'C', 0, 1);
+                $clientName = e($comment->client_name ?? 'Anonymous');
+                $timeAgo = $comment->created_at->diffForHumans();
+                $employeeName = e($comment->surveyEmployee->name ?? 'Unknown');
+                $commentText = e($comment->comments);
+
+                if ($comment->accuracy_of_service == 2) {
+                    $accuracyBadge = '<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-700 border border-emerald-200">
+                        <i class="material-icons text-sm mr-1">sentiment_very_satisfied</i>
+                        Super Like
+                    </span>';
+                } elseif ($comment->accuracy_of_service == 1) {
+                    $accuracyBadge = '<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-700 border border-blue-200">
+                        <i class="material-icons text-sm mr-1">thumb_up</i>
+                        Like
+                    </span>';
+                } else {
+                    $accuracyBadge = '<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700 border border-red-200">
+                        <i class="material-icons text-sm mr-1">thumb_down</i>
+                        Dislike
+                    </span>';
+                }
+
+                if ($comment->response_time == 2) {
+                    $responseLabel = '<span class="text-emerald-600 font-semibold ml-1">Fast</span>';
+                } elseif ($comment->response_time == 1) {
+                    $responseLabel = '<span class="text-blue-600 font-semibold ml-1">Good</span>';
+                } else {
+                    $responseLabel = '<span class="text-red-600 font-semibold ml-1">Slow</span>';
+                }
+
+                $html .= '<div class="bg-gradient-to-r from-gray-50 to-blue-50 border border-gray-200 rounded-xl p-4 hover:shadow-md transition-all duration-300 transform hover:-translate-y-1">
+                    <div class="flex items-start space-x-4">
+                        <div class="flex-shrink-0">
+                            <div class="h-12 w-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center shadow-lg">
+                                <span class="text-white font-bold text-lg">' . $initial . '</span>
+                            </div>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center justify-between mb-2">
+                                <div>
+                                    <p class="text-sm font-semibold text-gray-900">' . $clientName . '</p>
+                                    <p class="text-xs text-gray-500">' . $timeAgo . '</p>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    ' . $accuracyBadge . '
+                                </div>
+                            </div>
+                            <p class="text-sm text-gray-700 leading-relaxed">' . $commentText . '</p>
+                            <div class="mt-2 flex items-center space-x-3 text-xs text-gray-500">
+                                <span class="flex items-center">
+                                    <i class="material-icons text-sm mr-1">person</i>
+                                    ' . $employeeName . '
+                                </span>
+                                <span class="flex items-center">
+                                    <i class="material-icons text-sm mr-1">schedule</i>
+                                    Response: ' . $responseLabel . '
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>';
+            }
+        }
+
+        return $html;
     }
     
 
@@ -1032,21 +1141,26 @@ public function checkLogin()
 
         $startDate = Carbon::parse($validated['start_date'])->startOfDay();
         $endDate = Carbon::parse($validated['end_date'])->endOfDay();
+        $departmentId = $request->input('department_id');
 
         if(auth()->user()->role == 'superadmin'){
-             $results = SurveyReport::whereBetween('created_at', [$startDate, $endDate])
-            ->get();
+             $query = SurveyReport::whereBetween('created_at', [$startDate, $endDate]);
+             if ($departmentId) {
+                 $query->where('department_id', $departmentId);
+             }
+             $results = $query->get();
         }else if(auth()->user()->role == 'user'){
-
              $results = SurveyReport::where('department_id', auth()->user()->department_id)
                     ->whereBetween('created_at', [$startDate, $endDate])
                     ->get();
         }
-        else
-            {
-                $results = SurveyReport::whereBetween('created_at', [$startDate, $endDate])
-            ->get();
-            }
+        else {
+             $query = SurveyReport::whereBetween('created_at', [$startDate, $endDate]);
+             if ($departmentId) {
+                 $query->where('department_id', $departmentId);
+             }
+             $results = $query->get();
+        }
 
         foreach($results as $result){
             $data[] = "<tr class='hover:bg-gray-50 transition duration-150'>
