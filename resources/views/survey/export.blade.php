@@ -25,7 +25,7 @@
         @if (auth()->user()->role == 'user')
             <h3 class="text-xl font-semibold text-gray-700 mb-4 text-center">{{ auth()->user()->department->title}}</h3>
         @else
-            <h3 class="text-xl font-semibold text-gray-700 mb-4 text-center">Department: All Departments</h3>
+            <h3 class="text-xl font-semibold text-gray-700 mb-4 text-center">Department: <?= $department ?? 'All Departments' ?></h3>
         @endif
 
         @if ($startDate && $endDate)

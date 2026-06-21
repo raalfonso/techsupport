@@ -1255,8 +1255,9 @@
         }
         else{
             let url = '{{ route("survey.exportResults") }}';
+            const departmentId = document.getElementById('department_filter').value;
             if (startDate && endDate) {
-                url += `?start_date=${startDate}&end_date=${endDate}`;
+                url += `?start_date=${startDate}&end_date=${endDate}&department_id=${departmentId}`;
             }
            window.open(url, "_blank");
         }
@@ -1292,8 +1293,10 @@
         }
         else{
             let urlpdf = '{{ route("survey.exportResultsPDF") }}';
+            const departmentId = document.getElementById('department_filter').value;
+            console.log(departmentId);
             if (startDate && endDate) {
-                urlpdf += `?start_date=${startDate}&end_date=${endDate}`;
+                urlpdf += `?start_date=${startDate}&end_date=${endDate}&department_id=${departmentId}`;
             }
            window.open(urlpdf, "_blank");
         
