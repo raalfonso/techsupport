@@ -807,7 +807,10 @@ public function checkLogin()
         $departmentId = $request->input('department_id');
         
        if($startDate && $endDate) {
-            $reports = SurveyReport::whereBetween('created_at', [$startDate, $endDate])->get();
+            $reports = SurveyReport::whereBetween('created_at',[
+                    Carbon::parse($startDate)->startOfDay(),
+                    Carbon::parse($endDate)->endOfDay(),
+                ])->get();
 
             if(auth()->user()->role == 'superadmin'){
                 if ($departmentId) {
@@ -821,19 +824,28 @@ public function checkLogin()
                 //   this is for the superlike 
                 $superLikeAccuracy = SurveyReport::selectRaw('COUNT(accuracy_of_service) as total_responses')
                     ->where('accuracy_of_service', 2)
-                    ->whereBetween('created_at', [$startDate, $endDate])
+                    ->whereBetween('created_at', [
+                        Carbon::parse($startDate)->startOfDay(),
+                        Carbon::parse($endDate)->endOfDay(),
+                    ])
                     ->where('department_id', $departmentId)
                     ->get();
 
                 $likeAccuracy = SurveyReport::selectRaw('COUNT(accuracy_of_service) as total_responses')
                     ->where('accuracy_of_service', 1)
-                    ->whereBetween('created_at', [$startDate, $endDate])
+                    ->whereBetween('created_at', [
+                        Carbon::parse($startDate)->startOfDay(),
+                        Carbon::parse($endDate)->endOfDay(),
+                    ])
                     ->where('department_id', $departmentId)
                     ->get();
 
                 $dislikeAccuracy = SurveyReport::selectRaw('COUNT(accuracy_of_service) as total_responses')
                     ->where('accuracy_of_service', 0)
-                    ->whereBetween('created_at', [$startDate, $endDate])
+                    ->whereBetween('created_at', [
+                        Carbon::parse($startDate)->startOfDay(),
+                        Carbon::parse($endDate)->endOfDay(),
+                    ])
                     ->where('department_id', $departmentId)
                     ->get();
 
@@ -849,17 +861,26 @@ public function checkLogin()
                 // this is for the response time
                 $superLikeResponseTime = SurveyReport::selectRaw('COUNT(response_time) as total_responses')
                     ->where('response_time', 2)
-                    ->whereBetween('created_at', [$startDate, $endDate])
+                    ->whereBetween('created_at', [
+                        Carbon::parse($startDate)->startOfDay(),
+                        Carbon::parse($endDate)->endOfDay(),
+                    ])
                     ->where('department_id', $departmentId)
                     ->get();
                 $likeResponseTime = SurveyReport::selectRaw('COUNT(response_time) as total_responses')
                     ->where('response_time', 1)
-                    ->whereBetween('created_at', [$startDate, $endDate])
+                    ->whereBetween('created_at', [
+                        Carbon::parse($startDate)->startOfDay(),
+                        Carbon::parse($endDate)->endOfDay(),
+                    ])
                     ->where('department_id', $departmentId)
                     ->get();
                 $dislikeResponseTime = SurveyReport::selectRaw('COUNT(response_time) as total_responses')
                     ->where('response_time', 0)     
-                    ->whereBetween('created_at', [$startDate, $endDate])
+                    ->whereBetween('created_at', [
+                        Carbon::parse($startDate)->startOfDay(),
+                        Carbon::parse($endDate)->endOfDay(),
+                    ])
                     ->where('department_id', $departmentId)
                     ->get();
             
@@ -924,19 +945,28 @@ public function checkLogin()
             $superLikeAccuracy = SurveyReport::selectRaw('COUNT(accuracy_of_service) as total_responses')
                 ->where('accuracy_of_service', 2)
                 ->where('department_id', auth()->user()->department_id)
-                ->whereBetween('created_at', [$startDate, $endDate])
+                ->whereBetween('created_at', [
+                    Carbon::parse($startDate)->startOfDay(),
+                    Carbon::parse($endDate)->endOfDay(),
+                ])
                 ->get();
 
             $likeAccuracy = SurveyReport::selectRaw('COUNT(accuracy_of_service) as total_responses')
                 ->where('accuracy_of_service', 1)
                 ->where('department_id', auth()->user()->department_id)
-                ->whereBetween('created_at', [$startDate, $endDate])
+                ->whereBetween('created_at', [
+                    Carbon::parse($startDate)->startOfDay(),
+                    Carbon::parse($endDate)->endOfDay(),
+                ])
                 ->get();
 
             $dislikeAccuracy = SurveyReport::selectRaw('COUNT(accuracy_of_service) as total_responses')
                 ->where('accuracy_of_service', 0)
                 ->where('department_id', auth()->user()->department_id)
-                ->whereBetween('created_at', [$startDate, $endDate])
+                ->whereBetween('created_at', [
+                    Carbon::parse($startDate)->startOfDay(),
+                    Carbon::parse($endDate)->endOfDay(),
+                ])
                 ->get();
 
             $total = $superLikeAccuracy->first()->total_responses + $likeAccuracy->first()->total_responses + $dislikeAccuracy->first()->total_responses;   
@@ -952,17 +982,26 @@ public function checkLogin()
             $superLikeResponseTime = SurveyReport::selectRaw('COUNT(response_time) as total_responses')
                 ->where('response_time', 2)
                 ->where('department_id', auth()->user()->department_id)
-                ->whereBetween('created_at', [$startDate, $endDate])
+                ->whereBetween('created_at', [
+                    Carbon::parse($startDate)->startOfDay(),
+                    Carbon::parse($endDate)->endOfDay(),
+                ])
                 ->get();
             $likeResponseTime = SurveyReport::selectRaw('COUNT(response_time) as total_responses')
                 ->where('response_time', 1)
                 ->where('department_id', auth()->user()->department_id)
-                ->whereBetween('created_at', [$startDate, $endDate])
+                ->whereBetween('created_at', [
+                    Carbon::parse($startDate)->startOfDay(),
+                    Carbon::parse($endDate)->endOfDay(),
+                ])
                 ->get();
             $dislikeResponseTime = SurveyReport::selectRaw('COUNT(response_time) as total_responses')
                 ->where('response_time', 0)     
                 ->where('department_id', auth()->user()->department_id)
-                ->whereBetween('created_at', [$startDate, $endDate])
+                ->whereBetween('created_at', [
+                    Carbon::parse($startDate)->startOfDay(),
+                    Carbon::parse($endDate)->endOfDay(),
+                ])
                 ->get();
         
             $totalResponseTime = $superLikeResponseTime->first()->total_responses + $likeResponseTime->first()->total_responses + $dislikeResponseTime->first()->total_responses;
@@ -1128,15 +1167,25 @@ public function checkLogin()
         
                 if ($departmentId) {
                     $reports = SurveyReport::where('department_id', $departmentId)
-                        ->whereBetween('created_at', [$startDate, $endDate])
-                        ->get();
+                        ->whereBetween('created_at', [
+                            Carbon::parse($startDate)->startOfDay(),
+                            Carbon::parse($endDate)->endOfDay(),
+                        ])->get();
+                     $departmentName = Department::where('id', $departmentId)->value('title');
                 } else {                     
-                    $reports = SurveyReport::whereBetween('created_at', [$startDate, $endDate])->get();
+                    $reports = SurveyReport::whereBetween('created_at', [
+                        Carbon::parse($startDate)->startOfDay(),
+                        Carbon::parse($endDate)->endOfDay(),
+                    ])->get();
+                     $departmentName = "All Departments";
                 }
               
             }else{
                 $reports = SurveyReport::where('department_id', auth()->user()->department_id)
-                    ->whereBetween('created_at', [$startDate, $endDate])
+                    ->whereBetween('created_at', [
+                        Carbon::parse($startDate)->startOfDay(),
+                        Carbon::parse($endDate)->endOfDay(),
+                    ])
                     ->get();
             }
             // $reports = SurveyReport::whereBetween('created_at', [$startDate, $endDate])->get();
@@ -1152,6 +1201,7 @@ public function checkLogin()
                 'startDate' => $startDate,
                 'endDate' => $endDate,
                 'department' => Department::all(),
+                'departmentName' => $departmentName ?? null,
             ]);
         } else {
             return redirect()->back()->with('error', 'Please provide both start and end dates.');
@@ -1170,18 +1220,27 @@ public function checkLogin()
         $departmentId = $request->input('department_id');
 
         if(auth()->user()->role == 'superadmin'){
-             $query = SurveyReport::whereBetween('created_at', [$startDate, $endDate]);
+             $query = SurveyReport::whereBetween('created_at', [
+                 Carbon::parse($startDate)->startOfDay(),
+                 Carbon::parse($endDate)->endOfDay(),
+             ]);
              if ($departmentId) {
                  $query->where('department_id', $departmentId);
              }
              $results = $query->get();
         }else if(auth()->user()->role == 'user'){
              $results = SurveyReport::where('department_id', auth()->user()->department_id)
-                    ->whereBetween('created_at', [$startDate, $endDate])
+                    ->whereBetween('created_at', [
+                        Carbon::parse($startDate)->startOfDay(),
+                        Carbon::parse($endDate)->endOfDay(),
+                    ])
                     ->get();
         }
         else {
-             $query = SurveyReport::whereBetween('created_at', [$startDate, $endDate]);
+             $query = SurveyReport::whereBetween('created_at', [
+                 Carbon::parse($startDate)->startOfDay(),
+                 Carbon::parse($endDate)->endOfDay(),
+             ]);
              if ($departmentId) {
                  $query->where('department_id', $departmentId);
              }

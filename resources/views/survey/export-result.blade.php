@@ -65,7 +65,7 @@
                     </div>
                     <div class="inline-flex w-fit items-center gap-2 rounded-full bg-sky-50 px-3 py-2 text-xs font-medium text-sky-700 sm:text-sm">
                         <span class="material-icons text-base">analytics</span>
-                        {{ auth()->user()->role == 'user' ? auth()->user()->department->title : 'All Departments' }}
+                        {{ auth()->user()->role == 'user' ? auth()->user()->department->title : $departmentName }}
                     </div>
                 </div>
 
