@@ -394,14 +394,8 @@ class SurveyController extends Controller
                         'dislike'       => $dislikeMapR[$id]['total_responses'] ?? 0,
                     ];
                 }
-
-            // print_r($superDataR);
-            //  die();
             }
         
-
-
-
         return view('survey.dashboard', [
             'employees' => $employees,
             'surveys' => $survey,
@@ -412,7 +406,7 @@ class SurveyController extends Controller
             'superData' => $superData,
             'superDataR' => $superDataR,
             'departments' => Department::where('active','1')->orderBy('title', 'asc')->get(),
-        ] );
+        ]);
     
     }
     public function filter(Request $request)
@@ -812,7 +806,7 @@ public function checkLogin()
                     Carbon::parse($endDate)->endOfDay(),
                 ])->get();
 
-            if(auth()->user()->role == 'superadmin'){
+            if((auth()->user()->role === 'superadmin') || (auth()->user()->role === 'admin')) {
                 if ($departmentId) {
                     $reports = $reports->where('department_id', $departmentId);
                     $departmentName = Department::where('id', $departmentId)->value('title');
@@ -1058,7 +1052,7 @@ public function checkLogin()
                 return redirect()->back()->with('error', 'Unauthorized access.');
             }
         } else {
-            if(auth()->user()->role == 'superadmin'){
+            if((auth()->user()->role === 'superadmin') || (auth()->user()->role === 'admin')) {
             $reports = SurveyReport::all();
             //   this is for the superlike 
             $superLikeAccuracy = SurveyReport::selectRaw('COUNT(accuracy_of_service) as total_responses')
@@ -1163,7 +1157,7 @@ public function checkLogin()
 
         if ($startDate && $endDate) {
 
-            if(auth()->user()->role == 'superadmin') {
+            if((auth()->user()->role === 'superadmin') || (auth()->user()->role === 'admin')) {
         
                 if ($departmentId) {
                     $reports = SurveyReport::where('department_id', $departmentId)
@@ -1188,13 +1182,7 @@ public function checkLogin()
                     ])
                     ->get();
             }
-            // $reports = SurveyReport::whereBetween('created_at', [$startDate, $endDate])->get();
-
-            // Generate PDF using the view and data
-            // $pdf = PDF::loadView('survey.export-result', ['reports' => $reports, 'startDate' => $startDate, 'endDate' => $endDate]);
-
-            // Return the generated PDF for download
-            // return $pdf->download('survey_report.pdf');
+        
 
             return view('survey.export-result', [
                 'reports' => $reports,
@@ -1219,7 +1207,7 @@ public function checkLogin()
         $endDate = Carbon::parse($validated['end_date'])->endOfDay();
         $departmentId = $request->input('department_id');
 
-        if(auth()->user()->role == 'superadmin'){
+        if((auth()->user()->role === 'superadmin') || (auth()->user()->role === 'admin')){
              $query = SurveyReport::whereBetween('created_at', [
                  Carbon::parse($startDate)->startOfDay(),
                  Carbon::parse($endDate)->endOfDay(),
@@ -1229,12 +1217,12 @@ public function checkLogin()
              }
              $results = $query->get();
         }else if(auth()->user()->role == 'user'){
-             $results = SurveyReport::where('department_id', auth()->user()->department_id)
+             $query = SurveyReport::where('department_id', auth()->user()->department_id)
                     ->whereBetween('created_at', [
                         Carbon::parse($startDate)->startOfDay(),
                         Carbon::parse($endDate)->endOfDay(),
-                    ])
-                    ->get();
+                    ]);
+                    
         }
         else {
              $query = SurveyReport::whereBetween('created_at', [
@@ -1244,9 +1232,9 @@ public function checkLogin()
              if ($departmentId) {
                  $query->where('department_id', $departmentId);
              }
-             $results = $query->get();
+           
         }
-
+          $results = $query->paginate(50);
         foreach($results as $result){
             $data[] = "<tr class='hover:bg-gray-50 transition duration-150'>
                 <td class='py-4 px-6 text-sm text-gray-600'>".$result->created_at->format('F j, Y')."</td>
@@ -1264,7 +1252,7 @@ public function checkLogin()
         'success' => true,
         'query' => $validated,
         'data' => $data ?? [],
-        'pagination' => ''
+         'pagination' => $results->links('pagination::tailwind')->render(),
         ]);
     }
 

@@ -1074,9 +1074,17 @@
                     }
 
 
-                    //console.log(response.superData);
+                    console.log(response.superData);
                     // re-render the charts with new data
+                    const employees = response.superData
+                        .sort((a, b) => b.super_like - a.super_like)
+                        .slice(0, 30);
+                    
+                    const employeesR = response.superDataR
+                        .sort((a, b) => b.super_like - a.super_like)
+                        .slice(0, 30);
 
+                        // console.log(top15);
                     //////////////////////////////////////////////////////////////////////
                     // this is for highchart
                         Highcharts.chart('container', {
@@ -1118,17 +1126,17 @@
                             series: [
                                 {
                                     name: 'Super Like',
-                                    data: response.superData.map(item => item.super_like),
+                                    data: employees.map(item => item.super_like),
                                     color: 'rgb(34, 197, 94)' // Tailwind CSS green-500
                                 },
                                 {
                                     name: 'Like',
-                                    data: response.superData.map(item => item.like),
+                                    data: employees.map(item => item.like),
                                     color: 'rgb(59, 130, 246)' // Tailwind CSS blue-500
                                 },
                                 {
                                     name: 'Dislike',
-                                    data: response.superData.map(item => item.dislike),
+                                    data: employees.map(item => item.dislike),
                                     color: 'rgb(239, 68, 68)' // Tailwind CSS red-500
                                 }
                             ]
@@ -1142,7 +1150,7 @@
                                 text: 'Degree of Responsiveness and Timeliness'
                             },
                             xAxis: {
-                                categories: response.superDataR.map(item => item.employee_name),
+                                categories: employeesR.map(item => item.employee_name),
                                 crosshair: true,
                                 labels: {
                                     rotation: -75,
@@ -1171,17 +1179,17 @@
                             series: [
                                 {
                                     name: 'Super Like',
-                                    data: response.superDataR.map(item => item.super_like),
+                                    data: employeesR.map(item => item.super_like),
                                     color: 'rgb(34, 197, 94)' // Tailwind CSS green-500
                                 },
                                 {
                                     name: 'Like',
-                                    data: response.superDataR.map(item => item.like),
+                                    data: employeesR.map(item => item.like),
                                     color: 'rgb(59, 130, 246)' // Tailwind CSS blue-500
                                 },
                                 {
                                     name: 'Dislike',
-                                    data: response.superDataR.map(item => item.dislike),
+                                    data: employeesR.map(item => item.dislike),
                                     color: 'rgb(239, 68, 68)' // Tailwind CSS red-500
                                 }
                             ]
@@ -1204,7 +1212,7 @@
                 success: function(response) {
                     // Handle successful response as table data
                     $('.survey-table-body').html(response.data);
-                    $('.pagination-links').hide(); // Hide pagination links when filtering
+                    $('.pagination-links').html(response.pagination).show(); // Show pagination links when filtering
 
                       // Close loading
                         Swal.close();
