@@ -9,7 +9,37 @@
         editItem: null, 
         selectedProject: null, 
         selectedProjectId: null,
-        viewMode: 'table' 
+        viewMode: 'table',
+        formatDate(value) {
+            if (!value) {
+                return '';
+            }
+
+            if (typeof value === 'string') {
+                const trimmed = value.trim();
+
+                if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) {
+                    return trimmed;
+                }
+
+                const simpleDate = trimmed.split('T')[0].split(' ')[0];
+
+                if (/^\d{4}-\d{2}-\d{2}$/.test(simpleDate)) {
+                    return simpleDate;
+                }
+
+                const date = new Date(trimmed);
+
+                if (!Number.isNaN(date.getTime())) {
+                    const year = date.getFullYear();
+                    const month = String(date.getMonth() + 1).padStart(2, '0');
+                    const day = String(date.getDate()).padStart(2, '0');
+                    return `${year}-${month}-${day}`;
+                }
+            }
+
+            return '';
+        }
     }">
         <div class="mb-8">
             <div class="flex items-center justify-between">
@@ -708,7 +738,7 @@
                 <div class="bg-gradient-to-r from-green-600 to-green-700 px-6 py-4 rounded-t-2xl">
                     <h2 class="text-xl font-bold text-white">Edit DevWatch Item</h2>
                 </div>
-                <form :action="editItem ? '/devwatch/' + editItem.id : ''" method="POST" class="flex-1 overflow-hidden">
+                <form :action="editItem ? '/devwatch/' + editItem.id : ''" method="POST" class="flex-1 overflow-scroll">
                     @csrf
                     @method('PUT')
                     <div class="p-6 overflow-y-scroll max-h-full" style="scrollbar-width: thin;">
@@ -738,6 +768,7 @@
                                 <option value="resolved" :selected="editItem?.status === 'resolved'">Resolved</option>
                                 <option value="closed" :selected="editItem?.status === 'closed'">Closed</option>
                             </select>
+                                                                           
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Remarks</label>
@@ -750,17 +781,17 @@
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Reported Date</label>
-                                <input type="date" name="reported_date" :value="editItem?.reported_date" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                                <input type="date" name="reported_date" :value="formatDate(editItem?.reported_date)" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
                             </div>
                         </div>
                         <div class="grid grid-cols-2 gap-4">
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Start Date</label>
-                                <input type="date" name="start_date" :value="editItem?.start_date" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                                <input type="date" name="start_date" :value="formatDate(editItem?.start_date)" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">End Date</label>
-                                <input type="date" name="end_date" :value="editItem?.end_date" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                                <input type="date" name="end_date" :value="formatDate(editItem?.end_date)" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
                             </div>
                         </div>
                         <div class="flex justify-end space-x-3 pt-4 border-t border-gray-200 mt-4 bg-white sticky bottom-0">
