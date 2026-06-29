@@ -106,11 +106,7 @@
                 </div>
             </div>
 
-            <div class="text-red-500 py-2 overflow-hidden mb-5 animate-pulse">
-                <div class="inline-block">
-                    📢 In line with the ISO Third-Party Audit of BCDA, all employees are required to report on-site. Please coordinate with your respective supervisors for guidance and instructions.
-                </div>
-            </div>
+           
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                 @php
@@ -140,10 +136,9 @@
                     </p>
                     <form id="clockInForm" action="{{ route('attendance.clock-in') }}" method="POST" class="inline-block w-full">
                         @csrf
-                        {{-- <button id="clockInBtn" type="submit" {{ $todayAttend ? 'disabled' : '' }} class="w-full py-2 px-4 rounded-lg font-semibold text-sm transition {{ $todayAttend ? 'bg-gray-100 dark:bg-slate-700 text-gray-400 dark:text-gray-500 cursor-not-allowed' : 'bg-blue-600 text-white hover:bg-blue-700' }}">
+                        <button id="clockInBtn" type="submit" {{ $todayAttend ? 'disabled' : '' }} class="w-full py-2 px-4 rounded-lg font-semibold text-sm transition {{ $todayAttend ? 'bg-gray-100 dark:bg-slate-700 text-gray-400 dark:text-gray-500 cursor-not-allowed' : 'bg-blue-600 text-white hover:bg-blue-700' }}">
                             {{ $todayAttend ? 'Already Clocked In' : 'Clock In Now' }}
-                        </button> --}}
-                        <button class="w-full py-2 px-4 rounded-lg font-semibold text-sm transition bg-gray-100 dark:bg-slate-700 text-gray-400  cursor-not-allowed" disabled> Clock In Now</button>
+                        </button>
                     </form>
                 </div>
 
