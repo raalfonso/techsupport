@@ -105,7 +105,7 @@ class SupportRequestController extends Controller
             ->orderBy('name')
             ->get();
 
-        return view('support_requests.approval-show', compact('supportRequest', 'users'));
+        return view('support_requests.approval_show', compact('supportRequest', 'users'));
     }
 
     public function updateStatus(Request $request, SupportRequest $supportRequest)
