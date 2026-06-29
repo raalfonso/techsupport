@@ -54,7 +54,7 @@ class SupportRequestController extends Controller
 
     public function show(SupportRequest $supportRequest)
     {
-        $supportRequest->load(['requester.department', 'approver', 'assignedIt']);
+        $supportRequest->load(['requester', 'approver', 'assignedIt']);
 
         return view('support_requests.show', compact('supportRequest'));
     }
@@ -88,7 +88,7 @@ class SupportRequestController extends Controller
 
     public function approval()
     {
-        $supportRequests = SupportRequest::with(['requester.department', 'assignedIt'])
+        $supportRequests = SupportRequest::with(['requester', 'assignedIt'])
             ->latest()
             ->paginate(10);
 
@@ -97,7 +97,7 @@ class SupportRequestController extends Controller
 
     public function approvalShow(SupportRequest $supportRequest)
     {
-        $supportRequest->load(['requester.department', 'approver', 'assignedIt']);
+        $supportRequest->load(['requester', 'approver', 'assignedIt']);
 
         $users = User::whereHas('authAssignments', function ($query) {
                 $query->whereIn('item_name', ['Administrator', 'IT_User']);
