@@ -34,7 +34,8 @@ use App\Http\Controllers\{
     TaskAssignController,
     MeetingAttendeeController,
     RequestPersonnelController,
-    ResourceController
+    ResourceController,
+    SupportRequestController
 };
 
 /*
@@ -87,6 +88,13 @@ Route::middleware('auth')->group(function () {
     Route::get('/employee-masterlist/import/form', [EmployeeMasterlistController::class, 'importForm'])->name('employee-masterlist.import-form');
     Route::post('/employee-masterlist/import', [EmployeeMasterlistController::class, 'import'])->name('employee-masterlist.import');
     
+    // Support Request Routes
+    Route::resource('support-requests', SupportRequestController::class);
+    Route::get('/support-requests-approval', [SupportRequestController::class, 'approval'])->name('support-requests.approval');
+    Route::get('/support-requests-approval/{supportRequest}', [SupportRequestController::class, 'approvalShow'])->name('support-requests.approval-show');
+    Route::post('/support-requests/{supportRequest}/update-status', [SupportRequestController::class, 'updateStatus'])->name('support-requests.update-status');
+    Route::post('/support-requests/{supportRequest}/assign-staff', [SupportRequestController::class, 'assignStaff'])->name('support-requests.assign-staff');
+
     // Employee List Routes (Read-only for attendance module)
     Route::get('/employee-list', [\App\Http\Controllers\EmployeeController::class, 'index'])->name('employee-list.index');
     Route::get('/employee-list/create', [\App\Http\Controllers\EmployeeController::class, 'create'])->name('employee-list.create');

@@ -1,0 +1,76 @@
+@php
+    $isAdmin = auth()->user()->authAssignments()->whereIn('item_name', ['Administrator', 'IT_User'])->exists();
+@endphp
+
+<nav class="bg-white dark:bg-slate-800 border-b border-gray-200 dark:border-slate-700 p-4 shadow-md top-0 z-50 min-w-full fixed max-h-16">
+    <div class="flex items-center justify-between container mx-auto w-full">
+        <div class="text-lg font-bold text-gray-800 dark:text-white flex items-center">
+            <img src="{{ asset('img/itd_logo.png') }}" alt="ITD Logo" class="h-24 w-auto p-0 rounded">
+            BCDA Support Request
+        </div>
+
+        <div class="hidden md:flex items-center space-x-1">
+            <a href="{{ route('support-requests.index') }}" class="flex items-center space-x-2 text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-slate-700 hover:text-blue-600 px-3 py-2 rounded-lg transition font-medium">
+                <i class="material-icons text-lg">list</i><span>All Requests</span>
+            </a>
+            <a href="{{ route('support-requests.create') }}" class="flex items-center space-x-2 text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-slate-700 hover:text-blue-600 px-3 py-2 rounded-lg transition font-medium">
+                <i class="material-icons text-lg">add_circle</i><span>New Request</span>
+            </a>
+            @if($isAdmin)
+            <a href="{{ route('support-requests.approval') }}" class="flex items-center space-x-2 text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-slate-700 hover:text-blue-600 px-3 py-2 rounded-lg transition font-medium">
+                <i class="material-icons text-lg">approval</i><span>Approvals</span>
+            </a>
+            @endif
+            <a href="{{ route('home') }}" class="flex items-center space-x-2 text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-slate-700 hover:text-blue-600 px-3 py-2 rounded-lg transition font-medium">
+                <i class="material-icons text-lg">home</i><span>Main System</span>
+            </a>
+            <p class="text-gray-600 dark:text-gray-400 px-3 py-2 text-sm font-medium">{{ auth()->user()->name }}</p>
+            <button id="theme-toggle" class="p-2 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-slate-700 transition" title="Toggle dark mode">
+                <i class="material-icons text-xl" id="theme-icon">light_mode</i>
+            </button>
+        </div>
+
+        <div class="md:hidden flex items-center gap-2">
+            <button id="theme-toggle-mobile" class="p-2 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-slate-700 transition">
+                <i class="material-icons text-xl" id="theme-icon-mobile">light_mode</i>
+            </button>
+            <button id="mobile-menu-button" class="text-gray-600 dark:text-gray-300 hover:text-gray-900 focus:outline-none">
+                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <div id="mobile-menu" class="hidden md:hidden bg-white dark:bg-slate-800 pt-2 pb-3 space-y-1 px-4 border-t border-gray-100 dark:border-slate-700">
+        <p class="text-gray-600 dark:text-gray-400 px-3 py-2 text-sm font-medium">{{ auth()->user()->name }}</p>
+        <a href="{{ route('support-requests.index') }}" class="flex items-center space-x-2 text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-slate-700 hover:text-blue-600 px-3 py-2 rounded-lg transition font-medium"><i class="material-icons text-lg">list</i><span>All Requests</span></a>
+        <a href="{{ route('support-requests.create') }}" class="flex items-center space-x-2 text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-slate-700 hover:text-blue-600 px-3 py-2 rounded-lg transition font-medium"><i class="material-icons text-lg">add_circle</i><span>New Request</span></a>
+        @if($isAdmin)
+        <a href="{{ route('support-requests.approval') }}" class="flex items-center space-x-2 text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-slate-700 hover:text-blue-600 px-3 py-2 rounded-lg transition font-medium"><i class="material-icons text-lg">approval</i><span>Approvals</span></a>
+        @endif
+        <a href="{{ route('home') }}" class="flex items-center space-x-2 text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-slate-700 hover:text-blue-600 px-3 py-2 rounded-lg transition font-medium"><i class="material-icons text-lg">home</i><span>Main System</span></a>
+    </div>
+</nav>
+
+<script>
+    (function() { if (localStorage.getItem('cw-theme') === 'dark') document.documentElement.classList.add('dark'); })();
+    function updateThemeIcon() {
+        const isDark = document.documentElement.classList.contains('dark');
+        document.getElementById('theme-icon') && (document.getElementById('theme-icon').textContent = isDark ? 'dark_mode' : 'light_mode');
+        document.getElementById('theme-icon-mobile') && (document.getElementById('theme-icon-mobile').textContent = isDark ? 'dark_mode' : 'light_mode');
+    }
+    function toggleTheme() {
+        document.documentElement.classList.toggle('dark');
+        localStorage.setItem('cw-theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
+        updateThemeIcon();
+    }
+    document.addEventListener('DOMContentLoaded', function () {
+        updateThemeIcon();
+        document.getElementById('theme-toggle')?.addEventListener('click', toggleTheme);
+        document.getElementById('theme-toggle-mobile')?.addEventListener('click', toggleTheme);
+        document.getElementById('mobile-menu-button')?.addEventListener('click', function () {
+            document.getElementById('mobile-menu').classList.toggle('hidden');
+        });
+    });
+</script>

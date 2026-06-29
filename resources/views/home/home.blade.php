@@ -171,7 +171,8 @@
             ['title' => 'BCDA Survey Hub', 'desc' => 'Your gateway to sharing insights, giving feedback, and shaping the future of BCDA through quick and secure surveys.', 'url' => route('survey.checkLogin')],
             ['title' => 'ITD Assets Maintenance', 'desc' => 'An IT asset management hub for tracking hardware, software licenses, and maintenance schedules to ensure timely updates and repairs', 'url' => 'https://www.appsheet.com/start/98c13452-6136-41b8-bd56-72559f573536'],
             ['title' => 'IT Request Personnel', 'desc' => 'A web-based system for managing and tracking IT personnel and technical support requests within the organization.', 'url' => route('request-personnel.index')],
-            
+            ['title' => 'Support Request', 'desc' => 'Request IT personnel support for meetings, events, technical assistance, and other department needs.', 'url' => route('support-requests.index')],
+
               ] as $project)
             <a href="{{ $project['url'] }}" target="_blank" rel="noopener noreferrer" class="block bg-gray-100 p-6 rounded-lg shadow-md hover:shadow-lg transition duration-300 transform hover:scale-105">
               <h3 class="text-lg font-semibold text-blue-800 mb-2">{{ $project['title'] }}</h3>
