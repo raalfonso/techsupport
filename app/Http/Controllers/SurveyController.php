@@ -725,9 +725,18 @@ public function checkLogin()
             'department_id' => 'required|exists:departments,id',
             'accuracy_of_service' => 'required',
             'response_time' => 'required',
-            'comments' => 'nullable|string|max:500',
+            'comments' => [
+                $request->input('accuracy_of_service') == '0' || $request->input('response_time') == '0' ? 'required' : 'nullable',
+                'string',
+                'max:500',
+            ],
             'client_name' => 'nullable|string|max:100',
-           
+        ], [
+            'survey_employees_id.required' => 'The person you transacted with cannot be empty.',
+            'survey_employees_id.exists' => 'The selected person you transacted with is invalid.',
+            'accuracy_of_service.required' => 'Degree of Competence & Accuracy of Service rating is required.',
+            'response_time.required' => 'Degree of Responsiveness/Timeliness rating is required.',
+            'comments.required' => 'Please provide a comment to help us improve our services.',
         ]);
 
         $fields['survey_date'] = now()->toDateString();
