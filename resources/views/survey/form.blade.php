@@ -60,7 +60,7 @@
                 <div class="absolute inset-y-0 right-0 flex items-center pr-3">
                     {{-- <i class="fas fa-caret-down text-gray-400 ml-5"></i> --}}
                 </div>
-                <div id="suggestions-container" class="hidden absolute z-10 w-full mt-1 bg-white rounded-lg shadow-lg border border-gray-200 max-h-60 overflow-y-auto"></div>
+                <div id="suggestions-container" class="hidden absolute z-10 w-full mt-1 bg-white rounded-lg shadow-lg border border-gray-200 max-h-60 overflow-y-auto uppercase"></div>
 
                 
             </div>
