@@ -177,6 +177,12 @@
                 <div>
                     <h2 class="text-xl font-bold text-gray-900 dark:text-white">Employees per Department</h2>
                     <p class="text-gray-600 dark:text-gray-400 text-sm">Count of active employees per department by employment type</p>
+                    <div class="mt-2 flex items-center gap-2">
+                        <span class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Total Active:</span>
+                        <span id="chart-total-scorecard" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300">
+                            <!-- Populated by JS -->
+                        </span>
+                    </div>
                 </div>
                 <!-- Employment Type selector button group & export button -->
                 <div class="flex flex-wrap items-center gap-3">
@@ -316,6 +322,7 @@
         const isDark = document.documentElement.classList.contains('dark') || document.body.classList.contains('dark');
         const chartData = @json($chartData);
         const defaultType = '{{ request('type') ?: 'All' }}';
+        let currentType = defaultType;
         
         const chart = Highcharts.chart('employee-dept-chart', {
             chart: {
@@ -362,7 +369,13 @@
                 enabled: false
             },
             tooltip: {
-                pointFormat: '<b>{point.y}</b> employees'
+                formatter: function() {
+                    const point = this.point;
+                    if (currentType !== 'All' && point.total !== undefined && point.total !== null) {
+                        return `<b>${point.name}</b><br/>${currentType}: <b>${point.y}</b> out of <b>${point.total}</b> active employees`;
+                    }
+                    return `<b>${point.name}</b><br/>Total Active: <b>${point.y}</b> employees`;
+                }
             },
             credits: {
                 enabled: false
@@ -372,7 +385,13 @@
                     borderRadius: 8,
                     dataLabels: {
                         enabled: true,
-                        format: '{point.y}',
+                        formatter: function() {
+                            const point = this.point;
+                            if (currentType !== 'All' && point.total !== undefined && point.total !== null) {
+                                return point.y + ' / ' + point.total;
+                            }
+                            return point.y;
+                        },
                         style: {
                             color: isDark ? '#f8fafc' : '#0f172a',
                             textOutline: 'none',
@@ -414,6 +433,7 @@
         typeButtons.forEach(button => {
             button.addEventListener('click', function() {
                 const type = this.getAttribute('data-type');
+                currentType = type;
                 
                 // Clear active classes from all buttons and add default hover/text classes
                 typeButtons.forEach(btn => {
@@ -427,8 +447,35 @@
                 if (chartData[type]) {
                     chart.series[0].setData(chartData[type]);
                 }
+
+                // Dynamically update the scorecard
+                updateScorecard(type);
             });
         });
+
+        // Initialize and update scorecard function
+        function updateScorecard(type) {
+            const data = chartData[type] || [];
+            let typeSum = 0;
+            let totalSum = 0;
+            
+            data.forEach(point => {
+                typeSum += point.y;
+                totalSum += point.total || point.y;
+            });
+            
+            const scorecard = document.getElementById('chart-total-scorecard');
+            if (scorecard) {
+                if (type === 'All') {
+                    scorecard.textContent = typeSum;
+                } else {
+                    scorecard.textContent = typeSum + ' / ' + totalSum;
+                }
+            }
+        }
+        
+        // Initial scorecard render
+        updateScorecard(defaultType);
     });
 </script>
 </body>

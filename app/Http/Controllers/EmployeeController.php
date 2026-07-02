@@ -83,20 +83,30 @@ class EmployeeController extends Controller
         foreach ($departments as $dept) {
             $name = $dept->acronym ?? $dept->title;
             $id = $dept->id;
+            $total = $allCountsMap[$id] ?? 0;
 
-            $chartData['All'][] = ['name' => $name, 'y' => $allCountsMap[$id] ?? 0];
+            $chartData['All'][] = ['name' => $name, 'y' => $total, 'total' => $total];
             foreach ($types as $typeOption) {
                 if ($typeOption !== 'All') {
-                    $chartData[$typeOption][] = ['name' => $name, 'y' => $typeCountsMap[$typeOption][$id] ?? 0];
+                    $chartData[$typeOption][] = [
+                        'name' => $name, 
+                        'y' => $typeCountsMap[$typeOption][$id] ?? 0,
+                        'total' => $total
+                    ];
                 }
             }
         }
 
         if (isset($allCountsMap['NoDept'])) {
-            $chartData['All'][] = ['name' => 'No Department', 'y' => $allCountsMap['NoDept']];
+            $total = $allCountsMap['NoDept'];
+            $chartData['All'][] = ['name' => 'No Department', 'y' => $total, 'total' => $total];
             foreach ($types as $typeOption) {
                 if ($typeOption !== 'All') {
-                    $chartData[$typeOption][] = ['name' => 'No Department', 'y' => $typeCountsMap[$typeOption]['NoDept'] ?? 0];
+                    $chartData[$typeOption][] = [
+                        'name' => 'No Department', 
+                        'y' => $typeCountsMap[$typeOption]['NoDept'] ?? 0,
+                        'total' => $total
+                    ];
                 }
             }
         }
