@@ -89,6 +89,7 @@ Route::middleware('auth')->group(function () {
     
     // Employee List Routes (Read-only for attendance module)
     Route::get('/employee-list', [\App\Http\Controllers\EmployeeController::class, 'index'])->name('employee-list.index');
+    Route::get('/employee-list-export', [\App\Http\Controllers\EmployeeController::class, 'export'])->name('employee-list.export');
     Route::get('/employee-list/create', [\App\Http\Controllers\EmployeeController::class, 'create'])->name('employee-list.create');
     Route::post('/employee-list', [\App\Http\Controllers\EmployeeController::class, 'store'])->name('employee-list.store');
     Route::get('/employee-list/{employee}', [\App\Http\Controllers\EmployeeController::class, 'show'])->name('employee-list.show');

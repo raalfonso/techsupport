@@ -11,8 +11,11 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/highcharts@11.4.3/highcharts.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/highcharts@11.4.3/modules/exporting.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/highcharts@11.4.3/modules/export-data.js"></script>
     @vite(['resources/js/app.js', 'resources/css/app.css'])
-    <link rel="icon" type="image/png" href="{{ asset('img/itd_logo.png') }}">
+    <link class="favicon" rel="icon" type="image/png" href="{{ asset('img/itd_logo.png') }}">
 </head>
 <body class="bg-gray-100 dark:bg-slate-950">
     @include('attendance_logs._nav')
@@ -31,13 +34,16 @@
                 @php
                     $isHRAdmin = auth()->user()->authAssignments()->where('item_name', 'HR_admin')->exists();
                 @endphp
-                @if($isHRAdmin)
                 <div class="flex gap-3">
+                    <a href="{{ route('employee-list.export', request()->query()) }}" class="bg-emerald-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-emerald-700 transition flex items-center gap-2 shadow-sm hover:shadow-md">
+                        <i class="fas fa-file-excel"></i> Export to Excel
+                    </a>
+                    @if($isHRAdmin)
                     <a href="{{ route('employee-list.create') }}" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 transition flex items-center gap-2 shadow-sm hover:shadow-md">
                         <i class="fas fa-plus"></i> Add Employee
                     </a>
+                    @endif
                 </div>
-                @endif
             </div>
         </div>
 
@@ -164,6 +170,37 @@
                 </div>
             </div>
         </div>
+        
+        <!-- Chart Section -->
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700 p-6 mb-6">
+            <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-6">
+                <div>
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white">Employees per Department</h2>
+                    <p class="text-gray-600 dark:text-gray-400 text-sm">Count of employees per department by employment type</p>
+                </div>
+                <!-- Employment Type selector button group & export button -->
+                <div class="flex flex-wrap items-center gap-3">
+                    <div class="flex flex-wrap bg-gray-100 dark:bg-slate-700 p-1 rounded-xl shadow-inner border border-gray-200 dark:border-slate-600 gap-1 sm:gap-0">
+                        @foreach(['All', 'Permanent', 'Contractual', 'COS', 'COS(DBP)', 'COS(OMNI)'] as $typeOption)
+                            @php
+                                $defaultType = request('type') ?: 'All';
+                                $isActive = ($defaultType === $typeOption);
+                            @endphp
+                            <button type="button" 
+                                    class="chart-type-btn px-3 py-1.5 text-xs font-semibold rounded-lg transition-all 
+                                    {{ $isActive ? 'bg-blue-600 text-white shadow-sm' : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white' }}" 
+                                    data-type="{{ $typeOption }}">
+                                {{ $typeOption }}
+                            </button>
+                        @endforeach
+                    </div>
+                    <button type="button" id="export-chart-btn" class="bg-emerald-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-emerald-700 transition flex items-center gap-2 shadow-sm hover:shadow-md text-xs">
+                        <i class="fas fa-file-excel"></i> Export Chart
+                    </button>
+                </div>
+            </div>
+            <div id="employee-dept-chart" class="w-full" style="height: 380px;"></div>
+        </div>
 
         <!-- Table Section -->
         <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700 overflow-hidden">
@@ -273,5 +310,126 @@
         @endif
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const isDark = document.documentElement.classList.contains('dark') || document.body.classList.contains('dark');
+        const chartData = @json($chartData);
+        const defaultType = '{{ request('type') ?: 'All' }}';
+        
+        const chart = Highcharts.chart('employee-dept-chart', {
+            chart: {
+                type: 'column',
+                backgroundColor: 'transparent',
+                style: {
+                    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif'
+                }
+            },
+            title: {
+                text: null
+            },
+            subtitle: {
+                text: null
+            },
+            xAxis: {
+                type: 'category',
+                labels: {
+                    style: {
+                        color: isDark ? '#94a3b8' : '#64748b',
+                        fontWeight: '600'
+                    }
+                },
+                lineColor: isDark ? '#334155' : '#e2e8f0',
+                tickColor: isDark ? '#334155' : '#e2e8f0'
+            },
+            yAxis: {
+                min: 0,
+                title: {
+                    text: 'Number of Employees',
+                    style: {
+                        color: isDark ? '#94a3b8' : '#64748b',
+                        fontWeight: '600'
+                    }
+                },
+                labels: {
+                    style: {
+                        color: isDark ? '#94a3b8' : '#64748b'
+                    }
+                },
+                gridLineColor: isDark ? '#334155' : '#e2e8f0'
+            },
+            legend: {
+                enabled: false
+            },
+            tooltip: {
+                pointFormat: '<b>{point.y}</b> employees'
+            },
+            credits: {
+                enabled: false
+            },
+            plotOptions: {
+                column: {
+                    borderRadius: 8,
+                    dataLabels: {
+                        enabled: true,
+                        format: '{point.y}',
+                        style: {
+                            color: isDark ? '#f8fafc' : '#0f172a',
+                            textOutline: 'none',
+                            fontWeight: 'bold'
+                        }
+                    },
+                    colorByPoint: true,
+                    colors: [
+                        '#3b82f6', '#10b981', '#f59e0b', '#ef4444', 
+                        '#8b5cf6', '#ec4899', '#14b8a6', '#6366f1',
+                        '#06b6d4', '#f43f5e'
+                    ]
+                }
+            },
+            series: [{
+                name: 'Employees',
+                data: chartData[defaultType] || chartData['All']
+            }],
+            exporting: {
+                filename: 'employee_department_chart_' + new Date().toISOString().slice(0, 10),
+                buttons: {
+                    contextButton: {
+                        enabled: false // Hide default hamburger context menu
+                    }
+                }
+            }
+        });
+
+        // Add interactive event listeners for export chart button
+        const exportChartBtn = document.getElementById('export-chart-btn');
+        if (exportChartBtn) {
+            exportChartBtn.addEventListener('click', function() {
+                chart.downloadXLS();
+            });
+        }
+
+        // Add interactive event listeners for type buttons
+        const typeButtons = document.querySelectorAll('.chart-type-btn');
+        typeButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const type = this.getAttribute('data-type');
+                
+                // Clear active classes from all buttons and add default hover/text classes
+                typeButtons.forEach(btn => {
+                    btn.className = 'chart-type-btn px-3 py-1.5 text-xs font-semibold rounded-lg transition-all text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white';
+                });
+                
+                // Set active classes on the clicked button
+                this.className = 'chart-type-btn px-3 py-1.5 text-xs font-semibold rounded-lg transition-all bg-blue-600 text-white shadow-sm';
+                
+                // Dynamically update data
+                if (chartData[type]) {
+                    chart.series[0].setData(chartData[type]);
+                }
+            });
+        });
+    });
+</script>
 </body>
 </html>

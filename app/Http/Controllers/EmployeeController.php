@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\EmployeeMasterlist;
 use App\Models\Department;
 use Illuminate\Http\Request;
+use App\Exports\EmployeesExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class EmployeeController extends Controller
 {
@@ -37,15 +39,70 @@ class EmployeeController extends Controller
             $query->where('employment_status', $request->status);
         }
 
+        // Clone query after status but before type filter for the Highcharts chart
+        $chartQuery = clone $query;
+
         // Filter by employment type
         if ($request->filled('type')) {
             $query->where('employment_type', $request->type);
         }
 
-        $employees = $query->latest()->paginate(20)->appends($request->query());
+        // Get counts grouped by department and employment type
+        $rawCounts = $chartQuery->selectRaw('department_id, employment_type, COUNT(*) as count')
+            ->groupBy('department_id', 'employment_type')
+            ->get();
+
+        $allCountsMap = [];
+        $typeCountsMap = [];
+
+        foreach ($rawCounts as $row) {
+            $deptId = $row->department_id ?? 'NoDept';
+            $type = $row->employment_type;
+            $count = (int) $row->count;
+
+            $allCountsMap[$deptId] = ($allCountsMap[$deptId] ?? 0) + $count;
+
+            if ($type) {
+                $typeCountsMap[$type][$deptId] = ($typeCountsMap[$type][$deptId] ?? 0) + $count;
+            }
+        }
+
         $departments = Department::where('active', 1)->orderBy('title')->get();
+        $types = ['All', 'Permanent', 'Contractual', 'COS', 'COS(DBP)', 'COS(OMNI)'];
         
-        return view('employee-list.index', compact('employees', 'departments'));
+        $chartData = [
+            'All' => []
+        ];
+        foreach ($types as $typeOption) {
+            if ($typeOption !== 'All') {
+                $chartData[$typeOption] = [];
+            }
+        }
+
+        foreach ($departments as $dept) {
+            $name = $dept->acronym ?? $dept->title;
+            $id = $dept->id;
+
+            $chartData['All'][] = ['name' => $name, 'y' => $allCountsMap[$id] ?? 0];
+            foreach ($types as $typeOption) {
+                if ($typeOption !== 'All') {
+                    $chartData[$typeOption][] = ['name' => $name, 'y' => $typeCountsMap[$typeOption][$id] ?? 0];
+                }
+            }
+        }
+
+        if (isset($allCountsMap['NoDept'])) {
+            $chartData['All'][] = ['name' => 'No Department', 'y' => $allCountsMap['NoDept']];
+            foreach ($types as $typeOption) {
+                if ($typeOption !== 'All') {
+                    $chartData[$typeOption][] = ['name' => 'No Department', 'y' => $typeCountsMap[$typeOption]['NoDept'] ?? 0];
+                }
+            }
+        }
+
+        $employees = $query->latest()->paginate(20)->appends($request->query());
+        
+        return view('employee-list.index', compact('employees', 'departments', 'chartData'));
     }
 
     public function create()
@@ -111,5 +168,11 @@ class EmployeeController extends Controller
     {
         $employee->delete();
         return redirect()->route('employee-list.index')->with('success', 'Employee deleted successfully');
+    }
+
+    public function export(Request $request)
+    {
+        $filters = $request->only(['search', 'department', 'status', 'type']);
+        return Excel::download(new EmployeesExport($filters), 'employees_' . now()->format('Y-m-d') . '.xlsx');
     }
 }
