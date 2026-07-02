@@ -34,13 +34,14 @@ class EmployeeController extends Controller
             $query->where('department_id', $request->department);
         }
 
+        // Clone query after department but before status filter for the Highcharts chart
+        $chartQuery = clone $query;
+        $chartQuery->where('employment_status', 'Active');
+
         // Filter by employment status
         if ($request->filled('status')) {
             $query->where('employment_status', $request->status);
         }
-
-        // Clone query after status but before type filter for the Highcharts chart
-        $chartQuery = clone $query;
 
         // Filter by employment type
         if ($request->filled('type')) {
@@ -173,6 +174,7 @@ class EmployeeController extends Controller
     public function export(Request $request)
     {
         $filters = $request->only(['search', 'department', 'status', 'type']);
-        return Excel::download(new EmployeesExport($filters), 'employees_' . now()->format('Y-m-d') . '.xlsx');
+        $filters['status'] = 'Active';
+        return Excel::download(new EmployeesExport($filters), 'active_employees_' . now()->format('Y-m-d') . '.xlsx');
     }
 }

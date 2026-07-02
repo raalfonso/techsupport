@@ -36,7 +36,7 @@
                 @endphp
                 <div class="flex gap-3">
                     <a href="{{ route('employee-list.export', request()->query()) }}" class="bg-emerald-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-emerald-700 transition flex items-center gap-2 shadow-sm hover:shadow-md">
-                        <i class="fas fa-file-excel"></i> Export to Excel
+                        <i class="fas fa-file-excel"></i> Export Active to Excel
                     </a>
                     @if($isHRAdmin)
                     <a href="{{ route('employee-list.create') }}" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 transition flex items-center gap-2 shadow-sm hover:shadow-md">
@@ -176,7 +176,7 @@
             <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-6">
                 <div>
                     <h2 class="text-xl font-bold text-gray-900 dark:text-white">Employees per Department</h2>
-                    <p class="text-gray-600 dark:text-gray-400 text-sm">Count of employees per department by employment type</p>
+                    <p class="text-gray-600 dark:text-gray-400 text-sm">Count of active employees per department by employment type</p>
                 </div>
                 <!-- Employment Type selector button group & export button -->
                 <div class="flex flex-wrap items-center gap-3">

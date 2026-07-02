@@ -23,6 +23,9 @@ class EmployeesExport implements FromCollection, WithHeadings, WithMapping, With
     {
         $query = EmployeeMasterlist::with('department');
 
+        // Only export active employees
+        $query->where('employment_status', 'Active');
+
         // Apply filters
         if (!empty($this->filters['search'])) {
             $search = $this->filters['search'];
@@ -40,10 +43,6 @@ class EmployeesExport implements FromCollection, WithHeadings, WithMapping, With
 
         if (!empty($this->filters['department'])) {
             $query->where('department_id', $this->filters['department']);
-        }
-
-        if (!empty($this->filters['status'])) {
-            $query->where('employment_status', $this->filters['status']);
         }
 
         if (!empty($this->filters['type'])) {
