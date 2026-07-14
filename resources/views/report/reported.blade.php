@@ -230,7 +230,8 @@
             <!-- Footer -->
             <div class="bg-gray-50 px-6 py-4 rounded-b-2xl border-t border-gray-100">
                 <div class="flex justify-end space-x-3">
-                    <button @click="responseModal = false" class="px-6 py-2.5 text-gray-600 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 transition-all duration-200 font-medium">
+                    <button type="button" @click="responseModal = false" 
+                        class="px-6 py-2.5 text-gray-600 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 transition-all duration-200 font-medium">
                         Cancel
                     </button>
                     <button type="submit" class="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-200 font-medium shadow-lg hover:shadow-xl">
