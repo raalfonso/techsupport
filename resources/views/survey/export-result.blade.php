@@ -112,7 +112,7 @@
                         <thead class="bg-slate-50">
                             <tr>
                                 <th class="px-3 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500 sm:px-6 sm:text-xs">Date</th>
-                                <th class="px-3 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500 sm:px-6 sm:text-xs">Employee</th>
+                                {{-- <th class="px-3 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500 sm:px-6 sm:text-xs">Employee</th> --}}
                                 <th class="px-3 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500 sm:px-6 sm:text-xs">Competence & Accuracy</th>
                                 <th class="px-3 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500 sm:px-6 sm:text-xs">Responsiveness</th>
                                 <th class="px-3 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500 sm:px-6 sm:text-xs">Comment</th>
@@ -123,7 +123,7 @@
                             @forelse($reports as $survey)
                                 <tr class="hover:bg-slate-50">
                                     <td class="px-3 py-4 text-sm text-slate-600 sm:px-6">{{ $survey->created_at->format('F j, Y') }}</td>
-                                    <td class="px-3 py-4 text-sm font-medium text-slate-800 sm:px-6">{{ $survey->surveyEmployee->name }}</td>
+                                    {{-- <td class="px-3 py-4 text-sm font-medium text-slate-800 sm:px-6">{{ $survey->surveyEmployee->name }}</td> --}}
                                     <td class="px-3 py-4 sm:px-6">
                                         @if ($survey->accuracy_of_service == 2)
                                             <span class="inline-flex items-center rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-medium text-emerald-700 sm:px-3 sm:text-sm">

@@ -306,7 +306,7 @@
         </div>
     </section>
 
-    <section id="top" class="pb-8" style="background-color: #e6edfc">
+    <section id="top" class="pb-8" style="background-color: #e6edfc; display:none;">
       <div class="container mx-auto lg:max-w-screen-xl md:max-w-screen-md px-6 pt-8 transition-all duration-700 opacity-0 translate-y-4" data-scroll>
             {{-- Charts Section --}}
           <div class="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-2 gap-8">
@@ -350,7 +350,7 @@
                 <thead>
                   <tr class="bg-gray-50">
                     <th class="py-4 px-6 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Date Submitted</th>
-                    <th class="py-4 px-6 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Employee's Name</th>
+                    {{-- <th class="py-4 px-6 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Employee's Name</th> --}}
                     <th class="py-4 px-6 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Competence & Accuracy</th>
                     <th class="py-4 px-6 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Responsiveness</th>
                     <th class="py-4 px-6 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Comment</th>
@@ -361,7 +361,7 @@
                   @foreach($surveys as $survey)
                       <tr class="hover:bg-gray-50 transition duration-150">
                           <td class="py-4 px-6 text-sm text-gray-600">{{ $survey->created_at->format('F j, Y') }}</td>
-                          <td class="py-4 px-6 text-sm text-gray-600 font-medium">{{ $survey->surveyEmployee->name }}</td>
+                          {{-- <td class="py-4 px-6 text-sm text-gray-600 font-medium">{{ $survey->surveyEmployee->name }}</td> --}}
                           <td class="py-4 px-6">
                               @if ($survey->accuracy_of_service == 2)
                                   <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
