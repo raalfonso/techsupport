@@ -31,21 +31,63 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         const notificationSound = new Audio('{{ asset('sounds/387533__soundwarf__alert-short.wav') }}');
+        const alertSound = new Audio('{{ asset('sounds/sound.mp3') }}');
         notificationSound.loop = true;
         let isPlaying = false;
+        let latestTicket = null;
+
+        async function playAlert(times = 3) {
+            for (let i = 0; i < times; i++) {
+                alertSound.currentTime = 0;
+
+                try {
+                    await alertSound.play();
+
+                    await new Promise(resolve => {
+                        alertSound.onended = resolve;
+                    });
+
+                } catch (e) {
+                    console.error(e);
+                    break;
+                }
+            }
+        }
 
         function loadReports() {
-            $.ajax({
-                url: '{{ route('report.public') }}',
-                type: 'GET',
-                success: function(response) {
-                    const parser = new DOMParser();
-                    const doc = parser.parseFromString(response, 'text/html');
-                    const newCards = doc.querySelector('.grid').innerHTML;
-                    $('.grid').html(newCards);
-                    checkOldReports();
-                }
-            });
+    
+          
+                $.ajax({
+                    url: '{{ route('report.public') }}',
+                    type: 'GET',
+                    success: function(response) {
+
+                        const parser = new DOMParser();
+                        const doc = parser.parseFromString(response, 'text/html');
+
+                        // Get newest ticket before replacing HTML
+                        const firstCard = doc.querySelector('.report-card');
+
+                        if (firstCard) {
+                            const newestTicket = firstCard.querySelector('.text-lg').textContent.trim();
+
+                            // Play alert only if this is a new ticket
+                            if (latestTicket && newestTicket !== latestTicket) {
+                                alertSound.currentTime = 0;
+                                // alertSound.play().catch(err => console.log(err));
+                                playAlert(3);
+                            }
+
+                            latestTicket = newestTicket;
+                        }
+
+                        const newCards = doc.querySelector('.grid').innerHTML;
+                        $('.grid').html(newCards);
+
+                        checkOldReports();
+                    }
+                });
+            
         }
 
         function checkOldReports() {
@@ -83,6 +125,11 @@
             checkOldReports();
             setInterval(loadReports, 5000);
             
+            const firstCard = document.querySelector('.report-card');
+                if (firstCard) {
+                    latestTicket = firstCard.querySelector('.text-lg').textContent.trim();
+                }
+
             function updateDateTime() {
                 const now = new Date();
                 const options = { 
