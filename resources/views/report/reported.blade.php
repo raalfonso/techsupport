@@ -89,6 +89,10 @@
                             {{ $report->validation_date_time ?? $report->response_datetime }}
                         </div>
                         <div class="flex items-center space-x-2">
+                            <span class="text-xs text-gray-500 dark:text-gray-400">Responsed by: {{ $report->response->name;}}</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            
                             <span class="text-xs text-gray-500 dark:text-gray-400">Processing:</span>
                             <span class="ongoingValue{{$count}} px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 rounded-lg text-xs font-medium"></span>
                         </div>
