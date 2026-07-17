@@ -34,9 +34,13 @@
         const alertSound = new Audio('{{ asset('sounds/sound.mp3') }}');
         notificationSound.loop = true;
         let isPlaying = false;
-        let latestTicket = null;
+        
+        // Track reports in a Set of IDs to handle empty state and multiple reports correctly
+        let existingTickets = new Set();
+        let soundEnabled = false;
 
         async function playAlert(times = 3) {
+            if (!soundEnabled) return;
             for (let i = 0; i < times; i++) {
                 alertSound.currentTime = 0;
 
@@ -48,46 +52,50 @@
                     });
 
                 } catch (e) {
-                    console.error(e);
+                    console.error("Alert sound play failed:", e);
                     break;
                 }
             }
         }
 
         function loadReports() {
-    
-          
-                $.ajax({
-                    url: '{{ route('report.public') }}',
-                    type: 'GET',
-                    success: function(response) {
+            $.ajax({
+                url: '{{ route('report.public') }}',
+                type: 'GET',
+                success: function(response) {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(response, 'text/html');
 
-                        const parser = new DOMParser();
-                        const doc = parser.parseFromString(response, 'text/html');
-
-                        // Get newest ticket before replacing HTML
-                        const firstCard = doc.querySelector('.report-card');
-
-                        if (firstCard) {
-                            const newestTicket = firstCard.querySelector('.text-lg').textContent.trim();
-
-                            // Play alert only if this is a new ticket
-                            if (latestTicket && newestTicket !== latestTicket) {
-                                alertSound.currentTime = 0;
-                                // alertSound.play().catch(err => console.log(err));
-                                playAlert(3);
-                            }
-
-                            latestTicket = newestTicket;
+                    // Check if there are any new tickets in the response
+                    let hasNewTicket = false;
+                    const newCards = doc.querySelectorAll('.report-card');
+                    newCards.forEach(card => {
+                        const reportId = card.dataset.reportId;
+                        const status = card.dataset.reportStatus;
+                        // It is a new ticket if it's not in the existing set AND its status is Pending
+                        if (!existingTickets.has(reportId) && status === 'Pending') {
+                            hasNewTicket = true;
                         }
+                    });
 
-                        const newCards = doc.querySelector('.grid').innerHTML;
-                        $('.grid').html(newCards);
+                    // Rebuild the existingTickets set with the new IDs
+                    existingTickets.clear();
+                    newCards.forEach(card => {
+                        existingTickets.add(card.dataset.reportId);
+                    });
 
-                        checkOldReports();
+                    if (hasNewTicket) {
+                        playAlert(3);
                     }
-                });
-            
+
+                    const newGrid = doc.querySelector('.grid');
+                    if (newGrid) {
+                        $('.grid').html(newGrid.innerHTML);
+                    }
+
+                    checkOldReports();
+                }
+            });
         }
 
         function checkOldReports() {
@@ -111,24 +119,83 @@
                 }
             });
             
-            if (hasOldPending && !isPlaying) {
+            if (hasOldPending && !isPlaying && soundEnabled) {
                 notificationSound.play().catch(e => console.log('Audio play failed:', e));
                 isPlaying = true;
-            } else if (!hasOldPending && isPlaying) {
+            } else if ((!hasOldPending || !soundEnabled) && isPlaying) {
                 notificationSound.pause();
                 notificationSound.currentTime = 0;
                 isPlaying = false;
             }
         }
+
+        function updateSoundUI() {
+            const btn = document.getElementById('sound-toggle');
+            const icon = document.getElementById('sound-icon');
+            const text = document.getElementById('sound-text');
+            if (!btn || !icon || !text) return;
+            
+            if (soundEnabled) {
+                btn.className = "flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold shadow-sm hover:shadow transition-all duration-300 border bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/30 dark:text-emerald-400 dark:border-emerald-900/50 cursor-pointer";
+                icon.textContent = 'volume_up';
+                text.textContent = 'Sound Active';
+            } else {
+                btn.className = "flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold shadow-sm hover:shadow transition-all duration-300 border bg-red-50 text-red-700 border-red-200 dark:bg-red-950/30 dark:text-red-400 dark:border-red-900/50 animate-pulse cursor-pointer";
+                icon.textContent = 'volume_off';
+                text.textContent = 'Enable Sound';
+            }
+        }
+
+        function toggleSound() {
+            if (!soundEnabled) {
+                // Try playing and pausing sounds to unlock them
+                alertSound.play().then(() => {
+                    alertSound.pause();
+                    alertSound.currentTime = 0;
+                    soundEnabled = true;
+                    updateSoundUI();
+                    checkOldReports();
+                }).catch(err => {
+                    console.error("Failed to enable audio:", err);
+                });
+                
+                notificationSound.play().then(() => {
+                    notificationSound.pause();
+                    notificationSound.currentTime = 0;
+                }).catch(err => {});
+            } else {
+                soundEnabled = false;
+                updateSoundUI();
+                alertSound.pause();
+                alertSound.currentTime = 0;
+                notificationSound.pause();
+                notificationSound.currentTime = 0;
+                isPlaying = false;
+            }
+        }
+
+        function checkAutoplay() {
+            alertSound.play().then(() => {
+                alertSound.pause();
+                alertSound.currentTime = 0;
+                soundEnabled = true;
+                updateSoundUI();
+                checkOldReports();
+            }).catch(err => {
+                console.log("Autoplay is blocked by browser. User interaction required to enable sound.");
+                soundEnabled = false;
+                updateSoundUI();
+            });
+        }
         
         document.addEventListener('DOMContentLoaded', function() {
-            checkOldReports();
+            // Populate initial set of reports
+            document.querySelectorAll('.report-card').forEach(card => {
+                existingTickets.add(card.dataset.reportId);
+            });
+
+            checkAutoplay();
             setInterval(loadReports, 5000);
-            
-            const firstCard = document.querySelector('.report-card');
-                if (firstCard) {
-                    latestTicket = firstCard.querySelector('.text-lg').textContent.trim();
-                }
 
             function updateDateTime() {
                 const now = new Date();
@@ -165,15 +232,17 @@
                             </div>
                             
                             <div class="flex gap-3">
-
-
+                                <button id="sound-toggle" onclick="toggleSound()" class="flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold shadow-sm hover:shadow transition-all duration-300 border bg-red-50 text-red-700 border-red-200 dark:bg-red-950/30 dark:text-red-400 dark:border-red-900/50 animate-pulse cursor-pointer">
+                                    <span class="material-symbols-outlined text-[20px]" id="sound-icon">volume_off</span>
+                                    <span id="sound-text" class="text-sm">Enable Sound</span>
+                                </button>
                             </div>
                         </div>
 
-<!-- Issues Grid -->
+                    <!-- Issues Grid -->
                         <div class="grid grid-cols-1 lg:grid-cols-4 xl:grid-cols-4 gap-6">
                         @forelse($reports as $report)
-                            <div class="flex flex-col bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 hover:shadow-md transition-shadow report-card {{ $report->status == 'Done' ? 'opacity-75 grayscale-[0.5]' : '' }}" data-report-time="{{ $report->request_datetime }}" data-report-status="{{ $report->status }}">
+                            <div class="flex flex-col bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 hover:shadow-md transition-shadow report-card {{ $report->status == 'Done' ? 'opacity-75 grayscale-[0.5]' : '' }}" data-report-id="{{ $report->id }}" data-report-time="{{ $report->request_datetime }}" data-report-status="{{ $report->status }}">
                                 <div class="p-5 flex flex-col gap-4">
                                     <div class="flex justify-between items-start">
                                         <div class="flex flex-col gap-1">
@@ -238,8 +307,20 @@
                                                 </div>
                                             @endif
 
+                                            @if($report->remarks)
+                                                <div class="flex flex-col gap-0.5 mt-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+                                                    <p class="text-slate-400 dark:text-slate-500 text-[10px] font-bold uppercase tracking-wider">Remarks</p>
+                                                    <div class="flex items-start gap-2 text-slate-600 dark:text-slate-300">
+                                                        <span class="material-symbols-outlined text-[16px] mt-0.5">comment</span>
+                                                        <p class="text-xs font-medium italic leading-relaxed">{{ $report->remarks }}</p>
+                                                    </div>
+                                                </div>
+                                            @endif
+
                                     </div>
                                 </div>
+                                
+
                                 <div class="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-slate-800 mt-2">
                                     <div class="flex items-center gap-1 text-slate-500 text-xs">
                                     <span class="material-symbols-outlined text-[16px]">schedule</span>

@@ -1,3 +1,6 @@
+@php
+    $count = 1;
+@endphp
 <div class="block mt-4 overflow-auto">
     @if($reports->isEmpty())
         <div class="flex flex-col items-center justify-center py-16 px-4">
@@ -13,7 +16,6 @@
     <!-- Cards Layout for all screens -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <?php 
-        $count = 1;
         $now = now();
         ?>
         @foreach($reports as $report)
@@ -97,7 +99,16 @@
                             <span class="ongoingValue{{$count}} px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 rounded-lg text-xs font-medium"></span>
                         </div>
                     @endif
+
+                      @if($report->remarks)
+                        <div>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">Remarks</p>
+                            <p class="text-sm text-gray-900 dark:text-white">{{ $report->remarks }}</p>
+                        </div>
+                        @endif      
                 </div>
+
+                
 
                 <!-- Actions -->
                 <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
@@ -145,7 +156,8 @@
                             </button>
                         </div>
                     @endif
-                </div>
+                                                
+                    </div>
             </div>
             @php
                 $count++;
@@ -375,75 +387,79 @@
 </div>
 
 <script>
-         $('.iam-checkbox').click(function() {
-            // console.log($(this).is(":checked"));
-        });
+(function() {
+    $('.iam-checkbox').click(function() {
+        // console.log($(this).is(":checked"));
+    });
 
+    const count = @json($count);
+
+    const pendingTime = () => {
+        for (let index = 1; index < count; index++) {
+            const requestTime = $('.pending'+index).html();
+            if (!requestTime) continue;
+
+            const startTime = new Date(requestTime);
+            const endTime = new Date();
+            const diffInMs = endTime - startTime;
+            
+            const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
        
-
-        
-
-
-
-        setInterval(() => {
-            pendingTime();
-            ongoingTime();
-        }, 1000);
-        const pendingTime = () =>{
-            const count = @json($count);
-
-            for (let index = 1; index < count; index++) {
-                
-                const requestTime = $('.pending'+index).html();
-                
-                const startTime = new Date(requestTime);
-                const endTime = new Date();
-                const diffInMs = endTime - startTime;
-                
-                const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
-           
-                const $element = $('.pendingValue'+index);
-                
-                if (diffInMinutes < 3) {
-                    $element.removeClass('bg-red-100 text-red-800').addClass('bg-yellow-100 text-yellow-800 animate-pulse');
-                } else if (diffInMinutes >= 5) {
-                    $element.removeClass('bg-yellow-100 text-yellow-800 animate-pulse').addClass('bg-red-100 text-red-800 animate-pulse');
-                } else {
-                    $element.removeClass('bg-yellow-100 text-yellow-800 bg-red-100 text-red-800 animate-pulse').addClass('bg-orange-100 text-orange-800');
-                }
-                
-                if (diffInMinutes >= 60) {
-                    $element.html(Math.round(diffInMinutes / 60)+' hrs');
-                }
-                else {
-                    $element.html(diffInMinutes+' mins');
-                }
+            const $element = $('.pendingValue'+index);
+            if ($element.length === 0) continue;
+            
+            if (diffInMinutes < 3) {
+                $element.removeClass('bg-red-100 text-red-800').addClass('bg-yellow-100 text-yellow-800 animate-pulse');
+            } else if (diffInMinutes >= 5) {
+                $element.removeClass('bg-yellow-100 text-yellow-800 animate-pulse').addClass('bg-red-100 text-red-800 animate-pulse');
+            } else {
+                $element.removeClass('bg-yellow-100 text-yellow-800 bg-red-100 text-red-800 animate-pulse').addClass('bg-orange-100 text-orange-800');
+            }
+            
+            if (diffInMinutes >= 60) {
+                $element.html(Math.round(diffInMinutes / 60)+' hrs');
+            }
+            else {
+                $element.html(diffInMinutes+' mins');
             }
         }
+    };
 
-        const ongoingTime = () =>{
-            const count = @json($count);
-         
-            for (let index = 1; index < count; index++) {
-                
-                const requestTime = $('.ongoing'+index).html();
+    const ongoingTime = () => {
+        for (let index = 1; index < count; index++) {
+            const requestTime = $('.ongoing'+index).html();
+            if (!requestTime) continue;
 
-                const startTime = new Date(requestTime);
-                const endTime = new Date();
-                const diffInMs = endTime - startTime;
-                
-                const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
-                    if (diffInMinutes >= 60) {
-                        
-                        $('.ongoingValue'+index).html(Math.round(diffInMinutes / 60)+' hrs');
-                    }
-                    else {
-                        $('.ongoingValue'+index).html(diffInMinutes+' mins');
-                    }
-                }
+            const startTime = new Date(requestTime);
+            const endTime = new Date();
+            const diffInMs = endTime - startTime;
             
+            const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
+            const $element = $('.ongoingValue'+index);
+            if ($element.length === 0) continue;
 
-            
+            if (diffInMinutes >= 60) {
+                $element.html(Math.round(diffInMinutes / 60)+' hrs');
+            }
+            else {
+                $element.html(diffInMinutes+' mins');
+            }
         }
-        
+    };
+
+    // Run immediately once
+    pendingTime();
+    ongoingTime();
+
+    // Clear existing interval if set to avoid leaks
+    if (window.reportedInterval) {
+        clearInterval(window.reportedInterval);
+    }
+
+    // Set new interval and store it globally
+    window.reportedInterval = setInterval(() => {
+        pendingTime();
+        ongoingTime();
+    }, 1000);
+})();
 </script>
