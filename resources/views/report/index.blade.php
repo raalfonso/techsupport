@@ -304,7 +304,7 @@
                                     <i class="fa-solid fa-calendar-check text-green-600"></i>
                                     <span>Resolve Date Time</span>
                                 </label>
-                                <input type="datetime-local" class="w-full p-3 border-2 border-gray-200 rounded-xl focus:border-green-500 focus:ring-2 focus:ring-green-200 transition-all duration-200" name="resolve_datetime" value="{{ old('resolve_datetime') }}">
+                                <input type="datetime-local" class="w-full p-3 border-2 border-gray-200 rounded-xl focus:border-green-500 focus:ring-2 focus:ring-green-200 transition-all duration-200" name="resolve_datetime" value="{{ old('response_datetime', now()->format('Y-m-d\TH:i')) }}">
                                 @error('resolve_datetime')
                                     <p class="text-red-500 text-sm mt-1 flex items-center space-x-1">
                                         <i class="fa-solid fa-exclamation-circle"></i>

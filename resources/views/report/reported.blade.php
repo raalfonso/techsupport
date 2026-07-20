@@ -98,6 +98,11 @@
                             <span class="text-xs text-gray-500 dark:text-gray-400">Processing:</span>
                             <span class="ongoingValue{{$count}} px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 rounded-lg text-xs font-medium"></span>
                         </div>
+
+                    @elseif($report->status == 'For validation')
+                        <div class="flex items-center space-x-2">
+                            <span class="text-xs text-gray-500 dark:text-gray-400">Responsed by: {{ $report->response->name;}}</span>
+                        </div>
                     @endif
 
                       @if($report->remarks)
@@ -223,7 +228,7 @@
                             <i class="fa-solid fa-calendar-check text-blue-600"></i>
                             <span>Response Date Time</span>
                         </label>
-                        <input type="datetime-local" class="w-full p-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200" name="response_datetime" value="{{ old('response_datetime') }}">
+                        <input type="datetime-local" class="w-full p-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200" name="response_datetime" value="{{ old('response_datetime', now()->format('Y-m-d\TH:i')) }}">
                         @error('response_datetime')
                             <p class="text-red-500 text-sm mt-1 flex items-center space-x-1">
                                 <i class="fa-solid fa-exclamation-circle"></i>
@@ -285,7 +290,7 @@
                         <i class="fa-solid fa-calendar-check text-purple-600"></i>
                         <span>Validation Date Time</span>
                     </label>
-                    <input type="datetime-local" class="w-full p-3 border-2 border-gray-200 rounded-xl focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all duration-200" name="validation_datetime" required>
+                    <input type="datetime-local" class="w-full p-3 border-2 border-gray-200 rounded-xl focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all duration-200" name="validation_datetime" value="{{ old('validation_datetime', now()->format('Y-m-d\TH:i')) }}" required>
                 </div>
                 <div class="text-center py-4">
                     <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-purple-100 mb-4">
@@ -387,79 +392,75 @@
 </div>
 
 <script>
-(function() {
-    $('.iam-checkbox').click(function() {
-        // console.log($(this).is(":checked"));
-    });
+         $('.iam-checkbox').click(function() {
+            // console.log($(this).is(":checked"));
+        });
 
-    const count = @json($count);
-
-    const pendingTime = () => {
-        for (let index = 1; index < count; index++) {
-            const requestTime = $('.pending'+index).html();
-            if (!requestTime) continue;
-
-            const startTime = new Date(requestTime);
-            const endTime = new Date();
-            const diffInMs = endTime - startTime;
-            
-            const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
        
-            const $element = $('.pendingValue'+index);
-            if ($element.length === 0) continue;
-            
-            if (diffInMinutes < 3) {
-                $element.removeClass('bg-red-100 text-red-800').addClass('bg-yellow-100 text-yellow-800 animate-pulse');
-            } else if (diffInMinutes >= 5) {
-                $element.removeClass('bg-yellow-100 text-yellow-800 animate-pulse').addClass('bg-red-100 text-red-800 animate-pulse');
-            } else {
-                $element.removeClass('bg-yellow-100 text-yellow-800 bg-red-100 text-red-800 animate-pulse').addClass('bg-orange-100 text-orange-800');
-            }
-            
-            if (diffInMinutes >= 60) {
-                $element.html(Math.round(diffInMinutes / 60)+' hrs');
-            }
-            else {
-                $element.html(diffInMinutes+' mins');
+
+        
+
+
+
+        setInterval(() => {
+            pendingTime();
+            ongoingTime();
+        }, 1000);
+        const pendingTime = () =>{
+            const count = @json($count);
+
+            for (let index = 1; index < count; index++) {
+                
+                const requestTime = $('.pending'+index).html();
+                
+                const startTime = new Date(requestTime);
+                const endTime = new Date();
+                const diffInMs = endTime - startTime;
+                
+                const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
+           
+                const $element = $('.pendingValue'+index);
+                
+                if (diffInMinutes < 3) {
+                    $element.removeClass('bg-red-100 text-red-800').addClass('bg-yellow-100 text-yellow-800 animate-pulse');
+                } else if (diffInMinutes >= 5) {
+                    $element.removeClass('bg-yellow-100 text-yellow-800 animate-pulse').addClass('bg-red-100 text-red-800 animate-pulse');
+                } else {
+                    $element.removeClass('bg-yellow-100 text-yellow-800 bg-red-100 text-red-800 animate-pulse').addClass('bg-orange-100 text-orange-800');
+                }
+                
+                if (diffInMinutes >= 60) {
+                    $element.html(Math.round(diffInMinutes / 60)+' hrs');
+                }
+                else {
+                    $element.html(diffInMinutes+' mins');
+                }
             }
         }
-    };
 
-    const ongoingTime = () => {
-        for (let index = 1; index < count; index++) {
-            const requestTime = $('.ongoing'+index).html();
-            if (!requestTime) continue;
+        const ongoingTime = () =>{
+            const count = @json($count);
+         
+            for (let index = 1; index < count; index++) {
+                
+                const requestTime = $('.ongoing'+index).html();
 
-            const startTime = new Date(requestTime);
-            const endTime = new Date();
-            const diffInMs = endTime - startTime;
+                const startTime = new Date(requestTime);
+                const endTime = new Date();
+                const diffInMs = endTime - startTime;
+                
+                const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
+                    if (diffInMinutes >= 60) {
+                        
+                        $('.ongoingValue'+index).html(Math.round(diffInMinutes / 60)+' hrs');
+                    }
+                    else {
+                        $('.ongoingValue'+index).html(diffInMinutes+' mins');
+                    }
+                }
             
-            const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
-            const $element = $('.ongoingValue'+index);
-            if ($element.length === 0) continue;
 
-            if (diffInMinutes >= 60) {
-                $element.html(Math.round(diffInMinutes / 60)+' hrs');
-            }
-            else {
-                $element.html(diffInMinutes+' mins');
-            }
+            
         }
-    };
-
-    // Run immediately once
-    pendingTime();
-    ongoingTime();
-
-    // Clear existing interval if set to avoid leaks
-    if (window.reportedInterval) {
-        clearInterval(window.reportedInterval);
-    }
-
-    // Set new interval and store it globally
-    window.reportedInterval = setInterval(() => {
-        pendingTime();
-        ongoingTime();
-    }, 1000);
-})();
+        
 </script>

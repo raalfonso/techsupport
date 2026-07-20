@@ -173,6 +173,7 @@ class HomeController extends Controller
             'survey_employees_id' => 'required',
             'department_id' => 'required',
             'issues_id' => 'required',
+            'location'  => 'required',
             'screenshot' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'remarks' => 'nullable|string|max:255',
         ]);

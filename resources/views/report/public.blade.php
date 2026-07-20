@@ -4,6 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Issues Reported - {{ env('APP_NAME', 'IT Department') }}</title>
+    <script>
+        // Run as early as possible to avoid screen flash
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    </script>
     @vite(['resources/js/app.js', 'resources/css/app.css'])
     <link rel="icon" type="image/png" href="{{ asset('img/itd_logo.png') }}">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
@@ -188,12 +196,38 @@
             });
         }
         
+        function toggleTheme() {
+            const html = document.documentElement;
+            const themeToggleIcon = document.getElementById('theme-icon');
+            
+            if (html.classList.contains('dark')) {
+                html.classList.remove('dark');
+                localStorage.theme = 'light';
+                if (themeToggleIcon) themeToggleIcon.textContent = 'dark_mode';
+            } else {
+                html.classList.add('dark');
+                localStorage.theme = 'dark';
+                if (themeToggleIcon) themeToggleIcon.textContent = 'light_mode';
+            }
+        }
+
+        function updateThemeUI() {
+            const themeToggleIcon = document.getElementById('theme-icon');
+            if (!themeToggleIcon) return;
+            if (document.documentElement.classList.contains('dark')) {
+                themeToggleIcon.textContent = 'light_mode';
+            } else {
+                themeToggleIcon.textContent = 'dark_mode';
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
             // Populate initial set of reports
             document.querySelectorAll('.report-card').forEach(card => {
                 existingTickets.add(card.dataset.reportId);
             });
 
+            updateThemeUI();
             checkAutoplay();
             setInterval(loadReports, 5000);
 
@@ -216,7 +250,7 @@
         });
     </script>
 </head>
-<body class="bg-background-light font-display">
+<body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-display transition-colors duration-300">
     <div class="relative flex h-auto min-h-screen w-full flex-col group/design-root overflow-x-hidden">
         <div class="layout-container flex h-full grow flex-col">
         <!-- Top Navigation Bar -->
@@ -232,6 +266,10 @@
                             </div>
                             
                             <div class="flex gap-3">
+                                <button id="theme-toggle" onclick="toggleTheme()" class="flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold shadow-sm hover:shadow transition-all duration-300 border bg-slate-100 text-slate-700 border-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:border-slate-700 cursor-pointer">
+                                    <span class="material-symbols-outlined text-[20px]" id="theme-icon">dark_mode</span>
+                                    <span class="text-sm hidden sm:inline">Theme</span>
+                                </button>
                                 <button id="sound-toggle" onclick="toggleSound()" class="flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold shadow-sm hover:shadow transition-all duration-300 border bg-red-50 text-red-700 border-red-200 dark:bg-red-950/30 dark:text-red-400 dark:border-red-900/50 animate-pulse cursor-pointer">
                                     <span class="material-symbols-outlined text-[20px]" id="sound-icon">volume_off</span>
                                     <span id="sound-text" class="text-sm">Enable Sound</span>
@@ -242,7 +280,22 @@
                     <!-- Issues Grid -->
                         <div class="grid grid-cols-1 lg:grid-cols-4 xl:grid-cols-4 gap-6">
                         @forelse($reports as $report)
-                            <div class="flex flex-col bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 hover:shadow-md transition-shadow report-card {{ $report->status == 'Done' ? 'opacity-75 grayscale-[0.5]' : '' }}" data-report-id="{{ $report->id }}" data-report-time="{{ $report->request_datetime }}" data-report-status="{{ $report->status }}">
+                            @php
+                                $loc = strtolower(trim($report->location ?? 'btc'));
+                                if ($loc === '') {
+                                    $loc = 'btc';
+                                }
+
+                                if ($loc === 'btc') {
+                                    $cardBorderClass = 'border-t-4 border-t-red-500';
+                                    $badgeClass = 'bg-red-50 text-red-700 border border-red-200 dark:bg-red-950/30 dark:text-red-400 dark:border-red-900/50';
+                                } else {
+                                    $cardBorderClass = 'border-t-4 border-t-slate-400 dark:border-t-slate-600';
+                                    $badgeClass = 'bg-yellow-100 text-yellow-700 border border-slate-200 dark:bg-slate-800/50 dark:text-slate-300 dark:border-slate-700/50';
+                                }
+                            @endphp
+            
+                            <div class="flex flex-col bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 {{ $cardBorderClass }} hover:shadow-md transition-shadow report-card {{ $report->status == 'Done' ? 'opacity-75 grayscale-[0.5]' : '' }}" data-report-id="{{ $report->id }}" data-report-time="{{ $report->request_datetime }}" data-report-status="{{ $report->status }}">
                                 <div class="p-5 flex flex-col gap-4">
                                     <div class="flex justify-between items-start">
                                         <div class="flex flex-col gap-1">
@@ -271,33 +324,42 @@
                                             </span>
                                         @endif
                                     </div>
-            <!-- Priority Badge -->
-
+                                    
+                                    <!-- Badges Section -->
+                                    <div class="flex flex-wrap gap-2 items-center">
+                                        <!-- Priority Badge -->
                                         @if($report->issues->category->title == 'High')
-                                            <span class="bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1">
+                                            <span class="bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 px-3 py-1 rounded-full text-xs font-bold inline-flex items-center gap-1">
                                                 <span class="size-2 bg-red-500 rounded-full"></span> Priority : High
                                             </span>
                                         @elseif($report->issues->category->title == 'Medium')
-                                            <span class="bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400 px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1">
+                                            <span class="bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400 px-3 py-1 rounded-full text-xs font-bold inline-flex items-center gap-1">
                                                 <span class="size-2 bg-orange-500 rounded-full"></span> Priority : Medium
                                             </span>
                                         @elseif($report->issues->category->title == 'Low')
-                                            <span class="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1">
+                                            <span class="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 px-3 py-1 rounded-full text-xs font-bold inline-flex items-center gap-1">
                                                 <span class="size-2 bg-green-500 rounded-full"></span> Priority : Low
                                             </span>
                                         @endif
-                                        <div class="flex flex-col gap-1">
-                                            <p class="text-slate-900 dark:text-slate-100 text-md font-semibold line-clamp-1">{{ $report->issues->title ?? 'N/A' }}</p>
-                                            <div class="flex flex-col gap-0.5 mt-2">
-                                                <div class="flex items-center gap-2 text-slate-600 dark:text-slate-400">
-                                                    <span class="material-symbols-outlined text-[16px]">person</span>
-                                                    <p class="text-sm font-medium">{{ $report->client->name  ?? 'N/A' }}</p>
-                                                </div>
-                                            <div class="flex items-center gap-2 text-slate-500 dark:text-slate-500">
+
+                                        <!-- Location Badge -->
+                                        <span class="px-3 py-1 rounded-full text-xs font-bold inline-flex items-center gap-1 {{ $badgeClass }}">
+                                            <span class="material-symbols-outlined text-[14px]">location_on</span> Location : {{ !empty(trim($report->location ?? '')) ? $report->location : 'BTC' }}
+                                        </span>
+                                    </div>
+
+                                    <div class="flex flex-col gap-1">
+                                        <p class="text-slate-900 dark:text-slate-100 text-md font-semibold line-clamp-1">{{ $report->issues->title ?? 'N/A' }}</p>
+                                        <div class="flex flex-col gap-0.5 mt-2">
+                                            <div class="flex items-center gap-2 text-slate-600 dark:text-slate-400">
+                                                <span class="material-symbols-outlined text-[16px]">person</span>
+                                                <p class="text-sm font-medium">{{ $report->client->name  ?? 'N/A' }}</p>
+                                            </div>
+                                            <div class="flex items-center gap-2 text-slate-500 dark:text-slate-400">
                                                 <span class="material-symbols-outlined text-[16px]">corporate_fare</span>
                                                 <p class="text-xs">{{ $report->department->title ?? 'N/A' }}</p>
                                             </div>
-                                            
+                                        </div>
                                             @if($report->status != 'Pending')
                                                 <div class="flex flex-col gap-0.5 mt-2">
                                                 <div class="flex items-center gap-2 text-slate-600 dark:text-slate-400">
@@ -318,23 +380,21 @@
                                             @endif
 
                                     </div>
-                                </div>
-                                
-
-                                <div class="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-slate-800 mt-2">
-                                    <div class="flex items-center gap-1 text-slate-500 text-xs">
-                                    <span class="material-symbols-outlined text-[16px]">schedule</span>
-                                        <span>{{ \Carbon\Carbon::parse($report->request_datetime)->format('M d, Y h:i A') }}</span>
+                                    
+                                    <div class="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-slate-800 mt-2">
+                                        <div class="flex items-center gap-1 text-slate-500 dark:text-slate-400 text-xs">
+                                        <span class="material-symbols-outlined text-[16px]">schedule</span>
+                                            <span>{{ \Carbon\Carbon::parse($report->request_datetime)->format('M d, Y h:i A') }}</span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-</div>
 @empty
 <div class="col-span-full">
-<div class="bg-white rounded-xl shadow-lg p-12 text-center">
-<span class="material-symbols-outlined text-gray-300 text-6xl mb-4">description</span>
-<p class="text-xl font-semibold text-slate-900 mb-2">No reports found</p>
-<p class="text-slate-500">There are currently no issues reported</p>
+<div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-lg p-12 text-center">
+<span class="material-symbols-outlined text-gray-300 dark:text-slate-700 text-6xl mb-4">description</span>
+<p class="text-xl font-semibold text-slate-900 dark:text-slate-100 mb-2">No reports found</p>
+<p class="text-slate-500 dark:text-slate-400">There are currently no issues reported</p>
 </div>
 </div>
 @endforelse
