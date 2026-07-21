@@ -81,7 +81,7 @@
                         </div>
                     </div>
                     <div class="flex items-center space-x-3">
-                        <button @click="showModal = true; $nextTick(() => { const now = new Date(); const year = now.getFullYear(); const month = String(now.getMonth() + 1).padStart(2, '0'); const day = String(now.getDate()).padStart(2, '0'); const hours = String(now.getHours()).padStart(2, '0'); const minutes = String(now.getMinutes()).padStart(2, '0'); document.getElementById('request_datetime').value = `${year}-${month}-${day}T${hours}:${minutes}`; })" class="bg-gradient-to-r from-teal-600 to-teal-700 hover:from-teal-700 hover:to-teal-800 text-white px-6 py-3 rounded-xl font-medium shadow-lg hover:shadow-xl transition-all duration-200 flex items-center space-x-2">
+                        <button @click="showModal = true; $nextTick(() => { const now = new Date(); const year = now.getFullYear(); const month = String(now.getMonth() + 1).padStart(2, '0'); const day = String(now.getDate()).padStart(2, '0'); const hours = String(now.getHours()).padStart(2, '0'); const minutes = String(now.getMinutes()).padStart(2, '0'); document.getElementById('request_datetime').value = `${year}-${month}-${day}T${hours}:${minutes}`; })" class="bg-gradient-to-r from-teal-600 to-teal-700 hover:from-teal-700 hover:to-teal-800 text-white px-6 py-3 rounded-xl font-medium shadow-lg hover:shadow-xl transition-all duration-200 flex items-center space-x-2" style="display:none;">
                             <i class="fa-solid fa-plus"></i>
                             <span>New Request</span>
                         </button>
