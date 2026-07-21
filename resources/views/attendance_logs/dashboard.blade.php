@@ -106,6 +106,8 @@
                 </div>
             </div>
 
+           
+
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                 @php
                     $todayAttend = \App\Models\AttendanceLog::where('user_id', auth()->id())

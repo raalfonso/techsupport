@@ -1,3 +1,6 @@
+@php
+    $count = 1;
+@endphp
 <div class="block mt-4 overflow-auto">
     @if($reports->isEmpty())
         <div class="flex flex-col items-center justify-center py-16 px-4">
@@ -13,7 +16,6 @@
     <!-- Cards Layout for all screens -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <?php 
-        $count = 1;
         $now = now();
         ?>
         @foreach($reports as $report)
@@ -89,11 +91,29 @@
                             {{ $report->validation_date_time ?? $report->response_datetime }}
                         </div>
                         <div class="flex items-center space-x-2">
+                            <span class="text-xs text-gray-500 dark:text-gray-400">Responsed by: {{ $report->response->name;}}</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            
                             <span class="text-xs text-gray-500 dark:text-gray-400">Processing:</span>
                             <span class="ongoingValue{{$count}} px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 rounded-lg text-xs font-medium"></span>
                         </div>
+
+                    @elseif($report->status == 'For validation')
+                        <div class="flex items-center space-x-2">
+                            <span class="text-xs text-gray-500 dark:text-gray-400">Responsed by: {{ $report->response->name;}}</span>
+                        </div>
                     @endif
+
+                      @if($report->remarks)
+                        <div>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">Remarks</p>
+                            <p class="text-sm text-gray-900 dark:text-white">{{ $report->remarks }}</p>
+                        </div>
+                        @endif      
                 </div>
+
+                
 
                 <!-- Actions -->
                 <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
@@ -141,7 +161,8 @@
                             </button>
                         </div>
                     @endif
-                </div>
+                                                
+                    </div>
             </div>
             @php
                 $count++;
@@ -207,7 +228,7 @@
                             <i class="fa-solid fa-calendar-check text-blue-600"></i>
                             <span>Response Date Time</span>
                         </label>
-                        <input type="datetime-local" class="w-full p-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200" name="response_datetime" value="{{ old('response_datetime') }}">
+                        <input type="datetime-local" class="w-full p-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200" name="response_datetime" value="{{ old('response_datetime', now()->format('Y-m-d\TH:i')) }}">
                         @error('response_datetime')
                             <p class="text-red-500 text-sm mt-1 flex items-center space-x-1">
                                 <i class="fa-solid fa-exclamation-circle"></i>
@@ -230,7 +251,8 @@
             <!-- Footer -->
             <div class="bg-gray-50 px-6 py-4 rounded-b-2xl border-t border-gray-100">
                 <div class="flex justify-end space-x-3">
-                    <button @click="responseModal = false" class="px-6 py-2.5 text-gray-600 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 transition-all duration-200 font-medium">
+                    <button type="button" @click="responseModal = false" 
+                        class="px-6 py-2.5 text-gray-600 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 transition-all duration-200 font-medium">
                         Cancel
                     </button>
                     <button type="submit" class="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-200 font-medium shadow-lg hover:shadow-xl">
@@ -268,7 +290,7 @@
                         <i class="fa-solid fa-calendar-check text-purple-600"></i>
                         <span>Validation Date Time</span>
                     </label>
-                    <input type="datetime-local" class="w-full p-3 border-2 border-gray-200 rounded-xl focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all duration-200" name="validation_datetime" required>
+                    <input type="datetime-local" class="w-full p-3 border-2 border-gray-200 rounded-xl focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all duration-200" name="validation_datetime" value="{{ old('validation_datetime', now()->format('Y-m-d\TH:i')) }}" required>
                 </div>
                 <div class="text-center py-4">
                     <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-purple-100 mb-4">

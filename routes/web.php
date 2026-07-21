@@ -32,7 +32,9 @@ use App\Http\Controllers\{
     ItSurveyController,
     ItSurveyIssueController,
     TaskAssignController,
-    MeetingAttendeeController
+    MeetingAttendeeController,
+    RequestPersonnelController,
+    ResourceController
 };
 
 /*
@@ -69,7 +71,14 @@ Route::middleware('auth')->group(function () {
     Route::resource('category', CategoryController::class);
     Route::resource('department', DepartmentController::class);
     Route::resource('devwatch', DevWatchController::class);
+    Route::resource('request-personnel', RequestPersonnelController::class);
+    Route::get('/request-personnel-approval', [RequestPersonnelController::class, 'approval'])->name('request-personnel.approval');
+    Route::get('/request-personnel-approval/{requestPersonnel}', [RequestPersonnelController::class, 'approvalShow'])->name('request-personnel.approval-show');
+    Route::post('/request-personnel/{requestPersonnel}/update-status', [RequestPersonnelController::class, 'updateStatus'])->name('request-personnel.update-status');
+    Route::post('/request-personnel/{requestPersonnel}/assign-staff', [RequestPersonnelController::class, 'assignStaff'])->name('request-personnel.assign-staff');
+    Route::resource('resources', ResourceController::class);
     Route::post('/projects', [ProjectController::class, 'store'])->name('projects.store');
+    Route::put('/projects/{project}', [ProjectController::class, 'update'])->name('projects.update');
     Route::post('/projects/add-member', [ProjectController::class, 'addMember'])->name('projects.addMember');
     Route::resource('employee-masterlist', EmployeeMasterlistController::class);
     Route::resource('signatory', SignatoryController::class);
@@ -80,6 +89,7 @@ Route::middleware('auth')->group(function () {
     
     // Employee List Routes (Read-only for attendance module)
     Route::get('/employee-list', [\App\Http\Controllers\EmployeeController::class, 'index'])->name('employee-list.index');
+    Route::get('/employee-list-export', [\App\Http\Controllers\EmployeeController::class, 'export'])->name('employee-list.export');
     Route::get('/employee-list/create', [\App\Http\Controllers\EmployeeController::class, 'create'])->name('employee-list.create');
     Route::post('/employee-list', [\App\Http\Controllers\EmployeeController::class, 'store'])->name('employee-list.store');
     Route::get('/employee-list/{employee}', [\App\Http\Controllers\EmployeeController::class, 'show'])->name('employee-list.show');
@@ -200,6 +210,9 @@ Route::prefix('survey')->group(function () {
         Route::get('/changePasswordForm', [SurveyController::class, 'changePasswordForm'])->name('survey.changePasswordForm');
         Route::post('/employee/edit', [SurveyEmployeeController::class, 'edit'])->name('survey.employee.edit');
         Route::get('/export-results', [SurveyController::class, 'exportResults'])->name('survey.exportResults');
+        Route::get('/search-survey', [SurveyController::class, 'searchSurvey'])->name('survey.searchResults');
+        Route::get('/export-pdf', [SurveyController::class, 'exportResultsPDF'])->name('survey.exportResultsPDF');
+        
     });
 
     Route::get('/register', [SurveyController::class, 'register'])->name('survey.register');

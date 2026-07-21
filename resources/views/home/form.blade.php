@@ -70,13 +70,13 @@
     <main class="flex-grow">
     {{-- Your page content here --}}
       <section id="home-section" class="" >
-        <div class="max-w-4xl mx-auto bg-white rounded-2xl shadow-xl mt-8 p-8 transition-all duration-700 opacity-0 translate-y-4" data-scroll>
+        <div class="max-w-4xl mx-auto bg-white rounded-2xl shadow-xl mt-8 p-8 mb-8 transition-all duration-700 opacity-0 translate-y-4"  data-scroll>
           <div class="mb-8">
             <h1 class="text-3xl font-bold text-gray-900 mb-2">Welcome, {{ $client->name }}</h1>
             <p class="text-gray-600">Fill out the form below to request assistance from our IT support team.</p>
           </div>
           <meta name="csrf-token" content="{{ csrf_token() }}">
-            <form action="{{ route('home.data') }}" method="post" class="space" x-data="{ loading: false }" @submit="loading = true">
+            <form action="{{ route('home.data') }}" method="post" enctype="multipart/form-data" class="space" x-data="{ loading: false }" @submit="loading = true">
                     @csrf
                     <div class="grid grid-cols-1 gap-6">
                         <div class="space-y-2">
@@ -97,7 +97,7 @@
                             </label>
                             <select name="location" id="location" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200 @error('location') border-red-500 @enderror"> 
                                 <option value="">Select Location</option>
-                                <option value="BTC">BTC</option>
+                                <option value="BTC" selected>BTC</option>
                                 <option value="One west">One west</option>
                                 <option value="PMO">PMO</option>
                                 <option value="NCC">NCC</option>
@@ -151,6 +151,34 @@
                             @enderror
                         </div>
                     </div>
+
+                    <div class="space-y-2 mt-5">
+                        <label for="screenshot" class="block text-sm font-semibold text-gray-700 flex items-center space-x-2">
+                            <i class="fas fa-camera text-blue-600"></i>
+                            <span>Screenshot <span class="text-gray-500 text-xs">(Optional)</span></span>
+                        </label>
+                        <div class="rounded-2xl border-2 border-dashed border-blue-200 bg-blue-50/70 p-4 transition-all duration-200 hover:border-blue-400 hover:bg-blue-50">
+                            <div class="flex flex-col gap-4 sm:flex-row sm:items-center">
+                                <div class="flex h-14 w-14 items-center justify-center rounded-2xl bg-white shadow-sm ring-1 ring-blue-100">
+                                    <i class="fas fa-image text-2xl text-blue-600"></i>
+                                </div>
+                                <div class="flex-1 space-y-1">
+                                    <p class="text-sm font-semibold text-gray-800">Attach a screenshot of the issue</p>
+                                    <p class="text-sm text-gray-500">PNG, JPG, or WEBP up to a reasonable size. A clear screenshot helps the team resolve the request faster.</p>
+                                    <p id="screenshot-file-name" class="text-sm font-medium text-blue-700 hidden"></p>
+                                </div>
+                                <label for="screenshot" class="inline-flex cursor-pointer items-center justify-center rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-blue-700">
+                                    <i class="fas fa-upload mr-2"></i>
+                                    Choose File
+                                </label>
+                            </div>
+                            <input id="screenshot" type="file" name="screenshot" accept="image/*" class="sr-only">
+                            <div id="screenshot-preview-wrap" class="mt-4 hidden">
+                                <img id="screenshot-preview" alt="Screenshot preview" class="max-h-64 w-full rounded-xl border border-blue-100 object-contain bg-white">
+                            </div>
+                        </div>
+                    </div>
+
     
                     <div class="space-y-2 mt-5">
                         <label for="remarks" class="block text-sm font-semibold text-gray-700 flex items-center space-x-2">
@@ -241,10 +269,38 @@
         document.addEventListener('DOMContentLoaded', function () {
             const mobileMenuButton = document.getElementById('mobile-menu-button');
             const mobileMenu = document.getElementById('mobile-menu');
+            const screenshotInput = document.getElementById('screenshot');
+            const screenshotPreviewWrap = document.getElementById('screenshot-preview-wrap');
+            const screenshotPreview = document.getElementById('screenshot-preview');
+            const screenshotFileName = document.getElementById('screenshot-file-name');
 
             if (mobileMenuButton && mobileMenu) {
                 mobileMenuButton.addEventListener('click', function () {
                     mobileMenu.classList.toggle('hidden');
+                });
+            }
+
+            if (screenshotInput && screenshotPreviewWrap && screenshotPreview && screenshotFileName) {
+                screenshotInput.addEventListener('change', function () {
+                    const file = this.files && this.files[0] ? this.files[0] : null;
+
+                    if (!file) {
+                        screenshotPreviewWrap.classList.add('hidden');
+                        screenshotFileName.classList.add('hidden');
+                        screenshotFileName.textContent = '';
+                        screenshotPreview.removeAttribute('src');
+                        return;
+                    }
+
+                    screenshotFileName.textContent = file.name;
+                    screenshotFileName.classList.remove('hidden');
+
+                    const objectUrl = URL.createObjectURL(file);
+                    screenshotPreview.src = objectUrl;
+                    screenshotPreviewWrap.classList.remove('hidden');
+                    screenshotPreview.onload = function () {
+                        URL.revokeObjectURL(objectUrl);
+                    };
                 });
             }
         });

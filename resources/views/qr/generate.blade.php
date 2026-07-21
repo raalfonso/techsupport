@@ -23,7 +23,7 @@
             </div>
         </div>
 
-        <p class="text-sm text-gray-500">URL: <span class="text-blue-600 break-words">{{ $url }}</span></p>
+        <p class="text-sm text-gray-500">URL: <span class="text-blue-600 break-words"><a href="{{ $url }}" target="_blank">{{ $url }}</a></span></p>
         <p class="text-lg text-gray-600 font-semi mt-5">(BCDA Personnel Only)</p>
     </div>
 

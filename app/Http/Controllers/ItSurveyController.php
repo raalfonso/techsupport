@@ -32,8 +32,8 @@ class ItSurveyController extends Controller
         }
 
         // Issue Resolution Statistics (Question 2)
-        $resolvedCount = ItSurvey::where('answer_question_2', 'Yes')->count();
-        $unresolvedCount = ItSurvey::where('answer_question_2', 'No')->count();
+        $resolvedCount = ItSurvey::where('answer_question_2', 'Yes, fully resolved')->count();
+        $unresolvedCount = ItSurvey::where('answer_question_2', 'Not resolved')->count();
         $resolutionRate = $totalSurveys > 0 ? round(($resolvedCount / $totalSurveys) * 100, 2) : 0;
 
         // Service Rating Statistics (Question 3)
@@ -67,7 +67,7 @@ class ItSurveyController extends Controller
             ->selectRaw('COUNT(*) as total_surveys')
             ->selectRaw('AVG(CAST(answer_question_1 AS DECIMAL(10,2))) as avg_response_time')
             ->selectRaw('AVG(CAST(answer_question_3 AS DECIMAL(10,2))) as avg_service_rating')
-            ->selectRaw('SUM(CASE WHEN answer_question_2 = "Yes" THEN 1 ELSE 0 END) as resolved_count')
+            ->selectRaw('SUM(CASE WHEN answer_question_2 = "Yes, fully resolved" THEN 1 ELSE 0 END) as resolved_count')
             ->with('employee')
             ->whereNotNull('employee_number')
             ->groupBy('employee_number')

@@ -58,6 +58,7 @@
                     </div>
         
                     <button type="submit" class="w-full bg-blue-600 text-white p-3 rounded-md hover:bg-blue-700 transition duration-200">Change Password</button>
+                </form>
             </div>
             
         </div>

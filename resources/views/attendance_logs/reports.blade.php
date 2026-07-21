@@ -8,6 +8,7 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     @vite(['resources/js/app.js', 'resources/css/app.css'])
     <link rel="icon" type="image/png" href="{{ asset('img/itd.png') }}">
     <script>
@@ -23,7 +24,31 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div class="mb-8">
                 <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Attendance Reports</h1>
-                <p class="text-gray-600 dark:text-gray-400 mt-1">Today's attendance summary — {{ now()->format('M d, Y') }}</p>
+                <p class="text-gray-600 dark:text-gray-400 mt-1">Attendance summary for {{ \Carbon\Carbon::parse($attendanceDate ?? today())->format('M d, Y') }}</p>
+            </div>
+
+            {{-- Date Filter for Attendance Summary --}}
+            <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700 p-6 mb-6">
+                <form method="GET" action="{{ route('attendance.reports') }}" class="flex flex-wrap items-end gap-4">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Select Date</label>
+                        <input type="date" name="attendance_date" value="{{ $attendanceDate ?? today()->toDateString() }}"
+                            class="px-4 py-2 border border-gray-300 dark:border-slate-500 bg-white dark:bg-slate-600 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700 transition">
+                        <i class="fas fa-filter mr-2"></i>Filter
+                    </button>
+                    <a href="{{ route('attendance.reports') }}" class="bg-gray-400 dark:bg-slate-500 text-white px-6 py-2 rounded-lg font-semibold hover:bg-gray-500 transition">
+                        Reset
+                    </a>
+                    <!-- Preserve WFH filters if they exist -->
+                    @if(request('wfh_date'))
+                        <input type="hidden" name="wfh_date" value="{{ request('wfh_date') }}">
+                    @endif
+                    @if(request('wfh_department'))
+                        <input type="hidden" name="wfh_department" value="{{ request('wfh_department') }}">
+                    @endif
+                </form>
             </div>
 
             {{-- Summary Cards --}}
@@ -67,6 +92,15 @@
             @if(!isset($deptHeadDeptTitle) || !$deptHeadDeptTitle)
             <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700 p-6 mb-8">
                 <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-6">Attendance by Department</h2>
+                
+                {{-- Bar Chart --}}
+                <div class="mb-8">
+                    <div class="bg-gray-50 dark:bg-slate-700 rounded-lg p-6">
+                        <canvas id="attendanceChart" style="max-height: 400px;"></canvas>
+                    </div>
+                </div>
+
+                {{-- Table --}}
                 <div class="overflow-x-auto">
                     <table class="w-full">
                         <thead>
@@ -193,10 +227,10 @@
             <div class="p-6 border-b border-gray-200 dark:border-slate-700 flex justify-between items-center">
                 <h2 class="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
                     <i class="fas fa-check-circle text-green-600"></i>
-                    Present Today ({{ $presentToday }})
+                    Present ({{ $presentToday }})
                 </h2>
                 <div class="flex items-center gap-3">
-                    <a href="{{ route('attendance.present-today.print-pdf') }}" target="_blank" class="bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-green-700 transition flex items-center gap-2">
+                    <a href="{{ route('attendance.present-today.print-pdf', ['date' => $attendanceDate ?? today()->toDateString()]) }}" target="_blank" class="bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-green-700 transition flex items-center gap-2">
                         <i class="fas fa-file-pdf"></i> Print PDF
                     </a>
                     <button onclick="closePresentModal()" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
@@ -261,10 +295,10 @@
             <div class="p-6 border-b border-gray-200 dark:border-slate-700 flex justify-between items-center">
                 <h2 class="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
                     <i class="fas fa-times-circle text-red-600"></i>
-                    Absent Today ({{ $absentToday }})
+                    Absent ({{ $absentToday }})
                 </h2>
                 <div class="flex items-center gap-3">
-                    <a href="{{ route('attendance.absent-today.print-pdf') }}" target="_blank" class="bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-red-700 transition flex items-center gap-2">
+                    <a href="{{ route('attendance.absent-today.print-pdf', ['date' => $attendanceDate ?? today()->toDateString()]) }}" target="_blank" class="bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-red-700 transition flex items-center gap-2">
                         <i class="fas fa-file-pdf"></i> Print PDF
                     </a>
                     <button onclick="closeAbsentModal()" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
@@ -428,6 +462,128 @@
                 closeAbsentModal();
             }
         });
+
+        // Attendance Chart
+        @if(!isset($deptHeadDeptTitle) || !$deptHeadDeptTitle)
+        document.addEventListener('DOMContentLoaded', function() {
+            const ctx = document.getElementById('attendanceChart');
+            if (ctx) {
+                const attendanceData = @json($attendanceByDepartment);
+                
+                const departments = Object.keys(attendanceData);
+                const presentData = departments.map(dept => attendanceData[dept].present);
+                const totalData = departments.map(dept => attendanceData[dept].total);
+                const absentData = departments.map(dept => attendanceData[dept].total - attendanceData[dept].present);
+
+                // Check if dark mode is enabled
+                const isDarkMode = document.documentElement.classList.contains('dark');
+                const textColor = isDarkMode ? '#e5e7eb' : '#374151';
+                const gridColor = isDarkMode ? '#374151' : '#e5e7eb';
+
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: departments,
+                        datasets: [
+                            {
+                                label: 'Present',
+                                data: presentData,
+                                backgroundColor: 'rgba(34, 197, 94, 0.8)',
+                                borderColor: 'rgba(34, 197, 94, 1)',
+                                borderWidth: 1
+                            },
+                            {
+                                label: 'Absent',
+                                data: absentData,
+                                backgroundColor: 'rgba(239, 68, 68, 0.8)',
+                                borderColor: 'rgba(239, 68, 68, 1)',
+                                borderWidth: 1
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                                labels: {
+                                    color: textColor,
+                                    font: {
+                                        size: 12,
+                                        weight: 'bold'
+                                    },
+                                    padding: 15
+                                }
+                            },
+                            title: {
+                                display: true,
+                                text: 'Attendance Overview by Department - {{ \Carbon\Carbon::parse($attendanceDate ?? today())->format('M d, Y') }}',
+                                color: textColor,
+                                font: {
+                                    size: 16,
+                                    weight: 'bold'
+                                },
+                                padding: {
+                                    top: 10,
+                                    bottom: 20
+                                }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    afterLabel: function(context) {
+                                        const deptIndex = context.dataIndex;
+                                        const dept = departments[deptIndex];
+                                        const total = attendanceData[dept].total;
+                                        const percentage = attendanceData[dept].percentage;
+                                        return `Total: ${total} | Attendance: ${percentage}%`;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                stacked: true,
+                                ticks: {
+                                    color: textColor,
+                                    font: {
+                                        size: 11
+                                    }
+                                },
+                                grid: {
+                                    color: gridColor,
+                                    display: false
+                                }
+                            },
+                            y: {
+                                stacked: true,
+                                beginAtZero: true,
+                                ticks: {
+                                    color: textColor,
+                                    font: {
+                                        size: 11
+                                    },
+                                    stepSize: 1
+                                },
+                                grid: {
+                                    color: gridColor
+                                },
+                                title: {
+                                    display: true,
+                                    text: 'Number of Employees',
+                                    color: textColor,
+                                    font: {
+                                        size: 12,
+                                        weight: 'bold'
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        });
+        @endif
     </script>
 </body>
 </html>

@@ -5,6 +5,7 @@
     <title>Survey Form</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     @vite('resources/css/app.css') <!-- Assuming you're using Vite with Tailwind -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
 
@@ -25,7 +26,18 @@
         </h1>
     </div>
 
-    <form action="{{ route('survey.submit', $department->id) }}" method="POST" class="space-y-6">
+    @if($errors->any())
+        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-6 shadow-sm">
+            <ul class="list-disc list-inside text-sm">
+                @foreach($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+
+    @endif
+
+    <form action="{{ route('survey.submit', $department->id) }}" method="POST" class="space-y-6" novalidate>
         @csrf
 
         <div class="flex items-center space-x-2">
@@ -46,9 +58,9 @@
                     autocomplete="off"
                 >
                 <div class="absolute inset-y-0 right-0 flex items-center pr-3">
-                    <i class="fas fa-caret-down text-gray-400 ml-5"></i>
+                    {{-- <i class="fas fa-caret-down text-gray-400 ml-5"></i> --}}
                 </div>
-                <div id="suggestions-container" class="hidden absolute z-10 w-full mt-1 bg-white rounded-lg shadow-lg border border-gray-200 max-h-60 overflow-y-auto"></div>
+                <div id="suggestions-container" class="hidden absolute z-10 w-full mt-1 bg-white rounded-lg shadow-lg border border-gray-200 max-h-60 overflow-y-auto uppercase"></div>
 
                 
             </div>
@@ -79,13 +91,13 @@
             </label>
             <div class="flex gap-3 justify-between">
                 @foreach ([
-                    '2' => '<i class="fa-solid fa-thumbs-up mr-2 text-green-600"></i>Super Like <i class="fa-solid fa-thumbs-up fa-flip-horizontal mr-2 text-green-600"></i>',
+                    '2' => '<i class="fa-solid fa-thumbs-up mr-2 text-green-600"></i>Super Like <i class="fa-solid fa-thumbs-up fa-flip-horizontal ml-2 mr-2 text-green-600"></i>',
                     '1' => '<i class="fa-regular fa-thumbs-up mr-2 text-blue-600"></i>Like',
                     '0' => '<i class="fa-regular fa-thumbs-down mr-2 text-red-600"></i>Dislike'
                 ] as $value => $label)
                     <label class="flex-1 cursor-pointer">
                         <input type="radio" name="radiobutton" value="{{ $value }}" class="peer hidden" required>
-                        <div class="peer-checked:bg-blue-500 peer-checked:text-white text-center p-4 border rounded-lg hover:bg-blue-100 transition h-full flex items-center justify-center" onclick="document.getElementById('accuracyInput').value = '{{ $value }}'">
+                        <div class="peer-checked:bg-blue-500 peer-checked:text-white text-center p-4 border rounded-lg hover:bg-blue-100 transition h-full flex items-center justify-center" onclick="document.getElementById('accuracyInput').value = '{{ $value }}'; if(window.updateCommentRequirement) window.updateCommentRequirement();">
                             {!! $label !!}
                         </div>
                     </label>
@@ -94,7 +106,7 @@
                 @endforeach
                  
             </div>
-            <input type="text" name="accuracy_of_service" id="accuracyInput" value="" hidden >  
+            <input type="text" name="accuracy_of_service" id="accuracyInput" value="{{ old('accuracy_of_service') }}" hidden >  
         </div>
 
         {{-- Section 2 --}}
@@ -104,38 +116,38 @@
             </label>
              <div class="flex gap-3 justify-between">
                 @foreach ([
-                    '2' => '<i class="fa-solid fa-thumbs-up mr-2 text-green-600"></i>Super Like <i class="fa-solid fa-thumbs-up fa-flip-horizontal mr-2 text-green-600"></i>',
+                    '2' => '<i class="fa-solid fa-thumbs-up mr-2 text-green-600"></i>Super Like <i class="fa-solid fa-thumbs-up fa-flip-horizontal ml-2 mr-2 text-green-600"></i>',
                     '1' => '<i class="fa-regular fa-thumbs-up mr-2 text-blue-600"></i>Like',
                     '0' => '<i class="fa-regular fa-thumbs-down mr-2 text-red-600"></i>Dislike'
                 ] as $value => $label)
                     <label class="flex-1 cursor-pointer">
                         <input type="radio" name="radiotime" value="{{ $value }}" class="peer hidden" required>
-                        <div class="peer-checked:bg-green-500 peer-checked:text-white text-center p-4 border rounded-lg hover:bg-green-100 transition h-full flex items-center justify-center" onclick="document.getElementById('responseInput').value = '{{ $value }}'">
+                        <div class="peer-checked:bg-green-500 peer-checked:text-white text-center p-4 border rounded-lg hover:bg-green-100 transition h-full flex items-center justify-center" onclick="document.getElementById('responseInput').value = '{{ $value }}'; if(window.updateCommentRequirement) window.updateCommentRequirement();">
                             {!! $label !!}
                         </div>
                     </label>
                 @endforeach
 
             </div>
-             <input type="text" name="response_time" id="responseInput" value="" hidden>  
+             <input type="text" name="response_time" id="responseInput" value="{{ old('response_time') }}" hidden>  
         </div>
         {{-- Section 3 --}}
         <div class="mb-6">
             <label class="block text-lg font-semibold mb-2">
-                Brief Comment</label>
-            <textarea name="comments" rows="4" class="w-full border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-400" placeholder="Your comments here..." autocomplete="off"></textarea>
+                Brief Comment <span id="comments-required-star" class="text-red-500 hidden">*</span></label>
+            <textarea name="comments" id="comments" rows="4" class="w-full border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-400" placeholder="Your comments here..." autocomplete="off">{{ old('comments') }}</textarea>
         </div>
 
         {{-- Section 4 --}}
         <div class="mb-6">
             <label class="block text-lg font-semibold mb-2">
                Name (optional)</label>
-            <input type="text" name="client_name" class="w-full border border-gray-300 rounded px-2 py-1 text-md focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-400" placeholder="Your name (optional)" autocomplete="off">
+            <input type="text" name="client_name" value="{{ old('client_name') }}" class="w-full border border-gray-300 rounded px-2 py-1 text-md focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-400" placeholder="Your name (optional)" autocomplete="off">
         </div>
 
         {{-- Section 5 --}}
         <div class="mb-6">
-           <button type="submit" class="w-full bg-blue-600 text-white font-semibold py-2 rounded hover:bg-blue-700 transition">
+           <button type="submit" id="btn-submit" class="w-full bg-blue-600 text-white font-semibold py-2 rounded hover:bg-blue-700 transition">
                 Submit Feedback
             </button>
         
@@ -178,7 +190,6 @@
         // Mock data - replace with actual data from your server
         const employees = @json($employees);
         
-        console.log(employees);
         
         // Function to fetch employees (simulating AJAX call)
         function fetchEmployees(query) {
@@ -273,6 +284,115 @@
                 timeout = setTimeout(later, wait);
             };
         }
+
+        // Dynamic requirement for comments based on Dislike rating ('0')
+        const radioButtons = document.querySelectorAll('input[name="radiobutton"]');
+        const radioTimes = document.querySelectorAll('input[name="radiotime"]');
+        const commentsTextarea = document.getElementById('comments');
+        const commentsRequiredStar = document.getElementById('comments-required-star');
+
+        function updateCommentRequirement() {
+            let hasDislike = false;
+            
+            // Check radiobutton
+            radioButtons.forEach(radio => {
+                if (radio.checked && radio.value === '0') {
+                    hasDislike = true;
+                }
+            });
+
+            // Check radiotime
+            radioTimes.forEach(radio => {
+                if (radio.checked && radio.value === '0') {
+                    hasDislike = true;
+                }
+            });
+
+            if (hasDislike) {
+                commentsTextarea.setAttribute('required', 'required');
+                commentsRequiredStar.classList.remove('hidden');
+            } else {
+                commentsTextarea.removeAttribute('required');
+                commentsRequiredStar.classList.add('hidden');
+            }
+        }
+
+        // Expose it globally so that inline onclick attributes can trigger it
+        window.updateCommentRequirement = updateCommentRequirement;
+
+        // Attach listeners to both radio button groups
+        radioButtons.forEach(radio => {
+            radio.addEventListener('change', updateCommentRequirement);
+        });
+        radioTimes.forEach(radio => {
+            radio.addEventListener('change', updateCommentRequirement);
+        });
+
+        // Run initially to handle any pre-selected old values (e.g. from validation redirects)
+        updateCommentRequirement();
+
+        // Handle form submission with SweetAlert validation
+        const form = document.querySelector('form');
+        form.addEventListener('submit', function(e) {
+            let errors = [];
+
+            // 1. Check person transacted with (survey_employees_id / employee-id)
+            const employeeIdVal = document.getElementById('employee-id').value;
+            if (!employeeIdVal) {
+                errors.push("The Person(s) you transacted with cannot be empty.");
+            }
+
+            // 2. Check Degree of Competence & Accuracy rating (radiobutton)
+            let accuracySelected = false;
+            let accuracyVal = '';
+            radioButtons.forEach(radio => {
+                if (radio.checked) {
+                    accuracySelected = true;
+                    accuracyVal = radio.value;
+                }
+            });
+            if (!accuracySelected) {
+                errors.push("Degree of Competence & Accuracy of Service rating is required.");
+            }
+
+            // 3. Check Degree of Responsiveness/Timeliness rating (radiotime)
+            let timeSelected = false;
+            let timeVal = '';
+            radioTimes.forEach(radio => {
+                if (radio.checked) {
+                    timeSelected = true;
+                    timeVal = radio.value;
+                }
+            });
+            if (!timeSelected) {
+                errors.push("Degree of Responsiveness/Timeliness rating is required.");
+            }
+
+            // 4. Check comments if Dislike is selected
+            let hasDislike = (accuracyVal === '0' || timeVal === '0');
+            if (hasDislike && !commentsTextarea.value.trim()) {
+                errors.push("Please provide a comment to help us improve our services.");
+            }
+
+            if (errors.length > 0) {
+                e.preventDefault(); // Prevent default submission
+
+                // Build specific list of error messages for SweetAlert
+                let errorHtml = '<ul class="text-left list-disc list-inside space-y-1 text-sm font-medium text-red-600">';
+                errors.forEach(err => {
+                    errorHtml += `<li>${err}</li>`;
+                });
+                errorHtml += '</ul>';
+
+                Swal.fire({
+                    title: 'Form Submission Failed',
+                    html: errorHtml,
+                    icon: 'warning',
+                    confirmButtonText: 'OK',
+                    confirmButtonColor: '#2563eb' // Matches blue-600
+                });
+            }
+        });
     });
 </script>
 </body>

@@ -172,7 +172,7 @@
         </div>
 
         {{-- Mobile Navigation (Hidden by default) --}}
-        <div id="mobile-menu" class="mt-20hidden md:hidden bg-white pt-2 pb-3 space-y-1 sm:px-3">
+        <div id="mobile-menu" class="mt-20 hidden md:hidden bg-white pt-2 pb-3 space-y-1 sm:px-3">
             {{-- Container for mobile menu links --}}
             <br><br><br>
             <br><br><br><br><br>
@@ -306,7 +306,7 @@
         </div>
     </section>
 
-    <section id="top" class="pb-8" style="background-color: #e6edfc">
+    <section id="top" class="pb-8" style="background-color: #e6edfc; display:none;">
       <div class="container mx-auto lg:max-w-screen-xl md:max-w-screen-md px-6 pt-8 transition-all duration-700 opacity-0 translate-y-4" data-scroll>
             {{-- Charts Section --}}
           <div class="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-2 gap-8">
@@ -327,29 +327,41 @@
         </div>
 
     </section>
-
+    
     <section id="about" class="py-16" style="background-color: #e6edfc">
       <div class="container mx-auto lg:max-w-screen-xl md:max-w-screen-md px-4 transition-all duration-700 opacity-0 translate-y-4" data-scroll>
         <h1 class="text-4xl font-bold mb-8 text-gray-800">Survey Results</h1>
+        
+        <div class="flex justify-end mb-4">
+            <button id="export-result-survey"
+                class="export-result-survey inline-flex items-center px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg shadow hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>                        
+                Export
+            </button>
+        </div>
+
+
 
         <div class="bg-white rounded-xl shadow-lg overflow-hidden">
-          <div class="overflow-x-auto">
+          <div class="overflow-x-auto survey-table">
             <table class="min-w-full divide-y divide-gray-200">
                 <thead>
                   <tr class="bg-gray-50">
                     <th class="py-4 px-6 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Date Submitted</th>
-                    <th class="py-4 px-6 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Employee's Name</th>
+                    {{-- <th class="py-4 px-6 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Employee's Name</th> --}}
                     <th class="py-4 px-6 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Competence & Accuracy</th>
                     <th class="py-4 px-6 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Responsiveness</th>
                     <th class="py-4 px-6 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Comment</th>
                     <th class="py-4 px-6 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Client Name</th>
                   </tr>
                 </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
+                <tbody class="bg-white divide-y divide-gray-200 survey-table-body">
                   @foreach($surveys as $survey)
                       <tr class="hover:bg-gray-50 transition duration-150">
                           <td class="py-4 px-6 text-sm text-gray-600">{{ $survey->created_at->format('F j, Y') }}</td>
-                          <td class="py-4 px-6 text-sm text-gray-600 font-medium">{{ $survey->surveyEmployee->name }}</td>
+                          {{-- <td class="py-4 px-6 text-sm text-gray-600 font-medium">{{ $survey->surveyEmployee->name }}</td> --}}
                           <td class="py-4 px-6">
                               @if ($survey->accuracy_of_service == 2)
                                   <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
@@ -407,7 +419,7 @@
           </div>
         </div>
 
-        <div class="mt-6">
+        <div class="mt-6 pagination-links">
             {{ $surveys->links('pagination::tailwind') }}
         </div>
       </div>
@@ -622,6 +634,14 @@
                         <label for="edit-email" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Email</label>
                         <input type="text" name="email" id="edit-email" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Enter email address" required>
                       </div>
+                    <div class="col-span-2">
+                        <label for="status" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Status</label>
+                        <select name="status" id="status" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required>
+                          <option value="" disabled selected>Select Status</option>
+                          <option value="active">Active</option>
+                          <option value="inactive">Inactive</option>
+                        </select>
+                    </div>
                        <div class="col-span-2">
                       @if (auth()->user()->role === 'superadmin')
                         <label for="department_id" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Department</label>
@@ -884,6 +904,15 @@
         }
 
         else {
+
+            Swal.fire({
+                title: 'Loading...',
+                text: 'Please wait while data is being processed.',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
             
             $.ajax({
                 url: '{{ route("survey.dashboard.filter") }}',
@@ -901,7 +930,7 @@
                     $('.dislike-survey').html(response.percentageDislike);
 
 
-                    console.log(response.superData);
+                    //console.log(response.superData);
                     // re-render the charts with new data
 
                     //////////////////////////////////////////////////////////////////////
@@ -1020,6 +1049,26 @@
                 }
             });
 
+            $.ajax({
+                url: '{{ route("survey.searchResults") }}',
+                method: 'GET',
+                data: {
+                    start_date: startDate,
+                    end_date: endDate
+                },
+                success: function(response) {
+                    // Handle successful response as table data
+                    $('.survey-table-body').html(response.data);
+                    $('.pagination-links').hide(); // Hide pagination links when filtering
+
+                      // Close loading
+                        Swal.close();
+                },
+                error: function(xhr, status, error) {
+                    // Handle error
+                    console.error('Error exporting results:', error);
+                }
+            });
 
             
         }
@@ -1028,6 +1077,8 @@
 
         
     }
+
+    
 
     $('#export-result-btn').click(function() {
         const startDate = document.getElementById('start_date').value;
@@ -1045,12 +1096,62 @@
             });
             return;
         }
+        else if (!startDate || !endDate) {
+            Swal.fire({
+                toast: true,
+                position: 'top-end', 
+                icon: 'warning',
+                title: 'Please select both start and end dates',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true
+            });
+            return;
+        }
         else{
             let url = '{{ route("survey.exportResults") }}';
             if (startDate && endDate) {
                 url += `?start_date=${startDate}&end_date=${endDate}`;
             }
            window.open(url, "_blank");
+        }
+    });
+
+    $('#export-result-survey').click(function() {
+        const startDate = document.getElementById('start_date').value;
+        const endDate = document.getElementById('end_date').value;
+
+        if (startDate > endDate) {
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'error', 
+                title: 'Start date cannot be later than end date',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true
+            });
+            return;
+        }
+        else if (!startDate || !endDate) {
+            Swal.fire({
+                toast: true,
+                position: 'top-end', 
+                icon: 'warning',
+                title: 'Please select both start and end dates',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true
+            });
+            return;
+        }
+        else{
+            let urlpdf = '{{ route("survey.exportResultsPDF") }}';
+            if (startDate && endDate) {
+                urlpdf += `?start_date=${startDate}&end_date=${endDate}`;
+            }
+           window.open(urlpdf, "_blank");
+        
         }
     });
 

@@ -25,7 +25,7 @@
         @if (auth()->user()->role == 'user')
             <h3 class="text-xl font-semibold text-gray-700 mb-4 text-center">{{ auth()->user()->department->title}}</h3>
         @else
-            <h3 class="text-xl font-semibold text-gray-700 mb-4 text-center">Department: All Departments</h3>
+            <h3 class="text-xl font-semibold text-gray-700 mb-4 text-center">Department: <?= $department ?? 'All Departments' ?></h3>
         @endif
 
         @if ($startDate && $endDate)
@@ -37,9 +37,9 @@
             <thead class="bg-gray-100">
                 <tr>
                     <th class="px-6 py-3 text-left text-md font-medium text-gray-600 uppercase tracking-wider">Feedback Category</th>
-                    <th class="px-6 py-3 text-left text-md font-medium text-gray-600 uppercase tracking-wider">Excellent</th>
-                    <th class="px-6 py-3 text-left text-md font-medium text-gray-600 uppercase tracking-wider">Good</th>
-                    <th class="px-6 py-3 text-left text-md font-medium text-gray-600 uppercase tracking-wider">Poor</th>
+                    <th class="px-6 py-3 text-left text-md font-medium text-gray-600 uppercase tracking-wider">Super Like</th>
+                    <th class="px-6 py-3 text-left text-md font-medium text-gray-600 uppercase tracking-wider">Like</th>
+                    <th class="px-6 py-3 text-left text-md font-medium text-gray-600 uppercase tracking-wider">Dislike</th>
                     <th class="px-6 py-3 text-left text-md font-medium text-gray-600 uppercase tracking-wider">Total</th>
                 </tr>
             </thead>
@@ -123,17 +123,17 @@
     series: [{
         data: [
             {
-                name: 'Excellent',
+                name: 'Super Like',
                 y: {{ $performancePercentage['super_like_average'] }},
                 color: '#4CAF50'
             },
             {
-                name: 'Good', 
+                name: 'Like', 
                 y: {{ $performancePercentage['like_average'] }},
                 color: '#9381ff'
             },
             {
-                name: 'Poor',
+                name: 'Dislike',
                 y: {{ $performancePercentage['dislike_average'] }},
                 color: '#ff6392'
             },
