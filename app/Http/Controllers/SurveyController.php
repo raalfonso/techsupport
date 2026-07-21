@@ -1136,12 +1136,38 @@ public function checkLogin()
                  $query->where('department_id', $departmentId);
              }
              $results = $query->get();
+              $results = $query->paginate(50);
+                foreach($results as $result){
+                    $data[] = "<tr class='hover:bg-gray-50 transition duration-150'>
+                        <td class='py-4 px-6 text-sm text-gray-600'>".$result->created_at->format('F j, Y')."</td>
+                        <td class='py-4 px-6 text-sm text-gray-600'>".$result->surveyEmployee->name."</td>
+                        <td class='py-4 px-6'>".$this->getAccuracyLabel($result->accuracy_of_service)."</td>
+                        <td class='py-4 px-6'>".$this->getResponseTimeLabel($result->response_time)."</td>
+                        <td class='py-4 px-6 text-sm text-gray-600'>".e($result->comments)."</td>
+                        <td class='py-4 px-6 text-sm text-gray-600'>".e($result->client_name)."</td>
+                    </tr>";
+
+                    // <td class='py-4 px-6 text-sm text-gray-600 font-medium'>".$result->surveyEmployee->name."</td>
+                }
         }else if(auth()->user()->role == 'user'){
              $query = SurveyReport::where('department_id', auth()->user()->department_id)
                     ->whereBetween('created_at', [
                         Carbon::parse($startDate)->startOfDay(),
                         Carbon::parse($endDate)->endOfDay(),
                     ]);
+             $results = $query->paginate(50);
+            foreach($results as $result){
+                $data[] = "<tr class='hover:bg-gray-50 transition duration-150'>
+                    <td class='py-4 px-6 text-sm text-gray-600'>".$result->created_at->format('F j, Y')."</td>
+                    
+                    <td class='py-4 px-6'>".$this->getAccuracyLabel($result->accuracy_of_service)."</td>
+                    <td class='py-4 px-6'>".$this->getResponseTimeLabel($result->response_time)."</td>
+                <td class='py-4 px-6 text-sm text-gray-600'>".e($result->comments)."</td>
+                <td class='py-4 px-6 text-sm text-gray-600'>".e($result->client_name)."</td>
+            </tr>";
+
+            // <td class='py-4 px-6 text-sm text-gray-600 font-medium'>".$result->surveyEmployee->name."</td>
+        }
                     
         }
         else {
@@ -1152,21 +1178,22 @@ public function checkLogin()
              if ($departmentId) {
                  $query->where('department_id', $departmentId);
              }
+              $results = $query->paginate(50);
+                foreach($results as $result){
+                    $data[] = "<tr class='hover:bg-gray-50 transition duration-150'>
+                        <td class='py-4 px-6 text-sm text-gray-600'>".$result->created_at->format('F j, Y')."</td>
+                        <td class='py-4 px-6 text-sm text-gray-600'>".$result->surveyEmployee->name."</td>
+                        <td class='py-4 px-6'>".$this->getAccuracyLabel($result->accuracy_of_service)."</td>
+                        <td class='py-4 px-6'>".$this->getResponseTimeLabel($result->response_time)."</td>
+                        <td class='py-4 px-6 text-sm text-gray-600'>".e($result->comments)."</td>
+                        <td class='py-4 px-6 text-sm text-gray-600'>".e($result->client_name)."</td>
+                    </tr>";
+
+                    // <td class='py-4 px-6 text-sm text-gray-600 font-medium'>".$result->surveyEmployee->name."</td>
+                }
            
         }
-          $results = $query->paginate(50);
-        foreach($results as $result){
-            $data[] = "<tr class='hover:bg-gray-50 transition duration-150'>
-                <td class='py-4 px-6 text-sm text-gray-600'>".$result->created_at->format('F j, Y')."</td>
-                
-                <td class='py-4 px-6'>".$this->getAccuracyLabel($result->accuracy_of_service)."</td>
-                <td class='py-4 px-6'>".$this->getResponseTimeLabel($result->response_time)."</td>
-                <td class='py-4 px-6 text-sm text-gray-600'>".e($result->comments)."</td>
-                <td class='py-4 px-6 text-sm text-gray-600'>".e($result->client_name)."</td>
-            </tr>";
-
-            // <td class='py-4 px-6 text-sm text-gray-600 font-medium'>".$result->surveyEmployee->name."</td>
-        }
+       
                      
     
             
