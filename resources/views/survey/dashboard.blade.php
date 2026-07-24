@@ -113,11 +113,16 @@
                         <i class="material-icons align-middle">assignment</i>
                         Survey Result
                     </a>
-                    <a href="{{ route('qrcode', ['departmentCode' => auth()->user()->department_id]) }}"
+                    <a href="{{ route('survey.generateSurvey')}}"
+                    class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
+                        <i class="material-icons align-middle">qr_code</i>
+                        QR Generator
+                    </a>
+                    <!-- <a href="{{ route('qrcode', ['departmentCode' => auth()->user()->department_id]) }}"
                     class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium" target="_blank">
                         <i class="material-icons align-middle">qr_code</i>
                         QR Code
-                    </a>
+                    </a> -->
                     <a href="#contact" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
                         <i class="material-icons align-middle">people</i>
                         Employee Registration
@@ -350,7 +355,7 @@
                 <thead>
                   <tr class="bg-gray-50">
                     <th class="py-4 px-6 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Date Submitted</th>
-                    {{-- <th class="py-4 px-6 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Employee's Name</th> --}}
+                    <th class="py-4 px-6 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Code</th>
                     <th class="py-4 px-6 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Competence & Accuracy</th>
                     <th class="py-4 px-6 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Responsiveness</th>
                     <th class="py-4 px-6 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Comment</th>
@@ -361,7 +366,7 @@
                   @foreach($surveys as $survey)
                       <tr class="hover:bg-gray-50 transition duration-150">
                           <td class="py-4 px-6 text-sm text-gray-600">{{ $survey->created_at->format('F j, Y') }}</td>
-                          {{-- <td class="py-4 px-6 text-sm text-gray-600 font-medium">{{ $survey->surveyEmployee->name }}</td> --}}
+                          <td class="py-4 px-6 text-sm text-gray-600 font-medium">{{ $survey->generated_code }}</td>
                           <td class="py-4 px-6">
                               @if ($survey->accuracy_of_service == 2)
                                   <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">

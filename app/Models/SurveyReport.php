@@ -16,6 +16,7 @@ class SurveyReport extends Model
         'response_time',
         'comments',
         'client_name',
+        'generated_code',
         'created_at',
         'updated_at',
     
@@ -28,5 +29,9 @@ class SurveyReport extends Model
     public function surveyEmployee()
     {
         return $this->belongsTo(SurveyEmployees::class, 'survey_employees_id');
+    }
+    public function generated()
+    {
+        return $this->hasOne(SurveyGenerated::class, 'generated_code', 'generated_code');
     }
 }

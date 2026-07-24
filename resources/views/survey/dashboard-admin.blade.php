@@ -132,10 +132,10 @@
                         <i class="material-icons align-middle">assignment</i>
                         Survey Result
                     </a>
-                    <a href="{{ route('qrcode', ['departmentCode' => auth()->user()->department_id]) }}"
-                    class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium" target="_blank">
+                    <a href="{{ route('survey.generateSurvey')}}"
+                    class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
                         <i class="material-icons align-middle">qr_code</i>
-                        QR Code
+                        Generate
                     </a>
                     <a href="#contact" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
                         <i class="material-icons align-middle">people</i>

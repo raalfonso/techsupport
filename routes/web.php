@@ -212,6 +212,10 @@ Route::prefix('survey')->group(function () {
         Route::get('/export-results', [SurveyController::class, 'exportResults'])->name('survey.exportResults');
         Route::get('/search-survey', [SurveyController::class, 'searchSurvey'])->name('survey.searchResults');
         Route::get('/export-pdf', [SurveyController::class, 'exportResultsPDF'])->name('survey.exportResultsPDF');
+        Route::get('/generate-survey', [SurveyController::class, 'generateSurvey'])->name('survey.generateSurvey');
+        Route::post('/generate-survey', [SurveyController::class, 'storeGeneratedSurvey'])->name('survey.generateSurvey.store');
+        Route::post('/generate-survey/{id}/toggle', [SurveyController::class, 'toggleGeneratedSurvey'])->name('survey.generateSurvey.toggle');
+        Route::delete('/generate-survey/{id}', [SurveyController::class, 'destroyGeneratedSurvey'])->name('survey.generateSurvey.destroy');
         
     });
 

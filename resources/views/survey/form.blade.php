@@ -39,10 +39,11 @@
 
     <form action="{{ route('survey.submit', $department->id) }}" method="POST" class="space-y-6" novalidate>
         @csrf
+        <input type="hidden" name="generated_code" value="{{ request('code') }}">
 
         <div class="flex items-center space-x-2">
             <label for="survey_date" class="text-md font-medium">Date: {{ now()->format('F d, Y') }}</label>
-           
+            
           </div>
 
         <input type="text" name="department_id" value="{{ $department->id }}" hidden>
@@ -55,16 +56,18 @@
                     id="employee-search"
                     class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-sm"
                     placeholder=""
+                    disabled="true"
                     autocomplete="off"
+                    value="{{ $employees->name }}"
                 >
                 <div class="absolute inset-y-0 right-0 flex items-center pr-3">
                     {{-- <i class="fas fa-caret-down text-gray-400 ml-5"></i> --}}
                 </div>
-                <div id="suggestions-container" class="hidden absolute z-10 w-full mt-1 bg-white rounded-lg shadow-lg border border-gray-200 max-h-60 overflow-y-auto uppercase"></div>
+                <!-- <div id="suggestions-container" class="hidden absolute z-10 w-full mt-1 bg-white rounded-lg shadow-lg border border-gray-200 max-h-60 overflow-y-auto uppercase"></div> -->
 
                 
             </div>
-            <div id="selected-employee" class="relative hidden p-3">
+            <!-- <div id="selected-employee" class="relative hidden p-3">
                     <div class="flex justify-between items-center">
                         <div>
                             <span id="selected-name" class=""></span>
@@ -74,8 +77,8 @@
                         </button>
                     </div>
                     
-                </div>
-            <input type="hidden" name="survey_employees_id" id="employee-id">
+                </div>-->
+            <input type="hidden" name="survey_employees_id" id="employee-id" value="{{ $employees->id }}"> 
             
             
         </div>

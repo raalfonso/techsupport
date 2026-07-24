@@ -12,6 +12,7 @@ use App\Models\Issues;
 use App\Models\UserSurvey;
 use App\Models\SurveyEmployees;
 use App\Models\SurveyReport;
+use App\Models\SurveyGenerated;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\Clients;
 use Illuminate\Support\Facades\Hash;
@@ -694,17 +695,38 @@ public function checkLogin()
 
     public function form(Request $request)
     {
+        $code = $request->query('code');
         $departmentCode = $request->query('dept');
 
-       $employees = SurveyEmployees::where(['department_id' => $departmentCode])
-       ->where('status', 'active')
-        ->get()
-        ->map(function($employee) {
-            return [
-                'id' => $employee->id,
-                'name' => e($employee->name),
-            ];
-        });
+        if ($code) {
+            $generated = SurveyGenerated::where('generated_code', $code)->first();
+            if (!$generated) {
+                abort(404, 'Survey code not found.');
+            }
+            if (!$generated->status) {
+                abort(403, 'This survey link is inactive.');
+            }
+
+            if ($generated->usage_limit !== null && $generated->count >= $generated->usage_limit) {
+                abort(403, 'This survey link has reached its usage limit.');
+            }
+
+            if (date('Y-m-d', strtotime($generated->created_at)) < date('Y-m-d')) {
+                abort(403, 'This survey link has expired.');
+            }
+
+            $surveyUser = $generated->userSurvey;
+            if ($surveyUser) {
+                $departmentCode = $surveyUser->department_id;
+            }
+        }
+       
+
+        $employees = SurveyEmployees::where(['id' => $generated->userSurvey->surveyEmployee->id])
+            ->where('status', 'active')
+            ->first();
+
+      
         $department = Department::where('id', '=', $departmentCode)->first();
 
         if (!$department) {
@@ -714,6 +736,7 @@ public function checkLogin()
         return view('survey.form', [
             'department' => $department,
             'employees' => $employees,
+            'code' => $code,
         ]);
 
     }
@@ -725,6 +748,7 @@ public function checkLogin()
             'department_id' => 'required|exists:departments,id',
             'accuracy_of_service' => 'required',
             'response_time' => 'required',
+            'generated_code' => 'required',
             'comments' => [
                 $request->input('accuracy_of_service') == '0' || $request->input('response_time') == '0' ? 'required' : 'nullable',
                 'string',
@@ -738,6 +762,20 @@ public function checkLogin()
             'response_time.required' => 'Degree of Responsiveness/Timeliness rating is required.',
             'comments.required' => 'Please provide a comment to help us improve our services.',
         ]);
+
+        $code = $fields['generated_code'];
+        if ($code) {
+            $generated = SurveyGenerated::where('generated_code', $code)->first();
+            if ($generated) {
+                if ($generated->usage_limit !== null && $generated->count >= $generated->usage_limit) {
+                    return redirect()->back()->with('error', 'This survey link has reached its usage limit.');
+                }
+                $generated->update([
+                    'count' => $generated->count + 1,
+                    'status' => 0,
+                ]); 
+            }
+        }
 
         $fields['survey_date'] = now()->toDateString();
         // Create a new survey report
@@ -1261,5 +1299,90 @@ public function checkLogin()
             default:            
                 return '<span class="text-gray-600 font-semibold">Unknown</span>';
         }
-    }   
+    }  
+    
+    public function generateSurvey()
+    {
+        $departments = Department::where('active', '1')->orderBy('title', 'asc')->get();
+        $user = auth()->user();
+
+        if ($user->role === 'superadmin' || $user->role === 'admin') {
+            $generatedSurveys = SurveyGenerated::with('userSurvey.department')->orderBy('id', 'desc')->paginate(10);
+        } else {
+            $generatedSurveys = SurveyGenerated::where('user_survey_id', $user->id)
+                ->with('userSurvey.department')
+                ->orderBy('id', 'desc')
+                ->paginate(10);
+        }
+
+        return view('survey.generate-survey', compact('departments', 'generatedSurveys'));
+    }
+
+    public function storeGeneratedSurvey(Request $request)
+    {
+        $request->validate([
+            'department_id' => 'required|exists:departments,id',
+            'usage_limit' => 'nullable|integer|min:1',
+            'client' => 'nullable|string|max:255',
+        ]);
+
+        $departmentId = $request->input('department_id');
+        $usageLimit = $request->input('usage_limit');
+        $client = $request->input('client') ?? null;  
+
+        // Look up corresponding UserSurvey for this department
+        $userSurvey = UserSurvey::where('department_id', $departmentId)->first();
+        if (!$userSurvey) {
+            // Fallback to the currently logged in UserSurvey user
+            $userSurvey = auth()->user();
+        }
+
+        // Generate unique 8-character random string
+        do {
+            $code = \Illuminate\Support\Str::random(8);
+        } while (SurveyGenerated::where('generated_code', $code)->exists());
+
+        SurveyGenerated::create([
+            'user_survey_id' => $userSurvey->id,
+            'generated_code' => $code,
+            'count' => 0,
+            'status' => true,
+            'usage_limit' => $usageLimit,
+            'client_name' => $client,
+            'created_by' => auth()->user()->id,
+        ]);
+
+        return redirect()->back()->with('success', 'Survey code successfully generated: ' . $code)
+            ->with('generated_code', $code)
+            ->with('generated_dept_id', $departmentId);
+    }
+
+    public function toggleGeneratedSurvey($id)
+    {
+        $generated = SurveyGenerated::findOrFail($id);
+        
+        // Authorization check: only superadmin/admin or the owner can toggle
+        if (auth()->user()->role !== 'superadmin' && auth()->user()->role !== 'admin' && $generated->user_survey_id !== auth()->user()->id) {
+            return redirect()->back()->with('error', 'Unauthorized action.');
+        }
+
+        $generated->status = !$generated->status;
+        $generated->save();
+
+        return redirect()->back()->with('success', 'Survey status successfully updated.');
+    }
+
+    public function destroyGeneratedSurvey($id)
+    {
+        $generated = SurveyGenerated::findOrFail($id);
+        
+        // Authorization check: only superadmin/admin or the owner can delete
+        if (auth()->user()->role !== 'superadmin' && auth()->user()->role !== 'admin' && $generated->user_survey_id !== auth()->user()->id) {
+            return redirect()->back()->with('error', 'Unauthorized action.');
+        }
+
+        $generated->delete();
+
+        return redirect()->back()->with('success', 'Generated survey successfully deleted.');
+    }
 }
