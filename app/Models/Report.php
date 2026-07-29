@@ -29,6 +29,7 @@ class Report extends Model
         'response_datetime',
         'resolve_datetime',
         'notes',
+        'completion_notes',
         'remarks',
         'screenshot',
     ];

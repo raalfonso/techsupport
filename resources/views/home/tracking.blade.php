@@ -113,9 +113,21 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                   <div class="space-y-1">
                     <p class="text-xs font-semibold text-gray-500 uppercase">Responded By</p>
-                    @if (in_array($report->status, ['Ongoing', 'Done']))
-                      <p class="text-sm font-medium text-gray-900">{{ $report->response->name }}</p>
-                      <p class="text-xs text-gray-500">{{ \Carbon\Carbon::parse($report->response_datetime)->format('M d, Y h:i A') }}</p>
+                    @if (in_array($report->status, ['Ongoing', 'Done', 'For validation']))
+                      <p class="text-sm font-medium text-gray-900">{{ $report->response->name ?? 'IT Staff' }}</p>
+                      @if($report->response_datetime)
+                        <p class="text-xs text-gray-500">{{ \Carbon\Carbon::parse($report->response_datetime)->format('M d, Y h:i A') }}</p>
+                      @endif
+                      @if($report->notes)
+                      <br>
+                        <div class="mt-5 p-3 bg-blue-50/80 border border-blue-100 rounded-xl">
+                          <p class="text-xs font-semibold text-blue-800 flex items-center gap-1.5 mb-1">
+                            <i class="fas fa-comment-dots text-blue-600"></i>
+                            <span>Response Notes:</span>
+                          </p>
+                          <p class="text-xs text-gray-700 leading-relaxed whitespace-pre-line">{{ $report->notes }}</p>
+                        </div>
+                      @endif
                     @else
                       <p class="text-sm text-gray-400"><i class="fas fa-clock"></i> Pending</p>
                     @endif
@@ -124,8 +136,20 @@
                   <div class="space-y-1">
                     <p class="text-xs font-semibold text-gray-500 uppercase">Resolved By</p>
                     @if ($report->status == 'Done')
-                      <p class="text-sm font-medium text-gray-900">{{ $report->resolve->user->name }}</p>
-                      <p class="text-xs text-gray-500">{{ \Carbon\Carbon::parse($report->resolve_datetime)->format('M d, Y h:i A') }}</p>
+                      <p class="text-sm font-medium text-gray-900">{{ $report->resolve->user->name ?? 'IT Staff' }}</p>
+                      @if($report->resolve_datetime)
+                        <p class="text-xs text-gray-500">{{ \Carbon\Carbon::parse($report->resolve_datetime)->format('M d, Y h:i A') }}</p>
+                      @endif
+                      @if($report->completion_notes)
+                      <br>
+                        <div class="mt-5 p-3 bg-emerald-50/80 border border-emerald-100 rounded-xl">
+                          <p class="text-xs font-semibold text-emerald-800 flex items-center gap-1.5 mb-1">
+                            <i class="fas fa-sticky-note text-emerald-600"></i>
+                            <span>Completion Notes:</span>
+                          </p>
+                          <p class="text-xs text-gray-700 leading-relaxed whitespace-pre-line">{{ $report->completion_notes }}</p>
+                        </div>
+                      @endif
                     @else
                       <p class="text-sm text-gray-400"><i class="fas fa-clock"></i> Pending</p>
                     @endif

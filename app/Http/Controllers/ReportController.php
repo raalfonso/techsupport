@@ -280,6 +280,7 @@ class ReportController extends Controller
         $validated = $request->validate([
             'user.*.user_id' => 'required',
             'procedure' => 'required',
+            'completion_notes' => 'nullable',
             'resolve_datetime' => 'required',
         ]);
       
@@ -300,6 +301,7 @@ class ReportController extends Controller
         $report->status = "Done";
         $report->feedback = "No";
         $report->procedure = $request->procedure;
+        $report->completion_notes = $request->completion_notes;
         $report->resolve_datetime = Carbon::parse($request->resolve_datetime)->format('Y-m-d H:i:s');
         $report->save();
         $report->logResolve();
