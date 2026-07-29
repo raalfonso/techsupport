@@ -47,6 +47,8 @@
 
     {{-- Include Tailwind CSS --}}
     {{-- Main Navbar --}}
+     {{-- Include Tailwind CSS --}}
+    {{-- Main Navbar --}}
     <nav class="bg-white p-4 shadow-md top-0 z-50 min-w-full fixed max-h-16">
         {{-- Outer container for full-width alignment --}}
         {{-- Inner container for content alignment --}}
@@ -68,18 +70,18 @@
                         {{-- Added icon for Dashboard --}}
                         Dashboard</a>
 
-                    <a href="#about" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
+                    <a href="{{ route('survey.dashboard') }}" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
                         <i class="material-icons align-middle">assignment</i>
                         Survey Result
                     </a>
 
-                    <a href="{{ route('qrcode', ['departmentCode' => auth()->user()->department_id]) }}"
-                    class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium" target="_blank">
+                     <a href="{{ route('survey.generateSurvey')}}"
+                    class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
                         <i class="material-icons align-middle">qr_code</i>
-                        QR Code
+                        QR Generator
                     </a>
 
-                    <a href="#contact" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
+                    <a href="{{ route('survey.dashboard') }}" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
                         <i class="material-icons align-middle">people</i>
                         Employee Registration
                     </a>
@@ -146,6 +148,20 @@
 
     <main class="management-shell min-h-screen pt-24">
         <section class="mx-auto max-w-7xl px-4 pb-10 sm:px-6 lg:px-8">
+            @if(session('success'))
+                <div class="mb-6 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm font-medium text-emerald-800 shadow-sm flex items-center gap-2">
+                    <i class="material-icons text-emerald-600 text-lg">check_circle</i>
+                    <span>{{ session('success') }}</span>
+                </div>
+            @endif
+
+            @if(session('error'))
+                <div class="mb-6 rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm font-medium text-rose-800 shadow-sm flex items-center gap-2">
+                    <i class="material-icons text-rose-600 text-lg">error</i>
+                    <span>{{ session('error') }}</span>
+                </div>
+            @endif
+
             <div class="glass-panel relative overflow-hidden rounded-3xl border border-white/70 p-6 shadow-[0_20px_60px_rgba(15,23,42,0.08)] sm:p-8">
                 <div class="absolute inset-y-0 right-0 hidden w-1/3 bg-gradient-to-l from-sky-200/40 to-transparent lg:block"></div>
                 <div class="relative flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
@@ -188,16 +204,61 @@
             </div>
 
             <div class="mt-8 overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-[0_20px_60px_rgba(15,23,42,0.08)]">
-                <div class="flex flex-col gap-4 border-b border-slate-200 px-6 py-5 sm:flex-row sm:items-center sm:justify-between">
-                    <div>
-                        <h2 class="text-xl font-bold text-slate-900">Registered Users</h2>
-                        <p class="mt-1 text-sm text-slate-500">Review status and role at a glance.</p>
+                {{-- Header & Filter Section --}}
+                <div class="border-b border-slate-200 px-6 py-5">
+                    <div class="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                        <div>
+                            <h2 class="text-xl font-bold text-slate-900">Registered Users</h2>
+                            <p class="mt-1 text-sm text-slate-500">Search, filter, and manage survey user accounts easily.</p>
+                        </div>
                     </div>
 
-                    <div class="flex items-center gap-2 rounded-2xl bg-slate-100 px-3 py-2 text-sm text-slate-600">
-                        <i class="material-icons text-base text-slate-500">search</i>
-                        <span>Tip: use the dashboard search to narrow results</span>
-                    </div>
+                    {{-- Search & Filter Controls --}}
+                    <form method="GET" action="{{ route('survey.management') }}" class="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-4 items-center">
+                        {{-- Search Input (Name / Email) --}}
+                        <div class="relative">
+                            <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+                                <i class="material-icons text-lg">search</i>
+                            </div>
+                            <input type="text" name="search" value="{{ request('search') }}" placeholder="Search by name, email..." class="w-full rounded-xl border border-slate-200 bg-slate-50 pl-10 pr-3 py-2 text-sm text-slate-800 focus:border-sky-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-500/20">
+                        </div>
+
+                        {{-- Department Filter --}}
+                        <div>
+                            <select name="department_id" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-800 focus:border-sky-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-500/20">
+                                <option value="">All Departments</option>
+                                @foreach($departments as $dept)
+                                    <option value="{{ $dept->id }}" {{ request('department_id') == $dept->id ? 'selected' : '' }}>
+                                        {{ $dept->title }} {{ $dept->acronym ? '('.$dept->acronym.')' : '' }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        {{-- Role Filter --}}
+                        <div>
+                            <select name="role" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-800 focus:border-sky-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-500/20">
+                                <option value="">All Roles</option>
+                                <option value="user" {{ request('role') === 'user' ? 'selected' : '' }}>User</option>
+                                <option value="admin" {{ request('role') === 'admin' ? 'selected' : '' }}>Admin</option>
+                                <option value="superadmin" {{ request('role') === 'superadmin' ? 'selected' : '' }}>Superadmin</option>
+                            </select>
+                        </div>
+
+                        {{-- Action Buttons --}}
+                        <div class="flex items-center gap-2">
+                            <button type="submit" class="inline-flex items-center gap-1 rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800">
+                                <i class="material-icons text-base">filter_list</i>
+                                Filter
+                            </button>
+                            @if(request()->hasAny(['search', 'department_id', 'role']))
+                                <a href="{{ route('survey.management') }}" class="inline-flex items-center gap-1 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-600 shadow-sm transition hover:bg-slate-50">
+                                    <i class="material-icons text-base">refresh</i>
+                                    Reset
+                                </a>
+                            @endif
+                        </div>
+                    </form>
                 </div>
 
                 <div class="overflow-x-auto">
@@ -254,11 +315,11 @@
                                     </td>
                                     <td class="px-6 py-4 text-right">
                                         <div class="flex items-center justify-end gap-2">
-                                            <button class="inline-flex items-center gap-1 rounded-full bg-slate-900 px-3 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800" onclick="editUser({{ $user->id }}, '{{ $user->name }}', '{{ $user->email }}', '{{ $user->role }}')">
+                                            <button type="button" class="inline-flex items-center gap-1 rounded-full bg-slate-900 px-3 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800" onclick="openEditModal({{ $user->id }}, '{{ addslashes($user->name) }}', '{{ addslashes($user->email) }}', '{{ $user->department_id }}', '{{ $user->role }}', '{{ $user->status }}')">
                                                 <i class="material-icons text-sm">edit</i>
                                                 Edit
                                             </button>
-                                            <form action="{{ route('survey.management', $user->id) }}" method="POST" class="inline">
+                                            <form action="{{ route('survey.management.destroy', $user->id) }}" method="POST" class="inline">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit" class="inline-flex items-center gap-1 rounded-full bg-rose-600 px-3 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-rose-700" onclick="return confirm('Are you sure you want to delete this user?')">
@@ -271,7 +332,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="5" class="px-6 py-14 text-center text-sm text-slate-500">No users found.</td>
+                                    <td colspan="6" class="px-6 py-14 text-center text-sm text-slate-500">No users found matching your search criteria.</td>
                                 </tr>
                             @endforelse
                         </tbody>
@@ -281,18 +342,116 @@
                 <div class="flex flex-col gap-3 border-t border-slate-200 px-6 py-4 sm:flex-row sm:items-center sm:justify-between">
                     <p class="text-sm text-slate-500">Showing {{ $users->firstItem() ?? 0 }} to {{ $users->lastItem() ?? 0 }} of {{ $users->total() }} users</p>
                     <div>
-                        {{ $users->links('pagination::tailwind') }}
+                        {{ $users->appends(request()->query())->links('pagination::tailwind') }}
                     </div>
                 </div>
             </div>
         </section>
     </main>
 
+    {{-- Edit User Modal --}}
+    <div id="editUserModal" class="fixed inset-0 z-50 hidden overflow-y-auto bg-slate-900/60 backdrop-blur-sm transition-opacity">
+        <div class="flex min-h-screen items-center justify-center p-4">
+            <div class="w-full max-w-lg overflow-hidden rounded-3xl border border-white/60 bg-white p-6 shadow-2xl transition-all sm:p-8">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+                    <div>
+                        <h3 class="text-xl font-bold text-slate-900">Edit User Account</h3>
+                        <p class="mt-1 text-xs text-slate-500">Update account details, role, and department access.</p>
+                    </div>
+                    <button type="button" onclick="closeEditModal()" class="rounded-xl p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-600">
+                        <i class="material-icons text-xl">close</i>
+                    </button>
+                </div>
+
+                <form id="editUserForm" method="POST" action="" class="mt-6 space-y-4">
+                    @csrf
+                    @method('PUT')
+
+                    {{-- Full Name --}}
+                    <div>
+                        <label for="edit_name" class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Full Name</label>
+                        <input type="text" id="edit_name" name="name" required class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm text-slate-800 focus:border-sky-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-500/20">
+                    </div>
+
+                    {{-- Email --}}
+                    <div>
+                        <label for="edit_email" class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Email Address</label>
+                        <input type="email" id="edit_email" name="email" required class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm text-slate-800 focus:border-sky-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-500/20">
+                    </div>
+
+                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                        {{-- Department --}}
+                        <div>
+                            <label for="edit_department_id" class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Department</label>
+                            <select id="edit_department_id" name="department_id" required class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm text-slate-800 focus:border-sky-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-500/20">
+                                <option value="">Select Department</option>
+                                @foreach($departments as $dept)
+                                    <option value="{{ $dept->id }}">{{ $dept->title }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        {{-- Role --}}
+                        <div>
+                            <label for="edit_role" class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Role</label>
+                            <select id="edit_role" name="role" required class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm text-slate-800 focus:border-sky-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-500/20">
+                                <option value="user">User</option>
+                                <option value="admin">Admin</option>
+                                <option value="superadmin">Superadmin</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    {{-- Status --}}
+                    <div>
+                        <label for="edit_status" class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Status</label>
+                        <select id="edit_status" name="status" required class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm text-slate-800 focus:border-sky-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-500/20">
+                            <option value="active">Active</option>
+                            <option value="inactive">Inactive</option>
+                        </select>
+                    </div>
+
+                    {{-- New Password Optional --}}
+                    <div>
+                        <label for="edit_password" class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">New Password (Optional)</label>
+                        <input type="password" id="edit_password" name="password" placeholder="Leave blank to keep existing password" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm text-slate-800 focus:border-sky-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-500/20">
+                    </div>
+
+                    <div class="flex items-center justify-end gap-3 border-t border-slate-100 pt-5 mt-6">
+                        <button type="button" onclick="closeEditModal()" class="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-600 transition hover:bg-slate-50">
+                            Cancel
+                        </button>
+                        <button type="submit" class="rounded-xl bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-slate-900/20 transition hover:bg-slate-800">
+                            Save Changes
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <script>
         document.getElementById('mobile-menu-button').addEventListener('click', function() {
             var menu = document.getElementById('mobile-menu');
             menu.classList.toggle('hidden');
         });
+
+        function openEditModal(id, name, email, departmentId, role, status) {
+            const form = document.getElementById('editUserForm');
+            form.action = "{{ route('survey.management') }}/" + id;
+            document.getElementById('edit_name').value = name;
+            document.getElementById('edit_email').value = email;
+            document.getElementById('edit_department_id').value = departmentId || '';
+            document.getElementById('edit_role').value = role || 'user';
+            document.getElementById('edit_status').value = status || 'active';
+            document.getElementById('edit_password').value = '';
+            
+            document.getElementById('editUserModal').classList.remove('hidden');
+        }
+
+        function closeEditModal() {
+            document.getElementById('editUserModal').classList.add('hidden');
+        }
     </script>
 </body>
 </html>

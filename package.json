@@ -19,6 +19,7 @@
         "flowbite": "^3.1.2",
         "highcharts": "^12.1.2",
         "material-icons": "^1.13.12",
+        "qrcode": "^1.5.4",
         "sweetalert2": "^11.15.2"
     }
 }

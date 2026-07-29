@@ -90,6 +90,8 @@
 
     {{-- Include Tailwind CSS --}}
     {{-- Main Navbar --}}
+     {{-- Include Tailwind CSS --}}
+    {{-- Main Navbar --}}
     <nav class="bg-white p-4 shadow-md top-0 z-50 min-w-full fixed max-h-16">
         {{-- Outer container for full-width alignment --}}
         {{-- Inner container for content alignment --}}
@@ -100,34 +102,40 @@
             <div class="text-lg font-bold text-gray-800 flex items-center">
                 {{-- Logo image --}}
                <img src="{{ asset('img/itd_logo.png') }}" alt="ITD Logo" class="h-24 w-auto p-0 rounded">
-                BCDA ICT PORTAL {{-- Changed from MyBrand to match context --}}
+                BCDA IT DIVISION {{-- Changed from MyBrand to match context --}}
             </div>
+
             {{-- Desktop Navigation --}}
-                <div class="hidden md:flex space-x-4 float-right items-center">
+            <div class="hidden md:flex space-x-4 float-right items-center">
                     {{-- Navigation links --}}
-                    <a href="#home-section" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
+                    <a href="{{ route('survey.dashboard') }}" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
                         <i class="material-icons align-middle">dashboard</i>
-                        Dashboard
-                    </a>
+                        {{-- Added icon for Dashboard --}}
+                        Dashboard</a>
+
                     <a href="#about" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
                         <i class="material-icons align-middle">assignment</i>
                         Survey Result
                     </a>
-                    <a href="{{ route('qrcode', ['departmentCode' => auth()->user()->department_id]) }}"
-                    class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium" target="_blank">
+
+                     <a href="{{ route('survey.generateSurvey')}}"
+                    class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
                         <i class="material-icons align-middle">qr_code</i>
-                        QR Code
+                        QR Generator
                     </a>
+
                     <a href="#contact" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
                         <i class="material-icons align-middle">people</i>
                         Employee Registration
                     </a>
+
                     @if (auth()->user()->role === 'superadmin')
                         <a href="{{ route('survey.management') }}" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
                             <i class="material-icons align-middle">settings</i>
                             User Management
                         </a>
                     @endif
+
                     {{-- User dropdown --}}
                     <div x-data="{ open: false }" class="relative">
                         <!-- Username button -->
@@ -161,34 +169,21 @@
                     </div>
                 </div>
 
-            {{-- Mobile Menu Button (Hamburger) --}}
-            <div class="md:hidden">
-                <button id="mobile-menu-button" class="text-gray-600 hover:text-gray-900 focus:outline-none focus:text-gray-900">
-                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-                    </svg>
-                </button>
-            </div>
+            <button id="mobile-menu-button" class="rounded-full border border-slate-200 bg-white p-2 text-slate-700 shadow-sm md:hidden">
+                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                </svg>
+            </button>
         </div>
 
-        {{-- Mobile Navigation (Hidden by default) --}}
-        <div id="mobile-menu" class="mt-20 hidden md:hidden bg-white pt-2 pb-3 space-y-1 sm:px-3">
-            {{-- Container for mobile menu links --}}
-            <br><br><br>
-            <br><br><br><br><br>
-            <div class="container mx-auto mt-10"> 
-                <a href="{{ route('survey.dashboard') }}" class="block text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-base font-medium">Home</a>
-                <a href="{{ route('survey.dashboard') }}" class="block text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-base font-medium">About</a>
-                <a href="{{ route('survey.dashboard') }}" class="block text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-base font-medium">Project</a>
-                <a href="{{ route('survey.dashboard') }}" class="block text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-base font-medium">Report</a>
-                <a href="{{ route('survey.account') }}" class="block text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-base font-medium">Account</a>
-              <!-- Logout -->
+        <div id="mobile-menu" class="hidden border-t border-slate-200 bg-white md:hidden">
+            <div class="mx-auto flex max-w-7xl flex-col gap-1 px-4 py-3 sm:px-6 lg:px-8">
+                <a href="{{ route('survey.dashboard') }}" class="rounded-xl px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100">Dashboard</a>
+                <a href="{{ route('survey.management') }}" class="rounded-xl px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100">User Management</a>
+                <a href="{{ route('survey.account') }}" class="rounded-xl px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100">Account</a>
                 <form method="POST" action="{{ route('userSurvey.logout') }}">
                     @csrf
-                    <button type="submit"
-                            class="block text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-base font-medium">
-                            Logout
-                    </button>
+                    <button type="submit" class="w-full rounded-xl px-3 py-2 text-left text-sm font-medium text-slate-700 hover:bg-slate-100">Logout</button>
                 </form>
             </div>
         </div>
@@ -350,7 +345,6 @@
                 <thead>
                   <tr class="bg-gray-50">
                     <th class="py-4 px-6 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Date Submitted</th>
-                    {{-- <th class="py-4 px-6 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Employee's Name</th> --}}
                     <th class="py-4 px-6 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Competence & Accuracy</th>
                     <th class="py-4 px-6 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Responsiveness</th>
                     <th class="py-4 px-6 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Comment</th>
@@ -361,7 +355,6 @@
                   @foreach($surveys as $survey)
                       <tr class="hover:bg-gray-50 transition duration-150">
                           <td class="py-4 px-6 text-sm text-gray-600">{{ $survey->created_at->format('F j, Y') }}</td>
-                          {{-- <td class="py-4 px-6 text-sm text-gray-600 font-medium">{{ $survey->surveyEmployee->name }}</td> --}}
                           <td class="py-4 px-6">
                               @if ($survey->accuracy_of_service == 2)
                                   <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
