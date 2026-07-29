@@ -744,8 +744,8 @@ public function checkLogin()
                 $departmentCode = $surveyUser->department_id;
             }
         }
-       
-
+        
+   
         $employees = SurveyEmployees::where(['id' => $generated->userSurvey->surveyEmployee->id])
             ->where('status', 'active')
             ->first();
@@ -1422,20 +1422,14 @@ public function checkLogin()
         $usageLimit = $request->input('usage_limit');
         $client = $request->input('client') ?? null;  
 
-        // Look up corresponding UserSurvey for this department
-        $userSurvey = UserSurvey::where('department_id', $departmentId)->first();
-        if (!$userSurvey) {
-            // Fallback to the currently logged in UserSurvey user
-            $userSurvey = auth()->user();
-        }
-
+       
         // Generate unique 8-character random string
         do {
             $code = \Illuminate\Support\Str::random(8);
         } while (SurveyGenerated::where('generated_code', $code)->exists());
 
         SurveyGenerated::create([
-            'user_survey_id' => $userSurvey->id,
+            'user_survey_id' => auth()->user()->id,
             'generated_code' => $code,
             'count' => 0,
             'status' => true,
