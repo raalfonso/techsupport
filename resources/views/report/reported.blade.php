@@ -110,7 +110,20 @@
                             <p class="text-xs text-gray-500 dark:text-gray-400">Remarks</p>
                             <p class="text-sm text-gray-900 dark:text-white">{{ $report->remarks }}</p>
                         </div>
-                        @endif      
+                        @endif
+
+                        @if($report->screenshot)
+                        <div>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">Attachment</p>
+                            <button 
+                                type="button"
+                                @click="screenshotModal = true; currentScreenshot = '{{ route('report.screenshot', $report->id) }}'; currentTicket = '{{ $report->ticket_number }}'" 
+                                class="w-full inline-flex items-center justify-center space-x-2 px-3 py-2 bg-sky-50 hover:bg-sky-100 dark:bg-sky-900/40 dark:hover:bg-sky-900/60 text-sky-700 dark:text-sky-300 rounded-xl text-xs font-semibold transition-all duration-200 border border-sky-200 dark:border-sky-800 shadow-sm hover:shadow">
+                                <i class="fa-solid fa-image text-sky-600 dark:text-sky-400 text-sm"></i>
+                                <span>View Attached Image</span>
+                            </button>
+                        </div>
+                        @endif
                 </div>
 
                 
@@ -388,6 +401,45 @@
                 </div>
             </div>
         </form>
+    </div>
+</div>
+
+<!-- Screenshot Modal -->
+<div x-show="screenshotModal" x-cloak class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-60 backdrop-blur-sm z-50 p-4" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
+    <div class="bg-white dark:bg-gray-800 p-0 rounded-2xl w-11/12 md:w-3/4 lg:w-1/2 max-w-3xl shadow-2xl border border-gray-100 dark:border-gray-700 overflow-hidden" x-transition:enter="transition ease-out duration-300 transform" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-200 transform" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95" @click.away="screenshotModal = false">
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-sky-600 to-sky-700 px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <div class="bg-white/20 p-2 rounded-lg text-white">
+                    <i class="fa-solid fa-image text-lg"></i>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold text-white">Attached Screenshot</h3>
+                    <p class="text-xs text-sky-100" x-text="'Ticket: ' + currentTicket"></p>
+                </div>
+            </div>
+            <button type="button" @click="screenshotModal = false" class="text-white hover:bg-white/20 rounded-full p-2 transition-all duration-200">
+                <i class="fa-solid fa-times text-lg"></i>
+            </button>
+        </div>
+        
+        <!-- Body -->
+        <div class="p-6 flex flex-col items-center justify-center max-h-[70vh] overflow-auto bg-gray-50 dark:bg-gray-900">
+            <template x-if="currentScreenshot">
+                <img :src="currentScreenshot" alt="Attached Screenshot" class="max-h-[60vh] max-w-full rounded-xl shadow-md object-contain bg-white dark:bg-gray-800">
+            </template>
+        </div>
+        
+        <!-- Footer -->
+        <div class="bg-gray-50 dark:bg-gray-800 px-6 py-4 rounded-b-2xl border-t border-gray-100 dark:border-gray-700 flex justify-between items-center">
+            <a :href="currentScreenshot" target="_blank" class="inline-flex items-center space-x-2 text-sm text-sky-600 hover:text-sky-800 dark:text-sky-400 font-medium">
+                <i class="fa-solid fa-external-link-alt"></i>
+                <span>Open Original Image</span>
+            </a>
+            <button type="button" @click="screenshotModal = false" class="px-6 py-2.5 text-gray-600 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-600 transition-all duration-200 font-medium">
+                Close
+            </button>
+        </div>
     </div>
 </div>
 

@@ -487,4 +487,43 @@ class ReportController extends Controller
 
         abort(404);
     }
+
+    public function screenshot($id)
+    {
+        $report = Report::findOrFail($id);
+
+        if (!$report->screenshot) {
+            abort(404, 'No screenshot attached');
+        }
+
+        $path = $report->screenshot;
+
+        try {
+            if (Storage::disk('google')->exists($path)) {
+                $file = Storage::disk('google')->get($path);
+                $type = Storage::disk('google')->mimeType($path);
+                return response($file, 200)->header('Content-Type', $type);
+            }
+        } catch (\Exception $e) {
+            // Fallback to local storage checks below
+        }
+
+        if (Storage::disk('public')->exists($path)) {
+            return response()->file(Storage::disk('public')->path($path));
+        }
+
+        if (Storage::disk('local')->exists($path)) {
+            return response()->file(Storage::disk('local')->path($path));
+        }
+
+        if (file_exists(storage_path('app/' . $path))) {
+            return response()->file(storage_path('app/' . $path));
+        }
+
+        if (file_exists(public_path($path))) {
+            return response()->file(public_path($path));
+        }
+
+        abort(404, 'Screenshot file not found');
+    }
 }

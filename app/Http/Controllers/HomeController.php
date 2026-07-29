@@ -118,6 +118,7 @@ class HomeController extends Controller
             'issues' => $issues,
             'client' => $client,
             'user_department' => $user_department,
+            'mains_id'  => $id,
         ]);
     }
 

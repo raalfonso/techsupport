@@ -53,6 +53,9 @@
                 escalateModal: false, 
                 endorseModal: false, 
                 responseModal: false, 
+                screenshotModal: false,
+                currentScreenshot: '',
+                currentTicket: '',
                 selectedId: null,
                 openNewRequest() {
                     this.showModal = true;
@@ -983,6 +986,9 @@
                     method: 'GET',
                     success:function(response){
                         $('.report-data').html(response);
+                        if (window.Alpine) {
+                            window.Alpine.initTree(document.querySelector('.report-data'));
+                        }
                     }
                 });
             }

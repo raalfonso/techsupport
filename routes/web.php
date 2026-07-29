@@ -125,6 +125,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/report/resolve/{id}', [ReportController::class, 'resolve'])->name('report.resolve');
     Route::get('/report/escalate/{id}', [ReportController::class, 'escalate'])->name('report.escalate');
     Route::get('/report/endorse/{id}', [ReportController::class, 'endorse'])->name('report.endorse');
+    Route::get('/report/screenshot/{id}', [ReportController::class, 'screenshot'])->name('report.screenshot');
     Route::post('/report/validate',[ReportController::class, 'validateReport'])->name('report.validate');
     Route::post('/report/confirm-validate',[ReportController::class, 'confirmValidate'])->name('report.confirmValidate');
     Route::post('/report/change-issue',[ReportController::class, 'changeIssue'])->name('report.changeIssue');
