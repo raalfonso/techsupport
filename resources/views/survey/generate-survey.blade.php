@@ -47,6 +47,8 @@
 
     {{-- Include Tailwind CSS --}}
     {{-- Main Navbar --}}
+     {{-- Include Tailwind CSS --}}
+    {{-- Main Navbar --}}
     <nav class="bg-white p-4 shadow-md top-0 z-50 min-w-full fixed max-h-16">
         {{-- Outer container for full-width alignment --}}
         {{-- Inner container for content alignment --}}
@@ -68,7 +70,7 @@
                         {{-- Added icon for Dashboard --}}
                         Dashboard</a>
 
-                    <a href="#about" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
+                    <a href="{{ route('survey.dashboard') }}" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
                         <i class="material-icons align-middle">assignment</i>
                         Survey Result
                     </a>
@@ -79,7 +81,7 @@
                         QR Generator
                     </a>
 
-                    <a href="#contact" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
+                    <a href="{{ route('survey.dashboard') }}" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
                         <i class="material-icons align-middle">people</i>
                         Employee Registration
                     </a>
@@ -134,7 +136,9 @@
         <div id="mobile-menu" class="hidden border-t border-slate-200 bg-white md:hidden">
             <div class="mx-auto flex max-w-7xl flex-col gap-1 px-4 py-3 sm:px-6 lg:px-8">
                 <a href="{{ route('survey.dashboard') }}" class="rounded-xl px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100">Dashboard</a>
-                <a href="{{ route('survey.management') }}" class="rounded-xl px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100">User Management</a>
+                @if (auth()->user()->role === 'superadmin')
+                    <a href="{{ route('survey.management') }}" class="rounded-xl px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100">User Management</a>
+                @endif
                 <a href="{{ route('survey.account') }}" class="rounded-xl px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100">Account</a>
                 <form method="POST" action="{{ route('userSurvey.logout') }}">
                     @csrf
@@ -168,6 +172,52 @@
                         </a>
                     </div>
                 </div>
+            </div>
+            
+            <div class="mt-8">
+            <!-- Instructions Card -->
+                    <div x-data="{ showInstructions: false }" class="rounded-3xl border border-slate-200 bg-white p-6 shadow-[0_20px_60px_rgba(15,23,42,0.04)] sm:p-8">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+                                <i class="material-icons text-amber-500">info</i>
+                                How to use
+                            </h3>
+                            <button @click="showInstructions = !showInstructions" class="inline-flex items-center gap-1 text-sm font-semibold text-sky-600 hover:text-sky-700 transition focus:outline-none">
+                                <span x-text="showInstructions ? 'See Less' : 'See More'">See More</span>
+                                <i class="material-icons text-lg" x-text="showInstructions ? 'expand_less' : 'expand_more'">expand_more</i>
+                            </button>
+                        </div>
+                        <ul x-show="showInstructions" x-transition class="mt-4 space-y-4 text-sm text-slate-600" style="display: none;">
+                            <li class="flex items-start gap-2.5">
+                                <span class="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-slate-100 text-xs font-bold text-slate-700 mt-0.5">1</span>
+                                <div>
+                                    <strong class="text-slate-800 font-semibold block mb-0.5">Enter Service Provided</strong>
+                                    Input the <span class="italic font-medium">Service Provided</span> in the form field.
+                                </div>
+                            </li>
+                            <li class="flex items-start gap-2.5">
+                                <span class="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-slate-100 text-xs font-bold text-slate-700 mt-0.5">2</span>
+                                <div>
+                                    <strong class="text-slate-800 font-semibold block mb-0.5">Generate & Save Code</strong>
+                                    Click <span class="font-semibold text-sky-600">Generate & Save New Code</span> to create a tracked survey link and high-quality QR code.
+                                </div>
+                            </li>
+                            <li class="flex items-start gap-2.5">
+                                <span class="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-slate-100 text-xs font-bold text-slate-700 mt-0.5">3</span>
+                                <div>
+                                    <strong class="text-slate-800 font-semibold block mb-0.5">Share or Print QR Code</strong>
+                                    Copy the generated URL to share directly via chat/email, or click <span class="font-semibold text-slate-900">Download QR Code (PNG)</span> to print.
+                                </div>
+                            </li>
+                            <li class="flex items-start gap-2.5">
+                                <span class="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-slate-100 text-xs font-bold text-slate-700 mt-0.5">4</span>
+                                <div>
+                                    <strong class="text-slate-800 font-semibold block mb-0.5">Manage Existing Links</strong>
+                                    Use the table at the bottom to monitor counts, toggle statuses (Enable/Disable), or delete links. Click <span class="font-semibold text-slate-700">Showcase</span> on any table row to load its URL and QR Code back into the active preview panel.
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
             </div>
 
             <div class="mt-8 grid gap-8 lg:grid-cols-12">
@@ -218,7 +268,7 @@
                             
                             <div style="display:none;">
                                 <label for="usage-limit-input" class="block text-sm font-semibold text-slate-700 mb-2">Usage Limit (Optional)</label>
-                                <input type="number" id="usage-limit-input" name="usage_limit" min="1" placeholder="Leave empty for 1 use" class="block w-full rounded-2xl border border-slate-200 bg-white px-4 py-3.5 text-slate-800 shadow-sm focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 transition-colors">
+                                <input type="number" id="usage-limit-input" name="usage_limit" min="1" placeholder="Leave empty for 1 use" class="block w-full rounded-2xl border border-slate-200 bg-white px-4 py-3.5 text-slate-800 shadow-sm focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 transition-colors" value="1">
                             </div>
                             <div>
                                 <label for="client" class="block text-sm font-semibold text-slate-700 mb-2">Service Provided</label>
@@ -247,7 +297,7 @@
                                 <div class="flex gap-2">
                                     <div class="relative flex-1">
                                         <i class="material-icons absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-lg">link</i>
-                                        <input type="text" id="survey-url-input" readonly class="block w-full rounded-2xl border border-slate-200 bg-slate-50 pl-11 pr-4 py-3.5 text-sm text-slate-600 outline-none focus:border-slate-200" value="">
+                                        <input type="text" id="survey-url-input" readonly placeholder="No survey link generated yet" class="block w-full rounded-2xl border border-slate-200 bg-slate-50 pl-11 pr-4 py-3.5 text-sm text-slate-600 outline-none focus:border-slate-200" value="">
                                     </div>
                                     <button onclick="copyToClipboard()" class="inline-flex items-center justify-center rounded-2xl bg-sky-500 hover:bg-sky-600 text-white px-5 py-3.5 font-semibold transition hover:-translate-y-0.5 shadow-md shadow-sky-500/10 gap-2 min-w-[120px]" id="copy-btn">
                                         <i class="material-icons text-base" id="copy-btn-icon">content_copy</i>
@@ -257,7 +307,7 @@
                             </div>
                             
                             <div class="mt-2 flex gap-4">
-                                <a id="test-link-btn" href="#" target="_blank" class="inline-flex items-center gap-2 text-sm font-semibold text-sky-600 hover:text-sky-700 transition">
+                                <a id="test-link-btn" href="#" target="_blank" onclick="return checkTestLink(event)" class="inline-flex items-center gap-2 text-sm font-semibold text-sky-600 hover:text-sky-700 transition">
                                     <i class="material-icons text-base">open_in_new</i>
                                     Test Link in New Tab
                                 </a>
@@ -265,49 +315,7 @@
                         </div>
                     </div>
 
-                    <!-- Instructions Card -->
-                    <div x-data="{ showInstructions: false }" class="rounded-3xl border border-slate-200 bg-white p-6 shadow-[0_20px_60px_rgba(15,23,42,0.04)] sm:p-8">
-                        <div class="flex items-center justify-between">
-                            <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
-                                <i class="material-icons text-amber-500">info</i>
-                                How to use
-                            </h3>
-                            <button @click="showInstructions = !showInstructions" class="inline-flex items-center gap-1 text-sm font-semibold text-sky-600 hover:text-sky-700 transition focus:outline-none">
-                                <span x-text="showInstructions ? 'See Less' : 'See More'">See More</span>
-                                <i class="material-icons text-lg" x-text="showInstructions ? 'expand_less' : 'expand_more'">expand_more</i>
-                            </button>
-                        </div>
-                        <ul x-show="showInstructions" x-transition class="mt-4 space-y-4 text-sm text-slate-600" style="display: none;">
-                            <li class="flex items-start gap-2.5">
-                                <span class="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-slate-100 text-xs font-bold text-slate-700 mt-0.5">1</span>
-                                <div>
-                                    <strong class="text-slate-800 font-semibold block mb-0.5">Select Department & Options</strong>
-                                    Choose a department from the dropdown. Optionally, specify a <span class="italic font-medium">Usage Limit</span> to auto-deactivate the link after a set number of responses, or enter a <span class="italic font-medium">Client Name</span> to track specific feedback campaigns.
-                                </div>
-                            </li>
-                            <li class="flex items-start gap-2.5">
-                                <span class="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-slate-100 text-xs font-bold text-slate-700 mt-0.5">2</span>
-                                <div>
-                                    <strong class="text-slate-800 font-semibold block mb-0.5">Generate & Save Code</strong>
-                                    Click <span class="font-semibold text-sky-600">Generate & Save New Code</span> to register a tracked survey link. This enables real-time response count tracking, limit enforcement, and link management. Untracked direct fallback links will display a warning.
-                                </div>
-                            </li>
-                            <li class="flex items-start gap-2.5">
-                                <span class="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-slate-100 text-xs font-bold text-slate-700 mt-0.5">3</span>
-                                <div>
-                                    <strong class="text-slate-800 font-semibold block mb-0.5">Share or Print QR Code</strong>
-                                    Copy the generated URL to share directly via chat/email, or click <span class="font-semibold text-slate-900">Download QR Code (PNG)</span>. The high-resolution PNG is print-ready for service desks, feedback posters, or office lobbies.
-                                </div>
-                            </li>
-                            <li class="flex items-start gap-2.5">
-                                <span class="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-slate-100 text-xs font-bold text-slate-700 mt-0.5">4</span>
-                                <div>
-                                    <strong class="text-slate-800 font-semibold block mb-0.5">Manage Existing Links</strong>
-                                    Use the table at the bottom to monitor counts, toggle statuses (Enable/Disable), or delete links. Click <span class="font-semibold text-slate-700">Showcase</span> on any table row to load its URL and QR Code back into the active preview panel.
-                                </div>
-                            </li>
-                        </ul>
-                    </div>
+                    
                 </div>
 
                 <!-- Right panel: QR Code Preview -->
@@ -318,19 +326,24 @@
                             QR Code Preview
                         </h2>
                         
-                        <div class="relative group p-6 bg-slate-50 rounded-2xl border border-slate-100 mb-6 flex justify-center items-center shadow-inner w-full max-w-[340px]">
-                            <div class="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition duration-300 rounded-2xl flex items-center justify-center backdrop-blur-[2px]">
+                        <div class="relative group p-6 bg-slate-50 rounded-2xl border border-slate-100 mb-6 flex flex-col justify-center items-center shadow-inner w-full max-w-[340px] min-h-[280px]" id="qr-container">
+                            <div id="qr-preview-overlay" class="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition duration-300 rounded-2xl flex items-center justify-center backdrop-blur-[2px]" style="display: none;">
                                 <span class="bg-slate-900/80 text-white px-4 py-2 rounded-full text-xs font-medium tracking-wider flex items-center gap-1 shadow-md">
                                     <i class="material-icons text-sm">zoom_in</i> PREVIEW
                                 </span>
                             </div>
-                            <canvas id="qrcode-canvas" class="rounded-lg bg-white p-3 shadow-sm transition-transform duration-300 group-hover:scale-[1.02]"></canvas>
+                            <canvas id="qrcode-canvas" class="rounded-lg bg-white p-3 shadow-sm transition-transform duration-300 group-hover:scale-[1.02]" style="display: none;"></canvas>
+                            <div id="qr-placeholder" class="flex flex-col items-center justify-center p-6 text-slate-400 text-center">
+                                <i class="material-icons text-5xl mb-2 text-slate-300">qr_code_2</i>
+                                <p class="text-xs font-medium text-slate-500">No active QR code generated</p>
+                                <p class="text-[11px] text-slate-400 mt-1">Generate a new code or click "Showcase" below to preview.</p>
+                            </div>
                         </div> 
                         
-                        <h3 id="preview-dept-title" class="text-lg font-bold text-slate-900 mb-1">Department Name</h3>
+                        <h3 id="preview-dept-title" class="text-lg font-bold text-slate-900 mb-1">Select Department</h3>
                         <p class="text-xs text-slate-500 uppercase tracking-widest font-semibold mb-6" id="preview-dept-acronym">DEPT</p>
                         
-                        <button onclick="downloadQR()" class="w-full inline-flex items-center justify-center gap-2 rounded-2xl bg-slate-900 px-6 py-4 font-semibold text-white shadow-lg shadow-slate-900/25 transition hover:-translate-y-0.5 hover:bg-slate-800">
+                        <button onclick="downloadQR()" id="download-qr-btn" class="w-full inline-flex items-center justify-center gap-2 rounded-2xl bg-slate-900 px-6 py-4 font-semibold text-white shadow-lg shadow-slate-900/25 transition hover:-translate-y-0.5 hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed">
                             <i class="material-icons">download</i>
                             Download QR Code (PNG)
                         </button>
@@ -418,14 +431,16 @@
                                             </form>
 
                                             <!-- Delete Form -->
-                                            <form action="{{ route('survey.generateSurvey.destroy', $survey->id) }}" method="POST" class="inline">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="inline-flex items-center gap-1 rounded-full bg-rose-600 px-3 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-rose-700" onclick="return confirm('Are you sure you want to delete this survey link? This action cannot be undone.')">
-                                                    <i class="material-icons text-sm">delete</i>
-                                                    Delete
-                                                </button>
-                                            </form>
+                                            @if(auth()->user()->role === 'superadmin')
+                                                <form action="{{ route('survey.generateSurvey.destroy', $survey->id) }}" method="POST" class="inline">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="inline-flex items-center gap-1 rounded-full bg-rose-600 px-3 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-rose-700" onclick="return confirm('Are you sure you want to delete this survey link? This action cannot be undone.')">
+                                                        <i class="material-icons text-sm">delete</i>
+                                                        Delete
+                                                    </button>
+                                                </form>
+                                            @endif
                                         </div>
                                     </td>
                                 </tr>
@@ -443,12 +458,14 @@
                     </table>
                 </div>
 
-                @if ($generatedSurveys->hasPages())
+                @if ($generatedSurveys->total() > 0)
                     <div class="flex flex-col gap-3 border-t border-slate-200 px-6 py-4 sm:flex-row sm:items-center sm:justify-between">
-                        <p class="text-sm text-slate-500">Showing {{ $generatedSurveys->firstItem() }} to {{ $generatedSurveys->lastItem() }} of {{ $generatedSurveys->total() }} links</p>
-                        <div>
-                            {{ $generatedSurveys->links('pagination::tailwind') }}
-                        </div>
+                        <p class="text-sm text-slate-500">Showing {{ $generatedSurveys->firstItem() ?? 0 }} to {{ $generatedSurveys->lastItem() ?? 0 }} of {{ $generatedSurveys->total() }} links</p>
+                        @if ($generatedSurveys->hasPages())
+                            <div>
+                                {{ $generatedSurveys->appends(request()->query())->links('pagination::tailwind') }}
+                            </div>
+                        @endif
                     </div>
                 @endif
             </div>
@@ -484,20 +501,16 @@
     <!-- <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script> -->
     <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
     <script>
-        const generatedSurveys = @json($generatedSurveys->items());
         const baseUrl = "{{ url('survey/form') }}";
         
         @php
-            $latestGenerated = $generatedSurveys->first();
-            $initialCode = session('generated_code') ?? ($latestGenerated ? $latestGenerated->generated_code : null);
-            $initialDeptId = session('generated_dept_id') ?? ($latestGenerated && $latestGenerated->userSurvey ? $latestGenerated->userSurvey->department_id : null);
-            $initialDeptTitle = $latestGenerated && $latestGenerated->userSurvey && $latestGenerated->userSurvey->department ? $latestGenerated->userSurvey->department->title : 'N/A';
-            $initialDeptAcronym = $latestGenerated && $latestGenerated->userSurvey && $latestGenerated->userSurvey->department ? $latestGenerated->userSurvey->department->acronym : 'DEPT';
+            $initialCode = session('generated_code');
+            $initialDeptId = session('generated_dept_id');
         @endphp
 
-        // This holds the initial active code flashed from the session or latest generated
-        let activeCode = "{{ $initialCode }}";
-        let activeDeptId = "{{ $initialDeptId }}";
+        // Active code is only set if newly generated in session or showcased
+        let activeCode = "{{ $initialCode ?? '' }}";
+        let activeDeptId = "{{ $initialDeptId ?? '' }}";
 
         function generateQRCode() {
             const select = document.getElementById('department-select');
@@ -508,49 +521,60 @@
             const deptTitle = selectedOption.getAttribute('data-title');
             const deptAcronym = selectedOption.getAttribute('data-acronym');
             
-            // Check if there is a generated code for this department in the list
-            let code = null;
-            if (activeDeptId == deptId && activeCode) {
-                code = activeCode;
-            } else {
-                // Search in the list of generated codes
-                const match = generatedSurveys.find(item => item.userSurvey && item.userSurvey.department_id == deptId && item.status);
-                if (match) {
-                    code = match.generated_code;
-                }
+            // Clear active code if user switches department dropdown away from active choice
+            if (activeDeptId && activeDeptId != deptId) {
+                activeCode = null;
+                activeDeptId = null;
             }
             
-            let surveyUrl = '';
+            const canvas = document.getElementById('qrcode-canvas');
+            const placeholder = document.getElementById('qr-placeholder');
+            const overlay = document.getElementById('qr-preview-overlay');
+            const urlInput = document.getElementById('survey-url-input');
+            const testBtn = document.getElementById('test-link-btn');
+            const downloadBtn = document.getElementById('download-qr-btn');
             const warningEl = document.getElementById('untracked-warning');
             
-            if (code) {
-                surveyUrl = `${baseUrl}?code=${code}`;
-                if (warningEl) warningEl.style.display = 'none';
+            if (warningEl) warningEl.style.display = 'none';
+            
+            if (activeCode) {
+                const surveyUrl = `${baseUrl}?code=${activeCode}`;
+                urlInput.value = surveyUrl;
+                testBtn.href = surveyUrl;
+                testBtn.classList.remove('opacity-50', 'pointer-events-none');
+                
+                document.getElementById('preview-dept-title').textContent = deptTitle || 'Department';
+                document.getElementById('preview-dept-acronym').textContent = deptAcronym || 'DEPT';
+                
+                canvas.style.display = 'block';
+                if (placeholder) placeholder.style.display = 'none';
+                if (overlay) overlay.style.display = 'flex';
+                if (downloadBtn) downloadBtn.disabled = false;
+                
+                QRCode.toCanvas(canvas, surveyUrl, {
+                    width: 280,
+                    margin: 2,
+                    color: {
+                        dark: '#0f172a',
+                        light: '#ffffff'
+                    },
+                    errorCorrectionLevel: 'H'
+                }, function (error) {
+                    if (error) console.error('QR code generation error:', error);
+                });
             } else {
-                // Untracked fallback
-                surveyUrl = `${baseUrl}?dept=${deptId}`;
-                if (warningEl) warningEl.style.display = 'flex';
+                urlInput.value = '';
+                testBtn.href = '#';
+                testBtn.classList.add('opacity-50', 'pointer-events-none');
+                
+                document.getElementById('preview-dept-title').textContent = deptTitle || 'Select Department';
+                document.getElementById('preview-dept-acronym').textContent = deptAcronym || 'DEPT';
+                
+                canvas.style.display = 'none';
+                if (placeholder) placeholder.style.display = 'flex';
+                if (overlay) overlay.style.display = 'none';
+                if (downloadBtn) downloadBtn.disabled = true;
             }
-            
-            // Update inputs and preview text
-            document.getElementById('survey-url-input').value = surveyUrl;
-            document.getElementById('test-link-btn').href = surveyUrl;
-            document.getElementById('preview-dept-title').textContent = deptTitle;
-            document.getElementById('preview-dept-acronym').textContent = deptAcronym;
-            
-            // Generate QR Code on canvas
-            const canvas = document.getElementById('qrcode-canvas');
-            QRCode.toCanvas(canvas, surveyUrl, {
-                width: 280,
-                margin: 2,
-                color: {
-                    dark: '#0f172a', // slate-900
-                    light: '#ffffff'
-                },
-                errorCorrectionLevel: 'H'
-            }, function (error) {
-                if (error) console.error('QR code generation error:', error);
-            });
         }
 
         function showcaseSurvey(code, deptId, deptTitle, deptAcronym) {
@@ -564,25 +588,42 @@
             
             generateQRCode();
             
-            // Smooth scroll up to generator card
             document.getElementById('department-select').scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
 
-        // Run on select change
+        function checkTestLink(e) {
+            if (!activeCode) {
+                e.preventDefault();
+                Swal.fire({
+                    icon: 'info',
+                    title: 'No Link Active',
+                    text: 'Please generate a new survey code or click "Showcase" on a saved link first.',
+                    confirmButtonColor: '#0ea5e9'
+                });
+                return false;
+            }
+        }
+
         document.getElementById('department-select').addEventListener('change', generateQRCode);
 
-        // Run on page load
         window.addEventListener('DOMContentLoaded', () => {
             generateQRCode();
         });
 
-        // Copy to clipboard
         function copyToClipboard() {
             const urlInput = document.getElementById('survey-url-input');
+            if (!urlInput.value) {
+                Swal.fire({
+                    icon: 'info',
+                    title: 'No Link to Copy',
+                    text: 'Please generate a new survey code or click "Showcase" on a saved link first.',
+                    confirmButtonColor: '#0ea5e9'
+                });
+                return;
+            }
             urlInput.select();
-            urlInput.setSelectionRange(0, 99999); // For mobile devices
+            urlInput.setSelectionRange(0, 99999);
             navigator.clipboard.writeText(urlInput.value).then(() => {
-                // Success feedback
                 const copyBtnText = document.getElementById('copy-btn-text');
                 const copyBtnIcon = document.getElementById('copy-btn-icon');
                 const copyBtn = document.getElementById('copy-btn');
@@ -605,8 +646,16 @@
             });
         }
 
-        // Download QR Code PNG
         function downloadQR() {
+            if (!activeCode) {
+                Swal.fire({
+                    icon: 'info',
+                    title: 'No QR Code',
+                    text: 'Please generate a new survey code or click "Showcase" on a saved link first.',
+                    confirmButtonColor: '#0ea5e9'
+                });
+                return;
+            }
             const select = document.getElementById('department-select');
             const acronym = select.options[select.selectedIndex].getAttribute('data-acronym') || 'dept';
             const canvas = document.getElementById('qrcode-canvas');

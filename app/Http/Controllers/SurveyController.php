@@ -17,6 +17,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\Clients;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 
 class SurveyController extends Controller
 {
@@ -641,6 +642,29 @@ public function checkLogin()
             Auth::guard('userSurvey')->login($surveyUser);
             return redirect()->route('survey.dashboard');
         }
+
+        // Check if user is registered in survey_employees table
+        $surveyEmployee = SurveyEmployees::where('email', '=', $user->email)->first();
+
+        if ($surveyEmployee) {
+            // Register the user automatically in UserSurvey using department from survey_employees
+            $surveyUser = UserSurvey::create([
+                'name'          => $surveyEmployee->name ?? $user->name,
+                'email'         => $user->email,
+                'password'      => Hash::make(Str::random(16)),
+                'department_id' => $surveyEmployee->department_id,
+                'role'          => 'user',
+                'status'        => 'active',
+            ]);
+
+            // Link user_survey_id in survey_employees
+            $surveyEmployee->update([
+                'user_survey_id' => $surveyUser->id,
+            ]);
+
+            Auth::guard('userSurvey')->login($surveyUser);
+            return redirect()->route('survey.dashboard');
+        }
         
         abort(403, 'Access Denied - User not found in survey system.');
     }
@@ -835,10 +859,76 @@ public function checkLogin()
 
 
 
-    public function management()
+    public function management(Request $request)
     {
-        $users = \App\Models\UserSurvey::paginate(10);
-        return view('survey.management', compact('users'));
+        $query = \App\Models\UserSurvey::with('department');
+
+        if ($request->filled('search')) {
+            $search = trim($request->input('search'));
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%")
+                  ->orWhere('role', 'like', "%{$search}%")
+                  ->orWhereHas('department', function ($dq) use ($search) {
+                      $dq->where('title', 'like', "%{$search}%")
+                        ->orWhere('acronym', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        if ($request->filled('department_id')) {
+            $query->where('department_id', $request->input('department_id'));
+        }
+
+        if ($request->filled('role')) {
+            $query->where('role', $request->input('role'));
+        }
+
+        $users = $query->orderBy('id', 'desc')->paginate(10)->appends($request->query());
+        $departments = \App\Models\Department::orderBy('title')->get();
+
+        return view('survey.management', compact('users', 'departments'));
+    }
+
+    public function updateUser(Request $request, $id)
+    {
+        $user = \App\Models\UserSurvey::findOrFail($id);
+
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|max:255|unique:user_survey,email,' . $id,
+            'department_id' => 'required|exists:departments,id',
+            'role' => 'required|in:user,admin,superadmin',
+            'status' => 'required|in:active,inactive',
+            'password' => 'nullable|string|min:6',
+        ]);
+
+        $user->name = $request->name;
+        $user->email = $request->email;
+        $user->department_id = $request->department_id;
+        $user->role = $request->role;
+        $user->status = $request->status;
+
+        if ($request->filled('password')) {
+            $user->password = Hash::make($request->password);
+        }
+
+        $user->save();
+
+        return redirect()->back()->with('success', 'User account updated successfully.');
+    }
+
+    public function destroyUser($id)
+    {
+        $user = \App\Models\UserSurvey::findOrFail($id);
+
+        if (auth()->id() == $user->id) {
+            return redirect()->back()->with('error', 'You cannot delete your own account.');
+        }
+
+        $user->delete();
+
+        return redirect()->back()->with('success', 'User account deleted successfully.');
     }
 
     public function exportResults(Request $request)
@@ -1301,18 +1391,20 @@ public function checkLogin()
         }
     }  
     
-    public function generateSurvey()
+    public function generateSurvey(Request $request)
     {
         $departments = Department::where('active', '1')->orderBy('title', 'asc')->get();
         $user = auth()->user();
 
+        $perPage = $request->input('per_page', 10);
+
         if ($user->role === 'superadmin' || $user->role === 'admin') {
-            $generatedSurveys = SurveyGenerated::with('userSurvey.department')->orderBy('id', 'desc')->paginate(10);
+            $generatedSurveys = SurveyGenerated::with('userSurvey.department')->orderBy('id', 'desc')->paginate($perPage);
         } else {
             $generatedSurveys = SurveyGenerated::where('user_survey_id', $user->id)
                 ->with('userSurvey.department')
                 ->orderBy('id', 'desc')
-                ->paginate(10);
+                ->paginate($perPage);
         }
 
         return view('survey.generate-survey', compact('departments', 'generatedSurveys'));
