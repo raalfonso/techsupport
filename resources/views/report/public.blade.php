@@ -47,7 +47,7 @@
         let existingTickets = new Set();
         let soundEnabled = false;
 
-        async function playAlert(times = 3) {
+        async function playAlert(times = 1) {
             if (!soundEnabled) return;
             for (let i = 0; i < times; i++) {
                 alertSound.currentTime = 0;
