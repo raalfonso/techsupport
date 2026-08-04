@@ -25,4 +25,9 @@ class UserSurvey extends Authenticatable
     {
         return $this->belongsTo(Department::class, 'department_id');
     }
+
+    public function surveyEmployee()
+    {
+        return  $this->belongsTo(SurveyEmployees::class, 'email', 'email');
+    }
 }

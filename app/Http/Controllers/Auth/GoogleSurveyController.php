@@ -29,10 +29,28 @@ class GoogleSurveyController extends Controller
         $user = UserSurvey::where('email', '=', $googleUser->email)->first();
 
         if (!$user) {
-            abort(403, 'User not found in the survey system.');
+            $surveyEmployee = \App\Models\SurveyEmployees::where('email', '=', $googleUser->email)->first();
+
+            if ($surveyEmployee) {
+                $user = UserSurvey::create([
+                    'name'          => $surveyEmployee->name ?? $googleUser->name,
+                    'email'         => $googleUser->email,
+                    'password'      => \Illuminate\Support\Facades\Hash::make(Str::random(16)),
+                    'department_id' => $surveyEmployee->department_id,
+                    'role'          => 'user',
+                    'status'        => 'active',
+                ]);
+
+                $surveyEmployee->update([
+                    'user_survey_id' => $user->id,
+                ]);
+            } else {
+                abort(403, 'Access Denied - User not found in survey system.');
+            }
         }
 
         $user->update([
+            'name' => $googleUser->name,
             'email_verified_at' => now(),
             'remember_token' => Str::random(24),
         ]);

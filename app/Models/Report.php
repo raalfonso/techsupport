@@ -24,11 +24,13 @@ class Report extends Model
         'request_datetime',
         'validation_date_time',
         'response_by',
+        'validated_by',
         'resolve_by',
         'escalated_to',
         'response_datetime',
         'resolve_datetime',
         'notes',
+        'completion_notes',
         'remarks',
         'screenshot',
     ];
@@ -75,6 +77,11 @@ class Report extends Model
     public function resolve()
     {
         return $this->belongsTo(Resolve::class, 'id', 'report_id');
+    }
+
+    public function validatedby()
+    {
+        return $this->belongsTo(User::class, 'validated_by', 'id');
     }
 
     public function response()

@@ -179,14 +179,23 @@
                         </div>
                     </div>
 
-    
+                   @if($mains_id == 99)
                     <div class="space-y-2 mt-5">
+                        <label for="remarks" class="block text-sm font-semibold text-gray-700 flex items-center space-x-2">
+                            <i class="fas fa-comment text-blue-600"></i>
+                            <span>Remarks <span class="text-gray-500 text-xs text-red-500">*</span></span>
+                        </label>
+                        <textarea name="remarks" required rows="4" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200 resize-none" placeholder="Provide additional details about your request..."></textarea>
+                    </div>
+                    @else
+                        <div class="space-y-2 mt-5">
                         <label for="remarks" class="block text-sm font-semibold text-gray-700 flex items-center space-x-2">
                             <i class="fas fa-comment text-blue-600"></i>
                             <span>Remarks <span class="text-gray-500 text-xs">(Optional)</span></span>
                         </label>
                         <textarea name="remarks" rows="4" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200 resize-none" placeholder="Provide additional details about your request..."></textarea>
                     </div>
+                   @endif
     
                     <button type="submit" class="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white py-4 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 flex items-center justify-center" :disabled="loading">
                         <span x-show="!loading" class="flex items-center space-x-2">
@@ -229,42 +238,6 @@
 
 
 <script>
-    //  document.getElementById('auto-department').addEventListener('input', function () {
-    //     const query = this.value;
-    //         // console.log(query);
-    //     if (query.length >= 3) {
-            
-    //         fetch(`/search-department?q=${encodeURIComponent(query)}`)
-    //             .then(response => response.json())
-    //             .then(data => {
-    //                 const suggestionsBox = document.getElementById('suggestions');
-    //                 suggestionsBox.innerHTML = '';
-
-    //                 if (data.length) {
-    //                     suggestionsBox.style.display = 'block';
-    //                     data.forEach(item => {
-    //                         const suggestion = document.createElement('div');
-    //                         $('.suggestions-box').show();
-    //                         suggestion.textContent = item.title; // Adjust based on your data structure
-    //                         suggestion.className = "border border-slate-500 p-2 mb-0 rounded-md bg-white hover:bg-slate-400 cursor-pointer transition duration-200";
-    //                         suggestion.addEventListener('click', () => {
-    //                             // console.log('hi');
-    //                             document.getElementById('auto-department').value = item.title;
-    //                             document.getElementById('department_id').value = item.id;
-    //                             suggestionsBox.style.display = 'none';
-                               
-    //                         });
-    //                         suggestionsBox.appendChild(suggestion);
-    //                     });
-    //                 } else {
-    //                     suggestionsBox.style.display = 'none';
-    //                 }
-    //             });
-    //     } else {
-    //         document.getElementById('suggestions').style.display = 'none';
-    //     }
-    // });
-
        // JavaScript to toggle mobile menu
         document.addEventListener('DOMContentLoaded', function () {
             const mobileMenuButton = document.getElementById('mobile-menu-button');

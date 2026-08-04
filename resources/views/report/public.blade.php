@@ -39,7 +39,7 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         const notificationSound = new Audio('{{ asset('sounds/387533__soundwarf__alert-short.wav') }}');
-        const alertSound = new Audio('{{ asset('sounds/sound.mp3') }}');
+        const alertSound = new Audio('{{ asset('sounds/spiderman3.mp3') }}');
         notificationSound.loop = true;
         let isPlaying = false;
         
@@ -47,7 +47,7 @@
         let existingTickets = new Set();
         let soundEnabled = false;
 
-        async function playAlert(times = 3) {
+        async function playAlert(times = 1) {
             if (!soundEnabled) return;
             for (let i = 0; i < times; i++) {
                 alertSound.currentTime = 0;
@@ -93,7 +93,7 @@
                     });
 
                     if (hasNewTicket) {
-                        playAlert(3);
+                        playAlert(1);
                     }
 
                     const newGrid = doc.querySelector('.grid');

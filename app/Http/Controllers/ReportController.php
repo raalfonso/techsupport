@@ -238,16 +238,16 @@ class ReportController extends Controller
     {
         
        
-        if($request->iam_check){
+        // if($request->iam_check){
             $report = Report::findOrFail($id);
             $report->response_by = $userId = Auth::id();
 
-            if($report->issues->mains->type == 'request'){
-                $report->status = "Ongoing";
-            }
-            else{
+            // if($report->issues->mains->type == 'request'){
+            //     $report->status = "Ongoing";
+            // }
+            // else{
                 $report->status = "For validation";
-            }
+            // }
             $report->notes = $request->notes;
             $report->response_datetime = Carbon::parse($request->response_datetime)->format('Y-m-d H:i:s');
             // $report->response_datetime = Carbon::now();
@@ -255,19 +255,19 @@ class ReportController extends Controller
             $report->logResponse();
             
             
-        }
-        else{
-            $report = Report::findOrFail($id);
+        // }
+        // else{
+        //     $report = Report::findOrFail($id);
        
-            $report->response_by = $request->user_id;
+        //     $report->response_by = $request->user_id;
             
-            $report->status = "For validation";
-            $report->notes = $request->notes; 
-            // $report->response_datetime = Carbon::now();
-            $report->response_datetime = Carbon::parse($request->response_datetime)->format('Y-m-d H:i:s');
-            $report->save();
-            $report->logResponse();
-        }
+        //     $report->status = "For validation";
+        //     $report->notes = $request->notes; 
+        //     // $report->response_datetime = Carbon::now();
+        //     $report->response_datetime = Carbon::parse($request->response_datetime)->format('Y-m-d H:i:s');
+        //     $report->save();
+        //     $report->logResponse();
+        // }
         
 
         return redirect()->route('report.index')->with('success', 'Response sent successfully!');
@@ -280,6 +280,7 @@ class ReportController extends Controller
         $validated = $request->validate([
             'user.*.user_id' => 'required',
             'procedure' => 'required',
+            'completion_notes' => 'nullable',
             'resolve_datetime' => 'required',
         ]);
       
@@ -300,6 +301,7 @@ class ReportController extends Controller
         $report->status = "Done";
         $report->feedback = "No";
         $report->procedure = $request->procedure;
+        $report->completion_notes = $request->completion_notes;
         $report->resolve_datetime = Carbon::parse($request->resolve_datetime)->format('Y-m-d H:i:s');
         $report->save();
         $report->logResolve();
@@ -360,6 +362,7 @@ class ReportController extends Controller
         $report = Report::findOrFail($fields['report_id']);
         $report->validation_date_time = Carbon::parse($fields['validation_datetime'])->format('Y-m-d H:i:s');
         $report->status = "Ongoing";
+        $report->validated_by = auth()->user()->id;
         $report->save();
         $report->logValidate();
 
@@ -486,5 +489,44 @@ class ReportController extends Controller
         }
 
         abort(404);
+    }
+
+    public function screenshot($id)
+    {
+        $report = Report::findOrFail($id);
+
+        if (!$report->screenshot) {
+            abort(404, 'No screenshot attached');
+        }
+
+        $path = $report->screenshot;
+
+        try {
+            if (Storage::disk('google')->exists($path)) {
+                $file = Storage::disk('google')->get($path);
+                $type = Storage::disk('google')->mimeType($path);
+                return response($file, 200)->header('Content-Type', $type);
+            }
+        } catch (\Exception $e) {
+            // Fallback to local storage checks below
+        }
+
+        if (Storage::disk('public')->exists($path)) {
+            return response()->file(Storage::disk('public')->path($path));
+        }
+
+        if (Storage::disk('local')->exists($path)) {
+            return response()->file(Storage::disk('local')->path($path));
+        }
+
+        if (file_exists(storage_path('app/' . $path))) {
+            return response()->file(storage_path('app/' . $path));
+        }
+
+        if (file_exists(public_path($path))) {
+            return response()->file(public_path($path));
+        }
+
+        abort(404, 'Screenshot file not found');
     }
 }

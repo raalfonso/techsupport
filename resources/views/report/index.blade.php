@@ -53,6 +53,11 @@
                 escalateModal: false, 
                 endorseModal: false, 
                 responseModal: false, 
+                screenshotModal: false,
+                resolvedDetailsModal: false,
+                selectedResolved: null,
+                currentScreenshot: '',
+                currentTicket: '',
                 selectedId: null,
                 openNewRequest() {
                     this.showModal = true;
@@ -320,6 +325,15 @@
                                     <span>Procedure</span>
                                 </label>
                                 <textarea id="procedure" rows="4" name="procedure" class="w-full p-3 border-2 border-gray-200 rounded-xl focus:border-green-500 focus:ring-2 focus:ring-green-200 transition-all duration-200 resize-none" placeholder="Describe the procedure you followed to resolve this issue..."></textarea>
+                            </div>
+
+                            <!-- Completion Notes -->
+                            <div class="space-y-2">
+                                <label for="completion_notes" class="block text-sm font-semibold text-gray-700 flex items-center space-x-2">
+                                    <i class="fa-solid fa-note-sticky text-green-600"></i>
+                                    <span>Completion Notes</span>
+                                </label>
+                                <textarea id="completion_notes" rows="4" name="completion_notes" class="w-full p-3 border-2 border-gray-200 rounded-xl focus:border-green-500 focus:ring-2 focus:ring-green-200 transition-all duration-200 resize-none" placeholder="Write any completion notes here..."></textarea>
                             </div>
                         </div>
                     
@@ -713,11 +727,148 @@
     </div>
     {{-- end of endorse --}}
 
-    <!-- List of Resolved Issues -->
-        </div>
-        
     <!-- Resolved Issues Section -->
-    <div class="mt-8 bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700">
+    <div class="mt-8 bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700"
+        x-data="{ resolvedDetailsModal: false, selectedResolved: null }">
+
+        <!-- Resolved Issue Details Modal -->
+        <div x-show="resolvedDetailsModal" x-cloak class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-60 backdrop-blur-sm z-50 p-4" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
+            <div class="bg-white dark:bg-gray-800 p-0 rounded-2xl w-11/12 md:w-3/4 lg:w-1/2 max-w-3xl shadow-2xl border border-gray-100 dark:border-gray-700 overflow-hidden" x-transition:enter="transition ease-out duration-300 transform" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-200 transform" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95" @click.away="resolvedDetailsModal = false">
+                <!-- Header -->
+                <div class="bg-gradient-to-r from-teal-600 to-teal-700 px-6 py-4 flex justify-between items-center">
+                    <div class="flex items-center space-x-3">
+                        <div class="bg-white/20 p-2.5 rounded-xl text-white">
+                            <i class="fa-solid fa-file-invoice text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold text-white">Resolved Issue Details</h3>
+                            <p class="text-xs text-teal-100 font-mono" x-text="selectedResolved?.ticket_number"></p>
+                        </div>
+                    </div>
+                    <button type="button" @click="resolvedDetailsModal = false" class="text-white hover:bg-white/20 rounded-full p-2 transition-all duration-200">
+                        <i class="fa-solid fa-times text-lg"></i>
+                    </button>
+                </div>
+                
+                <!-- Body -->
+                <div class="p-6 max-h-[70vh] overflow-y-auto space-y-6 text-sm">
+                    <!-- Basic Info Grid -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-50 dark:bg-gray-700/50 p-4 rounded-xl border border-gray-100 dark:border-gray-700">
+                        <div>
+                            <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Requestor</p>
+                            <p class="font-bold text-gray-900 dark:text-white" x-text="selectedResolved?.client_name"></p>
+                        </div>
+                        <div>
+                            <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Department</p>
+                            <span class="inline-block mt-0.5 px-2.5 py-0.5 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full text-xs font-semibold" x-text="selectedResolved?.department"></span>
+                        </div>
+                        <div>
+                            <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Category</p>
+                            <span class="inline-block mt-0.5 px-2.5 py-0.5 bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 rounded-full text-xs font-semibold" x-text="selectedResolved?.category"></span>
+                        </div>
+                        <div>
+                            <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Location</p>
+                            <p class="font-medium text-gray-900 dark:text-white" x-text="selectedResolved?.location"></p>
+                        </div>
+                    </div>
+
+                    <!-- Issue Details -->
+                    <div class="space-y-3">
+                        <div>
+                            <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Issue Title</p>
+                            <p class="text-base font-semibold text-gray-900 dark:text-white mt-0.5" x-text="selectedResolved?.issue"></p>
+                        </div>
+                        <template x-if="selectedResolved?.remarks">
+                            <div>
+                                <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Remarks</p>
+                                <p class="text-gray-700 dark:text-gray-300 mt-0.5 bg-gray-50 dark:bg-gray-700/40 p-3 rounded-lg border border-gray-100 dark:border-gray-700" x-text="selectedResolved?.remarks"></p>
+                            </div>
+                        </template>
+                    </div>
+
+                    <!-- Timeline / Resolution Details -->
+                    <div class="border-t border-gray-200 dark:border-gray-700 pt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="space-y-1">
+                            <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Requested Date</p>
+                            <p class="font-medium text-gray-800 dark:text-gray-200" x-text="selectedResolved?.request_datetime"></p>
+                        </div>
+                        <div class="space-y-1">
+                            <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Status</p>
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                                <i class="fa-solid fa-check-circle mr-1"></i> Resolved
+                            </span>
+                        </div>
+                        <div class="space-y-1">
+                            <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Responded By</p>
+                            <p class="font-medium text-gray-900 dark:text-white" x-text="selectedResolved?.responded_by || 'N/A'"></p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400" x-text="selectedResolved?.response_datetime"></p>
+                        </div>
+                        <div class="space-y-1">
+                            <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Validated By</p>
+                            <p class="font-medium text-gray-900 dark:text-white" x-text="selectedResolved?.validated_by || 'N/A'"></p>
+                            <template x-if="selectedResolved?.validation_datetime">
+                                <p class="text-xs text-gray-500 dark:text-gray-400" x-text="selectedResolved?.validation_datetime"></p>
+                            </template>
+                        </div>
+                        <div class="space-y-1">
+                            <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Technical Staff (Resolved By)</p>
+                            <p class="font-medium text-gray-900 dark:text-white" x-text="selectedResolved?.resolved_by || 'N/A'"></p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400" x-text="selectedResolved?.resolve_datetime"></p>
+                        </div>
+                    </div>
+
+                    <!-- Response Notes -->
+                    <template x-if="selectedResolved?.notes">
+                        <div class="bg-blue-50/70 dark:bg-blue-900/20 p-3.5 rounded-xl border border-blue-100 dark:border-blue-800">
+                            <p class="text-xs font-semibold text-blue-800 dark:text-blue-300 flex items-center gap-1.5 mb-1">
+                                <i class="fa-solid fa-sticky-note text-blue-600 dark:text-blue-400"></i>
+                                <span>Response Notes</span>
+                            </p>
+                            <p class="text-xs text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-line" x-text="selectedResolved?.notes"></p>
+                        </div>
+                    </template>
+
+                    <!-- Procedure -->
+                    <template x-if="selectedResolved?.procedure">
+                        <div class="bg-green-50/70 dark:bg-green-900/20 p-3.5 rounded-xl border border-green-100 dark:border-green-800">
+                            <p class="text-xs font-semibold text-green-800 dark:text-green-300 flex items-center gap-1.5 mb-1">
+                                <i class="fa-solid fa-list-check text-green-600 dark:text-green-400"></i>
+                                <span>Resolution Procedure</span>
+                            </p>
+                            <p class="text-xs text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-line" x-text="selectedResolved?.procedure"></p>
+                        </div>
+                    </template>
+
+                    <!-- Completion Notes -->
+                    <template x-if="selectedResolved?.completion_notes">
+                        <div class="bg-emerald-50/70 dark:bg-emerald-900/20 p-3.5 rounded-xl border border-emerald-100 dark:border-emerald-800">
+                            <p class="text-xs font-semibold text-emerald-800 dark:text-emerald-300 flex items-center gap-1.5 mb-1">
+                                <i class="fa-solid fa-note-sticky text-emerald-600 dark:text-emerald-400"></i>
+                                <span>Completion Notes</span>
+                            </p>
+                            <p class="text-xs text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-line" x-text="selectedResolved?.completion_notes"></p>
+                        </div>
+                    </template>
+
+                    <!-- Attachment Screenshot -->
+                    <template x-if="selectedResolved?.screenshot_url">
+                        <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
+                            <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-2">Attached Screenshot</p>
+                            <div class="flex justify-center bg-gray-100 dark:bg-gray-900 p-3 rounded-xl border border-gray-200 dark:border-gray-700">
+                                <img :src="selectedResolved?.screenshot_url" alt="Screenshot" class="max-h-64 rounded-lg object-contain">
+                            </div>
+                        </div>
+                    </template>
+                </div>
+                
+                <!-- Footer -->
+                <div class="bg-gray-50 dark:bg-gray-800 px-6 py-4 rounded-b-2xl border-t border-gray-100 dark:border-gray-700 flex justify-end">
+                    <button type="button" @click="resolvedDetailsModal = false" class="px-6 py-2.5 text-gray-600 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-600 transition-all duration-200 font-medium">
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
         <!-- Section Header -->
         <div class="px-8 py-6 border-b border-gray-200 dark:border-gray-700">
             <div class="flex items-center space-x-3">
@@ -832,7 +983,29 @@
                         </thead>
                         <tbody class="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-gray-800">
                             @foreach($resolved as $index => $resolve)
-                            <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-200">
+                            @php
+                                $resolvedData = [
+                                    'ticket_number' => $resolve->ticket_number,
+                                    'client_name' => $resolve->client?->name ?? 'N/A',
+                                    'department' => $resolve->Department?->title ?? 'N/A',
+                                    'category' => $resolve->Issues?->Category?->title ?? 'N/A',
+                                    'issue' => $resolve->Issues?->title ?? 'N/A',
+                                    'location' => $resolve->location ?? 'N/A',
+                                    'request_datetime' => $resolve->request_datetime ? date('M d, Y h:i A', strtotime($resolve->request_datetime)) : 'N/A',
+                                    'response_datetime' => $resolve->response_datetime ? date('M d, Y h:i A', strtotime($resolve->response_datetime)) : 'N/A',
+                                    'responded_by' => $resolve->response?->name ?? 'N/A',
+                                    'validated_by' => $resolve->validatedby?->name ?? 'N/A',
+                                    'validation_datetime' => $resolve->validation_date_time ? date('M d, Y h:i A', strtotime($resolve->validation_date_time)) : null,
+                                    'resolve_datetime' => $resolve->resolve_datetime ? date('M d, Y h:i A', strtotime($resolve->resolve_datetime)) : 'N/A',
+                                    'resolved_by' => $resolve->resolve?->user?->name ?? 'N/A',
+                                    'procedure' => $resolve->procedure ?? '',
+                                    'completion_notes' => $resolve->completion_notes ?? '',
+                                    'remarks' => $resolve->remarks ?? '',
+                                    'notes' => $resolve->notes ?? '',
+                                    'screenshot_url' => $resolve->screenshot ? route('report.screenshot', $resolve->id) : null,
+                                ];
+                            @endphp
+                            <tr data-resolved="{{ json_encode($resolvedData) }}" @click="selectedResolved = JSON.parse($el.getAttribute('data-resolved')); resolvedDetailsModal = true" class="hover:bg-teal-50/60 dark:hover:bg-gray-700/80 transition-all duration-200 cursor-pointer">
                                 <td class="px-6 py-4 text-sm text-gray-600 dark:text-gray-300 font-medium">
                                     {{ $resolved->firstItem() + $index }}
                                 </td>
@@ -890,9 +1063,9 @@
                                 <td class="px-6 py-4 text-sm">
                                     <div class="flex items-center space-x-2">
                                         <div class="w-8 h-8 bg-teal-100 dark:bg-teal-900 rounded-full flex items-center justify-center">
-                                            <span class="text-teal-600 dark:text-teal-400 text-xs font-medium">{{ substr($resolve->resolve->user->name, 0, 1) }}</span>
+                                            <span class="text-teal-600 dark:text-teal-400 text-xs font-medium">{{ substr($resolve->resolve?->user?->name ?? 'U', 0, 1) }}</span>
                                         </div>
-                                        <span class="text-gray-900 dark:text-white font-medium">{{ $resolve->resolve->user->name }}</span>
+                                        <span class="text-gray-900 dark:text-white font-medium">{{ $resolve->resolve?->user?->name }}</span>
                                     </div>
                                 </td>
                             </tr>
@@ -904,7 +1077,27 @@
                 <!-- Mobile Cards -->
                 <div class="block md:hidden space-y-4">
                     @foreach($resolved as $resolve)
-                        <div class="bg-white dark:bg-gray-700 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-600 p-6 space-y-4 hover:shadow-xl transition-all duration-200">
+                        @php
+                            $resolvedData = [
+                                'ticket_number' => $resolve->ticket_number,
+                                'client_name' => $resolve->client?->name ?? 'N/A',
+                                'department' => $resolve->Department?->title ?? 'N/A',
+                                'category' => $resolve->Issues?->Category?->title ?? 'N/A',
+                                'issue' => $resolve->Issues?->title ?? 'N/A',
+                                'location' => $resolve->location ?? 'N/A',
+                                'request_datetime' => $resolve->request_datetime ? date('M d, Y h:i A', strtotime($resolve->request_datetime)) : 'N/A',
+                                'response_datetime' => $resolve->response_datetime ? date('M d, Y h:i A', strtotime($resolve->response_datetime)) : 'N/A',
+                                'responded_by' => $resolve->response?->name ?? 'N/A',
+                                'resolve_datetime' => $resolve->resolve_datetime ? date('M d, Y h:i A', strtotime($resolve->resolve_datetime)) : 'N/A',
+                                'resolved_by' => $resolve->resolve?->user?->name ?? 'N/A',
+                                'procedure' => $resolve->procedure ?? '',
+                                'completion_notes' => $resolve->completion_notes ?? '',
+                                'remarks' => $resolve->remarks ?? '',
+                                'notes' => $resolve->notes ?? '',
+                                'screenshot_url' => $resolve->screenshot ? route('report.screenshot', $resolve->id) : null,
+                            ];
+                        @endphp
+                        <div data-resolved="{{ json_encode($resolvedData) }}" @click="selectedResolved = JSON.parse($el.getAttribute('data-resolved')); resolvedDetailsModal = true" class="bg-white dark:bg-gray-700 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-600 p-6 space-y-4 hover:shadow-xl transition-all duration-200 cursor-pointer">
                             <!-- Header -->
                             <div class="flex justify-between items-start">
                                 <div class="flex items-center space-x-3">
@@ -983,6 +1176,9 @@
                     method: 'GET',
                     success:function(response){
                         $('.report-data').html(response);
+                        if (window.Alpine) {
+                            window.Alpine.initTree(document.querySelector('.report-data'));
+                        }
                     }
                 });
             }

@@ -125,6 +125,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/report/resolve/{id}', [ReportController::class, 'resolve'])->name('report.resolve');
     Route::get('/report/escalate/{id}', [ReportController::class, 'escalate'])->name('report.escalate');
     Route::get('/report/endorse/{id}', [ReportController::class, 'endorse'])->name('report.endorse');
+    Route::get('/report/screenshot/{id}', [ReportController::class, 'screenshot'])->name('report.screenshot');
     Route::post('/report/validate',[ReportController::class, 'validateReport'])->name('report.validate');
     Route::post('/report/confirm-validate',[ReportController::class, 'confirmValidate'])->name('report.confirmValidate');
     Route::post('/report/change-issue',[ReportController::class, 'changeIssue'])->name('report.changeIssue');
@@ -203,6 +204,8 @@ Route::prefix('survey')->group(function () {
         Route::post('/user-survey/logout', [UserSurveyAuthController::class, 'logout'])->name('userSurvey.logout');
         Route::post('/survey/register', [SurveyEmployeeController::class, 'store'])->name('survey.employee.store');
         Route::get('/management',[SurveyController::class, 'management'])->name('survey.management');
+        Route::put('/management/{id}', [SurveyController::class, 'updateUser'])->name('survey.management.update');
+        Route::delete('/management/{id}', [SurveyController::class, 'destroyUser'])->name('survey.management.destroy');
         Route::get('/account',[SurveyController::class, 'account'])->name('survey.account');
         Route::post('/upload-employees', [SurveyController::class, 'uploadEmployees'])->name('survey.uploadEmployees');
         Route::post('/change-password', [SurveyController::class, 'changePassword'])->name('survey.changePassword');
@@ -212,6 +215,10 @@ Route::prefix('survey')->group(function () {
         Route::get('/export-results', [SurveyController::class, 'exportResults'])->name('survey.exportResults');
         Route::get('/search-survey', [SurveyController::class, 'searchSurvey'])->name('survey.searchResults');
         Route::get('/export-pdf', [SurveyController::class, 'exportResultsPDF'])->name('survey.exportResultsPDF');
+        Route::get('/generate-survey', [SurveyController::class, 'generateSurvey'])->name('survey.generateSurvey');
+        Route::post('/generate-survey', [SurveyController::class, 'storeGeneratedSurvey'])->name('survey.generateSurvey.store');
+        Route::post('/generate-survey/{id}/toggle', [SurveyController::class, 'toggleGeneratedSurvey'])->name('survey.generateSurvey.toggle');
+        Route::delete('/generate-survey/{id}', [SurveyController::class, 'destroyGeneratedSurvey'])->name('survey.generateSurvey.destroy');
         
     });
 

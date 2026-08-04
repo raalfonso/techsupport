@@ -13,6 +13,8 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/highcharts@11.4.3/highcharts.min.js"></script>
     
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
     {{-- Vite for compiling your Tailwind CSS and JS --}}
     @vite(['resources/js/app.js', 'resources/css/app.css']) 
     
@@ -113,9 +115,21 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                   <div class="space-y-1">
                     <p class="text-xs font-semibold text-gray-500 uppercase">Responded By</p>
-                    @if (in_array($report->status, ['Ongoing', 'Done']))
-                      <p class="text-sm font-medium text-gray-900">{{ $report->response->name }}</p>
-                      <p class="text-xs text-gray-500">{{ \Carbon\Carbon::parse($report->response_datetime)->format('M d, Y h:i A') }}</p>
+                    @if (in_array($report->status, ['Ongoing', 'Done', 'For validation']))
+                      <p class="text-sm font-medium text-gray-900">{{ $report->response->name ?? 'IT Staff' }}</p>
+                      @if($report->response_datetime)
+                        <p class="text-xs text-gray-500">{{ \Carbon\Carbon::parse($report->response_datetime)->format('M d, Y h:i A') }}</p>
+                      @endif
+                      @if($report->notes)
+                      <br>
+                        <div class="mt-5 p-3 bg-blue-50/80 border border-blue-100 rounded-xl">
+                          <p class="text-xs font-semibold text-blue-800 flex items-center gap-1.5 mb-1">
+                            <i class="fas fa-comment-dots text-blue-600"></i>
+                            <span>Response Notes:</span>
+                          </p>
+                          <p class="text-xs text-gray-700 leading-relaxed whitespace-pre-line">{{ $report->notes }}</p>
+                        </div>
+                      @endif
                     @else
                       <p class="text-sm text-gray-400"><i class="fas fa-clock"></i> Pending</p>
                     @endif
@@ -124,8 +138,20 @@
                   <div class="space-y-1">
                     <p class="text-xs font-semibold text-gray-500 uppercase">Resolved By</p>
                     @if ($report->status == 'Done')
-                      <p class="text-sm font-medium text-gray-900">{{ $report->resolve->user->name }}</p>
-                      <p class="text-xs text-gray-500">{{ \Carbon\Carbon::parse($report->resolve_datetime)->format('M d, Y h:i A') }}</p>
+                      <p class="text-sm font-medium text-gray-900">{{ $report->resolve->user->name ?? 'IT Staff' }}</p>
+                      @if($report->resolve_datetime)
+                        <p class="text-xs text-gray-500">{{ \Carbon\Carbon::parse($report->resolve_datetime)->format('M d, Y h:i A') }}</p>
+                      @endif
+                      @if($report->completion_notes)
+                      <br>
+                        <div class="mt-5 p-3 bg-emerald-50/80 border border-emerald-100 rounded-xl">
+                          <p class="text-xs font-semibold text-emerald-800 flex items-center gap-1.5 mb-1">
+                            <i class="fas fa-sticky-note text-emerald-600"></i>
+                            <span>Completion Notes:</span>
+                          </p>
+                          <p class="text-xs text-gray-700 leading-relaxed whitespace-pre-line">{{ $report->completion_notes }}</p>
+                        </div>
+                      @endif
                     @else
                       <p class="text-sm text-gray-400"><i class="fas fa-clock"></i> Pending</p>
                     @endif
@@ -137,6 +163,7 @@
                     <a href="#" data-modal-target="feedback-modal"
                       data-modal-toggle="feedback-modal" 
                       data-report-id="{{ $report->id }}"
+                      data-staff-name="{{ $report->resolve?->user?->name ?? $report->response?->name ?? 'IT Staff' }}"
                       class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors duration-200">
                       <i class="fas fa-star mr-2"></i>Rate Our Service
                     </a>
@@ -173,15 +200,21 @@
 
     <!-- feedback modal -->
 <div id="feedback-modal" tabindex="-1" aria-hidden="true" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-screen bg-black bg-opacity-50 flex">
-    <div class="relative p-4 w-full max-w-2xl mx-auto my-8">
+    <div class="relative p-4 w-full max-w-3xl mx-auto my-8">
         <!-- Modal content -->
-        <div class="relative bg-white rounded-xl shadow-2xl dark:bg-gray-800 animate-modal-slide-in">
+        <div class="relative bg-white rounded-2xl shadow-2xl dark:bg-gray-800 animate-modal-slide-in overflow-hidden">
             <!-- Modal header -->
-            <div class="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
-                <h3 class="text-2xl font-bold text-gray-900 dark:text-white">
-                    <span class="text-blue-600">ICTD Customer Feedback</span>
-                </h3>
-                <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-100 hover:text-gray-900 rounded-lg text-sm p-2 inline-flex items-center dark:hover:bg-gray-600 dark:hover:text-white transition-colors duration-200" data-modal-toggle="feedback-modal">
+            <div class="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700">
+                <div class="flex justify-between items-center w-full pr-4">
+                    <div class="flex items-center space-x-3">
+                        <img src="{{ asset('img/itd_logo.png') }}" alt="BCDA Logo" class="h-12 w-auto rounded">
+                        <div>
+                            <p class="italic text-[11px] text-gray-500 font-medium">BCDA-ODMD2014-12 | May 2014</p>
+                            <h3 class="text-lg font-bold text-gray-900 dark:text-white">BCDA Internal Services Feedback Form</h3>
+                        </div>
+                    </div>
+                </div>
+                <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-2 inline-flex items-center dark:hover:bg-gray-600 dark:hover:text-white transition-colors duration-200" data-modal-toggle="feedback-modal">
                     <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
                         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
                     </svg>
@@ -189,94 +222,92 @@
             </div>
 
             <!-- Modal body -->
-            <div class="p-6 overflow-y-auto max-h-[calc(100vh-200px)]">
-                <div class="mb-6">
-                    <p class="text-gray-600 text-sm leading-relaxed">
-                        We would love to hear your thoughts or feedback on how we can improve your experience!
-                    </p>
-                </div>
-
-                <form action="{{ route('feedback.store') }}" method="post" class="space-y-6">
+            <div class="p-6 md:p-8 overflow-y-auto max-h-[calc(100vh-180px)]">
+                <form action="{{ route('feedback.store') }}" method="POST" id="feedback-form" class="space-y-6">
                     @csrf
-                    
                     <input type="hidden" name="report_id" id="report-id">
 
-                    <!-- Question 1 -->
-                    <div class="bg-gray-50 rounded-lg p-6">
-                        <p class="font-semibold text-gray-900 mb-2">1. How quickly did the support attend to you? <span class="text-red-500 text-xs">*</span></p>
-                        <p class="text-sm text-gray-600 mb-4">Please rate, with 1 (Slow) being the lowest and 5 (Fast) as the highest.</p>
-                        
-                        <div class="space-y-3 ml-4">
-                            <label class="flex items-center p-3 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
-                                <input type="radio" value="5" name="answer1" class="rb-q1 w-4 h-4 text-blue-600" required>
-                                <span class="ml-3 text-gray-800">5. Within a few minutes</span>
-                            </label>
-                            <label class="flex items-center p-3 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
-                                <input type="radio" value="4" name="answer1" class="rb-q1 w-4 h-4 text-blue-600">
-                                <span class="ml-3 text-gray-800">4. Within a few hours</span>
-                            </label>
-                            <label class="flex items-center p-3 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
-                                <input type="radio" value="3" name="answer1" class="rb-q1 w-4 h-4 text-blue-600">
-                                <span class="ml-3 text-gray-800">3. Within the day</span>
-                            </label>
-                            <label class="flex items-center p-3 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
-                                <input type="radio" value="2" name="answer1" class="rb-q1 w-4 h-4 text-blue-600">
-                                <span class="ml-3 text-gray-800">2. The next day</span>
-                            </label>
-                            <label class="flex items-center p-3 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
-                                <input type="radio" value="1" name="answer1" class="rb-q1 w-4 h-4 text-blue-600">
-                                <span class="ml-3 text-gray-800">1. After a few days</span>
-                            </label>
+                    <!-- Date & Person Transacted With -->
+                    <div class="space-y-4">
+                        <div class="flex items-center space-x-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                            <span>Date: {{ now()->format('F d, Y') }}</span>
+                        </div>
+
+                        <div class="flex flex-col md:flex-row md:items-center space-y-2 md:space-y-0 md:space-x-2">
+                            <label for="transacted-person" class="text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">Person(s) you transacted with:</label>
+                            <input type="text" id="transacted-person" class="w-full px-4 py-2 rounded-lg border border-gray-300 bg-gray-50 text-gray-800 text-sm focus:outline-none" readonly value="IT Staff">
                         </div>
                     </div>
 
-                    <!-- Question 2 -->
-                    <div class="bg-gray-50 rounded-lg p-6">
-                        <p class="font-semibold text-gray-900 mb-2">2. How would you rate the support service provided? <span class="text-red-500 text-xs">*</span></p>
-                        <p class="text-sm text-gray-600 mb-4">Please rate the service, with 1 (Poor) being the lowest and 5 (Excellent) as the highest.</p>
-                        
-                        <div class="space-y-3 ml-4">
-                            <label class="flex items-center p-3 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
-                                <input type="radio" value="5" name="answer3" class="rb-q3 w-4 h-4 text-blue-600" required>
-                                <span class="ml-3 text-gray-800">5. Excellent</span>
-                            </label>
-                            <label class="flex items-center p-3 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
-                                <input type="radio" value="4" name="answer3" class="rb-q3 w-4 h-4 text-blue-600">
-                                <span class="ml-3 text-gray-800">4. Very Satisfactory</span>
-                            </label>
-                            <label class="flex items-center p-3 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
-                                <input type="radio" value="3" name="answer3" class="rb-q3 w-4 h-4 text-blue-600">
-                                <span class="ml-3 text-gray-800">3. Satisfactory</span>
-                            </label>
-                            <label class="flex items-center p-3 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
-                                <input type="radio" value="2" name="answer3" class="rb-q3 w-4 h-4 text-blue-600">
-                                <span class="ml-3 text-gray-800">2. Unsatisfactory</span>
-                            </label>
-                            <label class="flex items-center p-3 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
-                                <input type="radio" value="1" name="answer3" class="rb-q3 w-4 h-4 text-blue-600">
-                                <span class="ml-3 text-gray-800">1. Poor</span>
-                            </label>
+                    <div class="flex items-center space-x-2 pt-2 border-t border-gray-100 dark:border-gray-700">
+                        <label class="text-sm font-medium text-gray-800 dark:text-gray-200">How do you rate their service? (Please check)</label>
+                    </div>
+
+                    {{-- Section 1: Degree of Competence & Accuracy --}}
+                    <div class="mb-6 ml-0 md:ml-4">
+                        <label class="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-3">
+                            Degree of Competence & Accuracy of Service <span class="text-red-500">*</span>
+                        </label>
+                        <div class="flex gap-3 justify-between">
+                            @foreach ([
+                                '2' => '<i class="fa-solid fa-thumbs-up mr-2 text-green-600"></i>Super Like <i class="fa-solid fa-thumbs-up fa-flip-horizontal ml-2 text-green-600"></i>',
+                                '1' => '<i class="fa-regular fa-thumbs-up mr-2 text-blue-600"></i>Like',
+                                '0' => '<i class="fa-regular fa-thumbs-down mr-2 text-red-600"></i>Dislike'
+                            ] as $value => $label)
+                                <label class="flex-1 cursor-pointer">
+                                    <input type="radio" name="accuracy_of_service" value="{{ $value }}" class="peer hidden" required>
+                                    <div class="peer-checked:bg-blue-600 peer-checked:text-white text-center p-3.5 border border-gray-300 rounded-lg hover:bg-blue-50 transition h-full flex items-center justify-center text-sm font-medium">
+                                        {!! $label !!}
+                                    </div>
+                                </label>
+                            @endforeach
                         </div>
                     </div>
 
-                    <!-- Question 3 -->
-                    <div class="bg-gray-50 rounded-lg p-6">
-                        <p class="font-semibold text-gray-900 mb-2">3. Why did you rate as you did? <span class="text-green-500 text-xs">(Optional)</span></p>
-                        <p class="text-sm text-gray-600 mb-4">Provide a reason for your rating.</p>
-                        <textarea name="reason" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
+                    {{-- Section 2: Degree of Responsiveness/Timeliness --}}
+                    <div class="mb-6 ml-0 md:ml-4">
+                        <label class="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-3">
+                            Degree of Responsiveness/Timeliness (Agreed Response Time) <span class="text-red-500">*</span>
+                        </label>
+                        <div class="flex gap-3 justify-between">
+                            @foreach ([
+                                '2' => '<i class="fa-solid fa-thumbs-up mr-2 text-green-600"></i>Super Like <i class="fa-solid fa-thumbs-up fa-flip-horizontal ml-2 text-green-600"></i>',
+                                '1' => '<i class="fa-regular fa-thumbs-up mr-2 text-blue-600"></i>Like',
+                                '0' => '<i class="fa-regular fa-thumbs-down mr-2 text-red-600"></i>Dislike'
+                            ] as $value => $label)
+                                <label class="flex-1 cursor-pointer">
+                                    <input type="radio" name="response_time" value="{{ $value }}" class="peer hidden" required>
+                                    <div class="peer-checked:bg-green-600 peer-checked:text-white text-center p-3.5 border border-gray-300 rounded-lg hover:bg-green-50 transition h-full flex items-center justify-center text-sm font-medium">
+                                        {!! $label !!}
+                                    </div>
+                                </label>
+                            @endforeach
+                        </div>
                     </div>
 
-                    <!-- Question 4 -->
-                    <div class="bg-gray-50 rounded-lg p-6">
-                        <p class="font-semibold text-gray-900 mb-2">4. How can we improve? <span class="text-green-500 text-xs">(Optional)</span></p>
-                        <p class="text-sm text-gray-600 mb-4">Suggest what we can do to improve.</p>
-                        <textarea name="suggestion" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
+                    {{-- Section 3: Brief Comment --}}
+                    <div class="mb-6">
+                        <label class="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-2">
+                            Brief Comment <span id="comments-required-star-modal" class="text-red-500 hidden">*</span>
+                        </label>
+                        <textarea name="comments" id="modal-comments" rows="4" class="w-full border border-gray-300 rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-400" placeholder="Your comments here..."></textarea>
                     </div>
 
-                    <div class="flex justify-end pt-4">
-                        <button type="submit" class="px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200">
+                    {{-- Section 4: Name (optional) --}}
+                    <div class="mb-6">
+                        <label class="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-2">Name (optional)</label>
+                        <input type="text" name="client_name" value="{{ $client->name ?? '' }}" class="w-full border border-gray-300 rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-400" placeholder="Your name (optional)">
+                    </div>
+
+                    {{-- Submit Button --}}
+                    <div class="mb-4">
+                        <button type="submit" id="modal-btn-submit" class="w-full bg-blue-600 text-white font-semibold py-3 rounded-lg hover:bg-blue-700 transition shadow">
                             Submit Feedback
                         </button>
+                    </div>
+
+                    <div class="text-start text-[11px] text-gray-500 font-medium">
+                        <p class="italic">Thank you. Your feedback will be used to further improve our service</p>
                     </div>
                 </form>
             </div>
@@ -328,16 +359,110 @@
       // this is for modal request
       document.addEventListener('DOMContentLoaded', function () {
         const modalTitle = document.getElementById('report-id');
+        const modalTransactedPerson = document.getElementById('transacted-person');
 
         document.querySelectorAll('[data-modal-toggle="feedback-modal"]').forEach(el => {
           el.addEventListener('click', function () {
             const report_id = this.getAttribute('data-report-id');
+            const staff_name = this.getAttribute('data-staff-name');
             if (modalTitle) {
               modalTitle.value = report_id;
             }
+            if (modalTransactedPerson && staff_name) {
+              modalTransactedPerson.value = staff_name;
+            }
           });
         });
-     });
+
+        // Dynamic requirement for comments based on Dislike rating ('0')
+        const modalAccuracyRadios = document.querySelectorAll('input[name="accuracy_of_service"]');
+        const modalResponseRadios = document.querySelectorAll('input[name="response_time"]');
+        const modalCommentsTextarea = document.getElementById('modal-comments');
+        const modalCommentsRequiredStar = document.getElementById('comments-required-star-modal');
+
+        function updateModalCommentRequirement() {
+            let hasDislike = false;
+            modalAccuracyRadios.forEach(radio => {
+                if (radio.checked && radio.value === '0') {
+                    hasDislike = true;
+                }
+            });
+            modalResponseRadios.forEach(radio => {
+                if (radio.checked && radio.value === '0') {
+                    hasDislike = true;
+                }
+            });
+
+            if (hasDislike) {
+                if (modalCommentsTextarea) modalCommentsTextarea.setAttribute('required', 'required');
+                if (modalCommentsRequiredStar) modalCommentsRequiredStar.classList.remove('hidden');
+            } else {
+                if (modalCommentsTextarea) modalCommentsTextarea.removeAttribute('required');
+                if (modalCommentsRequiredStar) modalCommentsRequiredStar.classList.add('hidden');
+            }
+        }
+
+        modalAccuracyRadios.forEach(radio => {
+            radio.addEventListener('change', updateModalCommentRequirement);
+        });
+        modalResponseRadios.forEach(radio => {
+            radio.addEventListener('change', updateModalCommentRequirement);
+        });
+
+        // Handle modal form submission with SweetAlert validation
+        const feedbackForm = document.getElementById('feedback-form');
+        if (feedbackForm) {
+            feedbackForm.addEventListener('submit', function(e) {
+                let errors = [];
+
+                let accuracySelected = false;
+                let accuracyVal = '';
+                modalAccuracyRadios.forEach(radio => {
+                    if (radio.checked) {
+                        accuracySelected = true;
+                        accuracyVal = radio.value;
+                    }
+                });
+                if (!accuracySelected) {
+                    errors.push("Degree of Competence & Accuracy of Service rating is required.");
+                }
+
+                let timeSelected = false;
+                let timeVal = '';
+                modalResponseRadios.forEach(radio => {
+                    if (radio.checked) {
+                        timeSelected = true;
+                        timeVal = radio.value;
+                    }
+                });
+                if (!timeSelected) {
+                    errors.push("Degree of Responsiveness/Timeliness rating is required.");
+                }
+
+                let hasDislike = (accuracyVal === '0' || timeVal === '0');
+                if (hasDislike && modalCommentsTextarea && !modalCommentsTextarea.value.trim()) {
+                    errors.push("Please provide a comment to help us improve our services.");
+                }
+
+                if (errors.length > 0) {
+                    e.preventDefault();
+                    let errorHtml = '<ul class="text-left list-disc list-inside space-y-1 text-sm font-medium text-red-600">';
+                    errors.forEach(err => {
+                        errorHtml += `<li>${err}</li>`;
+                    });
+                    errorHtml += '</ul>';
+
+                    Swal.fire({
+                        title: 'Form Submission Failed',
+                        html: errorHtml,
+                        icon: 'warning',
+                        confirmButtonText: 'OK',
+                        confirmButtonColor: '#2563eb'
+                    });
+                }
+            });
+        }
+    });
 
 
     //  this is for the click function to add rows
