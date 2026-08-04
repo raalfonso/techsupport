@@ -800,12 +800,19 @@
                         </div>
                         <div class="space-y-1">
                             <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Responded By</p>
-                            <p class="font-medium text-gray-900 dark:text-white" x-text="selectedResolved?.responded_by"></p>
+                            <p class="font-medium text-gray-900 dark:text-white" x-text="selectedResolved?.responded_by || 'N/A'"></p>
                             <p class="text-xs text-gray-500 dark:text-gray-400" x-text="selectedResolved?.response_datetime"></p>
                         </div>
                         <div class="space-y-1">
+                            <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Validated By</p>
+                            <p class="font-medium text-gray-900 dark:text-white" x-text="selectedResolved?.validated_by || 'N/A'"></p>
+                            <template x-if="selectedResolved?.validation_datetime">
+                                <p class="text-xs text-gray-500 dark:text-gray-400" x-text="selectedResolved?.validation_datetime"></p>
+                            </template>
+                        </div>
+                        <div class="space-y-1">
                             <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Technical Staff (Resolved By)</p>
-                            <p class="font-medium text-gray-900 dark:text-white" x-text="selectedResolved?.resolved_by"></p>
+                            <p class="font-medium text-gray-900 dark:text-white" x-text="selectedResolved?.resolved_by || 'N/A'"></p>
                             <p class="text-xs text-gray-500 dark:text-gray-400" x-text="selectedResolved?.resolve_datetime"></p>
                         </div>
                     </div>
@@ -987,6 +994,8 @@
                                     'request_datetime' => $resolve->request_datetime ? date('M d, Y h:i A', strtotime($resolve->request_datetime)) : 'N/A',
                                     'response_datetime' => $resolve->response_datetime ? date('M d, Y h:i A', strtotime($resolve->response_datetime)) : 'N/A',
                                     'responded_by' => $resolve->response?->name ?? 'N/A',
+                                    'validated_by' => $resolve->validatedby?->name ?? 'N/A',
+                                    'validation_datetime' => $resolve->validation_date_time ? date('M d, Y h:i A', strtotime($resolve->validation_date_time)) : null,
                                     'resolve_datetime' => $resolve->resolve_datetime ? date('M d, Y h:i A', strtotime($resolve->resolve_datetime)) : 'N/A',
                                     'resolved_by' => $resolve->resolve?->user?->name ?? 'N/A',
                                     'procedure' => $resolve->procedure ?? '',

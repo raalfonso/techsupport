@@ -238,16 +238,16 @@ class ReportController extends Controller
     {
         
        
-        if($request->iam_check){
+        // if($request->iam_check){
             $report = Report::findOrFail($id);
             $report->response_by = $userId = Auth::id();
 
-            if($report->issues->mains->type == 'request'){
-                $report->status = "Ongoing";
-            }
-            else{
+            // if($report->issues->mains->type == 'request'){
+            //     $report->status = "Ongoing";
+            // }
+            // else{
                 $report->status = "For validation";
-            }
+            // }
             $report->notes = $request->notes;
             $report->response_datetime = Carbon::parse($request->response_datetime)->format('Y-m-d H:i:s');
             // $report->response_datetime = Carbon::now();
@@ -255,19 +255,19 @@ class ReportController extends Controller
             $report->logResponse();
             
             
-        }
-        else{
-            $report = Report::findOrFail($id);
+        // }
+        // else{
+        //     $report = Report::findOrFail($id);
        
-            $report->response_by = $request->user_id;
+        //     $report->response_by = $request->user_id;
             
-            $report->status = "For validation";
-            $report->notes = $request->notes; 
-            // $report->response_datetime = Carbon::now();
-            $report->response_datetime = Carbon::parse($request->response_datetime)->format('Y-m-d H:i:s');
-            $report->save();
-            $report->logResponse();
-        }
+        //     $report->status = "For validation";
+        //     $report->notes = $request->notes; 
+        //     // $report->response_datetime = Carbon::now();
+        //     $report->response_datetime = Carbon::parse($request->response_datetime)->format('Y-m-d H:i:s');
+        //     $report->save();
+        //     $report->logResponse();
+        // }
         
 
         return redirect()->route('report.index')->with('success', 'Response sent successfully!');
@@ -362,6 +362,7 @@ class ReportController extends Controller
         $report = Report::findOrFail($fields['report_id']);
         $report->validation_date_time = Carbon::parse($fields['validation_datetime'])->format('Y-m-d H:i:s');
         $report->status = "Ongoing";
+        $report->validated_by = auth()->user()->id;
         $report->save();
         $report->logValidate();
 

@@ -91,7 +91,10 @@
                             {{ $report->validation_date_time ?? $report->response_datetime }}
                         </div>
                         <div class="flex items-center space-x-2">
-                            <span class="text-xs text-gray-500 dark:text-gray-400">Responsed by: {{ $report->response->name;}}</span>
+                            <span class="text-xs text-gray-500 dark:text-gray-400">Responsed by: {{ $report->response?->name ?? 'N/A' }}</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <span class="text-xs text-gray-500 dark:text-gray-400">Validated by: {{ $report->validatedby?->name ?? 'N/A' }}</span>
                         </div>
                         <div class="flex items-center space-x-2">
                             
@@ -101,7 +104,7 @@
 
                     @elseif($report->status == 'For validation')
                         <div class="flex items-center space-x-2">
-                            <span class="text-xs text-gray-500 dark:text-gray-400">Responsed by: {{ $report->response->name;}}</span>
+                            <span class="text-xs text-gray-500 dark:text-gray-400">Responsed by: {{ $report->response?->name ?? 'N/A' }}</span>
                         </div>
                     @endif
 
@@ -213,7 +216,7 @@
                 
                     @csrf
                     <!-- Technical Staff -->
-                    <div class="space-y-2">
+                    <div class="space-y-2" style="display:none;">
                         <label for="user_id" class="block text-sm font-semibold text-gray-700 flex items-center space-x-2">
                             <i class="fa-solid fa-user-gear text-blue-600"></i>
                             <span>Technical Staff</span>
