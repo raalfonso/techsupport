@@ -744,6 +744,10 @@ public function checkLogin()
                 $departmentCode = $surveyUser->department_id;
             }
         }
+        else
+        {
+            abort(403, 'Invalid survey link. This form has already been changed. Please generate a new survey link.');
+        }
         
    
         $employees = SurveyEmployees::where(['id' => $generated->userSurvey->surveyEmployee->id])
