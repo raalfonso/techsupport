@@ -76,7 +76,7 @@ class Report extends Model
 
     public function resolve()
     {
-        return $this->belongsTo(Resolve::class, 'id', 'report_id');
+        return $this->hasOne(Resolve::class, 'report_id', 'id');
     }
 
     public function validatedby()
