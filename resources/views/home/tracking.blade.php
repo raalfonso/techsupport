@@ -225,7 +225,7 @@
             <div class="p-6 md:p-8 overflow-y-auto max-h-[calc(100vh-180px)]">
                 <form action="{{ route('feedback.store') }}" method="POST" id="feedback-form" class="space-y-6">
                     @csrf
-                    <input type="hidden" name="report_id" id="report-id">
+                    <input type="hidden" name="report_id" id="report-id" value="{{ $report->id }}">
 
                     <!-- Date & Person Transacted With -->
                     <div class="space-y-4">
@@ -236,7 +236,10 @@
                         <div class="flex flex-col md:flex-row md:items-center space-y-2 md:space-y-0 md:space-x-2">
                             <label for="transacted-person" class="text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">Person(s) you transacted with:</label>
                             <input type="text" id="transacted-person" class="w-full px-4 py-2 rounded-lg border border-gray-300 bg-gray-50 text-gray-800 text-sm focus:outline-none" readonly value="IT Staff">
+                            <input type="hidden" name="transacted-person" value="{{ $report->resolve->user->surveyEmployee->id }}" class="w-full px-4 py-2 rounded-lg border border-gray-300 bg-gray-50 text-gray-800 text-sm focus:outline-none" readonly value="IT Staff">
+                            <input type="hidden" name="generated-code" value="{{ $report->ticket_number }}" class="w-full px-4 py-2 rounded-lg border border-gray-300 bg-gray-50 text-gray-800 text-sm focus:outline-none" readonly value="IT Staff">
                         </div>
+                        
                     </div>
 
                     <div class="flex items-center space-x-2 pt-2 border-t border-gray-100 dark:border-gray-700">
