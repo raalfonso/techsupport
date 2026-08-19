@@ -610,7 +610,8 @@ class AttendanceLogController extends Controller
     public function exportWFHPdf(Request $request)
         {
             $isAdmin = auth()->user()->authAssignments()->where('item_name', 'Administrator')->exists();
-            if (!$isAdmin) {
+            $isHrAdmin = auth()->user()->authAssignments()->where('item_name', 'HR_admin')->exists();
+           if (!$isAdmin && !$isHrAdmin) {
                 return redirect()->route('attendance.dashboard')->with('error', 'Unauthorized access');
             }
 
