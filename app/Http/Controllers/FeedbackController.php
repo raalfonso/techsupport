@@ -30,6 +30,8 @@ class FeedbackController extends Controller
      */
     public function store(Request $request)
     {
+
+        
         $fields = $request->validate([
             'report_id' => 'required',
             'accuracy_of_service' => 'nullable',
@@ -41,15 +43,20 @@ class FeedbackController extends Controller
             'answer3' => 'nullable',
             'reason'   => 'nullable|max:255',
             'suggestion'  => 'nullable|max:255',
+            'transacted-person' => 'required',
+            'generated-code' => 'nullable',
         ]);
+
+    
 
         $reportId = $request->input('report_id');
         $report = Report::find($reportId);
-
+    
         $accuracy = $request->input('accuracy_of_service', $request->input('answer1'));
         $responseTime = $request->input('response_time', $request->input('answer2', $request->input('answer3')));
         $comments = $request->input('comments', $request->input('reason'));
         $clientName = $request->input('client_name', $request->input('suggestion'));
+        $survey_employee_id = $request->input('transacted-person');
 
         // Convert survey ratings (2=Super Like, 1=Like, 0=Dislike) to 1-5 scale for Feedback model average scores
         $answer1 = ($accuracy == '2') ? 5 : (($accuracy == '1') ? 4 : (($accuracy == '0') ? 1 : ($request->input('answer1') ?? 5)));
@@ -63,21 +70,25 @@ class FeedbackController extends Controller
             'answer3' => $answer3,
             'reason' => $comments,
             'suggestion' => $clientName,
+            'transacted_person' => $survey_employee_id,
+            'generated_code' => $request->input('generated-code'),
         ]);
 
         if ($report) {
-            $report->update(['feedback' => 'Yes']);
-
+        
+            $report->feedback = 'Yes';
+            $report->save();
             // Save to survey_report table as well
             try {
                 \App\Models\SurveyReport::create([
                     'department_id' => $report->department_id,
                     'survey_date' => now()->format('Y-m-d'),
-                    'survey_employees_id' => $report->survey_employees_id ?? 1,
+                    'survey_employees_id' => $survey_employee_id,
                     'accuracy_of_service' => is_numeric($accuracy) ? (int)$accuracy : 2,
                     'response_time' => is_numeric($responseTime) ? (int)$responseTime : 2,
                     'comments' => $comments,
                     'client_name' => $clientName ?? $report->client?->name,
+                    'generated_code' => $request->input('generated-code'),
                 ]);
             } catch (\Exception $e) {
                 // Ignore if survey_employees_id is missing or fails
