@@ -21,6 +21,15 @@
             <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-8">Edit Employee</h1>
 
             <div class="bg-white dark:bg-slate-800 rounded-lg shadow-md p-6">
+                @if($errors->any())
+                    <div class="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 rounded-lg">
+                        <ul class="list-disc pl-5">
+                            @foreach($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
                 <form action="{{ route('employee-list.update', $employee) }}" method="POST">
                     @csrf
                     @method('PUT')
@@ -114,6 +123,27 @@
                         </div>
                     </div>
 
+                    <!-- Inactive Fields (Hidden by default) -->
+                    <div id="inactive-fields" class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6" style="display: none;">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Inactive Reason *</label>
+                            <select name="inactive_reason" id="inactive_reason" class="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 @error('inactive_reason') border-red-500 @enderror">
+                                <option value="">Select Reason</option>
+                                <option value="resigned" {{ old('inactive_reason', $latestHistory?->reason) === 'resigned' ? 'selected' : '' }}>Resigned</option>
+                                <option value="recall" {{ old('inactive_reason', $latestHistory?->reason) === 'recall' ? 'selected' : '' }}>Recall</option>
+                                <option value="terminated" {{ old('inactive_reason', $latestHistory?->reason) === 'terminated' ? 'selected' : '' }}>Terminated</option>
+                                <option value="retired" {{ old('inactive_reason', $latestHistory?->reason) === 'retired' ? 'selected' : '' }}>Retired</option>
+                            </select>
+                            @error('inactive_reason') <span class="text-red-600 text-sm">{{ $message }}</span> @enderror
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Inactive Date *</label>
+                            <input type="date" name="inactive_date" id="inactive_date" value="{{ old('inactive_date', $latestHistory?->date?->format('Y-m-d')) }}" class="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 @error('inactive_date') border-red-500 @enderror">
+                            @error('inactive_date') <span class="text-red-600 text-sm">{{ $message }}</span> @enderror
+                        </div>
+                    </div>
+
                     <div class="mb-6">
                         <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Remarks</label>
                         <textarea name="remarks" rows="4" class="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Enter any additional remarks or notes...">{{ old('remarks', $employee->remarks) }}</textarea>
@@ -132,5 +162,28 @@
             </div>
         </div>
     </div>
+
+    <script>
+        $(document).ready(function() {
+            function toggleInactiveFields() {
+                const status = $('select[name="employment_status"]').val();
+                if (status === 'Inactive') {
+                    $('#inactive-fields').show();
+                    $('#inactive_reason').prop('required', true);
+                    $('#inactive_date').prop('required', true);
+                } else {
+                    $('#inactive-fields').hide();
+                    $('#inactive_reason').prop('required', false);
+                    $('#inactive_date').prop('required', false);
+                }
+            }
+
+            // On change
+            $('select[name="employment_status"]').change(toggleInactiveFields);
+
+            // Run on page load
+            toggleInactiveFields();
+        });
+    </script>
 </body>
 </html>

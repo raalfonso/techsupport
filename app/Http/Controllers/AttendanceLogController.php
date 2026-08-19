@@ -10,12 +10,21 @@ class AttendanceLogController extends Controller
 {
     public function dashboard()
     {
-        $isAdmin = auth()->user()->authAssignments()->where('item_name', 'Administrator')->exists();
-        $canViewAll = $isAdmin || auth()->user()->authAssignments()->whereIn('item_name', ['HR_admin', 'depthead'])->exists();
+        $user = auth()->user();
+        $isAdmin = $user->authAssignments()->where('item_name', 'Administrator')->exists();
+        $canViewAll = $isAdmin || $user->authAssignments()->whereIn('item_name', ['HR_admin'])->exists();
+        $depthead = $user->authAssignments()->where('item_name', 'depthead')->exists();
 
         $logsQuery = AttendanceLog::with('user.masterlist.department')->latest();
-        if (!$canViewAll) {
-            $logsQuery->where('user_id', auth()->id());
+        if ($isAdmin || $canViewAll) {
+            // View all
+        } elseif ($depthead) {
+            $deptId = $user->masterlist?->department_id;
+            $logsQuery->whereHas('user.masterlist', function ($q) use ($deptId) {
+                $q->where('department_id', $deptId);
+            });
+        } else {
+            $logsQuery->where('user_id', $user->id);
         }
         $logs = $logsQuery->paginate(10, ['*'], 'logs_page');
 
@@ -46,7 +55,7 @@ class AttendanceLogController extends Controller
             'end_date' => request('end_date')
         ];
 
-        return view('attendance_logs.dashboard', compact('logs', 'accomplishments', 'isAdmin', 'canViewAll', 'filters'));
+        return view('attendance_logs.dashboard', compact('logs', 'accomplishments', 'isAdmin', 'canViewAll','depthead', 'filters'));
     }
 
     public function clockIn()
@@ -196,8 +205,10 @@ class AttendanceLogController extends Controller
 
     public function search(Request $request)
     {
-        $isAdmin = auth()->user()->authAssignments()->where('item_name', 'Administrator')->exists();
-        $canViewAll = $isAdmin || auth()->user()->authAssignments()->whereIn('item_name', ['HR_admin', 'depthead'])->exists();
+        $user = auth()->user();
+        $isAdmin = $user->authAssignments()->where('item_name', 'Administrator')->exists();
+        $canViewAll = $isAdmin || $user->authAssignments()->whereIn('item_name', ['HR_admin'])->exists();
+        $depthead = $user->authAssignments()->where('item_name', 'depthead')->exists();
         $name = $request->input('name');
         $department = $request->input('department');
         $employmentType = $request->input('employment_type');
@@ -206,8 +217,15 @@ class AttendanceLogController extends Controller
 
         $query = AttendanceLog::with('user.masterlist.department')->latest();
 
-        if (!$canViewAll) {
-            $query->where('user_id', auth()->id());
+        if ($isAdmin || $canViewAll) {
+            // Can search all logs
+        } elseif ($depthead) {
+            $deptId = $user->masterlist?->department_id;
+            $query->whereHas('user.masterlist', function ($q) use ($deptId) {
+                $q->where('department_id', $deptId);
+            });
+        } else {
+            $query->where('user_id', $user->id);
         }
 
         if ($name) {
@@ -261,6 +279,7 @@ class AttendanceLogController extends Controller
             'accomplishments' => $accomplishments,
             'isAdmin' => $isAdmin,
             'canViewAll' => $canViewAll,
+            'depthead' => $depthead,
             'filters' => [
                 'name' => $name,
                 'department' => $department,
@@ -273,16 +292,31 @@ class AttendanceLogController extends Controller
 
     public function getEmployees(Request $request)
     {
+        $user = auth()->user();
+        $isAdmin = $user->authAssignments()->where('item_name', 'Administrator')->exists();
+        $isHRAdmin = $user->authAssignments()->where('item_name', 'HR_admin')->exists();
+        $isDeptHead = $user->authAssignments()->where('item_name', 'depthead')->exists();
+
         $search = $request->input('search', '');
-        $employees = User::with('masterlist')
-            ->where('name', 'like', '%' . $search . '%')
-            ->limit(10)
+        $query = User::with('masterlist')
+            ->where('name', 'like', '%' . $search . '%');
+
+        if (!$isAdmin && !$isHRAdmin && $isDeptHead) {
+            $deptId = $user->masterlist?->department_id;
+            $query->whereHas('masterlist', function ($q) use ($deptId) {
+                $q->where('department_id', $deptId);
+            });
+        } elseif (!$isAdmin && !$isHRAdmin) {
+            $query->where('id', $user->id);
+        }
+
+        $employees = $query->limit(10)
             ->get()
-            ->map(function($user) {
+            ->map(function($u) {
                 return [
-                    'id' => $user->id,
-                    'name' => $user->name,
-                    'employee_id' => $user->masterlist->employee_number ?? 'N/A'
+                    'id' => $u->id,
+                    'name' => $u->name,
+                    'employee_id' => $u->masterlist->employee_number ?? 'N/A'
                 ];
             });
         
@@ -291,11 +325,21 @@ class AttendanceLogController extends Controller
 
     public function getDepartments(Request $request)
     {
+        $user = auth()->user();
+        $isAdmin = $user->authAssignments()->where('item_name', 'Administrator')->exists();
+        $isHRAdmin = $user->authAssignments()->where('item_name', 'HR_admin')->exists();
+        $isDeptHead = $user->authAssignments()->where('item_name', 'depthead')->exists();
+
         $search = $request->input('search', '');
-        $departments = \App\Models\Department::where('title', 'like', '%' . $search . '%')
-            ->where('active', 1)
-            ->limit(10)
-            ->get(['id', 'title as name']);
+        $query = \App\Models\Department::where('title', 'like', '%' . $search . '%')
+            ->where('active', 1);
+
+        if (!$isAdmin && !$isHRAdmin && $isDeptHead) {
+            $deptId = $user->masterlist?->department_id;
+            $query->where('id', $deptId);
+        }
+
+        $departments = $query->limit(10)->get(['id', 'title as name']);
         
         return response()->json($departments);
     }
@@ -503,9 +547,8 @@ class AttendanceLogController extends Controller
         $user = auth()->user();
         $isAdmin = $user->authAssignments()->where('item_name', 'Administrator')->exists();
         $isHRAdmin = $user->authAssignments()->where('item_name', 'HR_admin')->exists();
-        $isDeptHead = $user->authAssignments()->where('item_name', 'depthead')->exists();
 
-        if (!$isAdmin && !$isHRAdmin && !$isDeptHead) {
+        if (!$isAdmin && !$isHRAdmin) {
             return redirect()->route('attendance.dashboard')->with('error', 'Unauthorized access');
         }
 
@@ -513,23 +556,11 @@ class AttendanceLogController extends Controller
         $startDate = $request->input('start_date', now()->startOfMonth()->toDateString());
         $endDate = $request->input('end_date', now()->toDateString());
 
-        // For depthead, scope to their department
-        $deptHeadDeptId = ($isDeptHead && !$isAdmin && !$isHRAdmin)
-            ? $user->masterlist?->department_id
-            : null;
-
         // Total employees
-        $totalEmployeesQuery = \App\Models\EmployeeMasterlist::where('employment_status', 'Active');
-        if ($deptHeadDeptId) {
-            $totalEmployeesQuery->where('department_id', $deptHeadDeptId);
-        }
-        $totalEmployees = $totalEmployeesQuery->count();
+        $totalEmployees = \App\Models\EmployeeMasterlist::where('employment_status', 'Active')->count();
 
         // Attendance statistics for date range
         $attendanceQuery = AttendanceLog::whereBetween('date', [$startDate, $endDate]);
-        if ($deptHeadDeptId) {
-            $attendanceQuery->whereHas('user.masterlist', fn($q) => $q->where('department_id', $deptHeadDeptId));
-        }
 
         $totalAttendance = $attendanceQuery->where('mode', 'Attend')->distinct('user_id', 'date')->count();
         $totalLeave = $attendanceQuery->where('mode', 'Leave')->distinct('user_id', 'date')->count();
@@ -652,21 +683,30 @@ class AttendanceLogController extends Controller
             return $pdf->stream("wfh_accomplishments_{$wfhDate}.pdf");
         }
     public function printAttendancePdf(Request $request)
-        {
-            $isAdmin = auth()->user()->authAssignments()->where('item_name', 'Administrator')->exists();
-            $canViewAll = $isAdmin || auth()->user()->authAssignments()->whereIn('item_name', ['HR_admin', 'depthead'])->exists();
+    {
+        $user = auth()->user();
+        $isAdmin = $user->authAssignments()->where('item_name', 'Administrator')->exists();
+        $isHRAdmin = $user->authAssignments()->where('item_name', 'HR_admin')->exists();
+        $isDeptHead = $user->authAssignments()->where('item_name', 'depthead')->exists();
 
-            $name           = $request->input('name');
-            $department     = $request->input('department');
-            $employmentType = $request->input('employment_type');
-            $startDate      = $request->input('start_date');
-            $endDate        = $request->input('end_date');
+        $name           = $request->input('name');
+        $department     = $request->input('department');
+        $employmentType = $request->input('employment_type');
+        $startDate      = $request->input('start_date');
+        $endDate        = $request->input('end_date');
 
-            $query = AttendanceLog::with('user.masterlist.department')->latest();
+        $query = AttendanceLog::with('user.masterlist.department')->latest();
 
-            if (!$canViewAll) {
-                $query->where('user_id', auth()->id());
-            }
+        if ($isAdmin || $isHRAdmin) {
+            // Can view all
+        } elseif ($isDeptHead) {
+            $deptId = $user->masterlist?->department_id;
+            $query->whereHas('user.masterlist', function ($q) use ($deptId) {
+                $q->where('department_id', $deptId);
+            });
+        } else {
+            $query->where('user_id', $user->id);
+        }
 
             if ($name) {
                 $query->whereHas('user', fn($q) => $q->where('name', 'like', "%$name%"));
@@ -872,8 +912,10 @@ class AttendanceLogController extends Controller
 
     public function exportCSV(Request $request)
     {
-        $isAdmin = auth()->user()->authAssignments()->where('item_name', 'Administrator')->exists();
-        $canViewAll = $isAdmin || auth()->user()->authAssignments()->whereIn('item_name', ['HR_admin', 'depthead'])->exists();
+        $user = auth()->user();
+        $isAdmin = $user->authAssignments()->where('item_name', 'Administrator')->exists();
+        $isHRAdmin = $user->authAssignments()->where('item_name', 'HR_admin')->exists();
+        $isDeptHead = $user->authAssignments()->where('item_name', 'depthead')->exists();
 
         $name = $request->input('name');
         $department = $request->input('department');
@@ -883,8 +925,15 @@ class AttendanceLogController extends Controller
 
         $query = AttendanceLog::with('user.masterlist')->latest();
 
-        if (!$canViewAll) {
-            $query->where('user_id', auth()->id());
+        if ($isAdmin || $isHRAdmin) {
+            // Can view all
+        } elseif ($isDeptHead) {
+            $deptId = $user->masterlist?->department_id;
+            $query->whereHas('user.masterlist', function ($q) use ($deptId) {
+                $q->where('department_id', $deptId);
+            });
+        } else {
+            $query->where('user_id', $user->id);
         }
 
         if ($name) {
@@ -914,7 +963,8 @@ class AttendanceLogController extends Controller
         }
 
         $logs = $query->get();
-        $user = auth()->user();
+
+        $canExportAll = $isAdmin || $isHRAdmin || $isDeptHead;
 
         // Generate CSV
         $filename = 'attendance_' . now()->format('Y-m-d') . '.csv';
@@ -923,11 +973,11 @@ class AttendanceLogController extends Controller
             'Content-Disposition' => 'attachment; filename="' . $filename . '"',
         ];
 
-        $callback = function() use ($logs, $isAdmin, $canViewAll, $user) {
+        $callback = function() use ($logs, $isAdmin, $canExportAll, $user) {
             $file = fopen('php://output', 'w');
             
             // CSV Header
-            if ($canViewAll) {
+            if ($canExportAll) {
                 fputcsv($file, ['Date', 'Time', 'Employee Name', 'Employee ID', 'Class', 'Mode', 'Type', 'Card Serial', 'Result', 'Property', 'External Device', 'Coordinate']);
             } else {
                 fputcsv($file, ['Date', 'Time', 'User ID', 'Name', 'Employee ID', 'Class', 'Mode', 'Type', 'Card Serial', 'Result', 'Property', 'External Device', 'Coordinate']);
@@ -947,7 +997,7 @@ class AttendanceLogController extends Controller
                 $externalDevice = 'ClockWize';
                 $coordinate = '0/0';
 
-                if ($canViewAll) {
+                if ($canExportAll) {
                     $employeeName = $log->user->name ?? 'N/A';
                     fputcsv($file, [$date, $time, $employeeName, $employeeId, $className, $mode, $type, $cardSerial, $result, $property, $externalDevice, $coordinate]);
                 } else {

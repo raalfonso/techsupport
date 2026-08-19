@@ -228,7 +228,7 @@
                     <h2 class="text-xl font-bold text-gray-900 dark:text-white">Recent Attendance History</h2>
                     <div class="flex gap-3">
                         @php
-                            $canViewNav = $canViewAll ?? (auth()->user()->authAssignments()->whereIn('item_name', ['Administrator', 'HR_admin', 'depthead'])->exists());
+                            $canViewNav = $canViewAll || $depthead;
                         @endphp
                         @if($canViewNav)
                         <button onclick="exportToCSV()" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-blue-700 transition flex items-center gap-2">
@@ -319,7 +319,7 @@
                             <tr class="border-b border-gray-200 dark:border-slate-600">
                                 <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase">Date</th>
                                 <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase">Time Logged</th>
-                                @if($canViewNav)
+                                @if($canViewNav || $depthead)
                                 <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase">Employee Name</th>
                                 @endif
                                 <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase">Employee ID</th>
@@ -333,7 +333,7 @@
                                 <tr class="border-b border-gray-100 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-700 transition">
                                     <td class="px-6 py-4 text-sm text-gray-900 dark:text-white">{{ $log->date->format('M d, Y') }}</td>
                                     <td class="px-6 py-4 text-sm font-mono text-gray-700 dark:text-gray-300">{{ date('g:i A', strtotime($log->time)) }}</td>
-                                    @if($canViewNav)
+                                    @if($canViewNav || $depthead)
                                     <td class="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{{ $log->user->name ?? 'N/A' }}</td>
                                     @endif
                                     <td class="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{{ $log->user->masterlist->employee_number ?? 'N/A' }}</td>
@@ -351,7 +351,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="{{ $canViewNav ? 6 : 5 }}" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400 text-sm">No attendance records found</td>
+                                    <td colspan="{{ ($canViewNav || $depthead) ? 6 : 5 }}" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400 text-sm">No attendance records found</td>
                                 </tr>
                             @endforelse
                         </tbody>

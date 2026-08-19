@@ -35,6 +35,11 @@ class EmployeeMasterlist extends Model
         return $this->belongsTo(User::class, 'email', 'email');
     }
 
+    public function histories()
+    {
+        return $this->hasMany(MasterlistHistory::class, 'employee_id', 'employee_number');
+    }
+
     public function getFullNameAttribute()
     {
         return trim("{$this->first_name} {$this->middle_name} {$this->last_name}");
