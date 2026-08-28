@@ -58,10 +58,10 @@ class HomeController extends Controller
 
     public function employeeReport()
     {
-        $email = session('email');
-
+        $email = auth()->user()->email;
+   
         if (!$email) {
-            return redirect()->route('home.index')->with('error', 'Session expired or missing.');
+            return redirect()->route('home.home')->with('error', 'Session expired or missing.');
         }
 
         $client = SurveyEmployees::where('email', $email)->first();
