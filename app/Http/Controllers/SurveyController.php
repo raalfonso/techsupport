@@ -719,8 +719,9 @@ public function checkLogin()
 
     public function form(Request $request)
     {
-        $code = $request->query('code');
-        $departmentCode = $request->query('dept');
+        try{
+            $code = $request->query('code');
+            $departmentCode = $request->query('dept');
 
         if ($code) {
             $generated = SurveyGenerated::where('generated_code', $code)->first();
@@ -766,7 +767,10 @@ public function checkLogin()
             'employees' => $employees,
             'code' => $code,
         ]);
-
+        }
+        catch (\Exception $e) {
+            return abort(403, 'This survey link is invalid. Please generate a new survey link. ');
+        }
     }
 
     public function submit(Request $request)
