@@ -81,7 +81,7 @@ class FeedbackController extends Controller
             // Save to survey_report table as well
             try {
                 \App\Models\SurveyReport::create([
-                    'department_id' => $report->department_id,
+                    'department_id' => 13,
                     'survey_date' => now()->format('Y-m-d'),
                     'survey_employees_id' => $survey_employee_id,
                     'accuracy_of_service' => is_numeric($accuracy) ? (int)$accuracy : 2,
