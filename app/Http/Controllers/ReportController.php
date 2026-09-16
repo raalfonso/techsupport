@@ -443,6 +443,138 @@ class ReportController extends Controller
         return Excel::download(new ReportsExport($request->all()), 'reports.xlsx');
     }
 
+    public function summary(Request $request)
+    {
+        $query = Report::whereIn('status', ['Done']);
+
+        // Apply filters matching index and export
+        if ($request->filled('date_from')) {
+            $query->whereDate('resolve_datetime', '>=', $request->date_from);
+        }
+        
+        if ($request->filled('date_to')) {
+            $query->whereDate('resolve_datetime', '<=', $request->date_to);
+        }
+        
+        if ($request->filled('department_id')) {
+            $query->where('department_id', '=', $request->department_id);
+        }
+        
+        if ($request->filled('category_id')) {
+            $query->whereHas('Issues', function($q) use ($request) {
+                $q->where('category_id', '=', $request->category_id);
+            });
+        }
+        
+        if ($request->filled('user_id')) {
+            $query->whereHas('resolve', function($q) use ($request) {
+                $q->where('user_id', '=', $request->user_id);
+            });
+        }
+
+        $reports = $query->select([
+            'id',
+            'ticket_number',
+            'request_datetime',
+            'response_datetime',
+            'validation_date_time',
+            'resolve_datetime',
+            'department_id',
+            'issues_id'
+        ])->get();
+
+        $totalRequests = $reports->count();
+
+        $responseTimes = [];
+        $resolveTimes = [];
+        $turnaroundTimes = [];
+
+        foreach ($reports as $report) {
+            // Response time (Waiting Time: request_datetime to response_datetime)
+            if ($report->request_datetime && $report->response_datetime) {
+                $req = Carbon::parse($report->request_datetime);
+                $res = Carbon::parse($report->response_datetime);
+                $diff = $req->diffInMinutes($res);
+                $responseTimes[] = $diff;
+            }
+
+            // Resolution time: response/validation to resolve_datetime
+            if ($report->resolve_datetime) {
+                $startTime = $report->validation_date_time 
+                    ? Carbon::parse($report->validation_date_time) 
+                    : ($report->response_datetime ? Carbon::parse($report->response_datetime) : null);
+
+                if ($startTime) {
+                    $endTime = Carbon::parse($report->resolve_datetime);
+                    $diff = $startTime->diffInMinutes($endTime);
+                    $resolveTimes[] = $diff;
+                }
+            }
+
+            // Turnaround time: request_datetime to resolve_datetime
+            if ($report->request_datetime && $report->resolve_datetime) {
+                $diff = Carbon::parse($report->request_datetime)->diffInMinutes(Carbon::parse($report->resolve_datetime));
+                $turnaroundTimes[] = $diff;
+            }
+        }
+
+        $formatDuration = function ($minutes) {
+            if ($minutes === null) return 'N/A';
+            $minutes = round($minutes);
+            if ($minutes < 1) return '< 1 min';
+            if ($minutes < 60) return $minutes . ' min' . ($minutes > 1 ? 's' : '');
+            $hours = floor($minutes / 60);
+            $rem = $minutes % 60;
+            if ($rem === 0) return $hours . ' hr' . ($hours > 1 ? 's' : '');
+            return $hours . ' hr' . ($hours > 1 ? 's ' : ' ') . $rem . ' min' . ($rem > 1 ? 's' : '');
+        };
+
+        $avgResponse = count($responseTimes) > 0 ? (array_sum($responseTimes) / count($responseTimes)) : null;
+        $avgResolve = count($resolveTimes) > 0 ? (array_sum($resolveTimes) / count($resolveTimes)) : null;
+        $avgTurnaround = count($turnaroundTimes) > 0 ? (array_sum($turnaroundTimes) / count($turnaroundTimes)) : null;
+
+        $minResponse = count($responseTimes) > 0 ? min($responseTimes) : null;
+        $maxResponse = count($responseTimes) > 0 ? max($responseTimes) : null;
+
+        $within15 = count(array_filter($responseTimes, fn($m) => $m <= 15));
+        $within60 = count(array_filter($responseTimes, fn($m) => $m <= 60));
+        $over60 = count(array_filter($responseTimes, fn($m) => $m > 60));
+
+        $totalWithResponse = count($responseTimes);
+
+        // Filter labels
+        $appliedFilters = [
+            'date_range' => ($request->filled('date_from') || $request->filled('date_to'))
+                ? (($request->filled('date_from') ? Carbon::parse($request->date_from)->format('M d, Y') : 'Start') . ' to ' . ($request->filled('date_to') ? Carbon::parse($request->date_to)->format('M d, Y') : 'End'))
+                : 'All Dates',
+            'department' => $request->filled('department_id') ? (Department::find($request->department_id)?->title ?? 'Selected') : 'All Departments',
+            'category' => $request->filled('category_id') ? (Category::find($request->category_id)?->title ?? 'Selected') : 'All Categories',
+            'staff' => $request->filled('user_id') ? (User::find($request->user_id)?->name ?? 'Selected') : 'All Staff',
+        ];
+
+        return response()->json([
+            'success' => true,
+            'total_requests' => $totalRequests,
+            'total_requests_formatted' => number_format($totalRequests),
+            'has_records' => $totalRequests > 0,
+            'avg_response_time' => $formatDuration($avgResponse),
+            'avg_response_minutes' => $avgResponse !== null ? round($avgResponse, 1) : null,
+            'avg_resolve_time' => $formatDuration($avgResolve),
+            'avg_resolve_minutes' => $avgResolve !== null ? round($avgResolve, 1) : null,
+            'avg_turnaround_time' => $formatDuration($avgTurnaround),
+            'avg_turnaround_minutes' => $avgTurnaround !== null ? round($avgTurnaround, 1) : null,
+            'min_response_time' => $formatDuration($minResponse),
+            'max_response_time' => $formatDuration($maxResponse),
+            'within_15_mins' => $within15,
+            'within_15_mins_pct' => $totalWithResponse > 0 ? round(($within15 / $totalWithResponse) * 100, 1) : 0,
+            'within_1_hour' => $within60,
+            'within_1_hour_pct' => $totalWithResponse > 0 ? round(($within60 / $totalWithResponse) * 100, 1) : 0,
+            'over_1_hour' => $over60,
+            'over_1_hour_pct' => $totalWithResponse > 0 ? round(($over60 / $totalWithResponse) * 100, 1) : 0,
+            'filters' => $appliedFilters,
+        ]);
+    }
+
     public function logHistory($id)
     {
         $loghistories = History::where('report_id', $id)

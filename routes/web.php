@@ -116,6 +116,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('attendance-logs', AttendanceLogController::class);
     Route::resource('main', MainController::class);
     Route::get('/report/export', [ReportController::class, 'export'])->name('report.export');
+    Route::get('/report/summary', [ReportController::class, 'summary'])->name('report.summary');
     Route::post('/report/emergency', [ReportController::class, 'emergency'])->name('report.emergency');
    
     Route::resource('report', ReportController::class);
