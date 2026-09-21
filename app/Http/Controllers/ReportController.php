@@ -113,7 +113,7 @@ class ReportController extends Controller
     {
         $reports = Report::whereIn('status', ['Pending', 'Ongoing', 'For Validation'])
         ->orderBy('id', 'asc')
-        ->paginate(15);
+        ->paginate(30);
         $categories = Category::orderBy('title', 'asc')->get();
         $departments = Department::orderBy('title', 'asc')->get();
         $issues = Issues::all();
