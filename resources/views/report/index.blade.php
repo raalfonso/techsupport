@@ -55,10 +55,50 @@
                 responseModal: false, 
                 screenshotModal: false,
                 resolvedDetailsModal: false,
+                summaryModal: false,
+                summaryLoading: false,
+                summaryData: null,
+                showInlineSummary: false,
                 selectedResolved: null,
                 currentScreenshot: '',
                 currentTicket: '',
                 selectedId: null,
+                getSummaryResult() {
+                    this.summaryLoading = true;
+                    const form = document.getElementById('resolvedFilterForm');
+                    const params = form ? new URLSearchParams(new FormData(form)).toString() : '';
+                    fetch('{{ route('report.summary') }}?' + params, {
+                        headers: {
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    })
+                    .then(response => {
+                        if (!response.ok) throw new Error('Failed to fetch summary data');
+                        return response.json();
+                    })
+                    .then(data => {
+                        this.summaryData = data;
+                        this.summaryModal = true;
+                        this.showInlineSummary = true;
+                    })
+                    .catch(error => {
+                        console.error('Error getting summary:', error);
+                        if (window.Swal) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'Failed to retrieve summary results. Please try again.',
+                                confirmButtonColor: '#0d9488'
+                            });
+                        } else {
+                            alert('Failed to retrieve summary results.');
+                        }
+                    })
+                    .finally(() => {
+                        this.summaryLoading = false;
+                    });
+                },
                 openNewRequest() {
                     this.showModal = true;
                     this.$nextTick(() => {
@@ -869,6 +909,174 @@
                 </div>
             </div>
         </div>
+
+        {{-- Summary Result Modal --}}
+        <div x-show="summaryModal" x-cloak class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-60 backdrop-blur-sm z-50" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
+            <div class="bg-white dark:bg-gray-800 p-0 w-11/12 md:w-screen lg:w-3/5 max-w-3xl rounded-2xl shadow-2xl border border-gray-100 dark:border-gray-700" x-transition:enter="transition ease-out duration-300 transform" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-200 transform" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95">
+                <!-- Header -->
+                <div class="bg-gradient-to-r from-blue-600 via-indigo-600 to-indigo-700 px-6 py-4 rounded-t-2xl">
+                    <div class="flex justify-between items-center">
+                        <div class="flex items-center space-x-3">
+                            <div class="bg-white bg-opacity-20 p-2.5 rounded-xl">
+                                <i class="fa-solid fa-chart-pie text-white text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-bold text-white">Resolved Issues Summary</h3>
+                                <p class="text-xs text-blue-100">Calculated metrics based on applied filters</p>
+                            </div>
+                        </div>
+                        <button type="button" @click="summaryModal = false" class="text-white hover:bg-white/20 rounded-full p-2 transition-all duration-200">
+                            <i class="fa-solid fa-times text-lg"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Body -->
+                <div class="p-6 max-h-[75vh] overflow-y-auto space-y-6 text-sm">
+                    <!-- Filters applied badge row -->
+                    <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-xl border border-gray-100 dark:border-gray-700">
+                        <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                            <i class="fa-solid fa-filter text-indigo-500"></i>
+                            <span>Active Filter Criteria</span>
+                        </p>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="inline-flex items-center px-3 py-1 rounded-lg text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/60 dark:text-blue-300">
+                                <i class="fa-solid fa-building mr-1.5 opacity-70"></i>
+                                <span x-text="summaryData?.filters?.department || 'All Departments'"></span>
+                            </span>
+                            <span class="inline-flex items-center px-3 py-1 rounded-lg text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900/60 dark:text-purple-300">
+                                <i class="fa-solid fa-tags mr-1.5 opacity-70"></i>
+                                <span x-text="summaryData?.filters?.category || 'All Categories'"></span>
+                            </span>
+                            <span class="inline-flex items-center px-3 py-1 rounded-lg text-xs font-medium bg-teal-100 text-teal-800 dark:bg-teal-900/60 dark:text-teal-300">
+                                <i class="fa-solid fa-user-gear mr-1.5 opacity-70"></i>
+                                <span x-text="summaryData?.filters?.staff || 'All Staff'"></span>
+                            </span>
+                            <span class="inline-flex items-center px-3 py-1 rounded-lg text-xs font-medium bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-300">
+                                <i class="fa-solid fa-calendar mr-1.5 opacity-70"></i>
+                                <span x-text="summaryData?.filters?.date_range || 'All Dates'"></span>
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Empty State if No Records Found -->
+                    <template x-if="summaryData && !summaryData.has_records">
+                        <div class="text-center py-10 px-4 bg-gray-50 dark:bg-gray-700/30 rounded-2xl border border-dashed border-gray-300 dark:border-gray-600">
+                            <div class="w-14 h-14 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-3 text-gray-400">
+                                <i class="fa-solid fa-folder-open text-2xl"></i>
+                            </div>
+                            <h4 class="text-base font-bold text-gray-800 dark:text-gray-200">No Resolved Issues Found</h4>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 max-w-sm mx-auto">There are no resolved tickets matching your selected filter criteria. Try adjusting your date range, department, category, or staff filter.</p>
+                        </div>
+                    </template>
+
+                    <template x-if="summaryData?.has_records">
+                        <div class="space-y-6">
+                            <!-- Core Metrics Grid -->
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <!-- Total Requests -->
+                                <div class="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-gray-700/60 dark:to-gray-700/30 p-5 rounded-2xl border border-blue-100 dark:border-gray-600 flex items-center justify-between">
+                                    <div>
+                                        <span class="text-xs font-bold uppercase tracking-wider text-blue-700 dark:text-blue-400">Total Requests</span>
+                                        <div class="text-3xl font-black text-gray-900 dark:text-white mt-1" x-text="summaryData?.total_requests_formatted ?? 0"></div>
+                                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Resolved tickets matching filter</p>
+                                    </div>
+                                    <div class="w-14 h-14 rounded-2xl bg-blue-600 text-white flex items-center justify-center shadow-lg shadow-blue-500/30">
+                                        <i class="fa-solid fa-list-check text-2xl"></i>
+                                    </div>
+                                </div>
+
+                                <!-- Average Response Time -->
+                                <div class="bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-gray-700/60 dark:to-gray-700/30 p-5 rounded-2xl border border-emerald-100 dark:border-gray-600 flex items-center justify-between">
+                                    <div>
+                                        <span class="text-xs font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">Average Response Time</span>
+                                        <div class="text-3xl font-black text-emerald-700 dark:text-emerald-300 mt-1" x-text="summaryData?.avg_response_time || 'N/A'"></div>
+                                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1" x-text="summaryData?.avg_response_minutes !== null ? ('Approx. ' + summaryData.avg_response_minutes + ' minutes average') : 'Waiting time from request'"></p>
+                                    </div>
+                                    <div class="w-14 h-14 rounded-2xl bg-emerald-600 text-white flex items-center justify-center shadow-lg shadow-emerald-500/30">
+                                        <i class="fa-solid fa-stopwatch text-2xl"></i>
+                                    </div>
+                                </div>
+
+                                <!-- Average Resolution Time -->
+                                <div class="bg-gradient-to-br from-amber-50 to-orange-50 dark:from-gray-700/60 dark:to-gray-700/30 p-5 rounded-2xl border border-amber-100 dark:border-gray-600 flex items-center justify-between">
+                                    <div>
+                                        <span class="text-xs font-bold uppercase tracking-wider text-amber-700 dark:text-amber-400">Average Resolve Time</span>
+                                        <div class="text-3xl font-black text-amber-700 dark:text-amber-300 mt-1" x-text="summaryData?.avg_resolve_time || 'N/A'"></div>
+                                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Duration to resolve issue</p>
+                                    </div>
+                                    <div class="w-14 h-14 rounded-2xl bg-amber-600 text-white flex items-center justify-center shadow-lg shadow-amber-500/30">
+                                        <i class="fa-solid fa-wrench text-2xl"></i>
+                                    </div>
+                                </div>
+
+                                <!-- Average Total Turnaround -->
+                                <div class="bg-gradient-to-br from-purple-50 to-violet-50 dark:from-gray-700/60 dark:to-gray-700/30 p-5 rounded-2xl border border-purple-100 dark:border-gray-600 flex items-center justify-between">
+                                    <div>
+                                        <span class="text-xs font-bold uppercase tracking-wider text-purple-700 dark:text-purple-400">Average Turnaround</span>
+                                        <div class="text-3xl font-black text-purple-700 dark:text-purple-300 mt-1" x-text="summaryData?.avg_turnaround_time || 'N/A'"></div>
+                                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Request creation to resolution</p>
+                                    </div>
+                                    <div class="w-14 h-14 rounded-2xl bg-purple-600 text-white flex items-center justify-center shadow-lg shadow-purple-500/30">
+                                        <i class="fa-solid fa-clock-rotate-left text-2xl"></i>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Performance Breakdown -->
+                            <div class="bg-gray-50 dark:bg-gray-700/40 p-5 rounded-2xl border border-gray-200 dark:border-gray-700 space-y-4">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-gray-300 flex items-center gap-2">
+                                        <i class="fa-solid fa-gauge-high text-indigo-500"></i>
+                                        <span>Response Time Performance</span>
+                                    </span>
+                                    <span class="text-xs text-gray-500 dark:text-gray-400">
+                                        Fastest: <strong class="text-gray-800 dark:text-gray-200" x-text="summaryData?.min_response_time || 'N/A'"></strong> | 
+                                        Longest: <strong class="text-gray-800 dark:text-gray-200" x-text="summaryData?.max_response_time || 'N/A'"></strong>
+                                    </span>
+                                </div>
+
+                                <!-- Progress 1: Within 15 minutes -->
+                                <div class="space-y-1.5">
+                                    <div class="flex justify-between text-xs font-medium">
+                                        <span class="text-gray-700 dark:text-gray-300">Responded within 15 minutes</span>
+                                        <span class="font-bold text-emerald-600 dark:text-emerald-400" x-text="(summaryData?.within_15_mins ?? 0) + ' tickets (' + (summaryData?.within_15_mins_pct ?? 0) + '%)'"></span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-2.5 overflow-hidden">
+                                        <div class="bg-emerald-500 h-2.5 rounded-full transition-all duration-500" :style="'width: ' + (summaryData?.within_15_mins_pct ?? 0) + '%'"></div>
+                                    </div>
+                                </div>
+
+                                <!-- Progress 2: Within 1 hour -->
+                                <div class="space-y-1.5">
+                                    <div class="flex justify-between text-xs font-medium">
+                                        <span class="text-gray-700 dark:text-gray-300">Responded within 1 hour</span>
+                                        <span class="font-bold text-blue-600 dark:text-blue-400" x-text="(summaryData?.within_1_hour ?? 0) + ' tickets (' + (summaryData?.within_1_hour_pct ?? 0) + '%)'"></span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-2.5 overflow-hidden">
+                                        <div class="bg-blue-500 h-2.5 rounded-full transition-all duration-500" :style="'width: ' + (summaryData?.within_1_hour_pct ?? 0) + '%'"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+                
+                <!-- Footer -->
+                <div class="bg-gray-50 dark:bg-gray-800 px-6 py-4 rounded-b-2xl border-t border-gray-100 dark:border-gray-700 flex justify-between items-center">
+                    <span class="text-xs text-gray-500 dark:text-gray-400">
+                        <i class="fa-solid fa-circle-info mr-1 text-indigo-500"></i>
+                        Metrics calculated from database records
+                    </span>
+                    <div class="flex space-x-3">
+                        <button type="button" @click="summaryModal = false" class="px-6 py-2.5 text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-600 transition-all duration-200 font-medium text-sm">
+                            Close
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Section Header -->
         <div class="px-8 py-6 border-b border-gray-200 dark:border-gray-700">
             <div class="flex items-center space-x-3">
@@ -884,7 +1092,7 @@
 
         <!-- Filters Section -->
         <div class="px-8 py-6 bg-gray-50 dark:bg-gray-700/50">
-            <form method="GET" action="{{ route('report.index') }}">
+            <form id="resolvedFilterForm" method="GET" action="{{ route('report.index') }}">
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
                     <!-- Date Range Filter -->
                     <div class="space-y-2">
@@ -943,6 +1151,18 @@
                 
                 <!-- Filter Actions -->
                 <div class="flex flex-wrap justify-end gap-3">
+                    <button type="button" 
+                        @click="getSummaryResult()" 
+                        :disabled="summaryLoading"
+                        class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-6 py-3 rounded-xl font-medium shadow-lg hover:shadow-xl transition-all duration-200 flex items-center space-x-2 disabled:opacity-60 disabled:cursor-not-allowed">
+                        <template x-if="!summaryLoading">
+                            <i class="fa-solid fa-chart-pie"></i>
+                        </template>
+                        <template x-if="summaryLoading">
+                            <i class="fa-solid fa-spinner fa-spin"></i>
+                        </template>
+                        <span x-text="summaryLoading ? 'Calculating...' : 'Get Result'"></span>
+                    </button>
                     <button type="submit" class="bg-gradient-to-r from-slate-700 to-slate-800 hover:from-slate-800 hover:to-slate-900 text-white px-6 py-3 rounded-xl font-medium shadow-lg hover:shadow-xl transition-all duration-200 flex items-center space-x-2">
                         <i class="fa-solid fa-filter"></i>
                         <span>Apply Filters</span>
@@ -957,6 +1177,101 @@
                     </a>
                 </div>
             </form>
+        </div>
+
+        <!-- Inline Summary Banner (shown when summaryData is available) -->
+        <div x-show="showInlineSummary && summaryData" x-cloak class="px-8 pt-6 pb-2" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 -translate-y-2" x-transition:enter-end="opacity-100 translate-y-0">
+            <div class="bg-gradient-to-br from-indigo-50/90 via-white to-blue-50/90 dark:from-gray-800 dark:via-gray-800/90 dark:to-indigo-950/40 rounded-2xl p-6 border border-indigo-100 dark:border-indigo-900/50 shadow-md">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-indigo-100/70 dark:border-gray-700">
+                    <div class="flex items-center space-x-3">
+                        <div class="p-2.5 bg-indigo-600 text-white rounded-xl shadow-md shadow-indigo-200 dark:shadow-none">
+                            <i class="fa-solid fa-chart-pie text-lg"></i>
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <h3 class="text-lg font-bold text-gray-900 dark:text-white">Filter Summary Result</h3>
+                                <span class="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-indigo-100 text-indigo-800 dark:bg-indigo-900/60 dark:text-indigo-300">Active</span>
+                            </div>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                                Filtered by: 
+                                <span class="font-medium text-gray-700 dark:text-gray-300" x-text="summaryData?.filters?.department || 'All Departments'"></span> &bull; 
+                                <span class="font-medium text-gray-700 dark:text-gray-300" x-text="summaryData?.filters?.category || 'All Categories'"></span> &bull; 
+                                <span class="font-medium text-gray-700 dark:text-gray-300" x-text="summaryData?.filters?.staff || 'All Staff'"></span> &bull; 
+                                <span class="font-medium text-gray-700 dark:text-gray-300" x-text="summaryData?.filters?.date_range || 'All Dates'"></span>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <button type="button" @click="summaryModal = true" class="text-xs font-semibold px-3.5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow transition-all duration-200 flex items-center space-x-1.5">
+                            <i class="fa-solid fa-up-right-and-down-left-from-center text-[11px]"></i>
+                            <span>View Full Details</span>
+                        </button>
+                        <button type="button" @click="showInlineSummary = false" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                            <i class="fa-solid fa-times text-sm"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Empty State if No Records Found -->
+                <template x-if="summaryData && !summaryData.has_records">
+                    <div class="text-center py-6 px-4 bg-white/70 dark:bg-gray-800/70 rounded-xl border border-dashed border-gray-300 dark:border-gray-600 mt-4">
+                        <p class="text-xs text-gray-500 dark:text-gray-400">No resolved issues found matching the selected filter criteria.</p>
+                    </div>
+                </template>
+
+                <!-- Metric Cards -->
+                <template x-if="summaryData?.has_records">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-5">
+                        <!-- Total Requests -->
+                        <div class="bg-white dark:bg-gray-800/90 rounded-xl p-4 border border-gray-200/80 dark:border-gray-700 shadow-sm flex items-center justify-between">
+                            <div>
+                                <span class="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Total Requests</span>
+                                <div class="text-2xl font-black text-gray-900 dark:text-white mt-1" x-text="summaryData?.total_requests_formatted ?? 0"></div>
+                                <span class="text-[11px] text-gray-500 dark:text-gray-400">Resolved tickets matching filter</span>
+                            </div>
+                            <div class="p-3 bg-blue-100 dark:bg-blue-900/50 rounded-xl text-blue-600 dark:text-blue-400">
+                                <i class="fa-solid fa-list-check text-xl"></i>
+                            </div>
+                        </div>
+
+                        <!-- Avg Response Time -->
+                        <div class="bg-white dark:bg-gray-800/90 rounded-xl p-4 border border-emerald-200/80 dark:border-emerald-800/50 shadow-sm flex items-center justify-between">
+                            <div>
+                                <span class="text-xs font-semibold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">Avg. Response Time</span>
+                                <div class="text-2xl font-black text-emerald-700 dark:text-emerald-300 mt-1" x-text="summaryData?.avg_response_time || 'N/A'"></div>
+                                <span class="text-[11px] text-gray-500 dark:text-gray-400" x-text="summaryData?.avg_response_minutes !== null ? ('(' + summaryData.avg_response_minutes + ' mins avg)') : 'Waiting time from request'"></span>
+                            </div>
+                            <div class="p-3 bg-emerald-100 dark:bg-emerald-900/50 rounded-xl text-emerald-600 dark:text-emerald-400">
+                                <i class="fa-solid fa-stopwatch text-xl"></i>
+                            </div>
+                        </div>
+
+                        <!-- Avg Resolution Time -->
+                        <div class="bg-white dark:bg-gray-800/90 rounded-xl p-4 border border-amber-200/80 dark:border-amber-800/50 shadow-sm flex items-center justify-between">
+                            <div>
+                                <span class="text-xs font-semibold uppercase tracking-wider text-amber-600 dark:text-amber-400">Avg. Resolve Time</span>
+                                <div class="text-2xl font-black text-amber-700 dark:text-amber-300 mt-1" x-text="summaryData?.avg_resolve_time || 'N/A'"></div>
+                                <span class="text-[11px] text-gray-500 dark:text-gray-400">Duration to resolve issue</span>
+                            </div>
+                            <div class="p-3 bg-amber-100 dark:bg-amber-900/50 rounded-xl text-amber-600 dark:text-amber-400">
+                                <i class="fa-solid fa-wrench text-xl"></i>
+                            </div>
+                        </div>
+
+                        <!-- Total Turnaround Time -->
+                        <div class="bg-white dark:bg-gray-800/90 rounded-xl p-4 border border-purple-200/80 dark:border-purple-800/50 shadow-sm flex items-center justify-between">
+                            <div>
+                                <span class="text-xs font-semibold uppercase tracking-wider text-purple-600 dark:text-purple-400">Avg. Turnaround</span>
+                                <div class="text-2xl font-black text-purple-700 dark:text-purple-300 mt-1" x-text="summaryData?.avg_turnaround_time || 'N/A'"></div>
+                                <span class="text-[11px] text-gray-500 dark:text-gray-400">Request to resolve duration</span>
+                            </div>
+                            <div class="p-3 bg-purple-100 dark:bg-purple-900/50 rounded-xl text-purple-600 dark:text-purple-400">
+                                <i class="fa-solid fa-clock-rotate-left text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+            </div>
         </div>
 
         <!-- Table Content -->

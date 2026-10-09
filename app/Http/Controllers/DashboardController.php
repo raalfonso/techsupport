@@ -177,7 +177,7 @@ class DashboardController extends Controller
             
         $resolutionTrend = collect(range(1, 12))->map(function($month) use ($selectedYear) {
             $avgMinutes = DB::table('reports')
-                ->selectRaw('AVG(TIMESTAMPDIFF(MINUTE, response_datetime, resolve_datetime)) as avg_minutes')
+                ->selectRaw('AVG(TIMESTAMPDIFF(MINUTE, validation_date_time, resolve_datetime)) as avg_minutes')
                 ->whereNotNull('resolve_datetime')
                 ->where('status', 'Done')
                 ->whereMonth('resolve_datetime', $month)

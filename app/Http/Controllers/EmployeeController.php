@@ -10,8 +10,22 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class EmployeeController extends Controller
 {
+    private function checkAuthorization()
+    {
+        $user = auth()->user();
+        $isAdmin = $user->authAssignments()->where('item_name', 'Administrator')->exists();
+        $isHRAdmin = $user->authAssignments()->where('item_name', 'HR_admin')->exists();
+
+        if (!$isAdmin && !$isHRAdmin) {
+            throw new \Illuminate\Http\Exceptions\HttpResponseException(
+                redirect()->route('attendance.dashboard')->with('error', 'Unauthorized access')
+            );
+        }
+    }
+
     public function index(Request $request)
     {
+        $this->checkAuthorization();
         $query = EmployeeMasterlist::with('department');
 
         // Search functionality
@@ -118,12 +132,14 @@ class EmployeeController extends Controller
 
     public function create()
     {
+        $this->checkAuthorization();
         $departments = Department::where('active', 1)->get();
         return view('employee-list.create', compact('departments'));
     }
 
     public function store(Request $request)
     {
+        $this->checkAuthorization();
         $validated = $request->validate([
             'employee_number' => 'required|unique:employee_masterlists',
             'last_name' => 'required|string',
@@ -137,25 +153,42 @@ class EmployeeController extends Controller
             'employment_type' => 'required|string',
             'email' => 'required|email|unique:employee_masterlists',
             'remarks' => 'nullable|string',
+            'inactive_date' => 'required_if:employment_status,Inactive|nullable|date',
+            'inactive_reason' => 'required_if:employment_status,Inactive|nullable|in:resigned,recall,terminated,retired',
         ]);
 
-        EmployeeMasterlist::create($validated);
+        $employee = EmployeeMasterlist::create($validated);
+
+        if ($validated['employment_status'] === 'Inactive') {
+            $user = \App\Models\User::where('email', $validated['email'])->first();
+            \App\Models\MasterlistHistory::create([
+                'user_id' => $user?->id,
+                'employee_id' => $employee->employee_number,
+                'date' => $validated['inactive_date'],
+                'reason' => $validated['inactive_reason'],
+            ]);
+        }
+
         return redirect()->route('employee-list.index')->with('success', 'Employee added successfully');
     }
 
     public function show(EmployeeMasterlist $employee)
     {
+        $this->checkAuthorization();
         return view('employee-list.show', compact('employee'));
     }
 
     public function edit(EmployeeMasterlist $employee)
     {
+        $this->checkAuthorization();
         $departments = Department::where('active', 1)->get();
-        return view('employee-list.edit', compact('employee', 'departments'));
+        $latestHistory = $employee->histories()->latest()->first();
+        return view('employee-list.edit', compact('employee', 'departments', 'latestHistory'));
     }
 
     public function update(Request $request, EmployeeMasterlist $employee)
     {
+        $this->checkAuthorization();
         $validated = $request->validate([
             'employee_number' => 'required|unique:employee_masterlists,employee_number,' . $employee->id,
             'last_name' => 'required|string',
@@ -169,20 +202,47 @@ class EmployeeController extends Controller
             'employment_type' => 'required|string',
             'email' => 'required|email|unique:employee_masterlists,email,' . $employee->id,
             'remarks' => 'nullable|string',
+            'inactive_date' => 'required_if:employment_status,Inactive|nullable|date',
+            'inactive_reason' => 'required_if:employment_status,Inactive|nullable|in:resigned,recall,terminated,retired',
         ]);
 
+        $wasInactive = $employee->employment_status === 'Inactive';
+
         $employee->update($validated);
+
+        if ($validated['employment_status'] === 'Inactive') {
+            $user = \App\Models\User::where('email', $validated['email'])->first();
+            $latestHistory = $employee->histories()->latest()->first();
+
+            if ($latestHistory && $wasInactive) {
+                $latestHistory->update([
+                    'user_id' => $user?->id,
+                    'date' => $validated['inactive_date'],
+                    'reason' => $validated['inactive_reason'],
+                ]);
+            } else {
+                \App\Models\MasterlistHistory::create([
+                    'user_id' => $user?->id,
+                    'employee_id' => $employee->employee_number,
+                    'date' => $validated['inactive_date'],
+                    'reason' => $validated['inactive_reason'],
+                ]);
+            }
+        }
+
         return redirect()->route('employee-list.index')->with('success', 'Employee updated successfully');
     }
 
     public function destroy(EmployeeMasterlist $employee)
     {
+        $this->checkAuthorization();
         $employee->delete();
         return redirect()->route('employee-list.index')->with('success', 'Employee deleted successfully');
     }
 
     public function export(Request $request)
     {
+        $this->checkAuthorization();
         $filters = $request->only(['search', 'department', 'status', 'type']);
         $filters['status'] = 'Active';
         return Excel::download(new EmployeesExport($filters), 'active_employees_' . now()->format('Y-m-d') . '.xlsx');

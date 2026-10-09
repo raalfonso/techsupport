@@ -20,7 +20,7 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background: url('{{ asset('images/IqFEa1XlYDpZOiDqD3GsYBP1JjGCAD31Q7hDM7dzCvxm-VHfXNkX__SdEJH8vbt2hw-ZRLmAyujQy3JoxBedByV7rw64gv-Bkpa6PRgKweuzAa2ZafjX6kr33YYpidzE-TfK9n5_86bxP6_VChzDZx06bY1kqcYHGH9XgNf6BaV12YqByYlhbcgLh0oUGORt.jpg') }}') no-repeat center center fixed;
+            background: url('{{ asset('images/halloween-background-flat-design_52683-43845.avif') }}') no-repeat center center fixed;
             background-size: cover;
         }
         .font-spooky {

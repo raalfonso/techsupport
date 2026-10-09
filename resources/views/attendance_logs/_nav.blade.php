@@ -1,6 +1,8 @@
 @php
     $isAdmin    = auth()->user()->authAssignments()->where('item_name', 'Administrator')->exists();
-    $canViewNav = $isAdmin || auth()->user()->authAssignments()->whereIn('item_name', ['HR_admin', 'depthead'])->exists();
+    $isHRAdmin  = auth()->user()->authAssignments()->where('item_name', 'HR_admin')->exists();
+    $canViewNav = $isAdmin || $isHRAdmin || auth()->user()->authAssignments()->where('item_name', 'depthead')->exists();
+    $canViewStatsAndEmployeeList = $isAdmin || $isHRAdmin;
 @endphp
 
 <nav class="bg-white dark:bg-slate-800 border-b border-gray-200 dark:border-slate-700 p-4 shadow-md top-0 z-50 min-w-full fixed max-h-16">
@@ -21,12 +23,14 @@
             <a href="{{ route('attendance.reports') }}" class="flex items-center space-x-2 text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-slate-700 hover:text-blue-600 px-3 py-2 rounded-lg transition font-medium">
                 <i class="material-icons text-lg">assessment</i><span>Reports</span>
             </a>
+            @if($canViewStatsAndEmployeeList)
             <a href="{{ route('attendance.statistics') }}" class="flex items-center space-x-2 text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-slate-700 hover:text-blue-600 px-3 py-2 rounded-lg transition font-medium">
                 <i class="material-icons text-lg">bar_chart</i><span>Statistics</span>
             </a>
             <a href="{{ route('employee-list.index') }}" class="flex items-center space-x-2 text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-slate-700 hover:text-blue-600 px-3 py-2 rounded-lg transition font-medium">
                 <i class="material-icons text-lg">group</i><span>Employee List</span>
             </a>
+            @endif
             @endif
             <p class="text-gray-600 dark:text-gray-400 px-3 py-2 text-sm font-medium">{{ auth()->user()->name }}</p>
 
@@ -60,12 +64,14 @@
         <a href="{{ route('attendance.reports') }}" class="flex items-center space-x-2 text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-slate-700 hover:text-blue-600 px-3 py-2 rounded-lg transition font-medium">
             <i class="material-icons text-lg">assessment</i><span>Reports</span>
         </a>
+        @if($canViewStatsAndEmployeeList)
         <a href="{{ route('attendance.statistics') }}" class="flex items-center space-x-2 text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-slate-700 hover:text-blue-600 px-3 py-2 rounded-lg transition font-medium">
             <i class="material-icons text-lg">bar_chart</i><span>Statistics</span>
         </a>
         <a href="{{ route('employee-list.index') }}" class="flex items-center space-x-2 text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-slate-700 hover:text-blue-600 px-3 py-2 rounded-lg transition font-medium">
             <i class="material-icons text-lg">group</i><span>Employee List</span>
         </a>
+        @endif
         @endif
     </div>
 </nav>

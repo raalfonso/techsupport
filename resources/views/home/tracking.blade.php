@@ -164,6 +164,8 @@
                       data-modal-toggle="feedback-modal" 
                       data-report-id="{{ $report->id }}"
                       data-staff-name="{{ $report->resolve?->user?->name ?? $report->response?->name ?? 'IT Staff' }}"
+                      data-transacted-person-id="{{ $report->resolve?->user?->surveyEmployee?->id ?? $report->response?->surveyEmployee?->id ?? '' }}"
+                      data-generated-code="{{ $report->ticket_number }}"
                       class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors duration-200">
                       <i class="fas fa-star mr-2"></i>Rate Our Service
                     </a>
@@ -225,7 +227,7 @@
             <div class="p-6 md:p-8 overflow-y-auto max-h-[calc(100vh-180px)]">
                 <form action="{{ route('feedback.store') }}" method="POST" id="feedback-form" class="space-y-6">
                     @csrf
-                    <input type="hidden" name="report_id" id="report-id">
+                    <input type="hidden" name="report_id" id="modal-report-id" value="">
 
                     <!-- Date & Person Transacted With -->
                     <div class="space-y-4">
@@ -234,8 +236,10 @@
                         </div>
 
                         <div class="flex flex-col md:flex-row md:items-center space-y-2 md:space-y-0 md:space-x-2">
-                            <label for="transacted-person" class="text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">Person(s) you transacted with:</label>
-                            <input type="text" id="transacted-person" class="w-full px-4 py-2 rounded-lg border border-gray-300 bg-gray-50 text-gray-800 text-sm focus:outline-none" readonly value="IT Staff">
+                            <label for="modal-transacted-person-name" class="text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">Person(s) you transacted with:</label>
+                            <input type="text" id="modal-transacted-person-name" class="w-full px-4 py-2 rounded-lg border border-gray-300 bg-gray-50 text-gray-800 text-sm focus:outline-none" readonly value="IT Staff">
+                            <input type="hidden" name="transacted-person" id="modal-transacted-person-id" value="">
+                            <input type="hidden" name="generated-code" id="modal-generated-code" value="">
                         </div>
                     </div>
 
@@ -358,18 +362,29 @@
 
       // this is for modal request
       document.addEventListener('DOMContentLoaded', function () {
-        const modalTitle = document.getElementById('report-id');
-        const modalTransactedPerson = document.getElementById('transacted-person');
+        const modalReportId = document.getElementById('modal-report-id');
+        const modalTransactedPersonName = document.getElementById('modal-transacted-person-name');
+        const modalTransactedPersonId = document.getElementById('modal-transacted-person-id');
+        const modalGeneratedCode = document.getElementById('modal-generated-code');
 
         document.querySelectorAll('[data-modal-toggle="feedback-modal"]').forEach(el => {
           el.addEventListener('click', function () {
-            const report_id = this.getAttribute('data-report-id');
-            const staff_name = this.getAttribute('data-staff-name');
-            if (modalTitle) {
-              modalTitle.value = report_id;
+            const reportId = this.getAttribute('data-report-id');
+            const staffName = this.getAttribute('data-staff-name');
+            const transactedPersonId = this.getAttribute('data-transacted-person-id');
+            const generatedCode = this.getAttribute('data-generated-code');
+
+            if (modalReportId) {
+              modalReportId.value = reportId || '';
             }
-            if (modalTransactedPerson && staff_name) {
-              modalTransactedPerson.value = staff_name;
+            if (modalTransactedPersonName) {
+              modalTransactedPersonName.value = staffName || 'IT Staff';
+            }
+            if (modalTransactedPersonId) {
+              modalTransactedPersonId.value = transactedPersonId || '';
+            }
+            if (modalGeneratedCode) {
+              modalGeneratedCode.value = generatedCode || '';
             }
           });
         });

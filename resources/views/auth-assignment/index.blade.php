@@ -1,13 +1,22 @@
 <x-layout>
     <div class="container mx-auto px-4 py-8">
-        <div class="flex justify-between items-center mb-6">
+        <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-6">
             <h1 class="text-3xl font-bold text-gray-800">User Auth Assignments</h1>
-            <button data-modal-target="create-modal" data-modal-toggle="create-modal" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg shadow-lg transition duration-200 flex items-center gap-2">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                </svg>
-                Assign Role/Permission
-            </button>
+            <div class="flex flex-wrap gap-3 items-center w-full md:w-auto">
+                <form action="{{ route('auth-assignment.index') }}" method="GET" class="flex gap-2">
+                    <input type="text" name="search" value="{{ request('search') }}" placeholder="Search user or role..." class="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                    <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-semibold transition">Search</button>
+                    @if(request('search'))
+                        <a href="{{ route('auth-assignment.index') }}" class="bg-gray-400 hover:bg-gray-500 text-white px-4 py-2 rounded-lg text-sm font-semibold transition flex items-center">Reset</a>
+                    @endif
+                </form>
+                <button data-modal-target="create-modal" data-modal-toggle="create-modal" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg shadow-sm transition duration-200 flex items-center gap-2 text-sm font-semibold">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                    </svg>
+                    Assign Role/Permission
+                </button>
+            </div>
         </div>
 
         @if(session('success'))
@@ -55,7 +64,7 @@
                                 </span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                <button onclick="editAssignment({{ $assignment->id }}, {{ $assignment->user_id }}, '{{ $assignment->item_name }}')" class="text-blue-600 hover:text-blue-900 mr-4 transition duration-150">
+                                <button onclick="editAssignment({{ $assignment->id }}, {{ $assignment->user_id }}, '{{ addslashes($assignment->user->name) }} ({{ addslashes($assignment->user->email) }})', '{{ $assignment->item_name }}')" class="text-blue-600 hover:text-blue-900 mr-4 transition duration-150">
                                     <svg class="w-4 h-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                                     </svg>
@@ -110,14 +119,11 @@
                 </div>
                 <form action="{{ route('auth-assignment.store') }}" method="POST" class="p-4">
                     @csrf
-                    <div class="mb-4">
-                        <label for="user_id" class="block mb-2 text-sm font-medium text-gray-900">User</label>
-                        <select name="user_id" id="user_id" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required>
-                            <option value="">Select User</option>
-                            @foreach($users as $user)
-                                <option value="{{ $user->id }}">{{ $user->name }} ({{ $user->email }})</option>
-                            @endforeach
-                        </select>
+                    <div class="mb-4 relative">
+                        <label for="user_search" class="block mb-2 text-sm font-medium text-gray-900">User</label>
+                        <input type="text" id="user_search" placeholder="Type user name or email..." class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" autocomplete="off" required>
+                        <input type="hidden" name="user_id" id="user_id">
+                        <div id="create-user-autocomplete" class="absolute left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-50 max-h-48 overflow-y-auto hidden"></div>
                     </div>
                     <div class="mb-4">
                         <label for="item_name" class="block mb-2 text-sm font-medium text-gray-900">Role/Permission</label>
@@ -152,14 +158,11 @@
                 <form id="edit-form" method="POST" class="p-4">
                     @csrf
                     @method('PUT')
-                    <div class="mb-4">
-                        <label for="edit-user_id" class="block mb-2 text-sm font-medium text-gray-900">User</label>
-                        <select name="user_id" id="edit-user_id" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required>
-                            <option value="">Select User</option>
-                            @foreach($users as $user)
-                                <option value="{{ $user->id }}">{{ $user->name }} ({{ $user->email }})</option>
-                            @endforeach
-                        </select>
+                    <div class="mb-4 relative">
+                        <label for="edit-user_search" class="block mb-2 text-sm font-medium text-gray-900">User</label>
+                        <input type="text" id="edit-user_search" placeholder="Type user name or email..." class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" autocomplete="off" required>
+                        <input type="hidden" name="user_id" id="edit-user_id">
+                        <div id="edit-user-autocomplete" class="absolute left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-50 max-h-48 overflow-y-auto hidden"></div>
                     </div>
                     <div class="mb-4">
                         <label for="edit-item_name" class="block mb-2 text-sm font-medium text-gray-900">Role/Permission</label>
@@ -181,13 +184,104 @@
 
     <script src="https://cdn.jsdelivr.net/npm/flowbite@2.5.2/dist/flowbite.min.js"></script>
     <script>
-        function editAssignment(id, userId, itemName) {
+        function editAssignment(id, userId, userName, itemName) {
             document.getElementById('edit-form').action = `/auth-assignment/${id}`;
             document.getElementById('edit-user_id').value = userId;
+            document.getElementById('edit-user_search').value = userName;
             document.getElementById('edit-item_name').value = itemName;
             
             const modal = new Modal(document.getElementById('edit-modal'));
             modal.show();
         }
+
+        $(document).ready(function() {
+            // Create user search autocomplete
+            let createSearchTimeout;
+            $('#user_search').on('input focus', function() {
+                clearTimeout(createSearchTimeout);
+                const search = $(this).val();
+                
+                createSearchTimeout = setTimeout(() => {
+                    $.ajax({
+                        url: '{{ route("users.search") }}',
+                        method: 'GET',
+                        data: { q: search },
+                        success: function(data) {
+                            const autocompleteDiv = $('#create-user-autocomplete');
+                            autocompleteDiv.empty();
+                            
+                            if (data.length === 0) {
+                                autocompleteDiv.addClass('hidden');
+                                return;
+                            }
+                            
+                            data.forEach(user => {
+                                autocompleteDiv.append(
+                                    `<div class="p-2 hover:bg-gray-100 cursor-pointer text-sm text-gray-900 border-b border-gray-100 last:border-0" data-id="${user.id}" data-name="${user.name} (${user.email})">${user.name} (${user.email})</div>`
+                                );
+                            });
+                            
+                            autocompleteDiv.removeClass('hidden');
+                        }
+                    });
+                }, 300);
+            });
+
+            $(document).on('click', '#create-user-autocomplete div', function() {
+                const userId = $(this).data('id');
+                const userName = $(this).data('name');
+                $('#user_id').val(userId);
+                $('#user_search').val(userName);
+                $('#create-user-autocomplete').addClass('hidden');
+            });
+
+            // Edit user search autocomplete
+            let editSearchTimeout;
+            $('#edit-user_search').on('input focus', function() {
+                clearTimeout(editSearchTimeout);
+                const search = $(this).val();
+                
+                editSearchTimeout = setTimeout(() => {
+                    $.ajax({
+                        url: '{{ route("users.search") }}',
+                        method: 'GET',
+                        data: { q: search },
+                        success: function(data) {
+                            const autocompleteDiv = $('#edit-user-autocomplete');
+                            autocompleteDiv.empty();
+                            
+                            if (data.length === 0) {
+                                autocompleteDiv.addClass('hidden');
+                                return;
+                            }
+                            
+                            data.forEach(user => {
+                                autocompleteDiv.append(
+                                    `<div class="p-2 hover:bg-gray-100 cursor-pointer text-sm text-gray-900 border-b border-gray-100 last:border-0" data-id="${user.id}" data-name="${user.name} (${user.email})">${user.name} (${user.email})</div>`
+                                );
+                            });
+                            
+                            autocompleteDiv.removeClass('hidden');
+                        }
+                    });
+                }, 300);
+            });
+
+            $(document).on('click', '#edit-user-autocomplete div', function() {
+                const userId = $(this).data('id');
+                const userName = $(this).data('name');
+                $('#edit-user_id').val(userId);
+                $('#edit-user_search').val(userName);
+                $('#edit-user-autocomplete').addClass('hidden');
+            });
+
+            // Close autocomplete when clicking outside
+            $(document).on('click', function(e) {
+                if (!$(e.target).closest('.relative').length) {
+                    $('#create-user-autocomplete').addClass('hidden');
+                    $('#edit-user-autocomplete').addClass('hidden');
+                }
+            });
+        });
     </script>
 </x-layout>

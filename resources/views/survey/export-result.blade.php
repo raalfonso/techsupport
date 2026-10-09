@@ -113,8 +113,8 @@
                             <tr>
                                 <th class="px-3 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500 sm:px-6 sm:text-xs">Date</th>
                                 @if((auth()->user()->role == 'admin') || (auth()->user()->role == 'superadmin'))
-                                <th class="px-3 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500 sm:px-6 sm:text-xs">Employee</th>
-                                @endif
+                                <!-- <th class="px-3 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500 sm:px-6 sm:text-xs">Employee</th>
+                                @endif -->
                                 <th class="px-3 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500 sm:px-6 sm:text-xs">Competence & Accuracy</th>
                                 <th class="px-3 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500 sm:px-6 sm:text-xs">Responsiveness</th>
                                 <th class="px-3 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500 sm:px-6 sm:text-xs">Comment</th>
@@ -126,7 +126,7 @@
                                 <tr class="hover:bg-slate-50">
                                     <td class="px-3 py-4 text-sm text-slate-600 sm:px-6">{{ $survey->created_at->format('F j, Y') }}</td>
                                     @if((auth()->user()->role == 'admin') || (auth()->user()->role == 'superadmin'))
-                                    <td class="px-3 py-4 text-sm font-medium text-slate-800 sm:px-6">{{ $survey->surveyEmployee->name }}</td>
+                                    <!-- <td class="px-3 py-4 text-sm font-medium text-slate-800 sm:px-6">{{ $survey->surveyEmployee->name }}</td> -->
                                     @endif
                                     <td class="px-3 py-4 sm:px-6">
                                         @if ($survey->accuracy_of_service == 2)
