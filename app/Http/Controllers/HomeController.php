@@ -182,7 +182,7 @@ class HomeController extends Controller
 
       
         
-        $fields['request_datetime'] = now();
+        $fields['request_datetime'] = Carbon::now()->timezone('Asia/Manila')->format('Y-m-d H:i:s');
 
         if ($request->hasFile('screenshot')) {
             $file = $request->file('screenshot');

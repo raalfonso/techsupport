@@ -1,570 +1,1110 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    {{-- Set the title from APP_NAME or provide a fallback --}}
-    <title>{{ env('APP_NAME', 'IT Department') }}</title>
+    <title>{{ env('APP_NAME', 'IT Department') }} - Ticket Tracking 🎃</title>
     
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/highcharts@11.4.3/highcharts.min.js"></script>
-    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     
-    {{-- Vite for compiling your Tailwind CSS and JS --}}
+    {{-- Vite Tailwind CSS and JS --}}
     @vite(['resources/js/app.js', 'resources/css/app.css']) 
     
     {{-- Favicon --}}
-    <link rel="icon" type="image/png" href="{{ asset('img/itd.png') }}">
+    <link rel="icon" type="image/png" href="{{ asset('img/itd_logo.png') }}">
+
+    <style>
+        /* Custom Halloween Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #090c1a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #ea580c;
+            border-radius: 5px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #f97316;
+        }
+
+        /* Ambient Glowing Pulse */
+        @keyframes subtle-glow {
+            0%, 100% {
+                box-shadow: 0 0 20px rgba(249, 115, 22, 0.15), 0 0 40px rgba(249, 115, 22, 0.05);
+            }
+            50% {
+                box-shadow: 0 0 30px rgba(249, 115, 22, 0.3), 0 0 60px rgba(249, 115, 22, 0.12);
+            }
+        }
+        .animate-subtle-glow {
+            animation: subtle-glow 4s ease-in-out infinite;
+        }
+
+        /* Pulse Dot Animation for Active / Pending Status */
+        @keyframes status-pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(0.85); }
+        }
+        .animate-status-pulse {
+            animation: status-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+    </style>
 </head>
 
-{{-- Added pt-16 to the body to account for the fixed navbar height --}}
-<body style="background-color: #e6edfc" class="flex flex-col min-h-screen pt-16"> 
-    {{-- Main Navbar --}}
-    <nav class="bg-white p-4 shadow-md top-0 z-50 min-w-full fixed max-h-16">
-        {{-- Outer container for full-width alignment --}}
-        {{-- Inner container for content alignment --}}
-        {{-- Outer container for full-width alignment --}}
-        {{-- Inner container for content alignment --}}
-       <div class="flex items-center justify-between container mx-auto w-full">
-            {{-- Logo or Brand Name --}}
-            <div class="text-lg font-bold text-gray-800 flex items-center">
-                {{-- Logo image --}}
-               <img src="{{ asset('img/itd_logo.png') }}" alt="ITD Logo" class="h-24 w-auto p-0 rounded">
-                BCDA IT DIVISION {{-- Changed from MyBrand to match context --}}
-            </div>
+<body class="bg-[#080b18] text-gray-100 min-h-screen flex flex-col antialiased selection:bg-orange-600 selection:text-white relative"> 
+    
+    {{-- Atmospheric Spooky Ambient Background Glows --}}
+    <div class="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+        <div class="absolute -top-40 left-1/2 -translate-x-1/2 w-[700px] h-[500px] bg-orange-600/10 blur-[140px] rounded-full"></div>
+        <div class="absolute bottom-10 right-0 w-[550px] h-[550px] bg-purple-900/15 blur-[150px] rounded-full"></div>
+        <div class="absolute top-1/3 -left-40 w-[450px] h-[450px] bg-amber-600/10 blur-[130px] rounded-full"></div>
+    </div>
 
+    {{-- Halloween Dark Navbar --}}
+    <nav class="bg-[#080b18]/90 backdrop-blur-md border-b border-orange-500/20 px-4 py-3 shadow-xl top-0 z-50 min-w-full fixed transition-all duration-300">
+        <div class="flex items-center justify-between container mx-auto w-full max-w-7xl">
+            {{-- Logo / Brand Name --}}
+            <a href="{{ route('home') }}" class="flex items-center group py-0.5" title="Return to Home">
+                <img src="{{ asset('images/bcda-digitalhub-clean.png') }}"
+                     alt="Digitalhub Logo"
+                     class="h-6 sm:h-8 md:h-10 w-auto filter brightness-0 invert drop-shadow-[0_0_10px_rgba(255,255,255,0.45)] transition-transform duration-300 group-hover:scale-105">
+            </a>
+            
             {{-- Desktop Navigation --}}
-            <div class="hidden md:flex space-x-4 float-right">
-                {{-- Navigation links --}}
-                <p class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">{{$client->name}}</p>
-                <a href="{{ route('home') }}" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">Logout</a> {{-- Assuming 'Report' links to 'Contact' or another relevant section --}}
+            <div class="hidden md:flex space-x-3 items-center">
+                <a href="{{ route('home') }}" class="text-gray-300 hover:text-amber-400 px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2">
+                    <i class="fa-solid fa-arrow-left text-xs text-orange-400"></i>
+                    <span>Back to Home</span>
+                </a>
+
+                <div class="h-5 w-px bg-orange-500/20 mx-1"></div>
+
+                {{-- Client User Badge --}}
+                <div class="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-orange-500/10 border border-orange-500/30 text-amber-400 text-sm font-semibold shadow-inner">
+                    <i class="fa-solid fa-user-astronaut text-orange-400 text-xs"></i>
+                    <span>{{ $client->name }}</span>
+                </div>
+
+                {{-- Exit / Logout --}}
+                <a href="{{ route('home') }}" class="text-gray-400 hover:text-red-400 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors flex items-center gap-1.5" title="Exit Tracker">
+                    <i class="fa-solid fa-arrow-right-from-bracket text-xs"></i>
+                    <span>Exit</span>
+                </a>
             </div>
 
             {{-- Mobile Menu Button (Hamburger) --}}
-            <div class="md:hidden">
-                <button id="mobile-menu-button" class="text-gray-600 hover:text-gray-900 focus:outline-none focus:text-gray-900">
-                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <div class="md:hidden flex items-center">
+                <button id="mobile-menu-button" aria-label="Toggle navigation menu" class="text-gray-300 hover:text-amber-400 focus:outline-none p-1 rounded-md transition-colors">
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
                     </svg>
                 </button>
             </div>
         </div>
 
-        {{-- Mobile Navigation (Hidden by default) --}}
-        <div id="mobile-menu" class="hidden md:hidden bg-white pt-2 pb-3 space-y-1 sm:px-3">
-            {{-- Container for mobile menu links --}}
-            <div class="container mx-auto"> 
-                <a href="#home-section" class="block text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-base font-medium">Home</a>
-                <a href="#about" class="block text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-base font-medium">About</a>
-                <a href="#projects" class="block text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-base font-medium">Project</a>
-                <a href="#contact" class="block text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-base font-medium">Report</a>
+        {{-- Mobile Navigation Dropdown --}}
+        <div id="mobile-menu" class="hidden md:hidden bg-[#0c0f22]/98 border-t border-orange-500/20 backdrop-blur-xl px-4 pt-4 pb-6 space-y-3 mt-3 rounded-b-2xl shadow-2xl">
+            <div class="flex items-center gap-2 px-3 py-2 rounded-lg bg-orange-500/10 border border-orange-500/20 text-amber-400 text-sm font-semibold">
+                <i class="fa-solid fa-user-astronaut text-orange-400"></i>
+                <span>{{ $client->name }}</span>
             </div>
+            <a href="{{ route('home') }}" class="block text-gray-200 hover:text-amber-400 hover:bg-orange-500/10 px-3 py-2.5 rounded-lg text-base font-medium">
+                <i class="fa-solid fa-arrow-left mr-2 text-orange-400"></i> Back to Home
+            </a>
+            <a href="{{ route('home') }}" class="block text-red-400 hover:bg-red-500/10 px-3 py-2 rounded-lg text-sm font-medium">
+                <i class="fa-solid fa-arrow-right-from-bracket mr-2"></i> Exit Tracker
+            </a>
         </div>
-    </nav>
-    @if(session('success'))
-    <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4" role="alert">
-        <strong class="font-bold">Success!</strong>
-        <span class="block sm:inline">{{ session('success') }}</span>
-    </div>
-    @endif
-    {{-- Hero Section --}}
-    <main class="flex-grow">
-    {{-- Your page content here --}}
-      <section id="home-section" class="p-5" >
-        <div class="max-w-7xl mx-auto bg-white rounded-2xl shadow-xl mt-8 p-8 transition-all duration-700 opacity-0 translate-y-4" data-scroll>
-          <div class="mb-8">
-            <h1 class="text-3xl font-bold text-gray-900 mb-2">Welcome, {{ $client->name }}</h1>
-            <p class="text-gray-600">Track the status of your reported issues below.</p>
-          </div>
-          
-          <div class="grid gap-6">
-          @foreach ($reports as $report)
-            <div class="bg-white border border-gray-200 rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden" id="report{{ $report->id }}">
-              <div class="p-6">
-                <div class="flex items-start justify-between mb-4">
-                  <div class="flex-1">
-                    <h3 class="text-lg font-bold text-gray-900 mb-2">{{ $report->issues->title }}</h3>
-                    <div class="flex items-center space-x-2">
-                      <span class="text-sm font-semibold text-blue-600">{{ $report->ticket_number }}</span>
-                      <span class="text-xs text-gray-400">•</span>
-                      <span class="text-xs text-gray-500">{{ \Carbon\Carbon::parse($report->request_datetime)->format('M d, Y h:i A') }}</span>
+    </nav> 
+
+    {{-- Main Container --}}
+    <main class="flex-grow pt-24 pb-20 px-4 sm:px-6 lg:px-8 relative z-10">
+        <div class="max-w-6xl mx-auto">
+            
+            {{-- Breadcrumb Navigation --}}
+            <div class="mb-6 flex items-center gap-2 text-xs sm:text-sm text-gray-400">
+                <a href="{{ route('home') }}" class="hover:text-orange-400 transition-colors flex items-center gap-1.5">
+                    <i class="fa-solid fa-house text-orange-500/80"></i> Home
+                </a>
+                <span class="text-gray-600">/</span>
+                <span class="text-orange-400 font-semibold flex items-center gap-1">
+                    <i class="fa-solid fa-list-check text-xs"></i> Ticket Tracking
+                </span>
+            </div>
+
+            {{-- Success Notification Banner --}}
+            @if(session('success'))
+            <div class="mb-6 p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-emerald-950/80 via-emerald-900/60 to-emerald-950/80 border border-emerald-500/40 text-emerald-200 shadow-xl backdrop-blur-md flex items-start sm:items-center justify-between gap-3 animate-fade-in" role="alert">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400 shrink-0">
+                        <i class="fa-solid fa-circle-check text-xl"></i>
                     </div>
-                  </div>
-                  <div>
-                    @if ($report->status == 'Ongoing')
-                      <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                          {{ $report->status }}
-                      </span>
-                    @elseif ($report->status == 'Done')
-                      <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                          {{ $report->status }}
-                      </span>
-                    @else
-                      <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
-                          {{ $report->status }}
-                      </span> 
-                    @endif
-                  </div>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                  <div class="space-y-1">
-                    <p class="text-xs font-semibold text-gray-500 uppercase">Responded By</p>
-                    @if (in_array($report->status, ['Ongoing', 'Done', 'For validation']))
-                      <p class="text-sm font-medium text-gray-900">{{ $report->response->name ?? 'IT Staff' }}</p>
-                      @if($report->response_datetime)
-                        <p class="text-xs text-gray-500">{{ \Carbon\Carbon::parse($report->response_datetime)->format('M d, Y h:i A') }}</p>
-                      @endif
-                      @if($report->notes)
-                      <br>
-                        <div class="mt-5 p-3 bg-blue-50/80 border border-blue-100 rounded-xl">
-                          <p class="text-xs font-semibold text-blue-800 flex items-center gap-1.5 mb-1">
-                            <i class="fas fa-comment-dots text-blue-600"></i>
-                            <span>Response Notes:</span>
-                          </p>
-                          <p class="text-xs text-gray-700 leading-relaxed whitespace-pre-line">{{ $report->notes }}</p>
-                        </div>
-                      @endif
-                    @else
-                      <p class="text-sm text-gray-400"><i class="fas fa-clock"></i> Pending</p>
-                    @endif
-                  </div>
-
-                  <div class="space-y-1">
-                    <p class="text-xs font-semibold text-gray-500 uppercase">Resolved By</p>
-                    @if ($report->status == 'Done')
-                      <p class="text-sm font-medium text-gray-900">{{ $report->resolve->user->name ?? 'IT Staff' }}</p>
-                      @if($report->resolve_datetime)
-                        <p class="text-xs text-gray-500">{{ \Carbon\Carbon::parse($report->resolve_datetime)->format('M d, Y h:i A') }}</p>
-                      @endif
-                      @if($report->completion_notes)
-                      <br>
-                        <div class="mt-5 p-3 bg-emerald-50/80 border border-emerald-100 rounded-xl">
-                          <p class="text-xs font-semibold text-emerald-800 flex items-center gap-1.5 mb-1">
-                            <i class="fas fa-sticky-note text-emerald-600"></i>
-                            <span>Completion Notes:</span>
-                          </p>
-                          <p class="text-xs text-gray-700 leading-relaxed whitespace-pre-line">{{ $report->completion_notes }}</p>
-                        </div>
-                      @endif
-                    @else
-                      <p class="text-sm text-gray-400"><i class="fas fa-clock"></i> Pending</p>
-                    @endif
-                  </div>
-                </div>
-
-                @if (($report->status == 'Done') && ($report->feedback != 'Yes'))
-                  <div class="pt-4 border-t border-gray-200">
-                    <a href="#" data-modal-target="feedback-modal"
-                      data-modal-toggle="feedback-modal" 
-                      data-report-id="{{ $report->id }}"
-                      data-staff-name="{{ $report->resolve?->user?->name ?? $report->response?->name ?? 'IT Staff' }}"
-                      data-transacted-person-id="{{ $report->resolve?->user?->surveyEmployee?->id ?? $report->response?->surveyEmployee?->id ?? '' }}"
-                      data-generated-code="{{ $report->ticket_number }}"
-                      class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors duration-200">
-                      <i class="fas fa-star mr-2"></i>Rate Our Service
-                    </a>
-                  </div>
-                @elseif ($report->status == 'Done' && $report->feedback == 'Yes')
-                  <div class="pt-4 border-t border-gray-200">
-                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                        <i class="fas fa-check-circle mr-1"></i>Feedback Given
-                    </span>
-                  </div>
-                @endif
-              </div>
-            </div>
-          @endforeach
-          </div>
-        </div>
-      </section>
-
-  
-    </main>
-
-    <footer class="bg-blue-800 text-white py-8 floating-bottom">
-    
-      <div class="max-w-6xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center text-sm">
-        <p class="mb-4 md:mb-0">&copy; {{ date('Y') }} IT Department - Bases Conversion and Development Authority</p>
-        <div class="flex gap-4">
-          {{-- <a href="#about" class="hover:underline">About</a>
-          <a href="#services" class="hover:underline">Services</a>
-          <a href="#projects" class="hover:underline">Projects</a>
-          <a href="#contact" class="hover:underline">Contact</a> --}}
-        </div>
-      </div>
-    </footer>
-
-    <!-- feedback modal -->
-<div id="feedback-modal" tabindex="-1" aria-hidden="true" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-screen bg-black bg-opacity-50 flex">
-    <div class="relative p-4 w-full max-w-3xl mx-auto my-8">
-        <!-- Modal content -->
-        <div class="relative bg-white rounded-2xl shadow-2xl dark:bg-gray-800 animate-modal-slide-in overflow-hidden">
-            <!-- Modal header -->
-            <div class="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700">
-                <div class="flex justify-between items-center w-full pr-4">
-                    <div class="flex items-center space-x-3">
-                        <img src="{{ asset('img/itd_logo.png') }}" alt="BCDA Logo" class="h-12 w-auto rounded">
-                        <div>
-                            <p class="italic text-[11px] text-gray-500 font-medium">BCDA-ODMD2014-12 | May 2014</p>
-                            <h3 class="text-lg font-bold text-gray-900 dark:text-white">BCDA Internal Services Feedback Form</h3>
-                        </div>
+                    <div>
+                        <h4 class="font-bold text-white text-sm sm:text-base">Success!</h4>
+                        <p class="text-xs sm:text-sm text-emerald-300/90">{{ session('success') }}</p>
                     </div>
                 </div>
-                <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-2 inline-flex items-center dark:hover:bg-gray-600 dark:hover:text-white transition-colors duration-200" data-modal-toggle="feedback-modal">
-                    <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
-                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
-                    </svg>
+                <button type="button" onclick="this.parentElement.remove()" class="text-emerald-400 hover:text-white p-1 rounded-lg transition-colors">
+                    <i class="fa-solid fa-xmark text-lg"></i>
                 </button>
             </div>
+            @endif
 
-            <!-- Modal body -->
-            <div class="p-6 md:p-8 overflow-y-auto max-h-[calc(100vh-180px)]">
-                <form action="{{ route('feedback.store') }}" method="POST" id="feedback-form" class="space-y-6">
-                    @csrf
-                    <input type="hidden" name="report_id" id="modal-report-id" value="">
+            {{-- Welcome & Summary Hero Section --}}
+            <div class="bg-[#12162d]/90 backdrop-blur-xl border border-orange-500/30 rounded-3xl p-6 sm:p-8 mb-8 shadow-2xl relative overflow-hidden animate-subtle-glow">
+                {{-- Decorative background gradient --}}
+                <div class="absolute -right-20 -bottom-20 w-80 h-80 bg-orange-600/10 rounded-full blur-3xl pointer-events-none"></div>
 
-                    <!-- Date & Person Transacted With -->
-                    <div class="space-y-4">
-                        <div class="flex items-center space-x-2 text-sm font-medium text-gray-700 dark:text-gray-300">
-                            <span>Date: {{ now()->format('F d, Y') }}</span>
+                <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 relative z-10">
+                    <div>
+                        <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-orange-500/15 border border-orange-500/30 text-amber-400 text-xs font-semibold mb-3">
+                            <i class="fa-solid fa-sparkles text-orange-400"></i>
+                            <span>Live IT Helpdesk Status</span>
                         </div>
+                        <h1 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white tracking-tight">
+                            Welcome, <span class="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-300">{{ $client->name }}</span>
+                        </h1>
+                        <p class="text-sm sm:text-base text-gray-300 mt-2 max-w-2xl leading-relaxed">
+                            Monitor real-time resolution progress, view activity history, and provide feedback on your reported IT requests.
+                        </p>
+                    </div>
 
-                        <div class="flex flex-col md:flex-row md:items-center space-y-2 md:space-y-0 md:space-x-2">
-                            <label for="modal-transacted-person-name" class="text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">Person(s) you transacted with:</label>
-                            <input type="text" id="modal-transacted-person-name" class="w-full px-4 py-2 rounded-lg border border-gray-300 bg-gray-50 text-gray-800 text-sm focus:outline-none" readonly value="IT Staff">
-                            <input type="hidden" name="transacted-person" id="modal-transacted-person-id" value="">
-                            <input type="hidden" name="generated-code" id="modal-generated-code" value="">
+                    {{-- Action Button: Submit Another Ticket --}}
+                    <div class="shrink-0 flex items-center gap-3">
+                        <a href="{{ route('home') }}#contact" 
+                           class="inline-flex items-center justify-center gap-2.5 px-5 py-3 rounded-2xl bg-gradient-to-r from-orange-600 to-amber-500 hover:from-orange-500 hover:to-amber-400 text-white font-bold text-sm shadow-lg shadow-orange-500/30 hover:shadow-orange-500/50 transition-all duration-300 transform hover:-translate-y-0.5">
+                            <i class="fa-solid fa-plus text-xs"></i>
+                            <span>New Request</span>
+                        </a>
+                    </div>
+                </div>
+
+                {{-- Status Metric Badges --}}
+                @php
+                    $totalCount = $reports->count();
+                    $ongoingCount = $reports->where('status', 'Ongoing')->count();
+                    $pendingCount = $reports->where('status', 'Pending')->count();
+                    $doneCount = $reports->where('status', 'Done')->count();
+                @endphp
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mt-8 pt-6 border-t border-orange-500/20">
+                    {{-- Total --}}
+                    <div class="bg-[#0b0e1e]/80 border border-gray-800 rounded-2xl p-4 flex items-center gap-3.5">
+                        <div class="w-11 h-11 rounded-xl bg-blue-500/15 border border-blue-500/30 flex items-center justify-center text-blue-400 shrink-0">
+                            <i class="fa-solid fa-ticket text-lg"></i>
+                        </div>
+                        <div>
+                            <p class="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Total Filed</p>
+                            <p class="text-xl sm:text-2xl font-black text-white">{{ $totalCount }}</p>
                         </div>
                     </div>
 
-                    <div class="flex items-center space-x-2 pt-2 border-t border-gray-100 dark:border-gray-700">
-                        <label class="text-sm font-medium text-gray-800 dark:text-gray-200">How do you rate their service? (Please check)</label>
+                    {{-- Pending --}}
+                    <div class="bg-[#0b0e1e]/80 border border-gray-800 rounded-2xl p-4 flex items-center gap-3.5">
+                        <div class="w-11 h-11 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400 shrink-0">
+                            <i class="fa-solid fa-hourglass-half text-lg"></i>
+                        </div>
+                        <div>
+                            <p class="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Pending</p>
+                            <p class="text-xl sm:text-2xl font-black text-amber-300">{{ $pendingCount }}</p>
+                        </div>
                     </div>
 
-                    {{-- Section 1: Degree of Competence & Accuracy --}}
-                    <div class="mb-6 ml-0 md:ml-4">
-                        <label class="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-3">
-                            Degree of Competence & Accuracy of Service <span class="text-red-500">*</span>
-                        </label>
-                        <div class="flex gap-3 justify-between">
-                            @foreach ([
-                                '2' => '<i class="fa-solid fa-thumbs-up mr-2 text-green-600"></i>Super Like <i class="fa-solid fa-thumbs-up fa-flip-horizontal ml-2 text-green-600"></i>',
-                                '1' => '<i class="fa-regular fa-thumbs-up mr-2 text-blue-600"></i>Like',
-                                '0' => '<i class="fa-regular fa-thumbs-down mr-2 text-red-600"></i>Dislike'
-                            ] as $value => $label)
-                                <label class="flex-1 cursor-pointer">
-                                    <input type="radio" name="accuracy_of_service" value="{{ $value }}" class="peer hidden" required>
-                                    <div class="peer-checked:bg-blue-600 peer-checked:text-white text-center p-3.5 border border-gray-300 rounded-lg hover:bg-blue-50 transition h-full flex items-center justify-center text-sm font-medium">
-                                        {!! $label !!}
+                    {{-- Ongoing --}}
+                    <div class="bg-[#0b0e1e]/80 border border-gray-800 rounded-2xl p-4 flex items-center gap-3.5">
+                        <div class="w-11 h-11 rounded-xl bg-orange-500/15 border border-orange-500/30 flex items-center justify-center text-orange-400 shrink-0">
+                            <i class="fa-solid fa-gears text-lg"></i>
+                        </div>
+                        <div>
+                            <p class="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">In Progress</p>
+                            <p class="text-xl sm:text-2xl font-black text-orange-400">{{ $ongoingCount }}</p>
+                        </div>
+                    </div>
+
+                    {{-- Resolved --}}
+                    <div class="bg-[#0b0e1e]/80 border border-gray-800 rounded-2xl p-4 flex items-center gap-3.5">
+                        <div class="w-11 h-11 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shrink-0">
+                            <i class="fa-solid fa-circle-check text-lg"></i>
+                        </div>
+                        <div>
+                            <p class="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Resolved</p>
+                            <p class="text-xl sm:text-2xl font-black text-emerald-400">{{ $doneCount }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Real-Time Interactive Filter & Search Controls --}}
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 mb-6">
+                {{-- Status Filter Tabs --}}
+                <div class="inline-flex p-1 bg-[#12162d]/90 border border-orange-500/20 rounded-2xl overflow-x-auto shadow-inner text-xs font-semibold">
+                    <button type="button" class="filter-tab px-4 py-2 rounded-xl transition-all duration-200 text-white bg-orange-600 shadow-md shadow-orange-500/30" data-filter="all">
+                        All ({{ $totalCount }})
+                    </button>
+                    <button type="button" class="filter-tab px-4 py-2 rounded-xl transition-all duration-200 text-gray-400 hover:text-white" data-filter="Ongoing">
+                        Ongoing ({{ $ongoingCount }})
+                    </button>
+                    <button type="button" class="filter-tab px-4 py-2 rounded-xl transition-all duration-200 text-gray-400 hover:text-white" data-filter="Pending">
+                        Pending ({{ $pendingCount }})
+                    </button>
+                    <button type="button" class="filter-tab px-4 py-2 rounded-xl transition-all duration-200 text-gray-400 hover:text-white" data-filter="Done">
+                        Resolved ({{ $doneCount }})
+                    </button>
+                </div>
+
+                {{-- Live Search Input --}}
+                <div class="relative w-full sm:w-72">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 text-xs"></i>
+                    <input type="text" 
+                           id="ticket-search-input" 
+                           placeholder="Search ticket # or issue title..." 
+                           class="w-full bg-[#12162d]/90 border border-orange-500/20 rounded-2xl pl-9 pr-4 py-2 text-xs sm:text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all shadow-inner">
+                </div>
+            </div>
+
+            {{-- Ticket List Container --}}
+            <div class="space-y-6" id="tickets-container">
+            @forelse ($reports as $report)
+                @php
+                    $status = $report->status;
+                    $isPending = ($status == 'Pending');
+                    $isOngoing = ($status == 'Ongoing');
+                    $isDone = ($status == 'Done');
+                    $isForValidation = ($status == 'For validation');
+
+                    // Stepper status logic
+                    // Step 1: Filed (Always 100%)
+                    // Step 2: In Progress
+                    // Step 3: Resolved
+                @endphp
+
+                <div class="ticket-card bg-[#12162d]/90 backdrop-blur-xl border border-orange-500/20 hover:border-orange-500/50 rounded-3xl p-6 sm:p-7 shadow-xl hover:shadow-orange-500/10 transition-all duration-300 relative group overflow-hidden" 
+                     id="report{{ $report->id }}"
+                     data-ticket-id="{{ $report->id }}"
+                     data-ticket-status="{{ $status }}"
+                     data-ticket-search="{{ strtolower($report->ticket_number . ' ' . ($report->issues->title ?? '') . ' ' . $status) }}">
+                    
+                    {{-- Decorative Card Accent Glow --}}
+                    <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-orange-500/40 to-transparent"></div>
+
+                    {{-- Top Row: Ticket Number, Timestamps, and Status Badge --}}
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-gray-800">
+                        <div class="flex flex-wrap items-center gap-2 sm:gap-3">
+                            {{-- Ticket Number with Copy Button --}}
+                            <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-slate-900/90 border border-orange-500/30 text-amber-400 font-mono text-xs sm:text-sm font-bold shadow-inner">
+                                <i class="fa-solid fa-hashtag text-[10px] text-orange-400"></i>
+                                <span>{{ $report->ticket_number }}</span>
+                                <button type="button" 
+                                        class="copy-btn text-gray-400 hover:text-white transition-colors ml-1 p-0.5" 
+                                        data-copy="{{ $report->ticket_number }}" 
+                                        title="Copy Ticket Number">
+                                    <i class="fa-regular fa-copy text-xs"></i>
+                                </button>
+                            </div>
+
+                            <span class="text-xs text-gray-500">•</span>
+
+                            {{-- Request Datetime --}}
+                            <div class="flex items-center gap-1.5 text-xs text-gray-400">
+                                <i class="fa-regular fa-calendar-days text-orange-400/80"></i>
+                                <span>{{ \Carbon\Carbon::parse($report->request_datetime)->format('M d, Y • h:i A') }}</span>
+                            </div>
+
+                            {{-- Department Tag if exists --}}
+                            @if($report->department)
+                                <span class="hidden sm:inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-slate-800 text-[11px] font-medium text-gray-300 border border-gray-700">
+                                    <i class="fa-solid fa-building text-[10px] text-amber-400"></i>
+                                    <span>{{ $report->department->acronym ?? $report->department->title }}</span>
+                                </span>
+                            @endif
+                        </div>
+
+                        {{-- Status Badge --}}
+                        <div class="shrink-0">
+                            @if ($isOngoing)
+                                <span class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold bg-blue-500/15 text-blue-300 border border-blue-500/40 shadow-sm shadow-blue-500/20">
+                                    <span class="w-2 h-2 rounded-full bg-blue-400 animate-status-pulse"></span>
+                                    <span>In Progress</span>
+                                </span>
+                            @elseif ($isDone)
+                                <span class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold bg-emerald-500/15 text-emerald-300 border border-emerald-500/40 shadow-sm shadow-emerald-500/20">
+                                    <i class="fa-solid fa-circle-check text-xs text-emerald-400"></i>
+                                    <span>Resolved</span>
+                                </span>
+                            @elseif ($isForValidation)
+                                <span class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold bg-purple-500/15 text-purple-300 border border-purple-500/40 shadow-sm shadow-purple-500/20">
+                                    <i class="fa-solid fa-clipboard-check text-xs text-purple-400"></i>
+                                    <span>For Validation</span>
+                                </span>
+                            @else
+                                <span class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold bg-amber-500/15 text-amber-300 border border-amber-500/40 shadow-sm shadow-amber-500/20">
+                                    <span class="w-2 h-2 rounded-full bg-amber-400 animate-status-pulse"></span>
+                                    <span>Pending Assignment</span>
+                                </span>
+                            @endif
+                        </div>
+                    </div>
+
+                    {{-- Middle Row: Issue Title & Details --}}
+                    <div class="py-5">
+                        <div class="flex items-start justify-between gap-4">
+                            <div class="space-y-2">
+                                <h3 class="text-lg sm:text-xl font-bold text-white group-hover:text-amber-300 transition-colors flex items-center gap-2">
+                                    <i class="fa-solid fa-wrench text-sm text-orange-400"></i>
+                                    <span>{{ $report->issues->title ?? 'Technical Support Request' }}</span>
+                                </h3>
+
+                                {{-- Optional Location or Remarks --}}
+                                @if($report->location)
+                                    <p class="text-xs text-gray-400 flex items-center gap-1.5">
+                                        <i class="fa-solid fa-location-dot text-amber-400"></i>
+                                        <span>Location: {{ $report->location }}</span>
+                                    </p>
+                                @endif
+                            </div>
+
+                            {{-- Attachment / Screenshot Button if available --}}
+                            @if ($report->screenshot)
+                                <a href="{{ route('report.screenshot', $report->id) }}" 
+                                   target="_blank" 
+                                   class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-orange-500/10 hover:bg-orange-500/20 border border-orange-500/30 text-orange-300 text-xs font-semibold transition-colors shrink-0" 
+                                   title="View Attachment">
+                                    <i class="fa-solid fa-paperclip text-xs"></i>
+                                    <span>Attachment</span>
+                                </a>
+                            @endif
+                        </div>
+
+                        {{-- User Remarks Callout if present --}}
+                        @if($report->remarks)
+                            <div class="mt-3.5 p-3 rounded-xl bg-slate-900/60 border border-slate-800 text-xs text-gray-300 leading-relaxed">
+                                <span class="font-semibold text-gray-400 flex items-center gap-1.5 mb-1">
+                                    <i class="fa-regular fa-comment text-orange-400"></i> Issue Details / Remarks:
+                                </span>
+                                <p class="text-gray-300 whitespace-pre-line">{{ $report->remarks }}</p>
+                            </div>
+                        @endif
+                    </div>
+
+                    {{-- Visual Progress Stepper --}}
+                    <div class="py-4 my-2 px-4 sm:px-6 bg-[#0c0f20]/90 border border-gray-800/80 rounded-2xl">
+                        <div class="grid grid-cols-3 gap-2 relative">
+                            {{-- Step 1: Filed --}}
+                            <div class="flex flex-col items-center text-center relative z-10">
+                                <div class="w-8 h-8 rounded-full bg-orange-500 text-white flex items-center justify-center text-xs font-bold shadow-md shadow-orange-500/40 mb-1.5">
+                                    <i class="fa-solid fa-check"></i>
+                                </div>
+                                <span class="text-[11px] sm:text-xs font-semibold text-orange-300">Ticket Filed</span>
+                                <span class="text-[10px] text-gray-500 hidden sm:block">{{ \Carbon\Carbon::parse($report->request_datetime)->format('M d, h:i A') }}</span>
+                            </div>
+
+                            {{-- Step 2: In Progress --}}
+                            <div class="flex flex-col items-center text-center relative z-10">
+                                <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold mb-1.5 {{ ($isOngoing || $isDone || $isForValidation) ? 'bg-orange-500 text-white shadow-md shadow-orange-500/40' : 'bg-slate-800 text-gray-500 border border-gray-700' }}">
+                                    @if($isOngoing)
+                                        <i class="fa-solid fa-spinner fa-spin text-xs"></i>
+                                    @elseif($isDone || $isForValidation)
+                                        <i class="fa-solid fa-check"></i>
+                                    @else
+                                        2
+                                    @endif
+                                </div>
+                                <span class="text-[11px] sm:text-xs font-semibold {{ ($isOngoing || $isDone || $isForValidation) ? 'text-orange-300' : 'text-gray-500' }}">
+                                    {{ $isOngoing ? 'In Progress' : (($isDone || $isForValidation) ? 'Assigned' : 'Queued') }}
+                                </span>
+                                @if($report->response_datetime)
+                                    <span class="text-[10px] text-gray-500 hidden sm:block">{{ \Carbon\Carbon::parse($report->response_datetime)->format('M d, h:i A') }}</span>
+                                @endif
+                            </div>
+
+                            {{-- Step 3: Resolved --}}
+                            <div class="flex flex-col items-center text-center relative z-10">
+                                <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold mb-1.5 {{ $isDone ? 'bg-emerald-500 text-white shadow-md shadow-emerald-500/40' : 'bg-slate-800 text-gray-500 border border-gray-700' }}">
+                                    @if($isDone)
+                                        <i class="fa-solid fa-check-double text-xs"></i>
+                                    @else
+                                        3
+                                    @endif
+                                </div>
+                                <span class="text-[11px] sm:text-xs font-semibold {{ $isDone ? 'text-emerald-300' : 'text-gray-500' }}">Resolved</span>
+                                @if($report->resolve_datetime)
+                                    <span class="text-[10px] text-gray-500 hidden sm:block">{{ \Carbon\Carbon::parse($report->resolve_datetime)->format('M d, h:i A') }}</span>
+                                @endif
+                            </div>
+
+                            {{-- Connecting Track Lines behind Stepper --}}
+                            <div class="absolute top-4 left-[16%] right-[16%] h-0.5 bg-gray-800 -z-0">
+                                <div class="h-full bg-gradient-to-r from-orange-500 {{ $isDone ? 'to-emerald-500 w-full' : ($isOngoing ? 'to-orange-500 w-1/2' : 'w-0') }} transition-all duration-500"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Personnel Details Grid --}}
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 my-4">
+                        {{-- Responded By Column --}}
+                        <div class="p-4 rounded-2xl bg-[#0e1227]/80 border border-gray-800/80 space-y-2">
+                            <div class="flex items-center justify-between">
+                                <p class="text-[11px] font-semibold text-gray-400 uppercase tracking-wider flex items-center gap-1.5">
+                                    <i class="fa-solid fa-user-gear text-orange-400 text-xs"></i>
+                                    <span>Responded By</span>
+                                </p>
+                                @if (in_array($status, ['Ongoing', 'Done', 'For validation']))
+                                    <span class="text-[11px] text-orange-400 font-medium">Assigned</span>
+                                @endif
+                            </div>
+
+                            @if (in_array($status, ['Ongoing', 'Done', 'For validation']))
+                                <div class="pt-1">
+                                    <p class="text-sm font-bold text-white flex items-center gap-2">
+                                        <span>{{ $report->response->name ?? 'IT Specialist' }}</span>
+                                    </p>
+                                    @if($report->response_datetime)
+                                        <p class="text-xs text-gray-400 mt-0.5">
+                                            {{ \Carbon\Carbon::parse($report->response_datetime)->format('M d, Y • h:i A') }}
+                                        </p>
+                                    @endif
+                                </div>
+
+                                {{-- Notes Callout --}}
+                                @if($report->notes)
+                                    <div class="mt-3 p-3 bg-blue-950/40 border border-blue-500/30 rounded-xl text-xs">
+                                        <p class="font-semibold text-blue-300 flex items-center gap-1.5 mb-1">
+                                            <i class="fa-solid fa-comment-dots text-blue-400"></i>
+                                            <span>Staff Response Notes:</span>
+                                        </p>
+                                        <p class="text-gray-300 leading-relaxed whitespace-pre-line">{{ $report->notes }}</p>
                                     </div>
-                                </label>
-                            @endforeach
+                                @endif
+                            @else
+                                <p class="text-xs sm:text-sm text-gray-500 pt-1 flex items-center gap-1.5">
+                                    <i class="fa-regular fa-clock text-amber-500"></i>
+                                    <span>Awaiting staff pickup & assignment</span>
+                                </p>
+                            @endif
                         </div>
-                    </div>
 
-                    {{-- Section 2: Degree of Responsiveness/Timeliness --}}
-                    <div class="mb-6 ml-0 md:ml-4">
-                        <label class="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-3">
-                            Degree of Responsiveness/Timeliness (Agreed Response Time) <span class="text-red-500">*</span>
-                        </label>
-                        <div class="flex gap-3 justify-between">
-                            @foreach ([
-                                '2' => '<i class="fa-solid fa-thumbs-up mr-2 text-green-600"></i>Super Like <i class="fa-solid fa-thumbs-up fa-flip-horizontal ml-2 text-green-600"></i>',
-                                '1' => '<i class="fa-regular fa-thumbs-up mr-2 text-blue-600"></i>Like',
-                                '0' => '<i class="fa-regular fa-thumbs-down mr-2 text-red-600"></i>Dislike'
-                            ] as $value => $label)
-                                <label class="flex-1 cursor-pointer">
-                                    <input type="radio" name="response_time" value="{{ $value }}" class="peer hidden" required>
-                                    <div class="peer-checked:bg-green-600 peer-checked:text-white text-center p-3.5 border border-gray-300 rounded-lg hover:bg-green-50 transition h-full flex items-center justify-center text-sm font-medium">
-                                        {!! $label !!}
+                        {{-- Resolved By Column --}}
+                        <div class="p-4 rounded-2xl bg-[#0e1227]/80 border border-gray-800/80 space-y-2">
+                            <div class="flex items-center justify-between">
+                                <p class="text-[11px] font-semibold text-gray-400 uppercase tracking-wider flex items-center gap-1.5">
+                                    <i class="fa-solid fa-circle-check text-emerald-400 text-xs"></i>
+                                    <span>Resolved By</span>
+                                </p>
+                                @if ($isDone)
+                                    <span class="text-[11px] text-emerald-400 font-medium">Completed</span>
+                                @endif
+                            </div>
+
+                            @if ($isDone)
+                                <div class="pt-1">
+                                    <p class="text-sm font-bold text-white flex items-center gap-2">
+                                        <span>{{ $report->resolve->user->name ?? $report->response->name ?? 'IT Staff' }}</span>
+                                    </p>
+                                    @if($report->resolve_datetime)
+                                        <p class="text-xs text-gray-400 mt-0.5">
+                                            {{ \Carbon\Carbon::parse($report->resolve_datetime)->format('M d, Y • h:i A') }}
+                                        </p>
+                                    @endif
+                                </div>
+
+                                {{-- Completion Notes Callout --}}
+                                @if($report->completion_notes)
+                                    <div class="mt-3 p-3 bg-emerald-950/40 border border-emerald-500/30 rounded-xl text-xs">
+                                        <p class="font-semibold text-emerald-300 flex items-center gap-1.5 mb-1">
+                                            <i class="fa-solid fa-clipboard-check text-emerald-400"></i>
+                                            <span>Resolution Summary:</span>
+                                        </p>
+                                        <p class="text-gray-300 leading-relaxed whitespace-pre-line">{{ $report->completion_notes }}</p>
                                     </div>
-                                </label>
-                            @endforeach
+                                @endif
+                            @else
+                                <p class="text-xs sm:text-sm text-gray-500 pt-1 flex items-center gap-1.5">
+                                    <i class="fa-regular fa-hourglass text-gray-500"></i>
+                                    <span>Pending resolution</span>
+                                </p>
+                            @endif
                         </div>
                     </div>
 
-                    {{-- Section 3: Brief Comment --}}
-                    <div class="mb-6">
-                        <label class="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-2">
-                            Brief Comment <span id="comments-required-star-modal" class="text-red-500 hidden">*</span>
-                        </label>
-                        <textarea name="comments" id="modal-comments" rows="4" class="w-full border border-gray-300 rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-400" placeholder="Your comments here..."></textarea>
-                    </div>
-
-                    {{-- Section 4: Name (optional) --}}
-                    <div class="mb-6">
-                        <label class="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-2">Name (optional)</label>
-                        <input type="text" name="client_name" value="{{ $client->name ?? '' }}" class="w-full border border-gray-300 rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-400" placeholder="Your name (optional)">
-                    </div>
-
-                    {{-- Submit Button --}}
-                    <div class="mb-4">
-                        <button type="submit" id="modal-btn-submit" class="w-full bg-blue-600 text-white font-semibold py-3 rounded-lg hover:bg-blue-700 transition shadow">
-                            Submit Feedback
+                    {{-- Bottom Action Bar: Toggle Log History & Service Feedback --}}
+                    <div class="pt-4 mt-2 border-t border-gray-800/90 flex flex-wrap items-center justify-between gap-3">
+                        {{-- Log History Toggle Button --}}
+                        <button type="button" 
+                                class="toggle-history-btn inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 text-gray-300 hover:text-white text-xs font-semibold border border-gray-700 transition-all duration-200" 
+                                data-report-id="{{ $report->id }}">
+                            <i class="fa-solid fa-timeline text-orange-400"></i>
+                            <span>Activity History</span>
+                            <i class="fa-solid fa-chevron-down text-[10px] transition-transform duration-200 arrow-icon"></i>
                         </button>
+
+                        {{-- Service Rating Button / Feedback Status --}}
+                        <div>
+                            @if ($isDone && ($report->feedback != 'Yes'))
+                                <button type="button" 
+                                        data-modal-target="feedback-modal"
+                                        data-modal-toggle="feedback-modal" 
+                                        data-report-id="{{ $report->id }}"
+                                        data-staff-name="{{ $report->resolve?->user?->name ?? $report->response?->name ?? 'IT Staff' }}"
+                                        data-transacted-person-id="{{ $report->resolve?->user?->surveyEmployee?->id ?? $report->response?->surveyEmployee?->id ?? '' }}"
+                                        data-generated-code="{{ $report->ticket_number }}"
+                                        class="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 text-white text-xs sm:text-sm font-bold rounded-xl shadow-lg shadow-orange-500/30 hover:shadow-orange-500/50 transition-all duration-300 transform hover:-translate-y-0.5">
+                                    <i class="fa-solid fa-star text-amber-200"></i>
+                                    <span>Rate Our Service</span>
+                                </button>
+                            @elseif ($isDone && $report->feedback == 'Yes')
+                                <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-emerald-500/15 border border-emerald-500/30 text-emerald-400">
+                                    <i class="fa-solid fa-circle-check"></i>
+                                    <span>Feedback Submitted</span>
+                                </span>
+                            @endif
+                        </div>
                     </div>
 
-                    <div class="text-start text-[11px] text-gray-500 font-medium">
-                        <p class="italic">Thank you. Your feedback will be used to further improve our service</p>
+                    {{-- Collapsible Activity Log History Container (Populated via AJAX) --}}
+                    <div id="history-container-{{ $report->id }}" class="history-dropdown hidden mt-5 pt-4 border-t border-gray-800">
+                        {{-- Timeline injected here dynamically --}}
                     </div>
-                </form>
+                </div>
+            @empty
+                {{-- Empty State --}}
+                <div class="bg-[#12162d]/90 backdrop-blur-xl border border-orange-500/30 rounded-3xl p-12 text-center shadow-2xl">
+                    <div class="w-20 h-20 mx-auto rounded-3xl bg-orange-500/10 border border-orange-500/30 flex items-center justify-center text-orange-400 text-3xl mb-4 shadow-lg shadow-orange-500/10">
+                        <i class="fa-solid fa-ghost"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-2">No Reported Issues Yet</h3>
+                    <p class="text-gray-400 text-sm max-w-md mx-auto mb-6">
+                        You have not submitted any technical support requests yet. If you need any IT assistance, please submit a ticket below.
+                    </p>
+                    <a href="{{ route('home') }}#contact" 
+                       class="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-gradient-to-r from-orange-600 to-amber-500 hover:from-orange-500 hover:to-amber-400 text-white font-bold text-sm shadow-lg shadow-orange-500/30 transition-all transform hover:-translate-y-0.5">
+                        <i class="fa-solid fa-paper-plane text-xs"></i>
+                        <span>Submit an IT Request</span>
+                    </a>
+                </div>
+            @endforelse
+            </div>
+
+            {{-- No Search Results State (hidden by default) --}}
+            <div id="no-search-results" class="hidden bg-[#12162d]/90 backdrop-blur-xl border border-orange-500/30 rounded-3xl p-10 text-center shadow-xl mt-6">
+                <i class="fa-solid fa-magnifying-glass text-3xl text-gray-500 mb-3"></i>
+                <h4 class="text-lg font-bold text-white mb-1">No Matching Tickets</h4>
+                <p class="text-sm text-gray-400">Try searching with a different ticket number or keyword.</p>
+            </div>
+        </div>
+    </main>
+
+    {{-- Halloween Dark Footer --}}
+    <footer class="bg-[#050710] border-t border-orange-500/20 text-gray-400 py-8 relative z-10">
+        <div class="max-w-6xl mx-auto px-6 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs sm:text-sm">
+            <div class="flex items-center gap-2">
+                <img src="{{ asset('img/itd_logo.png') }}" alt="ITD Logo" class="h-6 w-auto opacity-80">
+                <span>&copy; {{ date('Y') }} Bases Conversion and Development Authority - IT Division</span>
+            </div>
+            <div class="flex items-center gap-4 text-gray-400">
+                <a href="{{ route('home') }}" class="hover:text-amber-400 transition-colors">Home</a>
+                <span>•</span>
+                <a href="{{ route('home') }}#contact" class="hover:text-amber-400 transition-colors">Helpdesk</a>
+                <span>•</span>
+                <span class="text-orange-500 font-mono text-xs">SolveIT Portal</span>
+            </div>
+        </div>
+    </footer>
+
+    {{-- Upgraded Feedback Modal (BCDA Internal Services Feedback Form) --}}
+    <div id="feedback-modal" tabindex="-1" aria-hidden="true" class="hidden overflow-y-auto overflow-x-hidden fixed inset-0 z-50 justify-center items-center w-full h-full bg-black/75 backdrop-blur-md p-4 flex">
+        <div class="relative w-full max-w-2xl mx-auto my-auto animate-fade-in">
+            {{-- Modal Content Card --}}
+            <div class="relative bg-[#0d1025] border border-orange-500/30 rounded-3xl shadow-2xl text-gray-100 overflow-hidden">
+                
+                {{-- Decorative Gradient Header Line --}}
+                <div class="h-1.5 w-full bg-gradient-to-r from-orange-500 via-amber-400 to-orange-600"></div>
+
+                {{-- Modal Header --}}
+                <div class="flex items-center justify-between p-5 sm:p-6 border-b border-gray-800 bg-[#12162d]/70">
+                    <div class="flex items-center space-x-3">
+                        <img src="{{ asset('img/itd_logo.png') }}" alt="BCDA Logo" class="h-10 w-auto rounded">
+                        <div>
+                            <p class="italic text-[10px] text-amber-400/80 font-mono">BCDA-ODMD2014-12 | May 2014</p>
+                            <h3 class="text-base sm:text-lg font-bold text-white">BCDA Internal Services Feedback Form</h3>
+                        </div>
+                    </div>
+                    <button type="button" 
+                            class="text-gray-400 hover:text-white bg-slate-800/60 hover:bg-slate-700/80 rounded-xl p-2 transition-colors focus:outline-none" 
+                            data-modal-toggle="feedback-modal"
+                            aria-label="Close modal">
+                        <i class="fa-solid fa-xmark text-base"></i>
+                    </button>
+                </div>
+
+                {{-- Modal Body --}}
+                <div class="p-6 sm:p-7 overflow-y-auto max-h-[calc(100vh-200px)]">
+                    <form action="{{ route('feedback.store') }}" method="POST" id="feedback-form" class="space-y-6">
+                        @csrf
+                        <input type="hidden" name="report_id" id="modal-report-id" value="">
+                        <input type="hidden" name="transacted-person" id="modal-transacted-person-id" value="">
+                        <input type="hidden" name="generated-code" id="modal-generated-code" value="">
+
+                        {{-- Date & Person Transacted With --}}
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 rounded-2xl bg-[#12162d]/60 border border-gray-800">
+                            <div>
+                                <label class="text-xs font-semibold text-gray-400 uppercase tracking-wider block mb-1">Date</label>
+                                <div class="text-sm font-semibold text-white flex items-center gap-2">
+                                    <i class="fa-regular fa-calendar text-orange-400 text-xs"></i>
+                                    <span>{{ now()->format('F d, Y') }}</span>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label for="modal-transacted-person-name" class="text-xs font-semibold text-gray-400 uppercase tracking-wider block mb-1">Person Transacted With</label>
+                                <input type="text" 
+                                       id="modal-transacted-person-name" 
+                                       class="w-full px-3 py-1.5 rounded-xl border border-gray-700 bg-slate-900/90 text-amber-300 text-xs font-bold focus:outline-none cursor-default" 
+                                       readonly 
+                                       value="IT Staff">
+                            </div>
+                        </div>
+
+                        {{-- Section Title --}}
+                        <div class="pt-1">
+                            <h4 class="text-sm font-bold text-white flex items-center gap-2">
+                                <i class="fa-solid fa-star text-amber-400 text-xs"></i>
+                                <span>How do you rate their service?</span>
+                            </h4>
+                            <p class="text-xs text-gray-400 mt-0.5">Please check your assessment for each criteria.</p>
+                        </div>
+
+                        {{-- Section 1: Degree of Competence & Accuracy --}}
+                        <div class="space-y-2.5">
+                            <label class="block text-xs font-bold text-gray-200 uppercase tracking-wider">
+                                1. Degree of Competence & Accuracy of Service <span class="text-orange-500">*</span>
+                            </label>
+                            <div class="grid grid-cols-3 gap-2.5">
+                                @foreach ([
+                                    '2' => ['icon' => 'fa-solid fa-thumbs-up', 'text' => 'Super Like', 'color' => 'text-emerald-400', 'border' => 'peer-checked:border-emerald-500 peer-checked:bg-emerald-500/20 peer-checked:text-emerald-300'],
+                                    '1' => ['icon' => 'fa-regular fa-thumbs-up', 'text' => 'Like', 'color' => 'text-blue-400', 'border' => 'peer-checked:border-blue-500 peer-checked:bg-blue-500/20 peer-checked:text-blue-300'],
+                                    '0' => ['icon' => 'fa-regular fa-thumbs-down', 'text' => 'Dislike', 'color' => 'text-rose-400', 'border' => 'peer-checked:border-rose-500 peer-checked:bg-rose-500/20 peer-checked:text-rose-300']
+                                ] as $value => $meta)
+                                    <label class="cursor-pointer">
+                                        <input type="radio" name="accuracy_of_service" value="{{ $value }}" class="peer hidden" required>
+                                        <div class="p-3 rounded-2xl border border-gray-700 bg-slate-900/70 hover:border-gray-500 {{ $meta['border'] }} transition-all duration-200 text-center flex flex-col items-center justify-center gap-1.5 h-full">
+                                            <i class="{{ $meta['icon'] }} {{ $meta['color'] }} text-base"></i>
+                                            <span class="text-xs font-bold">{{ $meta['text'] }}</span>
+                                        </div>
+                                    </label>
+                                @endforeach
+                            </div>
+                        </div>
+
+                        {{-- Section 2: Degree of Responsiveness / Timeliness --}}
+                        <div class="space-y-2.5">
+                            <label class="block text-xs font-bold text-gray-200 uppercase tracking-wider">
+                                2. Degree of Responsiveness / Timeliness <span class="text-orange-500">*</span>
+                            </label>
+                            <div class="grid grid-cols-3 gap-2.5">
+                                @foreach ([
+                                    '2' => ['icon' => 'fa-solid fa-thumbs-up', 'text' => 'Super Like', 'color' => 'text-emerald-400', 'border' => 'peer-checked:border-emerald-500 peer-checked:bg-emerald-500/20 peer-checked:text-emerald-300'],
+                                    '1' => ['icon' => 'fa-regular fa-thumbs-up', 'text' => 'Like', 'color' => 'text-blue-400', 'border' => 'peer-checked:border-blue-500 peer-checked:bg-blue-500/20 peer-checked:text-blue-300'],
+                                    '0' => ['icon' => 'fa-regular fa-thumbs-down', 'text' => 'Dislike', 'color' => 'text-rose-400', 'border' => 'peer-checked:border-rose-500 peer-checked:bg-rose-500/20 peer-checked:text-rose-300']
+                                ] as $value => $meta)
+                                    <label class="cursor-pointer">
+                                        <input type="radio" name="response_time" value="{{ $value }}" class="peer hidden" required>
+                                        <div class="p-3 rounded-2xl border border-gray-700 bg-slate-900/70 hover:border-gray-500 {{ $meta['border'] }} transition-all duration-200 text-center flex flex-col items-center justify-center gap-1.5 h-full">
+                                            <i class="{{ $meta['icon'] }} {{ $meta['color'] }} text-base"></i>
+                                            <span class="text-xs font-bold">{{ $meta['text'] }}</span>
+                                        </div>
+                                    </label>
+                                @endforeach
+                            </div>
+                        </div>
+
+                        {{-- Section 3: Brief Comment --}}
+                        <div>
+                            <label for="modal-comments" class="block text-xs font-bold text-gray-200 uppercase tracking-wider mb-2">
+                                Brief Comment <span id="comments-required-star-modal" class="text-rose-500 hidden">* (Required for Dislike)</span>
+                            </label>
+                            <textarea name="comments" 
+                                      id="modal-comments" 
+                                      rows="3" 
+                                      class="w-full bg-slate-900/90 border border-gray-700 rounded-2xl p-3 text-xs sm:text-sm text-gray-100 placeholder-gray-500 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all" 
+                                      placeholder="Share your thoughts or recommendations to help us improve..."></textarea>
+                        </div>
+
+                        {{-- Section 4: Name (Optional) --}}
+                        <div>
+                            <label for="modal-client-name" class="block text-xs font-bold text-gray-200 uppercase tracking-wider mb-2">Name (Optional)</label>
+                            <input type="text" 
+                                   name="client_name" 
+                                   id="modal-client-name"
+                                   value="{{ $client->name ?? '' }}" 
+                                   class="w-full bg-slate-900/90 border border-gray-700 rounded-2xl px-4 py-2.5 text-xs sm:text-sm text-gray-100 placeholder-gray-500 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all" 
+                                   placeholder="Your name">
+                        </div>
+
+                        {{-- Submit Button --}}
+                        <div class="pt-2">
+                            <button type="submit" 
+                                    id="modal-btn-submit" 
+                                    class="w-full bg-gradient-to-r from-orange-600 via-amber-500 to-orange-500 hover:from-orange-500 hover:to-amber-400 text-white font-bold py-3.5 px-6 rounded-2xl shadow-lg shadow-orange-500/30 hover:shadow-orange-500/50 transition-all duration-300 transform hover:-translate-y-0.5 text-sm sm:text-base flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-paper-plane text-xs"></i>
+                                <span>Submit Feedback</span>
+                            </button>
+                        </div>
+
+                        <p class="text-center text-[11px] text-gray-500 italic">
+                            Thank you. Your feedback is instrumental in improving BCDA IT services.
+                        </p>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
-</div>
     
+    {{-- Application Logic & AJAX Timeline --}}
     <script>
-       // JavaScript to toggle mobile menu
         document.addEventListener('DOMContentLoaded', function () {
+            
+            // 1. Mobile navigation menu toggle
             const mobileMenuButton = document.getElementById('mobile-menu-button');
             const mobileMenu = document.getElementById('mobile-menu');
-
             if (mobileMenuButton && mobileMenu) {
                 mobileMenuButton.addEventListener('click', function () {
                     mobileMenu.classList.toggle('hidden');
                 });
             }
-        });
 
-        document.addEventListener("DOMContentLoaded", () => {
-        const elements = document.querySelectorAll('[data-scroll]');
-
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.remove('opacity-0', 'translate-y-5');
-                    entry.target.classList.add('opacity-100', 'translate-y-0');
-                    observer.unobserve(entry.target); // only animate once
-                }
-            });
-        }, {
-            threshold: 0.1
-        });
-
-        elements.forEach(el => observer.observe(el));
-        });
-
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function(e) {
-          e.preventDefault();
-          const target = document.querySelector(this.getAttribute('href'));
-          if (target) {
-            target.scrollIntoView({ behavior: 'smooth' });
-          }
-        });
-      });
-
-      // this is for modal request
-      document.addEventListener('DOMContentLoaded', function () {
-        const modalReportId = document.getElementById('modal-report-id');
-        const modalTransactedPersonName = document.getElementById('modal-transacted-person-name');
-        const modalTransactedPersonId = document.getElementById('modal-transacted-person-id');
-        const modalGeneratedCode = document.getElementById('modal-generated-code');
-
-        document.querySelectorAll('[data-modal-toggle="feedback-modal"]').forEach(el => {
-          el.addEventListener('click', function () {
-            const reportId = this.getAttribute('data-report-id');
-            const staffName = this.getAttribute('data-staff-name');
-            const transactedPersonId = this.getAttribute('data-transacted-person-id');
-            const generatedCode = this.getAttribute('data-generated-code');
-
-            if (modalReportId) {
-              modalReportId.value = reportId || '';
-            }
-            if (modalTransactedPersonName) {
-              modalTransactedPersonName.value = staffName || 'IT Staff';
-            }
-            if (modalTransactedPersonId) {
-              modalTransactedPersonId.value = transactedPersonId || '';
-            }
-            if (modalGeneratedCode) {
-              modalGeneratedCode.value = generatedCode || '';
-            }
-          });
-        });
-
-        // Dynamic requirement for comments based on Dislike rating ('0')
-        const modalAccuracyRadios = document.querySelectorAll('input[name="accuracy_of_service"]');
-        const modalResponseRadios = document.querySelectorAll('input[name="response_time"]');
-        const modalCommentsTextarea = document.getElementById('modal-comments');
-        const modalCommentsRequiredStar = document.getElementById('comments-required-star-modal');
-
-        function updateModalCommentRequirement() {
-            let hasDislike = false;
-            modalAccuracyRadios.forEach(radio => {
-                if (radio.checked && radio.value === '0') {
-                    hasDislike = true;
-                }
-            });
-            modalResponseRadios.forEach(radio => {
-                if (radio.checked && radio.value === '0') {
-                    hasDislike = true;
-                }
-            });
-
-            if (hasDislike) {
-                if (modalCommentsTextarea) modalCommentsTextarea.setAttribute('required', 'required');
-                if (modalCommentsRequiredStar) modalCommentsRequiredStar.classList.remove('hidden');
-            } else {
-                if (modalCommentsTextarea) modalCommentsTextarea.removeAttribute('required');
-                if (modalCommentsRequiredStar) modalCommentsRequiredStar.classList.add('hidden');
-            }
-        }
-
-        modalAccuracyRadios.forEach(radio => {
-            radio.addEventListener('change', updateModalCommentRequirement);
-        });
-        modalResponseRadios.forEach(radio => {
-            radio.addEventListener('change', updateModalCommentRequirement);
-        });
-
-        // Handle modal form submission with SweetAlert validation
-        const feedbackForm = document.getElementById('feedback-form');
-        if (feedbackForm) {
-            feedbackForm.addEventListener('submit', function(e) {
-                let errors = [];
-
-                let accuracySelected = false;
-                let accuracyVal = '';
-                modalAccuracyRadios.forEach(radio => {
-                    if (radio.checked) {
-                        accuracySelected = true;
-                        accuracyVal = radio.value;
-                    }
-                });
-                if (!accuracySelected) {
-                    errors.push("Degree of Competence & Accuracy of Service rating is required.");
-                }
-
-                let timeSelected = false;
-                let timeVal = '';
-                modalResponseRadios.forEach(radio => {
-                    if (radio.checked) {
-                        timeSelected = true;
-                        timeVal = radio.value;
-                    }
-                });
-                if (!timeSelected) {
-                    errors.push("Degree of Responsiveness/Timeliness rating is required.");
-                }
-
-                let hasDislike = (accuracyVal === '0' || timeVal === '0');
-                if (hasDislike && modalCommentsTextarea && !modalCommentsTextarea.value.trim()) {
-                    errors.push("Please provide a comment to help us improve our services.");
-                }
-
-                if (errors.length > 0) {
-                    e.preventDefault();
-                    let errorHtml = '<ul class="text-left list-disc list-inside space-y-1 text-sm font-medium text-red-600">';
-                    errors.forEach(err => {
-                        errorHtml += `<li>${err}</li>`;
-                    });
-                    errorHtml += '</ul>';
-
-                    Swal.fire({
-                        title: 'Form Submission Failed',
-                        html: errorHtml,
-                        icon: 'warning',
-                        confirmButtonText: 'OK',
-                        confirmButtonColor: '#2563eb'
-                    });
-                }
-            });
-        }
-    });
-
-
-    //  this is for the click function to add rows
-    // Add click event listener to each report div
-     document.querySelectorAll('[id^="report"]').forEach(reportDiv => {
-    reportDiv.addEventListener('click', function() {
-        const reportId = this.id.replace('report', '');
-
-        // Remove existing details if already open
-        const existingDetails = document.getElementById(`details${reportId}`);
-        if (existingDetails) {
-            existingDetails.remove();
-            return;
-        }
-
-        // Create placeholder row
-        const detailsRow = document.createElement('div');
-        detailsRow.id = `details${reportId}`;
-        detailsRow.className = 'flex items-start justify-between px-6 py-4 border-b bg-gray-50';
-        this.after(detailsRow);
-
-        // Build URL using Laravel route helper with placeholder
-        const url = "{{ route('report.loghistory', ':id') }}".replace(':id', reportId);
-
-        // Fetch JSON history
-        fetch(url)
-            .then(response => response.json())
-            .then(data => {
-                // Build timeline list items dynamically
-                let timelineItems = '';
-                data.forEach(item => {
-                    console.log(item);
-                    timelineItems += `
-                        <div class="flex items-start space-x-3 hover:bg-gray-50 p-2 rounded-lg transition-colors duration-200">
-                            <div class="mt-1 w-3 h-3 bg-blue-500 rounded-full shadow-md"></div>
-                            <div class="flex-1">
-                                <p class="text-sm text-gray-700">
-                                    <span class="font-medium">${item.perform_at || ''}</span>
-                                    <span class="mx-2 text-gray-400">|</span>
-                                    <span class="font-semibold ${item.action === 'responded' ? 'bg-orange-100 text-orange-600 px-2 py-1 rounded' : item.action === 'resolved' ? 'bg-green-100 text-green-600 px-2 py-1 rounded' : 'bg-blue-100 text-blue-600 px-2 py-1 rounded'}">${item.action}</span>                                                              <span class="text-gray-500">by</span>
-                                    <span class="font-bold text-gray-800">${item.perform_by}</span>
-                                    <hr class="my-2">
-                                </p>
-                            </div>
-                        </div>                    `;
-                });
-
-                // Render details card
-                detailsRow.innerHTML = `
-                    <div class="w-full bg-white rounded-lg shadow-sm p-6">
-                        <div class="flex justify-between items-center mb-4 border-b pb-3">
-                            <h3 class="font-bold text-lg text-gray-800">Log History</h3>
-                            <button class="text-gray-500 hover:text-gray-700 transition-colors duration-200">
-                                <i class="material-icons">close</i>
-                            </button>
-                        </div>
-                        <div class="grid grid-cols-1 md:grid-cols-1 gap-6">
-                            <div class="bg-white p-4 rounded-lg">
-                                <ul class="text-sm">
-                                    ${timelineItems}
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                `;
-
-                // Close button handler
-                detailsRow.querySelector('button').addEventListener('click', (e) => {
+            // 2. Click to copy ticket number
+            document.querySelectorAll('.copy-btn').forEach(btn => {
+                btn.addEventListener('click', function(e) {
                     e.stopPropagation();
-                    detailsRow.remove();
+                    const text = this.getAttribute('data-copy');
+                    if (navigator.clipboard) {
+                        navigator.clipboard.writeText(text).then(() => {
+                            const icon = this.querySelector('i');
+                            if (icon) {
+                                icon.className = 'fa-solid fa-check text-xs text-emerald-400';
+                                setTimeout(() => {
+                                    icon.className = 'fa-regular fa-copy text-xs';
+                                }, 2000);
+                            }
+                        });
+                    }
                 });
-            })
-            .catch(error => {
-                console.error('Error fetching report details:', error);
-                detailsRow.innerHTML = `
-                    <div class="w-full bg-white rounded-lg shadow-sm p-6">
-                        <p class="text-red-500">Error loading report details</p>
-                    </div>
-                `;
             });
-    });
-});
 
-         
+            // 3. Live search and filter functionality
+            const searchInput = document.getElementById('ticket-search-input');
+            const filterTabs = document.querySelectorAll('.filter-tab');
+            const ticketCards = document.querySelectorAll('.ticket-card');
+            const noResults = document.getElementById('no-search-results');
+            let currentFilter = 'all';
 
+            function filterTickets() {
+                const query = (searchInput ? searchInput.value : '').toLowerCase().trim();
+                let visibleCount = 0;
 
-     
+                ticketCards.forEach(card => {
+                    const status = card.getAttribute('data-ticket-status');
+                    const searchData = card.getAttribute('data-ticket-search');
+
+                    const matchesFilter = (currentFilter === 'all' || status === currentFilter);
+                    const matchesQuery = (!query || (searchData && searchData.includes(query)));
+
+                    if (matchesFilter && matchesQuery) {
+                        card.classList.remove('hidden');
+                        visibleCount++;
+                    } else {
+                        card.classList.add('hidden');
+                    }
+                });
+
+                if (noResults) {
+                    if (visibleCount === 0 && ticketCards.length > 0) {
+                        noResults.classList.remove('hidden');
+                    } else {
+                        noResults.classList.add('hidden');
+                    }
+                }
+            }
+
+            if (searchInput) {
+                searchInput.addEventListener('input', filterTickets);
+            }
+
+            filterTabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    filterTabs.forEach(t => {
+                        t.className = 'filter-tab px-4 py-2 rounded-xl transition-all duration-200 text-gray-400 hover:text-white';
+                    });
+                    this.className = 'filter-tab px-4 py-2 rounded-xl transition-all duration-200 text-white bg-orange-600 shadow-md shadow-orange-500/30';
+                    currentFilter = this.getAttribute('data-filter');
+                    filterTickets();
+                });
+            });
+
+            // 4. Modal Open & Data Populating
+            const feedbackModal = document.getElementById('feedback-modal');
+            const modalReportId = document.getElementById('modal-report-id');
+            const modalTransactedPersonName = document.getElementById('modal-transacted-person-name');
+            const modalTransactedPersonId = document.getElementById('modal-transacted-person-id');
+            const modalGeneratedCode = document.getElementById('modal-generated-code');
+
+            function openFeedbackModal(button) {
+                const reportId = button.getAttribute('data-report-id');
+                const staffName = button.getAttribute('data-staff-name');
+                const transactedPersonId = button.getAttribute('data-transacted-person-id');
+                const generatedCode = button.getAttribute('data-generated-code');
+
+                if (modalReportId) modalReportId.value = reportId || '';
+                if (modalTransactedPersonName) modalTransactedPersonName.value = staffName || 'IT Staff';
+                if (modalTransactedPersonId) modalTransactedPersonId.value = transactedPersonId || '';
+                if (modalGeneratedCode) modalGeneratedCode.value = generatedCode || '';
+
+                if (feedbackModal) {
+                    feedbackModal.classList.remove('hidden');
+                }
+            }
+
+            function closeFeedbackModal() {
+                if (feedbackModal) {
+                    feedbackModal.classList.add('hidden');
+                }
+            }
+
+            document.querySelectorAll('[data-modal-toggle="feedback-modal"]').forEach(el => {
+                el.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    if (this.getAttribute('data-report-id')) {
+                        openFeedbackModal(this);
+                    } else {
+                        closeFeedbackModal();
+                    }
+                });
+            });
+
+            // Close modal when clicking backdrop
+            if (feedbackModal) {
+                feedbackModal.addEventListener('click', function(e) {
+                    if (e.target === this) {
+                        closeFeedbackModal();
+                    }
+                });
+            }
+
+            // Close modal on Escape key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && feedbackModal && !feedbackModal.classList.contains('hidden')) {
+                    closeFeedbackModal();
+                }
+            });
+
+            // 5. Dynamic requirement for comments based on Dislike rating ('0')
+            const modalAccuracyRadios = document.querySelectorAll('input[name="accuracy_of_service"]');
+            const modalResponseRadios = document.querySelectorAll('input[name="response_time"]');
+            const modalCommentsTextarea = document.getElementById('modal-comments');
+            const modalCommentsRequiredStar = document.getElementById('comments-required-star-modal');
+
+            function updateModalCommentRequirement() {
+                let hasDislike = false;
+                modalAccuracyRadios.forEach(radio => {
+                    if (radio.checked && radio.value === '0') hasDislike = true;
+                });
+                modalResponseRadios.forEach(radio => {
+                    if (radio.checked && radio.value === '0') hasDislike = true;
+                });
+
+                if (hasDislike) {
+                    if (modalCommentsTextarea) modalCommentsTextarea.setAttribute('required', 'required');
+                    if (modalCommentsRequiredStar) modalCommentsRequiredStar.classList.remove('hidden');
+                } else {
+                    if (modalCommentsTextarea) modalCommentsTextarea.removeAttribute('required');
+                    if (modalCommentsRequiredStar) modalCommentsRequiredStar.classList.add('hidden');
+                }
+            }
+
+            modalAccuracyRadios.forEach(radio => radio.addEventListener('change', updateModalCommentRequirement));
+            modalResponseRadios.forEach(radio => radio.addEventListener('change', updateModalCommentRequirement));
+
+            // 6. Handle Feedback Form Submission with validation
+            const feedbackForm = document.getElementById('feedback-form');
+            if (feedbackForm) {
+                feedbackForm.addEventListener('submit', function(e) {
+                    let errors = [];
+
+                    let accuracySelected = false;
+                    let accuracyVal = '';
+                    modalAccuracyRadios.forEach(radio => {
+                        if (radio.checked) {
+                            accuracySelected = true;
+                            accuracyVal = radio.value;
+                        }
+                    });
+                    if (!accuracySelected) {
+                        errors.push("Degree of Competence & Accuracy rating is required.");
+                    }
+
+                    let timeSelected = false;
+                    let timeVal = '';
+                    modalResponseRadios.forEach(radio => {
+                        if (radio.checked) {
+                            timeSelected = true;
+                            timeVal = radio.value;
+                        }
+                    });
+                    if (!timeSelected) {
+                        errors.push("Degree of Responsiveness/Timeliness rating is required.");
+                    }
+
+                    let hasDislike = (accuracyVal === '0' || timeVal === '0');
+                    if (hasDislike && modalCommentsTextarea && !modalCommentsTextarea.value.trim()) {
+                        errors.push("Please provide a comment explaining how we can improve our service.");
+                    }
+
+                    if (errors.length > 0) {
+                        e.preventDefault();
+                        let errorHtml = '<ul class="text-left list-disc list-inside space-y-1.5 text-sm text-rose-400">';
+                        errors.forEach(err => {
+                            errorHtml += `<li>${err}</li>`;
+                        });
+                        errorHtml += '</ul>';
+
+                        Swal.fire({
+                            title: 'Rating Required',
+                            html: errorHtml,
+                            icon: 'warning',
+                            background: '#0d1025',
+                            color: '#f8fafc',
+                            confirmButtonText: 'Understood',
+                            confirmButtonColor: '#ea580c'
+                        });
+                    }
+                });
+            }
+
+            // 7. Toggle Activity Log History Accordion via AJAX
+            document.querySelectorAll('.toggle-history-btn').forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const reportId = this.getAttribute('data-report-id');
+                    const container = document.getElementById(`history-container-${reportId}`);
+                    const arrowIcon = this.querySelector('.arrow-icon');
+
+                    if (!container) return;
+
+                    // Toggle if already visible
+                    if (!container.classList.contains('hidden')) {
+                        container.classList.add('hidden');
+                        if (arrowIcon) arrowIcon.classList.remove('rotate-180');
+                        return;
+                    }
+
+                    // Open container & show loading state
+                    container.classList.remove('hidden');
+                    if (arrowIcon) arrowIcon.classList.add('rotate-180');
+                    container.innerHTML = `
+                        <div class="py-6 text-center text-orange-400">
+                            <i class="fa-solid fa-circle-notch fa-spin text-xl mb-2"></i>
+                            <p class="text-xs text-gray-400">Fetching activity history...</p>
+                        </div>
+                    `;
+
+                    // Fetch JSON log history
+                    const url = "{{ route('report.loghistory', ':id') }}".replace(':id', reportId);
+
+                    fetch(url)
+                        .then(response => {
+                            if (!response.ok) throw new Error('Network error');
+                            return response.json();
+                        })
+                        .then(data => {
+                            if (!data || data.length === 0) {
+                                container.innerHTML = `
+                                    <div class="p-4 rounded-2xl bg-slate-900/60 border border-gray-800 text-center">
+                                        <p class="text-xs text-gray-400">No activity logs recorded yet for this ticket.</p>
+                                    </div>
+                                `;
+                                return;
+                            }
+
+                            let timelineItems = '';
+                            data.forEach((item, index) => {
+                                const action = (item.action || '').toLowerCase();
+                                let actionBadge = 'bg-blue-500/20 text-blue-300 border-blue-500/40';
+                                let dotColor = 'bg-blue-400 ring-blue-500/30';
+                                let icon = 'fa-solid fa-clock-rotate-left';
+
+                                if (action === 'responded') {
+                                    actionBadge = 'bg-orange-500/20 text-orange-300 border-orange-500/40';
+                                    dotColor = 'bg-orange-400 ring-orange-500/30';
+                                    icon = 'fa-solid fa-headset';
+                                } else if (action === 'resolved') {
+                                    actionBadge = 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40';
+                                    dotColor = 'bg-emerald-400 ring-emerald-500/30';
+                                    icon = 'fa-solid fa-check';
+                                }
+
+                                timelineItems += `
+                                    <div class="flex items-start gap-3.5 relative pb-5 last:pb-0 group">
+                                        <div class="w-7 h-7 rounded-full ${dotColor} ring-4 flex items-center justify-center text-white text-[10px] shrink-0 z-10 shadow-md">
+                                            <i class="${icon}"></i>
+                                        </div>
+                                        <div class="flex-1 min-w-0 bg-slate-900/70 border border-gray-800 rounded-xl p-3 hover:border-gray-700 transition-colors">
+                                            <div class="flex flex-wrap items-center justify-between gap-2 mb-1">
+                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border ${actionBadge}">
+                                                    ${item.action}
+                                                </span>
+                                                <span class="text-[11px] text-gray-400 font-mono">${item.perform_at || ''}</span>
+                                            </div>
+                                            <p class="text-xs text-gray-300">
+                                                Performed by <strong class="text-white">${item.perform_by || 'IT Staff'}</strong>
+                                            </p>
+                                        </div>
+                                    </div>
+                                `;
+                            });
+
+                            container.innerHTML = `
+                                <div class="p-5 rounded-2xl bg-[#0c0f22]/90 border border-gray-800 space-y-4">
+                                    <div class="flex items-center justify-between pb-3 border-b border-gray-800">
+                                        <h4 class="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                                            <i class="fa-solid fa-timeline text-orange-400"></i>
+                                            <span>Ticket Resolution Audit Trail</span>
+                                        </h4>
+                                        <button type="button" class="close-history-btn text-xs text-gray-400 hover:text-white transition-colors" data-report-id="${reportId}">
+                                            <i class="fa-solid fa-xmark"></i> Close
+                                        </button>
+                                    </div>
+                                    <div class="space-y-1 relative pl-1">
+                                        {{-- Vertical Connector Line --}}
+                                        <div class="absolute left-4 top-3 bottom-3 w-0.5 bg-gray-800 -z-0"></div>
+                                        ${timelineItems}
+                                    </div>
+                                </div>
+                            `;
+
+                            // Close button inside dropdown
+                            container.querySelector('.close-history-btn').addEventListener('click', () => {
+                                container.classList.add('hidden');
+                                if (arrowIcon) arrowIcon.classList.remove('rotate-180');
+                            });
+                        })
+                        .catch(err => {
+                            console.error('Log history error:', err);
+                            container.innerHTML = `
+                                <div class="p-4 rounded-2xl bg-rose-950/40 border border-rose-500/30 text-rose-300 text-center text-xs">
+                                    <i class="fa-solid fa-triangle-exclamation mr-1.5"></i> Unable to load activity history at this time.
+                                </div>
+                            `;
+                        });
+                });
+            });
+
+        });
     </script>
 </body>
 </html>
