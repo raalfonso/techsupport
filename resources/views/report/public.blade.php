@@ -130,7 +130,7 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         const notificationSound = new Audio('{{ asset('sounds/387533__soundwarf__alert-short.wav') }}');
-        const alertSound = new Audio('{{ asset('sounds/merry_christmas.mp3') }}');
+        const alertSound = new Audio('{{ asset('sounds/jingle-bells-396.mp3') }}');
         notificationSound.loop = true;
         let isPlaying = false;
         
